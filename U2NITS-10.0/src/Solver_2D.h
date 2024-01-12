@@ -9,7 +9,7 @@
 #ifndef SOLVER_2D
 #define SOLVER_2D
 
-#include "./include/Eigen/Core"
+#include "./include/Eigen/Core" // 该函数库被U_2_F_lambda使用
 #include "./include/Eigen/Dense"
 class Edge_2D;
 class Element_T3;

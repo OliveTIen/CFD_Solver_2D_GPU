@@ -10,10 +10,34 @@ author: tgl
 UNITS项目`D:\tgl\Local\THUnits-Interface-UNITs\codes_UNITS_old\UNITs-v3.4-2021-12\UNITs_Solver`
 
 当前目标：3维欧拉求解器
+首先把FVM_2D的代码移植了过来，然后添加了git
+
+难点：Solver_2D::getEdgeFlux_wallNonViscous，位于Solver_2D
+Solver_2D::getEdgeFlux_farfield
+Solver_2D::cal_ruvp_farfield_new cpp第825行
+首先要理解Euler方程的数值边界条件处理。参见课堂笔记md文档
+但我看王乾的代码，我确实已经实现了，为什么圆柱绕流的结果不理想？原来是我input.json速度设置为0
+接下来是找标准算例验证自己程序的正确性。希望远场边界是正确的
+此外添加四边形网格，修改程序框架
+
+代办：
+1. 当务之急，输出残差曲线，查看收敛情况
+2. 将一些文件放进目录层级中。例如把输入文件的类放进input中
+3. 尝试课件的算例？？？可是它是非结构网格不可压，不知道是否需要另外写求解器
+
+问题：
+1. 原来的项目中，输入square_per时出现内存问题
 
 # 目录结构
 include - 外部库
 
 # 代码规范
 文件用UTF-8格式保存
+
+## 命名
 目录名称用小写+下划线
+文件名用驼峰命名法
+
+# 注意事项
+.h和.cpp分开是为了避免编译耗时太长
+多用git

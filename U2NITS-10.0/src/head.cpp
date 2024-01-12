@@ -136,7 +136,7 @@ std::vector<std::string> global::ls(std::string path) {
 	return files;
 }
 
-void global::createFolder(std::string foldername) {
+void global::createFolderIfDoesntExist(std::string foldername) {
 	std::string path = global::exePath;
 	std::vector<std::string> files = global::ls(path);
 	for (int i = 0; i < files.size(); i++) {
@@ -230,37 +230,17 @@ void global::useBackupConfig() {
 
 void cmd::printHeader() {
 	//
-	cout << R"(  ______            _    _     ______    ____      ____     )" << "\n";
-	cout << R"( |        |      | | \  / |   /         |    \    |    \    )" << "\n";
-	cout << R"( |_____   |      | |  \/  |  |          |     |   |     |   )" << "\n";
-	cout << R"( |         \    /  |      |  |          |-----    |-----    )" << "\n";
-	cout << R"( |          \__/   |      |   \______   |         |         )" << "\n";
-	cout << "------------------------------------------------------------\n";
-	cout << "Finite Volume Method Solver (version 0.0.0), created by"
-		<< " tgl\n"
-		<< "2023.8.18\n";
+	std::cout << R"(  _______________________________________________ )" << "\n";
+	std::cout << R"( |  _   _   ____    _   _   ___   _____   ____   |)" << "\n";//生成工具：https://tools.kalvinbg.cn/txt/ascii
+	std::cout << R"( | | | | | |___ \  | \ | | |_ _| |_   _| / ___|  |)" << "\n";
+	std::cout << R"( | | | | |   __) | |  \| |  | |    | |   \___ \  |)" << "\n";
+	std::cout << R"( | | |_| |  / __/  | |\  |  | |    | |    ___) | |)" << "\n";
+	std::cout << R"( |  \___/  |_____| |_| \_| |___|   |_|   |____/  |)" << "\n";
+	std::cout << R"( |_______________________________________________|)" << "\n";
+	cout << "Finite Volume Method Solver (version 10.0), created by"
+		<< " tgl\n";
 	cout << "------------------------------------------------------------\n";
 
-	////原本是彩色的，但在win7上不适配
-	//cout << "\033[33;5m";//闪烁
-	////cout << "yellow\n";
-	//cout << "\033[33;1m";//明黄色
-	//cout << R"(  ______            _    _     ______    ____      ____     )" << "\n";
-	//cout << R"( |        |      | | \  / |   /         |    \    |    \    )" << "\n";
-	//cout << R"( |_____   |      | |  \/  |  |          |     |   |     |   )" << "\n";
-	//cout << R"( |         \    /  |      |  |          |-----    |-----    )" << "\n";
-	//cout << R"( |          \__/   |      |   \______   |         |         )" << "\n";
-	//cout << "\033[35m";//紫色
-	//cout << "------------------------------------------------------------\n";
-	//cout << "\033[36m";//天蓝
-	//cout << "Finite Volume Method Solver (version 0.0.0), created by"
-	//	<< "\033[32m"//绿
-	//	<< " tgl\n"
-	//	<< "\033[36m"//天蓝
-	//	<< "2023.7.13\n";
-	//cout << "\033[35m";//暗紫
-	//cout << "------------------------------------------------------------\n";
-	//cout << "\033[0m";//RESET
 	
 }
 

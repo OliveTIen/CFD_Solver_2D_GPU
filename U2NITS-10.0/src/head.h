@@ -63,7 +63,7 @@ public:
 	//列举文件名称。path需加上反斜杠
 	static std::vector<std::string> ls(std::string path);
 	//创建文件夹。若已存在，则不创建。须在exePath初始化后使用
-	static void createFolder(std::string foldername);
+	static void createFolderIfDoesntExist(std::string foldername);
 	//strings转ints
 	static std::vector<int> Words2Ints(std::vector<std::string> words);
 	//数组转化为{}表示的形式

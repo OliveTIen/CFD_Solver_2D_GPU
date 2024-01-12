@@ -23,7 +23,7 @@ public:
 	
 	//文件操作系列
 	//创建文件夹。若已存在，则不创建。须在global::exePath初始化后使用
-	void createFolder(std::string foldername);
+	void createFolderIfDoesntExist(std::string foldername);
 };
 
 #endif

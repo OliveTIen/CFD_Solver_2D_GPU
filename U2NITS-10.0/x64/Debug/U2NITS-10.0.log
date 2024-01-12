@@ -1,1 +1,10 @@
-﻿  U2NITS-10.0.vcxproj -> D:\tgl\Local\HPC\U2NITS-10.0\x64\Debug\U2NITS-10.0.exe
+﻿  BoundaryManager_2D.cpp
+  Edge_2D.cpp
+  Element_2D.cpp
+  FVM.cpp
+  FVM_2D.cpp
+D:\tgl\Local\HPC\U2NITS-10.0\U2NITS-10.0\src\FVM_2D.cpp(246,19): warning C4101: “end_t”: 未引用的局部变量
+  Node_2D.cpp
+  Solver_2D.cpp
+  正在生成代码...
+  U2NITS-10.0.vcxproj -> D:\tgl\Local\HPC\U2NITS-10.0\x64\Debug\U2NITS-10.0.exe

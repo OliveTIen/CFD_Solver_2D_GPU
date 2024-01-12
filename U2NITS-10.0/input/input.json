@@ -1,4 +1,7 @@
 {
+    "project": {
+
+    },
     "basic": {
         "dimension": 2,
         "continue": 1
@@ -46,7 +49,7 @@
             "inf": {
 		"use ruvp": 1,
                 "rho": 1.0,
-                "u": 0.0,
+                "u": 1.0,
                 "v": 0.0,
                 "p": 1.0,
                 "Ma": 0.5,

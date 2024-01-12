@@ -6,7 +6,7 @@ FVM_2D::FVM_2D() {
 	pFVM2D = this;
 }
 
-void FVM_2D::exec() {
+void FVM_2D::run() {
 	//读网格，初始化初值，求解
 
 	//读取续算文件或者网格文件，初始化流场内部初值
@@ -242,9 +242,6 @@ void FVM_2D::solve_(std::string suffix_out, std::string suffix_info) {
 	const double T = GlobalPara::time::T;//总物理时间。用于控制是否终止计算
 	int nFiles = 0;//输出文件个数，用于显示
 	bool signal_pause = 0;//暂停信号，用于控制
-	////计时变量，用于计算求解时间(日期格式)
-	//time_t m_time;
-	//time(&m_time);
 	//计时变量，用于计算求解时间(基于CPU周期)
 	clock_t start_t, end_t;//位于求解器程序中，用于计算CPU时间
 	start_t = clock();
@@ -270,8 +267,6 @@ void FVM_2D::solve_(std::string suffix_out, std::string suffix_info) {
 			//求解时间
 			double time_used = (double)(clock() - start_t) / CLOCKS_PER_SEC;//
 			//求解时间
-			//time(&m_time2);
-			//double time_used = double(m_time2 - m_time);
 			std::cout << "\n";
 			std::cout << "\ttime used: " <<math.timeFormat((int)time_used)<<" ( " << (int)time_used << " s )\n";
 			std::cout << "\tsolution time: " << t << " s / " << T << " s\n";

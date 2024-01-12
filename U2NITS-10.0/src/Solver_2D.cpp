@@ -837,7 +837,7 @@ void Solver_2D::cal_ruvp_farfield_new(const double nx, const double ny, double* 
     //坐标变换
     const double rho_n = rho;
     const double u_n = u * nx + v * ny;//u cost + v sint
-    const double v_n = -u * ny + v * nx;//此处有修改。法线向外为正 - u-sint + v cost
+    const double v_n = -u * ny + v * nx;//此处有修改。法线向外为正 - u sint + v cost
     //const double v_n = u * ny - v * nx;
     const double p_n = p;
     const double rho_n_inf = rho_inf;

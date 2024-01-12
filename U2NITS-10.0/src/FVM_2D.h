@@ -32,7 +32,7 @@ public:
 public:
 	FVM_2D();
 	//主函数
-	void exec();
+	void run();
 	//调用gmesh生成inp
 	void generateMeshScript_gmsh(std::string suffix);
 	//读取output文件夹中的续算文件(pause_*.dat)(绝对路径)，初始化网格变量，更新t_solve和istep_solve

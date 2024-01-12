@@ -71,7 +71,7 @@ void FileManager::useDefaultInputPara_and_writeInputPara() {
 	output.AddMember("output_var:bool", output_var, allocator);
 	inputpara.AddMember("output", output, allocator);
 
-	createFolder("input");
+	createFolderIfDoesntExist("input");
 	writeInputPara(global::exePath + "input\\input.json");
 
 }
@@ -207,7 +207,7 @@ void FileManager::useJsonTreeToUpdateGlobalPara() {
 
 }
 
-void FileManager::createFolder(std::string foldername) {
+void FileManager::createFolderIfDoesntExist(std::string foldername) {
 	std::string path = global::exePath;
 	std::vector<std::string> files = global::ls(path);
 	for (int i = 0; i < files.size(); i++) {

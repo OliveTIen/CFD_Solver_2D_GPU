@@ -1,0 +1,69 @@
+{
+    "basic": {
+        "dimension": 2,
+        "continue": 1
+    },
+    "space": {
+        "space_1D": {
+            "nElement": 300,
+            "x1": 0.0,
+            "x2": 1.0
+        },
+        "space_2D": {}
+    },
+    "time": {
+        "CFL": 0.6,
+        "T": 20.0
+    },
+    "physicsModel": {
+        "gamma": 1.4,
+        "equation:1-Eluer,2-NS": 1
+    },
+    "boundaryCondition": {
+        "1D": {},
+        "2D": {
+            "option": {
+                
+            },
+            "inlet": {
+		"use ruvp": 1,
+                "rho": 1.0,
+                "u": 1.0,
+                "v": 1.0,
+                "p": 1.0,
+                "Ma": 0.9,
+                "AOA[degree]": 0.0
+            },
+            "outlet": {
+		"use ruvp": 1,
+                "rho": 1.0,
+                "u": 1.0,
+                "v": 1.0,
+                "p": 1.0,
+                "Ma": 0.1,
+                "AOA[degree]": 0.0
+            },
+            "inf": {
+		"use ruvp": 1,
+                "rho": 1.0,
+                "u": 0.0,
+                "v": 0.0,
+                "p": 1.0,
+                "Ma": 0.5,
+                "AOA[degree]": 0.0
+            }
+        }
+    },
+    "initialCondition":{
+        "type": 2
+    },
+    "output": {
+        "step_per_output": 50,
+        "output_var:bool": {
+            "rho": 1,
+            "u": 1,
+            "v": 1,
+            "p": 1
+        }
+    }
+}

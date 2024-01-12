@@ -1,0 +1,11 @@
+2024/01/12 21:28:32
+read input parameter from D:\tgl\Local\HPC\U2NITS-10.0\U2NITS-10.0\input\input.json
+PreProcessing
+Warning: Fail to read previous mesh(pause_*.dat)
+read mesh file
+InitialCondition:
+Uniform flow + isentropicVortex, ruvp of Uniform flow:{1.000000,0.000000,0.000000,1.000000}
+BoundaryCondition:
+inlet::ruvp	{1.000000,1.000000,1.000000,1.000000}
+outlet::ruvp	{1.000000,1.000000,1.000000,1.000000}
+inf::ruvp	{1.000000,0.000000,0.000000,1.000000}

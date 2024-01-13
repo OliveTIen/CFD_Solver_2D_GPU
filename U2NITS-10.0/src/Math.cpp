@@ -85,7 +85,7 @@ void Math_2D::U_2_F(const double* U, double* F, double gamma) {
 
 	//double ret2 = gamma * p / rho;
 	//if (ret2 < 0) {
-	//	global::writeLog("Error: gamma * p / rho < 0, at Edge\n");
+	//	GlobalStatic::writeLog("Error: gamma * p / rho < 0, at Edge\n");
 	//	std::cout << "Error: gamma * p / rho < 0, at Edge\n";
 	//	ret2 = 0.0;
 	//}

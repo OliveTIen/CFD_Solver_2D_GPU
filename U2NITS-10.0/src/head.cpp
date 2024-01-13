@@ -1,40 +1,20 @@
 #include "head.h"
+#include "global/Config.h"
+#include "output/LogWriter.h"
 using namespace std;
 
 
-//静态成员变量初始化，如果要用函数初始化，可以放在未命名namespace中，使其仅在当前文件可见。注意不要写成类的函数
-namespace {
-	
-}
-
-rapidjson::Document global::config = rapidjson::Document();
-std::string global::filename = "";
-//std::string global::lastfilename = "";
-std::string global::exePath = "";//exe所在路径，有斜杠(\\)
-int global::autosaveFileNum = 3;
-//int global::dimension = 1;
-//bool global::_continue = 1;//continue?[1-yes]
-//double global::x1 = 0;
-//double global::x2 = 1;
-//double global::CFL = 0.4;
-//double global::T = 0.01;//计算总时间
-//double global::gamma = 1.4;
+std::string GlobalStatic::filename = "";
+std::string GlobalStatic::exePath_withSlash = "";//exe所在路径，有斜杠(\\)
+int GlobalStatic::autosaveFileNum = 3;
+int GlobalStatic::flag_reconstruct = _REC_constant;
 
 
-//double global::ruvp_inlet[4];
-//double global::ruvp_outlet[4];//静态成员变量自动初始化为0
-//double global::ruvp_inf[4];//静态成员变量自动初始化为0
-//int global::nt = 100;
-//int global::nElement = 100;
-//int global::flag_equation = _EULER;
-int global::flag_reconstruct = _REC_constant;
-//int global::step_per_output = 50;//多少步输出一次流场（针对二维）
-//int global::flag_output = _OUT_u;
-//bool global::output_var_ruvp[4];
-
-void global::getFileName_UseUserInput() {
+void GlobalStatic::getFileName_UseUserInput() {
 	std::string lastf;
-	if (config.FindMember("lastfilename") != config.MemberEnd()) lastf = config["lastfilename"].GetString();//将config的值赋给lastf
+	if (Config::config.FindMember("lastfilename") != Config::config.MemberEnd()) {
+		lastf = Config::config["lastfilename"].GetString();//将config的值赋给lastf
+	}
 	if (filename.length() == 0) {
 
 
@@ -61,11 +41,10 @@ void global::getFileName_UseUserInput() {
 	else {
 		std::cout << "Filename:" << filename << std::endl;
 	}
-	//写配置文件，目的是更新last filename
-	global::writeConfig();
+
 }
 
-std::vector<std::string> global::splitString(std::string tLine) {
+std::vector<std::string> GlobalStatic::splitString(std::string tLine) {
 	tLine = tLine + ' ';//目的是防止最后一个单词没有被push_back进tWords
 	std::vector<std::string> tWords;
 	std::string tWord;
@@ -90,12 +69,12 @@ std::vector<std::string> global::splitString(std::string tLine) {
 	return tWords;
 }
 
-void global::iniExePath() {
-	exePath = getExePath(1);
+void GlobalStatic::iniExePath() {
+	exePath_withSlash = getExePath_withSlash(1);
 }
 
-std::string global::getExePath(int flag) {
-	if (exePath != "")return exePath;
+std::string GlobalStatic::getExePath_withSlash(int flag) {
+	if (exePath_withSlash != "")return exePath_withSlash;
 
 #ifdef _WIN32
 	//获取路径并返回字符串
@@ -103,9 +82,7 @@ std::string global::getExePath(int flag) {
 	char buffer[maxPathLength];
 	_getcwd(buffer, maxPathLength);
 	std::string str = buffer;
-	if (flag == 1) {
-		str += std::string("\\") ;
-	}
+	str += std::string("\\");
 	return str;
 
 
@@ -114,20 +91,18 @@ std::string global::getExePath(int flag) {
 	buffer = getcwd(NULL, 0);
 	std::string str = buffer;
 	free(buffer);
-	if (flag == 1) {
-		str += std::string("\\");
-	}
+	str += std::string("\\");
 	return str;
 #endif 
 }
 
-std::vector<std::string> global::ls(std::string path) {
+std::vector<std::string> GlobalStatic::ls(std::string path) {
 	path += "*";
 	_finddata64i32_t fileInfo;
 	std::vector<std::string> files;
 	intptr_t hFile = _findfirst(path.c_str(), &fileInfo);
 	if (hFile == -1) {
-		std::cout << "Error in global::ls()" << std::endl;
+		std::cout << "Error in GlobalStatic::ls()" << std::endl;
 		return files;
 	}
 	do {
@@ -136,9 +111,9 @@ std::vector<std::string> global::ls(std::string path) {
 	return files;
 }
 
-void global::createFolderIfDoesntExist(std::string foldername) {
-	std::string path = global::exePath;
-	std::vector<std::string> files = global::ls(path);
+void GlobalStatic::createFolderIfDoesntExist(std::string foldername) {
+	std::string path = GlobalStatic::exePath_withSlash;
+	std::vector<std::string> files = GlobalStatic::ls(path);
 	for (int i = 0; i < files.size(); i++) {
 		if (files[i] == foldername)return;//文件夹已经存在
 	}
@@ -146,182 +121,7 @@ void global::createFolderIfDoesntExist(std::string foldername) {
 	system(foldername.c_str());
 }
 
-std::vector<int> global::Words2Ints(std::vector<std::string> words) {
-	std::vector<int> ints;
-	for (int i = 0; i < words.size(); i++) {
-		ints.push_back(std::stoi(words[i]));
-	}
-	return ints;
-}
-
-void global::writeLog(std::string s, bool app) {
-	//须在filename初始化后使用，否则会生成".LOG"
-	ofstream f;
-	if(app)f.open(exePath + "output\\" + filename + ".LOG", ios::app);
-	else f.open(exePath + "output\\" + filename + ".LOG");
-	f << s;
-	f.close();
-
-}
-
-void global::writeLogAndCout(std::string str) {
-	writeLog(str, 1);
-	std::cout << str;
-}
-
-std::string global::currentDateTime() {
-	time_t nowtime;	time(&nowtime); tm p; localtime_s(&p, &nowtime); 
-	std::string str; char buf[6];
-	sprintf_s(buf, _countof(buf), "%04d", p.tm_year + 1900);	str += buf;	str += "/";
-	sprintf_s(buf, _countof(buf), "%02d", p.tm_mon + 1);	str += buf;	str += "/";
-	sprintf_s(buf, _countof(buf), "%02d", p.tm_mday);	str += buf;	str += " ";
-	sprintf_s(buf, _countof(buf), "%02d", p.tm_hour);	str += buf;	str += ":";
-	sprintf_s(buf, _countof(buf), "%02d", p.tm_min);	str += buf;	str += ":";
-	sprintf_s(buf, _countof(buf), "%02d", p.tm_sec);	str += buf;	
-	return str;
-}
-
-void global::writeConfig() {
-	//变量赋给config
-	config["lastfilename"].SetString(filename.c_str(), (rapidjson::SizeType)filename.size());//filename->"lastfilename"
-
-	//config写入json https://blog.csdn.net/yang_aq/article/details/116934216
-	rapidjson::StringBuffer buffer;
-	rapidjson::PrettyWriter<rapidjson::StringBuffer> prettyWriter(buffer);//PrettyWriter的大括号格式化了更好看
-	config.Accept(prettyWriter);
-	std::string content = buffer.GetString();
-	std::ofstream outfile(exePath + ".config\\config.json");
-	if (outfile.is_open()) {
-		outfile << content;
-		outfile.close();
-	}
-	else std::cout << "Error: fail to open config.txt, in void global::writeConfig()\n";
-
-}
-
-void global::readConfig() {
-	//读取配置文件
-	//读取json文件，赋给config
-	std::ifstream inf(exePath + ".config\\config.json");
-	if (inf.is_open()) {
-		std::string json_content((std::istreambuf_iterator<char>(inf)), std::istreambuf_iterator<char>()); //将文件的数据流转为std::string类型
-		inf.close(); 
-		config.Parse(json_content.c_str());
-	}
-	else {
-		//读取失败，则使用默认。注意，此时不必WriteConfig，因为Config要在获取文件名之后Write
-		writeLog("Prompt: fail to open config.json, use backup config. (global::readConfig)\n");
-		useBackupConfig();
-	}
-	//config的值 等后面需要的时候再读取
-	//
-
-}
-
-void global::useBackupConfig() {
-	//ch_json赋给config
-	//由于是新生成的文件，用[NULL]指示
-	const char* ch_json = R"({
-		"lastfilename":"[NULL]",
-		"version":"1.0"
-		})";
-	config.Parse(ch_json);
-}
-
-void cmd::printHeader() {
-	//
-	std::cout << R"(  _______________________________________________ )" << "\n";
-	std::cout << R"( |  _   _   ____    _   _   ___   _____   ____   |)" << "\n";//生成工具：https://tools.kalvinbg.cn/txt/ascii
-	std::cout << R"( | | | | | |___ \  | \ | | |_ _| |_   _| / ___|  |)" << "\n";
-	std::cout << R"( | | | | |   __) | |  \| |  | |    | |   \___ \  |)" << "\n";
-	std::cout << R"( | | |_| |  / __/  | |\  |  | |    | |    ___) | |)" << "\n";
-	std::cout << R"( |  \___/  |_____| |_| \_| |___|   |_|   |____/  |)" << "\n";
-	std::cout << R"( |_______________________________________________|)" << "\n";
-	cout << "Finite Volume Method Solver (version 10.0), created by"
-		<< " tgl\n";
-	cout << "------------------------------------------------------------\n";
-
-	
-}
-
-#ifdef _WIN32
-
-COORD cmd::getCursorPosition()                           //通过WindowsAPI函数获取光标的位置
-{
-	CONSOLE_SCREEN_BUFFER_INFO pBuffer;
-
-	GetConsoleScreenBufferInfo(GetStdHandle(STD_OUTPUT_HANDLE), &pBuffer);
-	//利用标准输出句柄获得光标坐标信息
-
-	return COORD{ pBuffer.dwCursorPosition.X, pBuffer.dwCursorPosition.Y };
-	//封装为表示坐标的COORD结构
-}
-
-COORD cmd::getScrnInfo()                                     //获取控制台窗口缓冲区大小
-{
-	HANDLE hStd = GetStdHandle(STD_OUTPUT_HANDLE);      //获得标准输出设备句柄
-	CONSOLE_SCREEN_BUFFER_INFO scBufInf;                //定义一个窗口缓冲区信息结构体
-
-	GetConsoleScreenBufferInfo(hStd, &scBufInf);        //获取窗口缓冲区信息
-
-	return scBufInf.dwSize;                             //返回窗口缓冲区大小
-}
-
-void cmd::setCursorPosition(COORD pstn) {
-	SetConsoleCursorPosition(GetStdHandle(STD_OUTPUT_HANDLE), pstn);
-	//通过标准输出句柄控制光标的位置
-}
-
-void cmd::clearDisplay(COORD firstPst, COORD lastPst)        //清除部分屏幕内容，从firstPst坐标到lastPst坐标之间的内容
-{
-	int yDValue(lastPst.Y - firstPst.Y);                    //记录首末位置纵坐标差值，控制迭代次数
-
-	COORD size(getScrnInfo());                              //记录目前控制台缓冲区大小
-
-	setCursorPosition(firstPst);                           //移动光标到首位置
-	for (int y(0); y <= yDValue; y++)           //一层循环控制清除行数
-	{
-		for (int x(firstPst.X); x <= size.X; x++)           //二层循环避免重复清除
-		{
-			std::cout << ' ';                       //输出一个空格来覆盖原内容，达到清除效果
-			int px;                                 //记录光标当前位置的横坐标
-			if (x != size.X)
-				px = x + 1;
-			else
-				px = 0;
-			if (y == yDValue && px == lastPst.X)      //与光标末位置作对比，达到末位置即退出循环
-				break;
-		}
-	}
-	setCursorPosition(firstPst);
-}
-
-void cmd::drawProgressBar(double percent) {
-	if (percent > 100)percent = 100;
-	if (percent < 0)percent = 0;
-	int nTotal = 45;//总长度，单位char
-	const int nBlock = int(nTotal * percent / 100.0);//块个数
-	for (int i = 0; i < nBlock; i++) {
-		std::cout << "█";
-	}
-	for (int i = 0; i < nTotal - nBlock; i++) {
-		std::cout << " ";
-	}
-	std::cout << "| " << percent << "%";
-}
-
-#elif defined __linux__
 
 
-COORD cmd::getCursorPosition() { return COORD(); }
-//获取控制台窗口缓冲区大小
-COORD cmd::getScrnInfo() { return COORD(); }
-//设置控制台光标位置
-void cmd::setCursorPosition(COORD pstn) {}
-//清除p1, p2之间的控制台内容，并将光标定位于p1
-void cmd::clearDisplay(COORD p1, COORD p2) {}
-//绘制进度条。0<=percent<=100
-void cmd::drawProgressBar(int percent) {}
 
 
-#endif

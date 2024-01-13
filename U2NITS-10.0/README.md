@@ -5,6 +5,25 @@ author: tgl
 ---
 
 # 日志
+## 代办
+1. 当务之急，输出残差曲线，查看收敛情况 ResidualCalculator中继续
+2. 将一些文件放进目录层级中。例如把输入文件的类放进input中
+3. 尝试课件的算例？？？可是它是非结构网格不可压，不知道是否需要另外写求解器
+## 问题
+1. 原来的项目中，输入square_per时出现内存问题
+
+2024-01-14
+新增toml格式文件读取（以前还自己造了个轮子，看来白造了），放在Include中
+> 转换工具 https://tooltt.com/json2toml/
+发现书籍：重构:改善现有代码的设计
+不到万不得已不需要重构。或者先把最常用的重构了，一次重构一点
+统计代码行数的技巧：在src目录下，右键git bash here，然后输入
+```
+find . -name "*.cpp" -or -name "*.h" | grep -v "include"  | xargs wc -l
+```
+> 参考资料：https://blog.csdn.net/jimojianghu/article/details/129792250
+
+2024-01-13
 之前创建了一些项目，可是时间太长，重新阅读很费劲。
 于是仿照UNITS目录结构创建了本项目，方便后面的移植
 UNITS项目`D:\tgl\Local\THUnits-Interface-UNITs\codes_UNITS_old\UNITs-v3.4-2021-12\UNITs_Solver`
@@ -20,13 +39,6 @@ Solver_2D::cal_ruvp_farfield_new cpp第825行
 接下来是找标准算例验证自己程序的正确性。希望远场边界是正确的
 此外添加四边形网格，修改程序框架
 
-代办：
-1. 当务之急，输出残差曲线，查看收敛情况
-2. 将一些文件放进目录层级中。例如把输入文件的类放进input中
-3. 尝试课件的算例？？？可是它是非结构网格不可压，不知道是否需要另外写求解器
-
-问题：
-1. 原来的项目中，输入square_per时出现内存问题
 
 # 目录结构
 include - 外部库

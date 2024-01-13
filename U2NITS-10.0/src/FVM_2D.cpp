@@ -1,4 +1,9 @@
 #include "FVM_2D.h"
+#include "output/ConsolePrinter.h"
+#include "output/ResidualCalculator.h"
+#include "output/LogWriter.h"
+#include "global/StringProcessor.h"
+#include "global/SystemInfo.h"
 
 FVM_2D* FVM_2D::pFVM2D = nullptr;
 
@@ -12,16 +17,17 @@ void FVM_2D::run() {
 	//读取续算文件或者网格文件，初始化流场内部初值
 	std::cout << "\nPreProcessing..." << std::endl;
 	//std::cout << "\033[36m" << "\nPreProcessing..." << std::endl << "\033[0m";
-	global::writeLog("PreProcessing\n", 1);
+	LogWriter::writeLog("PreProcessing\n", 1);
+	//LogWriter logWritter();
 	if (GlobalPara::basic::_continue) {
 		//读取续算文件
 		int ret = readContinueFile();
 		//读取网格文件，设置内部初值
 		if (ret == -1) {
-			global::writeLogAndCout("Warning: Fail to read previous mesh(pause_*.dat)\n");
+			LogWriter::writeLogAndCout("Warning: Fail to read previous mesh(pause_*.dat)\n");
 			int ret2 = readMeshFile(".inp");
 			if (ret2 == -1) {
-				global::writeLogAndCout("Program will exit.\n");
+				LogWriter::writeLogAndCout("Program will exit.\n");
 				return;
 			}
 			setInitialCondition();
@@ -30,7 +36,7 @@ void FVM_2D::run() {
 	else {
 		int ret2 = readMeshFile(".inp");
 		if (ret2 == -1) {
-			global::writeLogAndCout("Program will exit.\n");
+			LogWriter::writeLogAndCout("Program will exit.\n");
 			return;
 		}
 		setInitialCondition();
@@ -57,7 +63,7 @@ void FVM_2D::run() {
 void FVM_2D::generateMeshScript_gmsh(std::string suffix) {
 	//std::string str = "gmsh 2D.geo -2 -order 1 -format inp";
 	std::string m = "gmsh";
-	std::string op_name = " ./input/" + global::filename + ".geo";//option_name
+	std::string op_name = " ./input/" + GlobalStatic::filename + ".geo";//option_name
 	std::string op_dimension = " -2";
 	std::string op_elementOrder = " -order 1";
 	std::string op_outputformat = " -format " + suffix;
@@ -66,11 +72,11 @@ void FVM_2D::generateMeshScript_gmsh(std::string suffix) {
 }
 
 int FVM_2D::readMeshFile(std::string suffix) {
-	global::writeLogAndCout("read mesh file\n");
-	std::string dir = global::getExePath(1) + "input\\";
-	std::ifstream infile(dir + global::filename + suffix);
+	LogWriter::writeLogAndCout("read mesh file\n");
+	std::string dir = GlobalStatic::getExePath_withSlash(1) + "input\\";
+	std::ifstream infile(dir + GlobalStatic::filename + suffix);
 	if (!infile) {
-		global::writeLogAndCout("Warning: fail to read mesh(*.inp). (FVM_2D::readMeshFile) \n");
+		LogWriter::writeLogAndCout("Warning: fail to read mesh(*.inp). (FVM_2D::readMeshFile) \n");
 		return -1;
 	}
 	int state = 0;//1-Node, 2-Element
@@ -92,7 +98,7 @@ int FVM_2D::readMeshFile(std::string suffix) {
 		infile.getline(buffer, bufferLength);
 		if (infile.eof())break;
 		tLine = buffer;
-		tWords = global::splitString(tLine);
+		tWords = GlobalStatic::splitString(tLine);
 		if (tWords.size() == 0)continue;//对于空行，强迫进入下一次循环，防止读取tWords[0]出现内存错误
 		else {
 			if (tWords[0] == "*NODE")state = 1;
@@ -182,8 +188,8 @@ void FVM_2D::setInitialCondition() {
 			//if(elements[ie].ID==173)system()
 		}
 		std::string str;
-		str += "InitialCondition:\nUniform flow, ruvp\t" + global::DoubleArray_2_String(inf::ruvp, 4) + "\n";
-		global::writeLogAndCout(str);
+		str += "InitialCondition:\nUniform flow, ruvp\t" + StringProcessor::DoubleArray_2_String(inf::ruvp, 4) + "\n";
+		LogWriter::writeLogAndCout(str);
 	}
 		break;
 
@@ -193,8 +199,8 @@ void FVM_2D::setInitialCondition() {
 
 		using namespace GlobalPara::boundaryCondition::_2D;
 		std::string str;
-		str += "InitialCondition:\nUniform flow + isentropicVortex, ruvp of Uniform flow:" + global::DoubleArray_2_String(inf::ruvp, 4) + "\n";
-		global::writeLogAndCout(str);
+		str += "InitialCondition:\nUniform flow + isentropicVortex, ruvp of Uniform flow:" + StringProcessor::DoubleArray_2_String(inf::ruvp, 4) + "\n";
+		LogWriter::writeLogAndCout(str);
 		isentropicVortex_2(5, 5, 5, inf::ruvp);
 		//for (int ie = 0; ie < elements.size(); ie++) {
 		//	//均匀流+等熵涡 Isentropic vortex
@@ -226,11 +232,11 @@ void FVM_2D::logBoundaryCondition() {
 	//日志记录边界参数
 	std::string str;
 	str += "BoundaryCondition:\n";
-	str += "inlet::ruvp\t" + global::DoubleArray_2_String(GlobalPara::boundaryCondition::_2D::inlet::ruvp, 4)
-		+ "\noutlet::ruvp\t" + global::DoubleArray_2_String(GlobalPara::boundaryCondition::_2D::outlet::ruvp, 4) 
-		+ "\ninf::ruvp\t" + global::DoubleArray_2_String(GlobalPara::boundaryCondition::_2D::inf::ruvp, 4) 
+	str += "inlet::ruvp\t" + StringProcessor::DoubleArray_2_String(GlobalPara::boundaryCondition::_2D::inlet::ruvp, 4)
+		+ "\noutlet::ruvp\t" + StringProcessor::DoubleArray_2_String(GlobalPara::boundaryCondition::_2D::outlet::ruvp, 4)
+		+ "\ninf::ruvp\t" + StringProcessor::DoubleArray_2_String(GlobalPara::boundaryCondition::_2D::inf::ruvp, 4)
 		+ "\n";
-	global::writeLog(str);
+	LogWriter::writeLog(str);
 }
 
 void FVM_2D::solve_(std::string suffix_out, std::string suffix_info) {
@@ -243,14 +249,14 @@ void FVM_2D::solve_(std::string suffix_out, std::string suffix_info) {
 	int nFiles = 0;//输出文件个数，用于显示
 	bool signal_pause = 0;//暂停信号，用于控制
 	//计时变量，用于计算求解时间(基于CPU周期)
-	clock_t start_t, end_t;//位于求解器程序中，用于计算CPU时间
+	clock_t start_t;//位于求解器程序中，用于计算CPU时间
 	start_t = clock();
 	//等熵涡误差计算文件头
-	if (GlobalPara::initialCondition::type == 2)header_isentropicVortex();
+	if (GlobalPara::initialCondition::type == 2)writeFileHeader_isentropicVortex();
 	//绘制进度条
-	COORD p1;
-	p1 = cmd::getCursorPosition();
-	std::cout << "Progress:";	cmd::drawProgressBar(int(t / T)); 
+	ConsolePrinter consolePrinter;
+	consolePrinter.restoreCursorPosition();
+	std::cout << "Progress:";	ConsolePrinter::drawProgressBar(int(t / T));
 	for (int istep = istep_solve; istep < 1e6 && t < T; istep++) {
 		elements_old = elements;
 		//计算时间
@@ -262,8 +268,8 @@ void FVM_2D::solve_(std::string suffix_out, std::string suffix_info) {
 
 		//进度条
 		if (istep % 10 == 1) {
-			cmd::clearDisplay(p1, cmd::getCursorPosition());
-			std::cout << "Progress:";	cmd::drawProgressBar(int(t / T * 100 + 2));//+x是为了防止停在99%
+			consolePrinter.EraseToLastCursorPosition();
+			std::cout << "Progress:";	ConsolePrinter::drawProgressBar(int(t / T * 100 + 2));//+x是为了防止停在99%
 			//求解时间
 			double time_used = (double)(clock() - start_t) / CLOCKS_PER_SEC;//
 			//求解时间
@@ -279,25 +285,25 @@ void FVM_2D::solve_(std::string suffix_out, std::string suffix_info) {
 			std::cout << "\nWarning: \"NaN\" detected, look into LOG for details. Computation stopped.\n";
 			char szBuffer[20];
 			sprintf_s(szBuffer, _countof(szBuffer), "%04d", istep);
-			writeContinueFile(global::getExePath(1) + "output\\nan_" + global::filename + "[" + szBuffer + "].dat", t, istep);
+			writeContinueFile(GlobalStatic::getExePath_withSlash(1) + "output\\nan_" + GlobalStatic::filename + "[" + szBuffer + "].dat", t, istep);
 			break;
 		}
 		//输出结果
 		if (istep % GlobalPara::output::step_per_output == 1) {
-			//.dat
+			//.dat 流场显示文件 tecplot格式
 			char szBuffer[20];
 			sprintf_s(szBuffer, _countof(szBuffer), "%04d", istep);//若istep小于4位数，则补0
-			writeTecplotFile(global::getExePath(1) + "output\\" + global::filename + "[" + szBuffer + "].dat", t);
+			writeTecplotFile(GlobalStatic::getExePath_withSlash(1) + "output\\" + GlobalStatic::filename + "[" + szBuffer + "].dat", t);
 			nFiles++;
-			//.autosave
+			//.autosave 自动保存文件 续算文件
 			updateAutoSaveFile(t, istep);
-			//等熵涡的误差文件
+			//等熵涡的误差文件 
 			if (GlobalPara::initialCondition::type == 2) {
 				//求解时间
 				//end_t = clock();
 				double time_used = (double)(clock() - start_t) / CLOCKS_PER_SEC;
 				//输出误差文件
-				cal_error_isentropicVortex(0, 0, 10, 10, 5, t, istep, time_used, GlobalPara::boundaryCondition::_2D::inf::ruvp);
+				ResidualCalculator::cal_error_isentropicVortex(0, 0, 10, 10, 5, t, istep, time_used, GlobalPara::boundaryCondition::_2D::inf::ruvp);
 			}
 		}
 		//按esc终止计算
@@ -306,7 +312,7 @@ void FVM_2D::solve_(std::string suffix_out, std::string suffix_info) {
 			if (ch == 27) {
 				char szBuffer[20];
 				sprintf_s(szBuffer, _countof(szBuffer), "%04d", istep);
-				writeContinueFile(global::getExePath(1) + "output\\pause_" + global::filename + "[" + szBuffer + "].dat",t,istep);
+				writeContinueFile(GlobalStatic::getExePath_withSlash(1) + "output\\pause_" + GlobalStatic::filename + "[" + szBuffer + "].dat",t,istep);
 				std::cout << "[ESC]: Computation Interrupted\n";
 				break;
 			}
@@ -315,14 +321,14 @@ void FVM_2D::solve_(std::string suffix_out, std::string suffix_info) {
 		if (t >= T) {
 			char szBuffer[20];
 			sprintf_s(szBuffer, _countof(szBuffer), "%04d", istep);
-			writeContinueFile(global::getExePath(1) + "output\\pause_" + global::filename + "[" + szBuffer + "].dat", t, istep);
+			writeContinueFile(GlobalStatic::getExePath_withSlash(1) + "output\\pause_" + GlobalStatic::filename + "[" + szBuffer + "].dat", t, istep);
 			std::cout << "Computation finished\n";
 			break;
 		}
 		else if (isStable(elements_old)) {
 			char szBuffer[20];
 			sprintf_s(szBuffer, _countof(szBuffer), "%04d", istep);
-			writeContinueFile(global::getExePath(1) + "output\\pause_" + global::filename + "[" + szBuffer + "].dat", t, istep);
+			writeContinueFile(GlobalStatic::getExePath_withSlash(1) + "output\\pause_" + GlobalStatic::filename + "[" + szBuffer + "].dat", t, istep);
 			std::cout << "Computation finished as the field is already stable\n";
 			break;
 		}
@@ -436,8 +442,8 @@ void FVM_2D::writeContinueFile(std::string f_name, double t, int istep) {
 }
 
 int FVM_2D::readContinueFile() {
-	std::string m_path = global::getExePath(1) + "output\\";
-	std::vector<std::string> files = global::ls(m_path);//files为字符串向量，存储了路径下所有文件名
+	std::string m_path = GlobalStatic::getExePath_withSlash(1) + "output\\";
+	std::vector<std::string> files = GlobalStatic::ls(m_path);//files为字符串向量，存储了路径下所有文件名
 	int index_maxNstep = -1;
 	//搜寻是否有pause_filename[xxx].dat文件，若有，则找xxx最大的
 	int maxNstep = 0;
@@ -445,7 +451,7 @@ int FVM_2D::readContinueFile() {
 	std::string tmp_str;
 	for (int i = 0; i < files.size(); i++) {
 		//搜寻以pause_filename开头的文件名
-		std::string str_match = "pause_" + global::filename;
+		std::string str_match = "pause_" + GlobalStatic::filename;
 		if (files[i].substr(0, int(str_match.size())) == str_match) {
 			//剔除"pause_filename["
 			int pre_length = int(str_match.size() + 1);//"pause_filename["的长度
@@ -491,7 +497,7 @@ int FVM_2D::readContinueFile() {
 		infile.getline(buffer, bufferLength);
 		if (infile.eof())loop=0;
 		tLine = buffer;
-		tWords = global::splitString(tLine);
+		tWords = GlobalStatic::splitString(tLine);
 		if (nNullRow >= 10)loop = 0;
 		if (tWords.size() == 0) {
 			nNullRow++;
@@ -545,7 +551,7 @@ int FVM_2D::readContinueFile() {
 			else {//若是数字 1.edges_of_all_sets的初始化
 				//引用最后一个BoundarySet
 				std::vector<int>& edges_of_current_set = edges_of_all_sets[edges_of_all_sets.size() - 1];
-				std::vector<int> intVector = global::Words2Ints(tWords);
+				std::vector<int> intVector = StringProcessor::Words2Ints(tWords);
 				boundaryManager.attachToVector(edges_of_current_set, intVector);
 			}
 		}
@@ -568,9 +574,9 @@ int FVM_2D::readContinueFile() {
 
 void FVM_2D::updateAutoSaveFile(double t, int istep) {
 	//最多保存global::autosaveFileNum个autosave文件，再多则覆写之前的
-	writeContinueFile(global::getExePath(1) + "output\\autosave" + std::to_string(iCurrentAutosaveFile) + "_" + global::filename + ".dat", t, istep);
+	writeContinueFile(GlobalStatic::getExePath_withSlash(1) + "output\\autosave" + std::to_string(iCurrentAutosaveFile) + "_" + GlobalStatic::filename + ".dat", t, istep);
 	iCurrentAutosaveFile++;
-	if (iCurrentAutosaveFile >= global::autosaveFileNum)iCurrentAutosaveFile = 0;
+	if (iCurrentAutosaveFile >= GlobalStatic::autosaveFileNum)iCurrentAutosaveFile = 0;
 }
 
 void FVM_2D::writeBinaryFile(std::string f_name) {
@@ -718,76 +724,10 @@ void FVM_2D::isentropicVortex_2(double xc, double yc, double chi, const double* 
 	//auto fun_WA = [](const double* xy) {
 }
 
-void FVM_2D::cal_error_isentropicVortex(double xmin, double ymin, double xmax, double ymax, double chi, const double t_current, const int istep, const double cpu_time, const double* ruvp0) {
-	//ruvp0：均匀流参数
-	const double gamma = Constant::gamma;
-	const double PI = Constant::PI;
-	double xc = 0.5 * (xmin + xmax);
-	double yc = 0.5 * (ymin + ymax);
-	double error_norm1 = 0;//误差对体积的加权平均
-	double error_norm2 = 0;//误差平方对体积的加权平均，然后开根号
-	double error_max = 0;//误差的最大值
-	double sumvol = 0;
 
-	//定义lambda表达式
-	//周期平移函数。若x超出[y1,y2]范围，将x平移至[y1,y2]中
-	auto move_period = [](double x, double y1, double y2)->double {
-		//保证y1<y2，否则swap
-		if (y1 > y2) {
-			double tmp = y1;
-			y1 = y2;
-			y2 = tmp;
-		}
-		else if (y1 == y2)return y1;//若[y1,y2]长度为0，则返回y1。这样避免除以0的情况
-		double dy = y2 - y1;
-		double xbar = x - y1;//平移至以y1为原点的坐标系
-		double a = xbar / dy;
-		xbar -= dy * floor(a);
-		return xbar + y1;
-	};
-
-	//每个单元，计算其与精确解的误差
-	for (int ie = 0; ie < elements.size(); ie++) {
-		
-		Element_T3& e = elements[ie];
-		//变换坐标系。变换到初始时刻的位置。越界情况用move_period修正
-		double x = move_period(e.x - t_current * ruvp0[1], xmin, xmax);
-		double y = move_period(e.y - t_current * ruvp0[2], ymin, ymax);
-		//以xc,yc为中心，坐标变换
-		double xbar = x - xc;
-		double ybar = y = yc;
-		//计算rho的精确解
-		double r2 = xbar * xbar + ybar * ybar;
-		double dT = -(gamma - 1.) * chi * chi / (8. * gamma * PI * PI) * exp(1. - r2);
-		double rho_exact = pow(ruvp0[3] + dT, 1. / (gamma - 1.));
-		//rho的数值解
-		double rho = e.U[0];
-		//误差
-		double error = abs(rho - rho_exact);
-		double error2 = error * error;
-		double vol = e.calArea(this);
-		error_norm1 += error * vol;//1-范数误差
-		error_norm2 += error2 * vol;//2-范数误差
-		error_max = max(error_max, error);
-		sumvol += vol;
-	}
-	error_norm1 /= sumvol;//  err_bar = sum(err_i * vol_i)/sum(vol_i) = sum(err_i * weight_i) 误差对体积的加权平均 
-	error_norm2 = sqrt(error_norm2 / sumvol);//sqrt( sum(err_i^2 * vol_i)/sum(vol_i) ) = sqrt( sum(err_i^2 * weight_i) ) 误差平方的加权平均，然后开根号
-	
-	//写入文件
-	std::ofstream outfile(global::exePath + "output\\" + "error_等熵涡_" + global::filename + ".txt", std::ios::app);//追加模式
-	outfile
-		<< istep << "\t"
-		<< cpu_time << "\t"
-		<< error_norm1 << "\t"
-		<< error_norm2 << "\t"
-		<< error_max << "\n";
-	outfile.close();
-}
-
-void FVM_2D::header_isentropicVortex() {
-	std::ofstream outfile(global::exePath + "output\\" + "error_等熵涡_" + global::filename + ".txt", std::ios::app);//追加模式
-	outfile << global::currentDateTime() << "\n";
+void FVM_2D::writeFileHeader_isentropicVortex() {
+	std::ofstream outfile(GlobalStatic::exePath_withSlash + "output\\" + "error_isentropicVortex_" + GlobalStatic::filename + ".txt", std::ios::app);//追加模式
+	outfile << SystemInfo::getCurrentDateTime() << "\n";
 	outfile
 		<< "istep" << "\t"
 		<< "cpu_time[s]" << "\t"
@@ -822,7 +762,7 @@ bool FVM_2D::isNan() {
 				"Warning: \"NaN\" detected in element (x=" + std::to_string(x) + ", y=" + std::to_string(y) 
 				+ ", U[0,1,2,3]=" + std::to_string(elements[ie].U[0]) + ", " + std::to_string(elements[ie].U[1])
 				+ ", " + std::to_string(elements[ie].U[2]) + ", " + std::to_string(elements[ie].U[3]) + "\n";
-			global::writeLog(str, 1);
+			LogWriter::writeLog(str, 1);
 			//break;
 		}
 	}

@@ -28,6 +28,9 @@
     <Filter Include="src\include\rapidjson">
       <UniqueIdentifier>{0b3a33e6-4f29-46d4-87ea-67e0ee05b739}</UniqueIdentifier>
     </Filter>
+    <Filter Include="src\global">
+      <UniqueIdentifier>{67b8fe61-ae4b-4c78-bc45-e39b906d045b}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="src\main.cpp">
@@ -42,7 +45,7 @@
     <ClCompile Include="src\Element_2D.cpp">
       <Filter>src</Filter>
     </ClCompile>
-    <ClCompile Include="src\FileManager.cpp">
+    <ClCompile Include="src\JsonFileManager.cpp">
       <Filter>src</Filter>
     </ClCompile>
     <ClCompile Include="src\FVM.cpp">
@@ -51,7 +54,7 @@
     <ClCompile Include="src\FVM_2D.cpp">
       <Filter>src</Filter>
     </ClCompile>
-    <ClCompile Include="src\globalPara.cpp">
+    <ClCompile Include="src\GlobalPara.cpp">
       <Filter>src</Filter>
     </ClCompile>
     <ClCompile Include="src\head.cpp">
@@ -65,6 +68,25 @@
     </ClCompile>
     <ClCompile Include="src\Solver_2D.cpp">
       <Filter>src</Filter>
+    </ClCompile>
+    <ClCompile Include="src\output\ConsolePrinter.cpp">
+      <Filter>src\output</Filter>
+    </ClCompile>
+    <ClCompile Include="src\output\ResidualCalculator.cpp">
+      <Filter>src\output</Filter>
+    </ClCompile>
+    <ClCompile Include="src\output\LogWriter.cpp">
+      <Filter>src\output</Filter>
+    </ClCompile>
+    <ClCompile Include="src\global\FilePathManager.cpp">
+      <Filter>src\global</Filter>
+    </ClCompile>
+    <ClCompile Include="src\global\StringProcessor.cpp" />
+    <ClCompile Include="src\global\SystemInfo.cpp">
+      <Filter>src\global</Filter>
+    </ClCompile>
+    <ClCompile Include="src\global\Config.cpp">
+      <Filter>src\global</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -80,7 +102,7 @@
     <ClInclude Include="src\Element_2D.h">
       <Filter>src</Filter>
     </ClInclude>
-    <ClInclude Include="src\FileManager.h">
+    <ClInclude Include="src\JsonFileManager.h">
       <Filter>src</Filter>
     </ClInclude>
     <ClInclude Include="src\FVM.h">
@@ -89,7 +111,7 @@
     <ClInclude Include="src\FVM_2D.h">
       <Filter>src</Filter>
     </ClInclude>
-    <ClInclude Include="src\globalPara.h">
+    <ClInclude Include="src\GlobalPara.h">
       <Filter>src</Filter>
     </ClInclude>
     <ClInclude Include="src\head.h">
@@ -106,6 +128,27 @@
     </ClInclude>
     <ClInclude Include="src\Solver_2D.h">
       <Filter>src</Filter>
+    </ClInclude>
+    <ClInclude Include="src\output\ConsolePrinter.h">
+      <Filter>src\output</Filter>
+    </ClInclude>
+    <ClInclude Include="src\output\ResidualCalculator.h">
+      <Filter>src\output</Filter>
+    </ClInclude>
+    <ClInclude Include="src\output\LogWriter.h">
+      <Filter>src\output</Filter>
+    </ClInclude>
+    <ClInclude Include="src\global\FilePathManager.h">
+      <Filter>src\global</Filter>
+    </ClInclude>
+    <ClInclude Include="src\global\StringProcessor.h">
+      <Filter>src\global</Filter>
+    </ClInclude>
+    <ClInclude Include="src\global\SystemInfo.h">
+      <Filter>src\global</Filter>
+    </ClInclude>
+    <ClInclude Include="src\global\Config.h">
+      <Filter>src\global</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

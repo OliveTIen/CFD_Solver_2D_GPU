@@ -1,4 +1,5 @@
 #include "FVM_2D.h"
+#include "output/LogWriter.h"
 
 void BoundaryManager_2D::iniBoundarySetPEdges_in_readMeshFile(FVM_2D* f, std::vector<VirtualEdge_2D>& vBoundaryEdges) {
 	//函数目的：初始化vBoundarySets的每个set的pEdges
@@ -36,7 +37,7 @@ void BoundaryManager_2D::iniBoundarySetPEdges_in_readContinueFile(FVM_2D* f, std
 
 	//检查前提条件
 	if (f->pEdgeTable.size() == 0) {
-		global::writeLogAndCout("Error: uninitialized pEdgeTable. (BoundaryManager_2D::iniBoundarySetPEdges)\n");
+		LogWriter::writeLogAndCout("Error: uninitialized pEdgeTable. (BoundaryManager_2D::iniBoundarySetPEdges)\n");
 		return;
 	}
 	//初始化vBoundarySets的每个set的pEdges，存储各edge的指针
@@ -99,7 +100,7 @@ int BoundaryManager_2D::iniBoundaryEdgeSetID_and_iniBoundaryType(FVM_2D* f) {
 	//检查f->edges是否已初始化
 	if (f->edges.size() == 0) {
 		std::string str = "Warning: f->edges.size() == 0, in \"BoundaryManager_2D::iniEdgeBoundaryCondition(FVM_2D* f)\"\n";
-		global::writeLog(str, 1);
+		LogWriter::writeLog(str, 1);
 		std::cout<< str;
 		return -1;
 	}
@@ -107,7 +108,7 @@ int BoundaryManager_2D::iniBoundaryEdgeSetID_and_iniBoundaryType(FVM_2D* f) {
 	//打标签
 	for (int is = 0; is < vBoundarySets.size(); is++) {
 		//边界名称转边界类型
-		int bType;//边界类型
+		int bType = -1;//边界类型
 		const std::string bName = vBoundarySets[is].name;//边界名称
 		if (bName == "wall" || bName == "obstacle") {
 			if (GlobalPara::physicsModel::equation == _EQ_euler)bType = _BC_wall_nonViscous;
@@ -178,7 +179,7 @@ int BoundaryManager_2D::iniBoundaryEdgeSetID_and_iniBoundaryType(FVM_2D* f) {
 		//不满足则报错
 		if (!check_2) {
 			std::string str = "Error: invalid periodic boundary, for not meeting translation conditions. (BoundaryManager_2D::iniBoundaryEdge_SetType)\n";
-			global::writeLogAndCout(str);
+			LogWriter::writeLogAndCout(str);
 			return -1;
 		}
 	}
@@ -261,7 +262,7 @@ void BoundaryManager_2D::setBoundaryElementU(int tag) {
 
 VirtualBoundarySet_2D* BoundaryManager_2D::getBoundarySetByID(const int setID) {
 	if (setID <= 0 || setID > vBoundarySets.size()) {//setID范围应从1开始，最大为vBoundarySets的size
-		global::writeLogAndCout("Error: setID out of range. (getBoundarySetByID)\n");
+		LogWriter::writeLogAndCout("Error: setID out of range. (getBoundarySetByID)\n");
 		return nullptr;
 	}
 	return &(vBoundarySets[setID - 1]);
@@ -282,13 +283,13 @@ VirtualBoundarySet_2D* BoundaryManager_2D::getPairByID_periodicBoundary(const in
 		}
 		//若找到配对的ID，则返回指针，否则报错
 		if (setID_to_find == -1) {
-			global::writeLogAndCout("Error: pair not found. (getPairByID_periodicBoundary)\n");
+			LogWriter::writeLogAndCout("Error: pair not found. (getPairByID_periodicBoundary)\n");
 			return nullptr;
 		}
 		else return getBoundarySetByID(setID_to_find);
 	}
 	else {
-		global::writeLogAndCout("Error: not periodic type. (getPairByID_periodicBoundary)\n");
+		LogWriter::writeLogAndCout("Error: not periodic type. (getPairByID_periodicBoundary)\n");
 		return nullptr;
 	}
 }
@@ -302,7 +303,7 @@ Element_T3* BoundaryManager_2D::get_pElement_R_periodic(Edge_2D* pEdge_0) {
 	//获取pEdge在pBoundary_0的pEdges中的序号(从0开始的指标)
 	int index_0 = pBoundary_0->get_pEdge_index(pEdge_0);
 	if (index_0 == -1) {
-		global::writeLogAndCout("Error: edge not found. (BoundaryManager_2D::get_pElement_R_periodic)\n");
+		LogWriter::writeLogAndCout("Error: edge not found. (BoundaryManager_2D::get_pElement_R_periodic)\n");
 		return nullptr;
 	}
 	//计算得到它在pBoundary_1的序号
@@ -322,7 +323,7 @@ Edge_2D* BoundaryManager_2D::get_pairEdge_periodic(Edge_2D* pEdge_0) {
 	//获取pEdge在pBoundary_0的pEdges中的序号(从0开始的指标)
 	int index_0 = pBoundary_0->get_pEdge_index(pEdge_0);
 	if (index_0 == -1) {
-		global::writeLogAndCout("Error: edge not found. (BoundaryManager_2D::get_pElement_R_periodic)\n");
+		LogWriter::writeLogAndCout("Error: edge not found. (BoundaryManager_2D::get_pElement_R_periodic)\n");
 		return nullptr;
 	}
 	//计算得到它在pBoundary_1的序号

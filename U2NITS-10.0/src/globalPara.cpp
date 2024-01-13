@@ -1,4 +1,4 @@
-#include "globalPara.h"
+#include "GlobalPara.h"
 #include "SignDefine.h"
 
 namespace Constant {

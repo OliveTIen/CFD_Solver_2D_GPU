@@ -85,10 +85,8 @@ public:
 	//等熵涡 Isentropic vortex
 	void isentropicVortex(double x, double y, double xc, double yc, double chi, double& deltau, double& deltav, double& deltaT);
 	void isentropicVortex_2(double xc, double yc, double chi, const double* ruvp0);
-	//计算等熵涡与精确解误差并写文件。ruvp0表示均匀流参数
-	void cal_error_isentropicVortex(double xmin, double ymin, double xmax, double ymax, double chi, const double t, const int istep, const double cpu_time, const double* ruvp0);
 	//等熵涡误差文件头
-	void header_isentropicVortex();
+	void writeFileHeader_isentropicVortex();
 };
 
 #endif

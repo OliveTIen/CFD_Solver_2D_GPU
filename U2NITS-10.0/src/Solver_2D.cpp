@@ -133,14 +133,14 @@ void Solver_2D::calFlux_current() {
         for (int j = 0; j < 4; j++) {
             f->elements[ie].Flux[j] = 0;//单元数值通量Flux清零，为后面加减做准备
             f->elements[ie].deltaeig = 0;//每一轮deltaeig清零
-            if (global::flag_reconstruct == _REC_linear)f->elements[ie].updateSlope_Barth(f);//线性重构，即更新单元分布函数
+            if (GlobalStatic::flag_reconstruct == _REC_linear)f->elements[ie].updateSlope_Barth(f);//线性重构，即更新单元分布函数
         }
     }
 
     //每条边计算黎曼通量，然后根据方向分别加减给两侧单元的Flux。所有边遍历后，所有单元的Flux也就计算出来了
     for (int iedge = 0; iedge < f->edges.size(); iedge++) {
         ////计算每条边的黎曼通量
-        double flux[4];
+        double flux[4]{};
 
         {
             FVM_2D* f = FVM_2D::pFVM2D;
@@ -467,7 +467,7 @@ void Solver_2D::LLF_test(const double* UL, const double* UR, const double nx, co
 //    for (int ie = 0; ie < f->elements.size(); ie++) {
 //        for (int j = 0; j < 4; j++) {
 //            f->elements[ie].Flux[j] = 0;//单元数值通量Flux清零，为后面加减做准备
-//            if (global::flag_reconstruct == _REC_linear)f->elements[ie].updateSlope_Barth(f);//线性重构，即更新单元分布函数
+//            if (GlobalStatic::flag_reconstruct == _REC_linear)f->elements[ie].updateSlope_Barth(f);//线性重构，即更新单元分布函数
 //        }
 //    }
 //
@@ -751,8 +751,8 @@ void Solver_2D::LLF_test(const double* UL, const double* UR, const double nx, co
 //    //debug
 //    for (int ie = 0; ie < f->edges.size(); ie++) {
 //        if (f->edges[ie].ID == 5374) {
-//            std::string str = global::DoubleArray_2_String(f->edges[ie].pElement_L->U, 4) + "\n";
-//            global::writeLogAndCout(str);
+//            std::string str = GlobalStatic::DoubleArray_2_String(f->edges[ie].pElement_L->U, 4) + "\n";
+//            GlobalStatic::writeLogAndCout(str);
 //        }
 //    }
 //

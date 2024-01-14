@@ -11,16 +11,13 @@ namespace Constant {
 }
 
 namespace GlobalPara {
-	namespace flag {
-		//int equation = 1;
-		int reconstruct = _REC_constant;
-	}
 
 
 
 	namespace basic {
 		int dimension = 2;
 		bool _continue = 1;
+		std::string filename = "default_project";
 	}
 	namespace space {
 		namespace _1D {
@@ -28,10 +25,12 @@ namespace GlobalPara {
 			double x1 = 0.0;
 			double x2 = 1.0;
 		}
+		int flag_reconstruct = _REC_constant;
 	}
 	namespace time {
 		double CFL = 0.6;
 		double T = 0.01;
+		double residual = 1e-7;
 	}
 	namespace physicsModel {
 		int equation = 1;//"equation:1-Eluer,2-NS": 1
@@ -64,6 +63,7 @@ namespace GlobalPara {
 	namespace output {
 		int step_per_output = 50;
 		bool output_var_ruvp[4] = { 1,1,1,1 };
+		int autosaveFileNum = 3;
 	}
 }
 

@@ -22,7 +22,7 @@ void FVM::run() {
 	Config::readConfig();
 	// 用户输入项目名称。必须在global::readConfig()之后，因为用到了lastFileName
 	GlobalStatic::getFileName_UseUserInput();
-	Config::writeConfig(GlobalStatic::filename);
+	Config::writeConfig(GlobalPara::basic::filename);
 	// 生成日志文件。须在filename初始化后使用
 	LogWriter::writeLog(SystemInfo::getCurrentDateTime() + "\n", 0);
 	// 读取初始参数，初始化GlobalPara
@@ -38,5 +38,5 @@ void FVM::run() {
 		fvm2d.run();
 	}
 	// 收尾工作，写一些上次保存的配置。当前多余，但以后不一定多余
-	Config::writeConfig(GlobalStatic::filename);
+	Config::writeConfig(GlobalPara::basic::filename);
 }

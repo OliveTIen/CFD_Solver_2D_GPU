@@ -1,6 +1,7 @@
 #ifndef GLOBALPARA_H
 #define GLOBALPARA_H
 #include <cmath>
+#include <string>
 
 
 namespace Constant {
@@ -14,16 +15,12 @@ namespace Constant {
 
 
 namespace GlobalPara {
-	//
-	namespace flag {
-		//extern int equation;
-		extern int reconstruct;
-	}
 
 	//文件类
 	namespace basic {
 		extern int dimension;
 		extern bool _continue;
+		extern std::string filename;
 	}
 	namespace space {
 		namespace _1D {
@@ -31,10 +28,12 @@ namespace GlobalPara {
 			extern double x1;
 			extern double x2;
 		}
+		extern int flag_reconstruct;// 重构
 	}
 	namespace time {
 		extern double CFL;
 		extern double T;
+		extern double residual;// 残差限制
 	}
 	namespace physicsModel {
 		extern int equation;//"equation:1-Eluer,2-NS": 1
@@ -73,6 +72,7 @@ namespace GlobalPara {
 	namespace output {
 		extern int step_per_output;
 		extern bool output_var_ruvp[4];
+		extern int autosaveFileNum;
 	}
 }
 

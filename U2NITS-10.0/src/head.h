@@ -43,10 +43,8 @@ typedef struct _COORD {
 
 class GlobalStatic {
 public:
-	static std::string filename;
+	//static std::string filename;
 	static std::string exePath_withSlash;//有斜杠。一开始已经初始化，放心使用
-	static int autosaveFileNum;
-	static int flag_reconstruct;//重构 暂时留着，因为不知道如何归类
 
 	//接受用户输入
 	static void getFileName_UseUserInput();

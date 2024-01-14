@@ -133,7 +133,7 @@ void Solver_2D::calFlux_current() {
         for (int j = 0; j < 4; j++) {
             f->elements[ie].Flux[j] = 0;//单元数值通量Flux清零，为后面加减做准备
             f->elements[ie].deltaeig = 0;//每一轮deltaeig清零
-            if (GlobalStatic::flag_reconstruct == _REC_linear)f->elements[ie].updateSlope_Barth(f);//线性重构，即更新单元分布函数
+            if (GlobalPara::space::flag_reconstruct == _REC_linear)f->elements[ie].updateSlope_Barth(f);//线性重构，即更新单元分布函数
         }
     }
 

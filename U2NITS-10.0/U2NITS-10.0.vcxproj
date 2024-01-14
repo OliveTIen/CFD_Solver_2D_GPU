@@ -18,6 +18,7 @@
     <ClCompile Include="src\global\FilePathManager.cpp" />
     <ClCompile Include="src\global\StringProcessor.cpp" />
     <ClCompile Include="src\global\SystemInfo.cpp" />
+    <ClCompile Include="src\input\TomlFileManager.cpp" />
     <ClCompile Include="src\JsonFileManager.cpp" />
     <ClCompile Include="src\FVM.cpp" />
     <ClCompile Include="src\FVM_2D.cpp" />
@@ -29,6 +30,7 @@
     <ClCompile Include="src\output\ConsolePrinter.cpp" />
     <ClCompile Include="src\output\LogWriter.cpp" />
     <ClCompile Include="src\output\ResidualCalculator.cpp" />
+    <ClCompile Include="src\output\ResidualWriter.cpp" />
     <ClCompile Include="src\Solver_2D.cpp" />
   </ItemGroup>
   <ItemGroup>
@@ -42,6 +44,7 @@
     <ClInclude Include="src\global\FilePathManager.h" />
     <ClInclude Include="src\global\StringProcessor.h" />
     <ClInclude Include="src\global\SystemInfo.h" />
+    <ClInclude Include="src\input\TomlFileManager.h" />
     <ClInclude Include="src\JsonFileManager.h" />
     <ClInclude Include="src\FVM.h" />
     <ClInclude Include="src\FVM_2D.h" />
@@ -52,6 +55,7 @@
     <ClInclude Include="src\output\ConsolePrinter.h" />
     <ClInclude Include="src\output\LogWriter.h" />
     <ClInclude Include="src\output\ResidualCalculator.h" />
+    <ClInclude Include="src\output\ResidualWriter.h" />
     <ClInclude Include="src\SignDefine.h" />
     <ClInclude Include="src\Solver_2D.h" />
   </ItemGroup>

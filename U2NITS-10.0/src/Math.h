@@ -8,23 +8,43 @@
 //慎用inline，会报错LNK20219
 class Math {
 public:
-	static double dot(std::vector<double> a, std::vector<double> b);//向量点积
-	static inline double dot2(std::vector<double> a, std::vector<double> b){ return a[0] * b[0] + a[1] * b[1]; }
-	//向量数乘，修改了向量
+	//---标量计算
+	static inline double abs_(double x) { return (x > 0) ? x : (-x); }
+	static inline double max_(double x, double y) { return (x > y) ? x : y; }
+
+	//---数组修改
+	//将数组v中每个元素变为原来s倍
 	static void vector_times_scalar(double* v, const int vlength, const double s);
+
+	//---向量计算
+	//向量点积
+	static double dot(std::vector<double> a, std::vector<double> b);
+	//向量点积 仅适用于长度为2
+	static inline double dot2(std::vector<double> a, std::vector<double> b){ return a[0] * b[0] + a[1] * b[1]; }
+	//向量1-范数，元素绝对值之和
+	static inline double vector_norm_1(std::vector<double>v);
+	static inline double vector_norm_2(std::vector<double>v);
+	static inline double vector_norm_infinity(std::vector<double>v);
+
+
+	//---时间计算
 	//秒数dt转换为h:m:s
 	static std::string timeFormat(int dt);
-	//double RK1
+	
+	//---常微分方程
 	static inline double RK1(double Yold, double h, double f) { return Yold + h * f; }
 	static double RK3(double x, double y, double h, double (*f)(double,double));
+
 	//计算当地声速
-	static inline double get_c(double gamma, double p, double rho) { return sqrt(gamma * p / rho); };
-	static inline double get_c_by_T(double gamma, double R, double T) { return sqrt(gamma * R * T); };
-	static inline double get_c_by_Ma(double T0, double gamma, double R, double Ma){ 
+	static inline double calculate_soundSpeed(double gamma, double p, double rho) { return sqrt(gamma * p / rho); };
+	static inline double calculate_soundSpeed_by_temperature(double gamma, double R, double T) { return sqrt(gamma * R * T); };
+	static inline double calculate_soundSpeed_by_Mach(double T0, double gamma, double R, double Ma){ 
 		//常数: T0, gamma, R		//用户变量: Ma
 		double T = T0 / (1.0 + (gamma - 1.0) / 2.0 * Ma * Ma);//来流温度
-		return sqrt(gamma * R * T);//来流声速
+		return calculate_soundSpeed_by_temperature(gamma, R, T);
 	}
+
+	
 };
 
 class Math_2D:public Math {

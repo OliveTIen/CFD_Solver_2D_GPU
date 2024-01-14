@@ -210,13 +210,13 @@ void Element_T3::restructor_in_updateSlope_Barth(FVM_2D* f) {
 
 void Element_T3::get_U(double xpoint, double ypoint, double* _U) {
     //常量重构
-    if (GlobalPara::flag::reconstruct == _REC_constant) {
+    if (GlobalPara::space::flag_reconstruct == _REC_constant) {
         for (int j = 0; j < 4; j++) {
             _U[j] = U[j];//此处U为成员变量
         }
     }
     //线性重构
-    else if (GlobalPara::flag::reconstruct == _REC_linear) {
+    else if (GlobalPara::space::flag_reconstruct == _REC_linear) {
         for (int j = 0; j < 4; j++) {
             _U[j] = U[j] + Ux[j] * (xpoint - x) + Uy[j] * (ypoint - y);
         }

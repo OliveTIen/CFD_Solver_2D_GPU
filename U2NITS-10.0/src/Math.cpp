@@ -13,6 +13,30 @@ double Math::dot(std::vector<double> a, std::vector<double> b) {
     return ret;
 }
 
+inline double Math::vector_norm_1(std::vector<double> v) {
+	double sum = 0.0;
+	for (int i = 0; i < v.size(); i++) {
+		sum += abs_(v[i]);
+	}
+	return sum;
+}
+
+inline double Math::vector_norm_2(std::vector<double> v) {
+	double sum = 0.0;
+	for (int i = 0; i < v.size(); i++) {
+		sum += v[i] * v[i];
+	}
+	return sqrt(sum);
+}
+
+inline double Math::vector_norm_infinity(std::vector<double> v) {
+	double m_max = 0.0;
+	for (int i = 0; i < v.size(); i++) {
+		m_max = max_(m_max, abs_(v[i]));
+	}
+	return m_max;
+}
+
 void Math::vector_times_scalar(double* v, const int vlength, const double s) {
 	for (int i = 0; i < vlength; i++) {
 		v[i] *= s;

@@ -63,7 +63,7 @@ void FVM_2D::run() {
 void FVM_2D::generateMeshScript_gmsh(std::string suffix) {
 	//std::string str = "gmsh 2D.geo -2 -order 1 -format inp";
 	std::string m = "gmsh";
-	std::string op_name = " ./input/" + GlobalStatic::filename + ".geo";//option_name
+	std::string op_name = " ./input/" + GlobalPara::basic::filename + ".geo";//option_name
 	std::string op_dimension = " -2";
 	std::string op_elementOrder = " -order 1";
 	std::string op_outputformat = " -format " + suffix;
@@ -74,7 +74,7 @@ void FVM_2D::generateMeshScript_gmsh(std::string suffix) {
 int FVM_2D::readMeshFile(std::string suffix) {
 	LogWriter::writeLogAndCout("read mesh file\n");
 	std::string dir = GlobalStatic::getExePath_withSlash(1) + "input\\";
-	std::ifstream infile(dir + GlobalStatic::filename + suffix);
+	std::ifstream infile(dir + GlobalPara::basic::filename + suffix);
 	if (!infile) {
 		LogWriter::writeLogAndCout("Warning: fail to read mesh(*.inp). (FVM_2D::readMeshFile) \n");
 		return -1;
@@ -285,7 +285,7 @@ void FVM_2D::solve_(std::string suffix_out, std::string suffix_info) {
 			std::cout << "\nWarning: \"NaN\" detected, look into LOG for details. Computation stopped.\n";
 			char szBuffer[20];
 			sprintf_s(szBuffer, _countof(szBuffer), "%04d", istep);
-			writeContinueFile(GlobalStatic::getExePath_withSlash(1) + "output\\nan_" + GlobalStatic::filename + "[" + szBuffer + "].dat", t, istep);
+			writeContinueFile(GlobalStatic::getExePath_withSlash(1) + "output\\nan_" + GlobalPara::basic::filename + "[" + szBuffer + "].dat", t, istep);
 			break;
 		}
 		//输出结果
@@ -293,10 +293,14 @@ void FVM_2D::solve_(std::string suffix_out, std::string suffix_info) {
 			//.dat 流场显示文件 tecplot格式
 			char szBuffer[20];
 			sprintf_s(szBuffer, _countof(szBuffer), "%04d", istep);//若istep小于4位数，则补0
-			writeTecplotFile(GlobalStatic::getExePath_withSlash(1) + "output\\" + GlobalStatic::filename + "[" + szBuffer + "].dat", t);
+			writeTecplotFile(GlobalStatic::getExePath_withSlash(1) + "output\\" + GlobalPara::basic::filename + "[" + szBuffer + "].dat", t);
 			nFiles++;
 			//.autosave 自动保存文件 续算文件
 			updateAutoSaveFile(t, istep);
+
+			//残差
+			std::vector<double> residual_vector = ResidualCalculator::cal_residual(elements_old, elements, ResidualCalculator::NORM_INF);
+
 			//等熵涡的误差文件 
 			if (GlobalPara::initialCondition::type == 2) {
 				//求解时间
@@ -312,7 +316,7 @@ void FVM_2D::solve_(std::string suffix_out, std::string suffix_info) {
 			if (ch == 27) {
 				char szBuffer[20];
 				sprintf_s(szBuffer, _countof(szBuffer), "%04d", istep);
-				writeContinueFile(GlobalStatic::getExePath_withSlash(1) + "output\\pause_" + GlobalStatic::filename + "[" + szBuffer + "].dat",t,istep);
+				writeContinueFile(GlobalStatic::getExePath_withSlash(1) + "output\\pause_" + GlobalPara::basic::filename + "[" + szBuffer + "].dat",t,istep);
 				std::cout << "[ESC]: Computation Interrupted\n";
 				break;
 			}
@@ -321,14 +325,14 @@ void FVM_2D::solve_(std::string suffix_out, std::string suffix_info) {
 		if (t >= T) {
 			char szBuffer[20];
 			sprintf_s(szBuffer, _countof(szBuffer), "%04d", istep);
-			writeContinueFile(GlobalStatic::getExePath_withSlash(1) + "output\\pause_" + GlobalStatic::filename + "[" + szBuffer + "].dat", t, istep);
+			writeContinueFile(GlobalStatic::getExePath_withSlash(1) + "output\\pause_" + GlobalPara::basic::filename + "[" + szBuffer + "].dat", t, istep);
 			std::cout << "Computation finished\n";
 			break;
 		}
 		else if (isStable(elements_old)) {
 			char szBuffer[20];
 			sprintf_s(szBuffer, _countof(szBuffer), "%04d", istep);
-			writeContinueFile(GlobalStatic::getExePath_withSlash(1) + "output\\pause_" + GlobalStatic::filename + "[" + szBuffer + "].dat", t, istep);
+			writeContinueFile(GlobalStatic::getExePath_withSlash(1) + "output\\pause_" + GlobalPara::basic::filename + "[" + szBuffer + "].dat", t, istep);
 			std::cout << "Computation finished as the field is already stable\n";
 			break;
 		}
@@ -451,7 +455,7 @@ int FVM_2D::readContinueFile() {
 	std::string tmp_str;
 	for (int i = 0; i < files.size(); i++) {
 		//搜寻以pause_filename开头的文件名
-		std::string str_match = "pause_" + GlobalStatic::filename;
+		std::string str_match = "pause_" + GlobalPara::basic::filename;
 		if (files[i].substr(0, int(str_match.size())) == str_match) {
 			//剔除"pause_filename["
 			int pre_length = int(str_match.size() + 1);//"pause_filename["的长度
@@ -574,9 +578,9 @@ int FVM_2D::readContinueFile() {
 
 void FVM_2D::updateAutoSaveFile(double t, int istep) {
 	//最多保存global::autosaveFileNum个autosave文件，再多则覆写之前的
-	writeContinueFile(GlobalStatic::getExePath_withSlash(1) + "output\\autosave" + std::to_string(iCurrentAutosaveFile) + "_" + GlobalStatic::filename + ".dat", t, istep);
+	writeContinueFile(GlobalStatic::getExePath_withSlash(1) + "output\\autosave" + std::to_string(iCurrentAutosaveFile) + "_" + GlobalPara::basic::filename + ".dat", t, istep);
 	iCurrentAutosaveFile++;
-	if (iCurrentAutosaveFile >= GlobalStatic::autosaveFileNum)iCurrentAutosaveFile = 0;
+	if (iCurrentAutosaveFile >= GlobalPara::output::autosaveFileNum)iCurrentAutosaveFile = 0;
 }
 
 void FVM_2D::writeBinaryFile(std::string f_name) {
@@ -726,7 +730,7 @@ void FVM_2D::isentropicVortex_2(double xc, double yc, double chi, const double* 
 
 
 void FVM_2D::writeFileHeader_isentropicVortex() {
-	std::ofstream outfile(GlobalStatic::exePath_withSlash + "output\\" + "error_isentropicVortex_" + GlobalStatic::filename + ".txt", std::ios::app);//追加模式
+	std::ofstream outfile(GlobalStatic::exePath_withSlash + "output\\" + "error_isentropicVortex_" + GlobalPara::basic::filename + ".txt", std::ios::app);//追加模式
 	outfile << SystemInfo::getCurrentDateTime() << "\n";
 	outfile
 		<< "istep" << "\t"

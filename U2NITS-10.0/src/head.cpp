@@ -4,10 +4,8 @@
 using namespace std;
 
 
-std::string GlobalStatic::filename = "";
+//std::string GlobalStatic::filename = "";
 std::string GlobalStatic::exePath_withSlash = "";//exe所在路径，有斜杠(\\)
-int GlobalStatic::autosaveFileNum = 3;
-int GlobalStatic::flag_reconstruct = _REC_constant;
 
 
 void GlobalStatic::getFileName_UseUserInput() {
@@ -15,7 +13,7 @@ void GlobalStatic::getFileName_UseUserInput() {
 	if (Config::config.FindMember("lastfilename") != Config::config.MemberEnd()) {
 		lastf = Config::config["lastfilename"].GetString();//将config的值赋给lastf
 	}
-	if (filename.length() == 0) {
+	if (1) {
 
 
 		//输入提示
@@ -36,10 +34,7 @@ void GlobalStatic::getFileName_UseUserInput() {
 		}
 		str.pop_back();//删除最后的\n
 		if (str == "")str = lastf;
-		filename = str;
-	}
-	else {
-		std::cout << "Filename:" << filename << std::endl;
+		GlobalPara::basic::filename = str;
 	}
 
 }

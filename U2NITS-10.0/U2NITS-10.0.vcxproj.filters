@@ -88,6 +88,12 @@
     <ClCompile Include="src\global\Config.cpp">
       <Filter>src\global</Filter>
     </ClCompile>
+    <ClCompile Include="src\output\ResidualWriter.cpp">
+      <Filter>src\output</Filter>
+    </ClCompile>
+    <ClCompile Include="src\input\TomlFileManager.cpp">
+      <Filter>src\input</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <None Include="README.md" />
@@ -149,6 +155,12 @@
     </ClInclude>
     <ClInclude Include="src\global\Config.h">
       <Filter>src\global</Filter>
+    </ClInclude>
+    <ClInclude Include="src\output\ResidualWriter.h">
+      <Filter>src\output</Filter>
+    </ClInclude>
+    <ClInclude Include="src\input\TomlFileManager.h">
+      <Filter>src\input</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

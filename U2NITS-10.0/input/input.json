@@ -1,10 +1,8 @@
 {
-    "project": {
-
-    },
     "basic": {
         "dimension": 2,
-        "continue": 1
+        "continue": 1,
+        "filename": "2D_cylinder_simple" 
     },
     "space": {
         "space_1D": {

@@ -20,7 +20,7 @@ constexpr auto _SOL_LocalLaxFriedrichs = 2001;//黎曼求解器 Local Lax-Friedrichs;
 constexpr auto _SOL_Roe = 2002;
 //重构方式 3001-3099
 constexpr auto _REC_constant = 3001;//常量重构
-constexpr auto _REC_linear = 3002;
+constexpr auto _REC_linear = 3002;  //线性重构
 //时间推进方式 3101-3199 evolution
 constexpr auto _EVO_explicit = 3101;//显式时间推进
 constexpr auto _EVO_rk3 = 3103;//RK3

@@ -19,10 +19,12 @@ private:
 	bool if_initialized = false;
 	std::string workingDirectory;// 当前执行文件所在的目录
 	std::string exePath_withSlash;//有斜杠
+	std::string residualFileName;
 
 public:
 	void initialzeVariables();
 	std::string getExePath(int if_contain_slash = 1);
+	// 此处flag无任何作用，只是为了重构代码时比较好过渡
 	std::string getExePath_withSlash(int flag = 1);
 
 private:

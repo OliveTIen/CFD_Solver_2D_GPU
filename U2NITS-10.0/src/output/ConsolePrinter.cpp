@@ -17,62 +17,8 @@ void ConsolePrinter::printHeader() {
 
 }
 
-
-#ifdef _WIN32
-
-COORD ConsolePrinter::getCursorPosition() {
-	CONSOLE_SCREEN_BUFFER_INFO pBuffer;
-	GetConsoleScreenBufferInfo(GetStdHandle(STD_OUTPUT_HANDLE), &pBuffer);
-	return COORD{ pBuffer.dwCursorPosition.X, pBuffer.dwCursorPosition.Y };
-}
-
-void ConsolePrinter::restoreCursorPosition() {
-	cursorPosition = getCursorPosition();
-}
-
-void ConsolePrinter::MoveToLastCursorPosition() {
-	moveCursorToPosition(cursorPosition);
-}
-
-void ConsolePrinter::EraseToLastCursorPosition() {
-	clearDisplayBetweenTwoCursors(cursorPosition, getCursorPosition());
-	MoveToLastCursorPosition();
-}
-
-COORD ConsolePrinter::getScrnInfo() {                   //获取控制台窗口缓冲区大小
-	HANDLE hStd = GetStdHandle(STD_OUTPUT_HANDLE);      //获得标准输出设备句柄
-	CONSOLE_SCREEN_BUFFER_INFO scBufInf;                //定义一个窗口缓冲区信息结构体
-	GetConsoleScreenBufferInfo(hStd, &scBufInf);        //获取窗口缓冲区信息
-	return scBufInf.dwSize;                             //返回窗口缓冲区大小
-}
-
-void ConsolePrinter::moveCursorToPosition(COORD pstn) {
-	SetConsoleCursorPosition(GetStdHandle(STD_OUTPUT_HANDLE), pstn);
-}
-
-void ConsolePrinter::clearDisplayBetweenTwoCursors(COORD p1, COORD p2){
-	COORD currentCursor = getCursorPosition();
-
-	int yDValue(p2.Y - p1.Y);
-	int xMax = getScrnInfo().X; 
-	moveCursorToPosition(p1);            
-	for (int y(0); y <= yDValue; y++) {
-		for (int x(p1.X); x <= xMax; x++)	{
-			std::cout << ' ';
-			int px = 0;
-			if (x != xMax)
-				px = x + 1;
-			else
-				px = 0;
-			if (y == yDValue && px == p2.X)
-				break;
-		}
-	}
-
-	moveCursorToPosition(currentCursor);
-}
-
 void ConsolePrinter::drawProgressBar(double percent) {
+	std::cout << "Progress:";
 	if (percent > 100)percent = 100;
 	if (percent < 0)percent = 0;
 	int nTotal = 45;//总长度，单位char
@@ -86,18 +32,75 @@ void ConsolePrinter::drawProgressBar(double percent) {
 	std::cout << "| " << percent << "%";
 }
 
-#elif defined __linux__
 
 
-COORD ConsolePrinter::getCursorPosition() { return COORD(); }
-//获取控制台窗口缓冲区大小
-COORD ConsolePrinter::getScrnInfo() { return COORD(); }
-//设置控制台光标位置
-void ConsolePrinter::setCursorPosition(COORD pstn) {}
-//清除p1, p2之间的控制台内容，并将光标定位于p1
-void ConsolePrinter::clearDisplay(COORD p1, COORD p2) {}
-//绘制进度条。0<=percent<=100
-void ConsolePrinter::drawProgressBar(int percent) {}
+#ifdef _WIN32
+
+COORD ConsolePrinter::getCursorPosition() {
+	CONSOLE_SCREEN_BUFFER_INFO consoleScreenBufferInfo;
+	GetConsoleScreenBufferInfo(GetStdHandle(STD_OUTPUT_HANDLE), &consoleScreenBufferInfo);
+	return COORD{ consoleScreenBufferInfo.dwCursorPosition.X, consoleScreenBufferInfo.dwCursorPosition.Y };
+}
+
+void ConsolePrinter::restoreCursorPosition() {
+	m_cursorPosition = getCursorPosition();
+}
+
+void ConsolePrinter::MoveToLastCursorPosition() {
+	setCursorPosition(m_cursorPosition);
+}
+
+void ConsolePrinter::EraseToLastCursorPosition() {
+	clearDisplay(m_cursorPosition, getCursorPosition());
+	MoveToLastCursorPosition();
+}
+
+COORD ConsolePrinter::getScreenBufferSize() {
+	CONSOLE_SCREEN_BUFFER_INFO consoleScreenBufferInfo;
+	GetConsoleScreenBufferInfo(GetStdHandle(STD_OUTPUT_HANDLE), &consoleScreenBufferInfo);
+	return consoleScreenBufferInfo.dwSize;//返回窗口缓冲区大小
+
+	/*
+	
+	typedef struct _CONSOLE_SCREEN_BUFFER_INFO {
+	  COORD      dwSize; the size of the console screen buffer, in character columns and rows
+	  COORD      dwCursorPosition; the column and row coordinates of the cursor in the console screen buffer.
+	  WORD       wAttributes;
+	  SMALL_RECT srWindow; coordinates of the upper-left and lower-right corners of the display window
+	  COORD      dwMaximumWindowSize;
+	} CONSOLE_SCREEN_BUFFER_INFO;
+	
+	*/
+}
+
+void ConsolePrinter::setCursorPosition(COORD cursorPosition) {
+	SetConsoleCursorPosition(GetStdHandle(STD_OUTPUT_HANDLE), cursorPosition);
+}
+
+void ConsolePrinter::clearDisplay(COORD p1, COORD p2){
+	// 控制台界面函数 https://blog.51cto.com/dlican/3745102
+	// (0,0)位于缓冲区左上角
+
+	COORD currentCursor = getCursorPosition();
+	int width = getScreenBufferSize().X;
+	int x1 = p1.X;
+	int y1 = p1.Y;
+	int z1 = width * y1 + x1;
+	int x2 = p2.X;
+	int y2 = p2.Y;
+	int z2 = width * y2 + x2;
+	if (z2 > z1) {
+		LPDWORD pWritten;//[output]接收实际写入缓冲区的字符数
+		pWritten = new DWORD[z2 - z1];
+		// 该函数效率更高，可避免闪烁(与std::cout相比)
+		FillConsoleOutputCharacter(GetStdHandle(STD_OUTPUT_HANDLE), ' ', z2 - z1, p1, pWritten);
+		delete []pWritten;
+	}
+	//for (int i = 0; i < z2 - z1; i++) {// 若z1<=z2，则不会输出
+	//	std::cout << ' ';
+	//}
+	setCursorPosition(currentCursor);
 
 
+}
 #endif

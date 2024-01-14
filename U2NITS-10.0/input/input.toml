@@ -1,0 +1,73 @@
+# 最后修改于2024-01-15
+
+[basic]
+continue = true
+dimension = 2
+filename = "2D_cylinder_simple"
+
+[constant]
+T0 = 288.16   # 海平面温度参考
+p0 = 101325.0 # 海平面压力参考
+
+[boundaryCondition.2D.inf]
+use_ruvp = false
+# if use_ruvp == true 
+rho = 1.0
+u = 1.0
+v = 0.0
+p = 1.0
+# if use_ruvp == false
+Ma = 0.5
+AOA = 0.0
+
+
+[boundaryCondition.2D.inlet]
+use_ruvp = true
+# if use_ruvp == true 
+rho = 1.0
+u = 1.0
+v = 0.0
+p = 1.0
+# if use_ruvp == false
+Ma = 0.5
+AOA = 0.0
+
+
+[boundaryCondition.2D.outlet]
+use_ruvp = true
+# if use_ruvp == true 
+rho = 1.0
+u = 1.0
+v = 0.0
+p = 1.0
+# if use_ruvp == false
+Ma = 0.5
+AOA = 0.0
+
+
+[initialCondition]
+type = 1 # 1-用inf远场条件初始化全场 2-等熵涡
+
+[output]
+step_per_print = 50
+step_per_output = 500
+step_per_output_hist = 50
+
+[output.output_var]
+p = true
+rho = true
+u = true
+v = true
+
+[physicsModel]
+equation = 1002 # 1002-Eluer,1003-NS
+gamma = 1.4
+
+[space.space_1D]
+nElement = 300
+x1 = 0
+x2 = 1
+
+[time]
+CFL = 0.6
+T = 20

@@ -33,12 +33,8 @@ public:
 	FVM_2D();
 	//主函数
 	void run();
-	//调用gmesh生成inp
-	void generateMeshScript_gmsh(std::string suffix);
 	//读取output文件夹中的续算文件(pause_*.dat)(绝对路径)，初始化网格变量，更新t_solve和istep_solve
 	int readContinueFile();
-	//读取inp网格数据，初始化网格变量
-	int readMeshFile(std::string suffix);
 	//初始化流场。续算不要使用该函数，否则会重新开始
 	void setInitialCondition();
 	//日志记录边界参数
@@ -59,8 +55,6 @@ public:
 	void writeContinueFile(std::string f_name, double t, int istep);
 	//是否达到稳态
 	bool isStable(std::vector<Element_T3> old);
-	//[未完成]用于恢复和续算
-	void writeBinaryFile(std::string f_name);
 
 
 	//初始化pNodeTable。根据nodes将ID作为行号，存入指针

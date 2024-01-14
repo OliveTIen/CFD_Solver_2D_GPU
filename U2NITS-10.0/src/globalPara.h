@@ -9,8 +9,9 @@ namespace Constant {
 	extern const double PI;
 	extern double T0;//海平面温度参考值
 	extern double p0;//海平面压力参考值
-	extern double c0;//海平面声速参考值
+	extern double c0;//海平面声速参考值[未使用]
 	extern double gamma;
+	extern double epsilon;
 }
 
 
@@ -58,19 +59,15 @@ namespace GlobalPara {
 				extern double AOA;
 				extern double ruvp[4];
 			}
-			//若不给定ruvp，则根据Ma和AOA计算ruvp
-			void ini_ruvp_by_Ma_AOA();
-			//根据海平面参数，计算ruvp
-			void get_ruvp_sealevel(const double Ma, const double AOA, double* ruvp);
-			inline double get_T_sealevel(const double Ma){ return Constant::T0 / (1.0 + (Constant::gamma - 1.0) / 2.0 * Ma * Ma); }
-			inline double get_p_sealevel(const double T){ return Constant::p0 * pow(T / Constant::T0, Constant::gamma / (Constant::gamma - 1.0)); }
 		}
 	}
 	namespace initialCondition {
 		extern int type;
 	}
 	namespace output {
+		extern int step_per_print;
 		extern int step_per_output;
+		extern int step_per_output_hist;
 		extern bool output_var_ruvp[4];
 		extern int autosaveFileNum;
 	}

@@ -38,30 +38,6 @@ typedef struct _COORD {
 } COORD, * PCOORD;
 #endif
 
-//namespace globalpara {}//命名空间定义的变量会导致重定义问题，而且仅声明也不可。但静态变量可以
-
-
-class GlobalStatic {
-public:
-	//static std::string filename;
-	static std::string exePath_withSlash;//有斜杠。一开始已经初始化，放心使用
-
-	//接受用户输入
-	static void getFileName_UseUserInput();
-	//剔除' ''\t'','
-	static std::vector<std::string> splitString(std::string);
-	//初始化exe文件路径。在一开始便调用
-	static void iniExePath();
-	//获取exe文件路径，若已获得。始终有反斜杠
-	static std::string getExePath_withSlash(int flag=1);
-	//列举文件名称。path需加上反斜杠
-	static std::vector<std::string> ls(std::string path);
-	//创建文件夹。若已存在，则不创建。须在exePath初始化后使用
-	static void createFolderIfDoesntExist(std::string foldername);
-
-
-
-};
 
 
 

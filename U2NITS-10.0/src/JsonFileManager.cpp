@@ -1,5 +1,6 @@
 #include "JsonFileManager.h"
 #include "output/LogWriter.h"
+#include "global/FilePathManager.h"
 
 void JsonFileManager::useDefaultInputPara_and_writeInputPara() {
 	LogWriter::writeLogAndCout("use default file: input.json\n");
@@ -9,6 +10,7 @@ void JsonFileManager::useDefaultInputPara_and_writeInputPara() {
 	rapidjson::Value basic(rapidjson::kObjectType);
 	basic.AddMember("dimension", 2, allocator);
 	basic.AddMember("continue", 1, allocator);
+	basic.AddMember("filename", "default_filename", allocator);
 	inputpara.AddMember("basic", basic, allocator);//需要在basic.AddMember之后使用，否则报错
 
 	rapidjson::Value space(rapidjson::kObjectType);
@@ -73,7 +75,7 @@ void JsonFileManager::useDefaultInputPara_and_writeInputPara() {
 	inputpara.AddMember("output", output, allocator);
 
 	createFolderIfDoesntExist("input");
-	writeInputPara(GlobalStatic::exePath_withSlash + "input\\input.json");
+	writeInputPara(FilePathManager::getInstance()->getExePath_withSlash() + "input\\input.json");
 
 }
 
@@ -119,15 +121,18 @@ void JsonFileManager::checkIntegrity() {
 
 void JsonFileManager::useJsonTreeToUpdateGlobalPara() {
 	using namespace GlobalPara;
-	const char* err = "Error: Unexisted member, in function JsonFileManager::updateData()\n";
+	const char* err = "Error: Unexisted member, in function JsonFileManager::useJsonTreeToUpdateGlobalPara()\n";
 	try {
+		std::cout << "basic\n";
 		if (inputpara.HasMember("basic")) {
 			rapidjson::Value& basic = inputpara["basic"];
 			getMemberValue(basic, "dimension", basic::dimension);
 			getMemberValue(basic, "continue", basic::_continue);
+			getMemberString(basic, "filename", basic::filename);
 		}
 		else throw err;
 
+		std::cout << "space\n";
 		if (inputpara.HasMember("space") && inputpara["space"].HasMember("space_1D")) {
 			rapidjson::Value& space_1D = inputpara["space"]["space_1D"];
 			getMemberValue<int>(space_1D, "nElement", space::_1D::nElement);
@@ -136,6 +141,7 @@ void JsonFileManager::useJsonTreeToUpdateGlobalPara() {
 		}
 		else throw err;
 
+		std::cout << "time\n";
 		if (inputpara.HasMember("time")) {
 			rapidjson::Value& time = inputpara["time"];
 			getMemberValue(time, "CFL", time::CFL);
@@ -143,6 +149,7 @@ void JsonFileManager::useJsonTreeToUpdateGlobalPara() {
 		}
 		else throw err;
 
+		std::cout << "physicsModel\n";
 		if (inputpara.HasMember("physicsModel")) {
 			rapidjson::Value& physicsModel = inputpara["physicsModel"];
 			getMemberValue(physicsModel, "gamma", Constant::gamma);
@@ -153,6 +160,7 @@ void JsonFileManager::useJsonTreeToUpdateGlobalPara() {
 		}
 		else throw err;
 
+		std::cout << "boundaryCondition\n";
 		if (inputpara.HasMember("boundaryCondition") && inputpara["boundaryCondition"].HasMember("2D")
 			&& inputpara["boundaryCondition"]["2D"].HasMember("inlet") && inputpara["boundaryCondition"]["2D"].HasMember("outlet")
 			&& inputpara["boundaryCondition"]["2D"].HasMember("inf")
@@ -184,12 +192,14 @@ void JsonFileManager::useJsonTreeToUpdateGlobalPara() {
 		}
 		else throw err;
 
+		std::cout << "initialCondition\n";
 		if (inputpara.HasMember("initialCondition")) {
 			rapidjson::Value& initialCondition = inputpara["initialCondition"];
 			getMemberValue(initialCondition, "type", initialCondition::type);
 		}
 		else throw err;
 
+		std::cout << "output\n";
 		if (inputpara.HasMember("output") && inputpara["output"].HasMember("output_var:bool")) {
 			rapidjson::Value& output = inputpara["output"];
 			getMemberValue(output, "step_per_output", output::step_per_output);
@@ -209,8 +219,8 @@ void JsonFileManager::useJsonTreeToUpdateGlobalPara() {
 }
 
 void JsonFileManager::createFolderIfDoesntExist(std::string foldername) {
-	std::string path = GlobalStatic::exePath_withSlash;
-	std::vector<std::string> files = GlobalStatic::ls(path);
+	std::string path = FilePathManager::getInstance()->getExePath_withSlash();
+	std::vector<std::string> files = FilePathManager::ls(path);
 	for (int i = 0; i < files.size(); i++) {
 		if (files[i] == foldername)return;//文件夹已经存在
 	}

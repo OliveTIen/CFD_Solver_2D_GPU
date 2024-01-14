@@ -45,9 +45,6 @@
     <ClCompile Include="src\Element_2D.cpp">
       <Filter>src</Filter>
     </ClCompile>
-    <ClCompile Include="src\JsonFileManager.cpp">
-      <Filter>src</Filter>
-    </ClCompile>
     <ClCompile Include="src\FVM.cpp">
       <Filter>src</Filter>
     </ClCompile>
@@ -81,17 +78,28 @@
     <ClCompile Include="src\global\FilePathManager.cpp">
       <Filter>src\global</Filter>
     </ClCompile>
-    <ClCompile Include="src\global\StringProcessor.cpp" />
     <ClCompile Include="src\global\SystemInfo.cpp">
       <Filter>src\global</Filter>
     </ClCompile>
     <ClCompile Include="src\global\Config.cpp">
       <Filter>src\global</Filter>
     </ClCompile>
-    <ClCompile Include="src\output\ResidualWriter.cpp">
+    <ClCompile Include="src\output\HistWriter.cpp">
       <Filter>src\output</Filter>
     </ClCompile>
     <ClCompile Include="src\input\TomlFileManager.cpp">
+      <Filter>src\input</Filter>
+    </ClCompile>
+    <ClCompile Include="src\global\StringProcessor.cpp">
+      <Filter>src\global</Filter>
+    </ClCompile>
+    <ClCompile Include="src\input\GmeshMeshReader.cpp">
+      <Filter>src\input</Filter>
+    </ClCompile>
+    <ClCompile Include="src\output\FieldWriter.cpp">
+      <Filter>src\output</Filter>
+    </ClCompile>
+    <ClCompile Include="src\input\AirParameterConverter.cpp">
       <Filter>src\input</Filter>
     </ClCompile>
   </ItemGroup>
@@ -106,9 +114,6 @@
       <Filter>src</Filter>
     </ClInclude>
     <ClInclude Include="src\Element_2D.h">
-      <Filter>src</Filter>
-    </ClInclude>
-    <ClInclude Include="src\JsonFileManager.h">
       <Filter>src</Filter>
     </ClInclude>
     <ClInclude Include="src\FVM.h">
@@ -156,10 +161,19 @@
     <ClInclude Include="src\global\Config.h">
       <Filter>src\global</Filter>
     </ClInclude>
-    <ClInclude Include="src\output\ResidualWriter.h">
+    <ClInclude Include="src\output\HistWriter.h">
       <Filter>src\output</Filter>
     </ClInclude>
     <ClInclude Include="src\input\TomlFileManager.h">
+      <Filter>src\input</Filter>
+    </ClInclude>
+    <ClInclude Include="src\input\GmeshMeshReader.h">
+      <Filter>src\input</Filter>
+    </ClInclude>
+    <ClInclude Include="src\output\FieldWriter.h">
+      <Filter>src\output</Filter>
+    </ClInclude>
+    <ClInclude Include="src\input\AirParameterConverter.h">
       <Filter>src\input</Filter>
     </ClInclude>
   </ItemGroup>

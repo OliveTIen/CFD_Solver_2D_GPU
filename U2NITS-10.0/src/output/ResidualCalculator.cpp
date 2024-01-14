@@ -1,6 +1,7 @@
 #include "ResidualCalculator.h"
 #include "../GlobalPara.h"
 #include "../FVM_2D.h"
+#include "../global/FilePathManager.h"
 
 void ResidualCalculator::cal_error_isentropicVortex(double xmin, double ymin, double xmax, double ymax, 
 	double chi, const double t_current, const int istep, const double cpu_time, const double* ruvp0) {
@@ -61,7 +62,7 @@ void ResidualCalculator::cal_error_isentropicVortex(double xmin, double ymin, do
 	error_norm2 = sqrt(error_norm2 / sumvol);//sqrt( sum(err_i^2 * vol_i)/sum(vol_i) ) = sqrt( sum(err_i^2 * weight_i) ) 误差平方的加权平均，然后开根号
 
 	//写入文件
-	std::ofstream outfile(GlobalStatic::exePath_withSlash + "output\\" + "error_isentropicVortex_" + GlobalPara::basic::filename + ".txt", std::ios::app);//追加模式
+	std::ofstream outfile(FilePathManager::getInstance()->getExePath_withSlash() + "output\\" + "error_isentropicVortex_" + GlobalPara::basic::filename + ".txt", std::ios::app);//追加模式
 	outfile
 		<< istep << "\t"
 		<< cpu_time << "\t"
@@ -73,7 +74,7 @@ void ResidualCalculator::cal_error_isentropicVortex(double xmin, double ymin, do
 
 }
 
-std::vector<double> ResidualCalculator::cal_residual(const std::vector<Element_T3>& elements_old, const std::vector<Element_T3>& elements, int NORM_TYPE) {
+void ResidualCalculator::cal_residual(const std::vector<Element_T3>& elements_old, const std::vector<Element_T3>& elements, int NORM_TYPE, double* residual_to_be_changed) {
 	double difference_U[4]{};// 全部初始化为0
 	double residual_U[4]{};
 
@@ -112,19 +113,16 @@ std::vector<double> ResidualCalculator::cal_residual(const std::vector<Element_T
 			difference_U[1] = elements[ie].U[1] - elements_old[ie].U[1];
 			difference_U[2] = elements[ie].U[2] - elements_old[ie].U[2];
 			difference_U[3] = elements[ie].U[3] - elements_old[ie].U[3];
-			residual_U[0] += Math::max_(residual_U[0], Math::abs_(difference_U[0]));
-			residual_U[1] += Math::max_(residual_U[1], Math::abs_(difference_U[1]));
-			residual_U[2] += Math::max_(residual_U[2], Math::abs_(difference_U[2]));
-			residual_U[3] += Math::max_(residual_U[3], Math::abs_(difference_U[3]));
+			residual_U[0] = Math::max_(residual_U[0], Math::abs_(difference_U[0]));
+			residual_U[1] = Math::max_(residual_U[1], Math::abs_(difference_U[1]));
+			residual_U[2] = Math::max_(residual_U[2], Math::abs_(difference_U[2]));
+			residual_U[3] = Math::max_(residual_U[3], Math::abs_(difference_U[3]));
 		}
 	}
-
-	std::vector<double> residual_U_vector;
-	residual_U_vector.resize(4);
-	residual_U_vector[0] = residual_U[0];
-	residual_U_vector[1] = residual_U[1];
-	residual_U_vector[2] = residual_U[2];
-	residual_U_vector[3] = residual_U[3];
-	return residual_U_vector;
+	// 输出
+	residual_to_be_changed[0] = residual_U[0];
+	residual_to_be_changed[1] = residual_U[1];
+	residual_to_be_changed[2] = residual_U[2];
+	residual_to_be_changed[3] = residual_U[3];
 }
 

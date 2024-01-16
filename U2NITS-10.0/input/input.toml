@@ -71,3 +71,9 @@ x2 = 1
 [time]
 CFL = 0.6
 T = 20
+residual = 1e-7 # 残差rho低于多少时终止计算
+time_advance = 3103 # 3101-显式，3103-RK3
+
+[inviscid_flux_method]
+flux_construction = 2002 # [目前未用到；黎曼求解器] 2001-LocalLaxFriedrichs, 2002-Roe
+flux_limiter = 4001 # [目前未用到，因为是常量重构] 4001-minmod

@@ -33,6 +33,7 @@ namespace GlobalPara {
 		double CFL = 0.6;
 		double T = 0.01;
 		double residual = 1e-7;
+		int time_advance = _EVO_explicit;
 	}
 	namespace physicsModel {
 		int equation = 1;//"equation:1-Eluer,2-NS": 1
@@ -68,6 +69,11 @@ namespace GlobalPara {
 		int step_per_output_hist = 50;
 		bool output_var_ruvp[4] = { 1,1,1,1 };
 		int autosaveFileNum = 3;
+	}
+	namespace inviscid_flux_method {
+		int flux_construction = _SOL_Roe;// ÀèÂüÇó½âÆ÷
+		//int flux_construction_lhs;
+		int flux_limiter = _LIM_minmod;
 	}
 }
 

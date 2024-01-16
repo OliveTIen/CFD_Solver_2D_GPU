@@ -29,12 +29,13 @@ namespace GlobalPara {
 			extern double x1;
 			extern double x2;
 		}
-		extern int flag_reconstruct;// 重构
+		extern int flag_reconstruct;// 重构方法。[todo]与通量构造方法易混淆，fun3d中未找到此选项
 	}
 	namespace time {
 		extern double CFL;
 		extern double T;
 		extern double residual;// 残差限制
+		extern int time_advance;// 时间推进方式
 	}
 	namespace physicsModel {
 		extern int equation;//"equation:1-Eluer,2-NS": 1
@@ -70,6 +71,11 @@ namespace GlobalPara {
 		extern int step_per_output_hist;
 		extern bool output_var_ruvp[4];
 		extern int autosaveFileNum;
+	}
+	namespace inviscid_flux_method {
+		extern int flux_construction;// 无粘通量残差构造方法 LLF Roe
+		//extern int flux_construction_lhs;
+		extern int flux_limiter;// 通量限制器
 	}
 }
 

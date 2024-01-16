@@ -1,5 +1,6 @@
 #!MC 1410
-$!VarSet |LFDSFN1| = '"cylinder_hist.plt"'
+$!VarSet |LFDSFN1| = '"cylinder_hist_RK3_Ma=0.5.dat"'
+$!VarSet |LFDSVL1| = '"Iteration" "Residual_rho" "Residual_rhou" "Residual_rhov" "Residual_rhop"'
 $!SetStyleBase Factory
 $!GlobalPaper 
   PaperSizeInfo
@@ -40,7 +41,11 @@ $!ReadDataSet  '|LFDSFN1|'
   InitialPlotType = XYLine
   IncludeText = No
   IncludeGeom = No
-  VarPositionList =  [1-5]
+  ResetStyle = No
+  AssignStrandIDs = Yes
+  VarLoadMode = ByName
+  VarNameList = '|LFDSVL1|'
+$!RemoveVar |LFDSVL1|
 $!RemoveVar |LFDSFN1|
 $!FrameLayout 
   ShowBorder = No
@@ -196,9 +201,9 @@ $!XYLineAxis
   YDetail 1
     {
     CoordScale = Log
-    RangeMin = 6.3147140849650895689E-08
-    RangeMax = 0.32237024863624907933
-    GRSpacing = 0.05
+    RangeMin = 9.9088140359526732937E-08
+    RangeMax = 16656.359375
+    GRSpacing = 5000
     Title
       {
       ShowOnAxisLine = No

@@ -1,7 +1,8 @@
-#include <windows.h>
+
 #ifndef CONSOLE_OUTPUT_H
 #define CONSOLE_OUTPUT_H
-
+#include <windows.h>
+#include <string>
 
 class ConsolePrinter {
 private:
@@ -26,7 +27,8 @@ public:
 	static void drawProgressBar(double percent);
 	//清除p1, p2之间的控制台内容，光标不变
 	static void clearDisplay(COORD p1, COORD p2);
-
+	//输出，且返回字符
+	static std::string printSolveInfo(double calTime, double calStep, double calSpeed, double nFile, double t, double T, const double* residual_vector);
 };
 
 

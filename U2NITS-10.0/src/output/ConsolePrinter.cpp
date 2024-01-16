@@ -1,5 +1,7 @@
 #include "ConsolePrinter.h"
 #include <iostream>
+#include "../global/StringProcessor.h"
+#include <sstream>
 
 void ConsolePrinter::printHeader() {
 	//
@@ -102,5 +104,19 @@ void ConsolePrinter::clearDisplay(COORD p1, COORD p2){
 	setCursorPosition(currentCursor);
 
 
+}
+std::string ConsolePrinter::printSolveInfo(double calTime, double calStep, double calSpeed, double nFile, double t, double T, const double* residual_vector) {
+	std::stringstream info;
+	info << "\n"
+		<< "  Calculate time: \t" << StringProcessor::timeFormat((int)calTime) << "\t(" << calTime << " s)\n"
+		<< "  Calculate step: \t" << calStep << "\n"
+		<< "  Calculate speed: \t" << calSpeed << "\t step/s\n"
+		<< "  Output file num: \t" << nFile << "\n"
+		<< "  Residual rho: \t" << std::scientific << residual_vector[0] << "\n" << std::defaultfloat
+		<< "  Physical time: \t" << t << " s\t/" << T << " s\n"
+		<< "Press ESC to end Computation\n";
+	std::string str = info.str();
+	std::cout << str;
+	return str;
 }
 #endif

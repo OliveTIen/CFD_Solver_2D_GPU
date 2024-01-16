@@ -133,19 +133,21 @@ void FVM_2D::solve_(std::string suffix_out, std::string suffix_info) {
 	//输出格式(tecplot)，在文件夹中输出，每一帧存成一个文件
 	std::vector<Element_T3> elements_old;
 
-	//控制变量
-	double t = t_solve;//读取continue文件的物理时间。用于控制是否终止计算
-	const double T = GlobalPara::time::T;//总物理时间。用于控制是否终止计算
+	//变量
+	double t = t_previous;//当前物理时间。
+	const double T = GlobalPara::time::T;//目标物理时间。用于控制是否终止计算
 	int nFiles = 0;//输出文件个数，用于显示
 	bool signal_pause = 0;//暂停信号，用于控制
-	//计时变量，用于计算求解时间(基于CPU周期)
-	clock_t start_t;//位于求解器程序中，用于计算CPU时间
+	clock_t start_t;//计时变量，用于计算求解时间(基于CPU周期)
 	start_t = clock();
+	double calculateTime = 0.0;
+	double calculateSpeed = 0.0;
+	std::string solveInfo;
 	//等熵涡误差计算文件头
 	if (GlobalPara::initialCondition::type == 2)writeFileHeader_isentropicVortex();
 	COORD p1 = ConsolePrinter::getCursorPosition();
 	ConsolePrinter::drawProgressBar(int(t / T));	//绘制进度条
-	for (int istep = istep_solve; istep < 1e6 && t < T; istep++) {
+	for (int istep = istep_previous; istep < 1e6 && t < T; istep++) {
 		elements_old = elements;
 		//计算时间
 		caldt();
@@ -154,20 +156,16 @@ void FVM_2D::solve_(std::string suffix_out, std::string suffix_info) {
 		//计算通量、时间推进
 		solver.evolve(dt);
 
-		//进度条
+		//定期输出进度
 		if (istep % GlobalPara::output::step_per_print == 1) {
 			ConsolePrinter::clearDisplay(p1, ConsolePrinter::getCursorPosition());
 			ConsolePrinter::setCursorPosition(p1);
 			ConsolePrinter::drawProgressBar(int(t / T * 100 + 2));//+x是为了防止停在99%
 
-			double time_used = (double)(clock() - start_t) / CLOCKS_PER_SEC;//
-			std::cout << "\n";
-			std::cout << "\ttime used: " <<math.timeFormat((int)time_used)<<" (" << (int)time_used << " s)\n";
-			std::cout << "\tsolution time: " << t << " s / " << T << " s\n";
-			std::cout << "\tsolution step: " << istep << "\t";
-			std::cout << "\tnumber of output file: " << nFiles << "\n";
-			std::cout << "\tresidual_rho: " << std::scientific << residual_vector[0] << "\n" << std::defaultfloat;
-			std::cout << "Press ESC to end Computation\n";
+			calculateTime = (double)(clock() - start_t) / CLOCKS_PER_SEC;//
+			calculateSpeed = ((istep - istep_previous)/calculateTime);
+			std::cout;
+			solveInfo = ConsolePrinter::printSolveInfo(calculateTime, istep, calculateSpeed, nFiles, t, T, residual_vector);
 		}
 		//检查非法值
 		if (isNan()|| residual_vector[0] > big_value) {
@@ -182,7 +180,7 @@ void FVM_2D::solve_(std::string suffix_out, std::string suffix_info) {
 			writeContinueFile(filePathManager->getExePath_withSlash() + "output\\nan_" + GlobalPara::basic::filename + "[" + szBuffer + "].dat", t, istep);
 			break;
 		}
-		//输出流场
+		//定期输出流场
 		if (istep % GlobalPara::output::step_per_output == 1) {
 			//.dat 流场显示文件 tecplot格式
 			char szBuffer[20];
@@ -193,7 +191,7 @@ void FVM_2D::solve_(std::string suffix_out, std::string suffix_info) {
 			updateAutoSaveFile(t, istep);
 
 		}
-		//输出残差
+		//定期输出残差
 		if (istep % GlobalPara::output::step_per_output_hist == 1) {
 			//计算残差，结果保存在residual_vector中
 			ResidualCalculator::cal_residual(elements_old, elements, ResidualCalculator::NORM_INF, residual_vector);
@@ -216,17 +214,17 @@ void FVM_2D::solve_(std::string suffix_out, std::string suffix_info) {
 				sprintf_s(szBuffer, _countof(szBuffer), "%04d", istep);
 				writeContinueFile(filePathManager->getExePath_withSlash() + "output\\pause_" + GlobalPara::basic::filename + "[" + szBuffer + "].dat",t,istep);
 				std::cout << "[ESC]: Computation Interrupted\n";
-				break;
+				signal_pause = true;
 			}
 		}
 		//达到规定迭代时间，终止
-		if (t >= T) {
+		else if (t >= T) {
 			char szBuffer[20];
 			sprintf_s(szBuffer, _countof(szBuffer), "%04d", istep);
 			writeContinueFile(filePathManager->getExePath_withSlash() + "output\\pause_" + GlobalPara::basic::filename + "[" + szBuffer + "].dat", t, istep);
 			writeTecplotFile(filePathManager->getExePath_withSlash() + "output\\" + GlobalPara::basic::filename + "[" + szBuffer + "].dat", t);
 			std::cout << "Computation finished\n";
-			break;
+			signal_pause = true;
 		}
 		//残差足够小，终止
 		else if (residual_vector[0] <= Constant::epsilon) {
@@ -238,6 +236,11 @@ void FVM_2D::solve_(std::string suffix_out, std::string suffix_info) {
 #ifdef _WIN32
 			MessageBox(NULL, "Computation finished", "U2NITS", MB_OK);
 #endif // _WIN32
+			signal_pause = true;
+		}
+		//终止
+		if (signal_pause) {
+			LogWriter::writeLog(solveInfo);
 			break;
 		}
 	}
@@ -421,8 +424,8 @@ int FVM_2D::readContinueFile() {
 
 		//translate
 		if (state == 0 && tWords[0].substr(0, 1) != "t") {//t_solve, istep_solve
-			t_solve = std::stod(tWords[0]);
-			istep_solve = (int)std::stod(tWords[1]);
+			t_previous = std::stod(tWords[0]);
+			istep_previous = (int)std::stod(tWords[1]);
 		}
 		else if (state == 1 && tWords[0].substr(0, 1) != "n") {//nodes: ID, x, y
 			Node_2D node;

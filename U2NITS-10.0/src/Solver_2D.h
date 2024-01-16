@@ -43,9 +43,8 @@ public:
 	void getEdgeFlux_periodic(Edge_2D* pE, double* flux);
 	///用到的子函数
 	
+	//无粘通量F 根据两侧U值计算界面通量
 	void LLF_new_current(const double* UL, const double* UR, const double nx, const double ny, const double length, double* flux);//功能：根据ULUR等参数，计算flux[0-3]
-	void LLF_test_2(const double* UL, const double* UR, const double nx, const double ny, const double length, double* flux);//测试
-	void LLF_test(const double* UL, const double* UR, const double nx, const double ny, const double length, double* flux);//测试
 	void cal_ruvp_farfield_new(const double nx, const double ny, double* ruvp, const double* ruvp_inf);
 
 	//////原先的 能算出来，但是老师说等熵涡存在耗散
@@ -57,12 +56,13 @@ public:
 	//Eigen::Vector4d calEdgeFlux_LLF_inner_old(Edge_2D* pE);
 	//Eigen::Vector4d get_F_LLF_old(Eigen::Vector4d U_L, Eigen::Vector4d U_R, Edge_2D* pEdge);//[未使用]
 	//Eigen::Vector4d get_Fv_old(Edge_2D* pEdge);//[未使用]粘性通量
-
-
 	////老师的代码
 	//void calFlux_LLF_2();//仅完成周期边界 老师的fortran代码 能算出来
 	//void calFlux_Roe_2();//仅完成周期边界 老师的fortran代码 存在发散问题
-	void Compute_Deltaeig();
+	void Compute_Deltaeig();//[未使用]Roe格式的特征值计算函数
+
+	//粘性通量
+
 };
 
 #endif

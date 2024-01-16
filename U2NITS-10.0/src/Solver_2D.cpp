@@ -1,5 +1,6 @@
 #include "Solver_2D.h"
 #include "FVM_2D.h"
+#include "output/LogWriter.h"
 
 //double Solver_2D::RK3alpha[6]{ 0.0,1.0 / 4.0,1.0 / 6.0,3.0 / 8.0 ,0.5,1.0 };
 //double Solver_2D::RK5alpha[6]{ 0.0,1.0 / 4.0,1.0 / 6.0,3.0 / 8.0 ,0.5,1.0 };
@@ -29,8 +30,15 @@ void Solver_2D::U_2_F_lambda(const Eigen::Vector4d U, Eigen::Vector4d& F, double
 }
 
 void Solver_2D::evolve(double dt) {
-    evolve_explicit(dt);
-    //evolve_RK3(dt);//平均一个文件38.5s 每步385/531.0s
+    if (GlobalPara::time::time_advance == _EVO_explicit) {
+        evolve_explicit(dt);
+    }
+    else if (GlobalPara::time::time_advance == _EVO_rk3) {
+        evolve_RK3(dt);
+    }
+    else {
+        LogWriter::writeLogAndCout("Error: invalid input \"time.time_advance\". Will exit.");
+    }
 }
 
 void Solver_2D::evolve_explicit(double dt) {
@@ -133,11 +141,11 @@ void Solver_2D::calFlux_current() {
         for (int j = 0; j < 4; j++) {
             f->elements[ie].Flux[j] = 0;//单元数值通量Flux清零，为后面加减做准备
             f->elements[ie].deltaeig = 0;//每一轮deltaeig清零
-            if (GlobalPara::space::flag_reconstruct == _REC_linear)f->elements[ie].updateSlope_Barth(f);//线性重构，即更新单元分布函数
+            if (GlobalPara::space::flag_reconstruct == _REC_linear)f->elements[ie].updateSlope_Barth(f);//线性重构，Barth限制器
         }
     }
 
-    //每条边计算黎曼通量，然后根据方向分别加减给两侧单元的Flux。所有边遍历后，所有单元的Flux也就计算出来了
+    //每条边计算无粘通量，然后根据方向分别加减给两侧单元的Flux。所有边遍历后，所有单元的Flux也就计算出来了
     for (int iedge = 0; iedge < f->edges.size(); iedge++) {
         ////计算每条边的黎曼通量
         double flux[4]{};
@@ -292,7 +300,7 @@ void Solver_2D::getEdgeFlux_periodic(Edge_2D* pE, double* flux) {
 
 void Solver_2D::LLF_new_current(const double* UL, const double* UR, const double nx, const double ny, const double length, double* flux) {
     //功能：根据ULUR等参数，计算flux
-
+    //输出：flux
     const double& gamma = Constant::gamma;
     double ruvpL[4], ruvpR[4];
     Math_2D::U_2_ruvp(UL, ruvpL, gamma);
@@ -373,90 +381,6 @@ void Solver_2D::LLF_new_current(const double* UL, const double* UR, const double
     //flux[1] = 0.5 * (runL_len * uL + runR_len * uR + nx_len * (pL + pR) - coex * (rR * uR - rL * uL));
     //flux[2] = 0.5 * (runL_len * vL + runR_len * vR + ny_len * (pL + pR) - coex * (rR * vR - rL * vL));
     //flux[3] = 0.5 * (runL_len * hl + runR_len * hr - coex * (rR * er - rL * el));
-}
-
-void Solver_2D::LLF_test_2(const double* UL, const double* UR, const double nx, const double ny, const double length, double* flux) {
-    //功能：根据ULUR等参数，计算flux
-
-    const double& gamma = Constant::gamma;
-    double ruvpL[4], ruvpR[4];
-    Math_2D::U_2_ruvp(UL, ruvpL, gamma);
-    Math_2D::U_2_ruvp(UR, ruvpR, gamma);
-    double rL = ruvpL[0];
-    double uL = ruvpL[1];
-    double vL = ruvpL[2];
-    double pL = ruvpL[3];
-    double rR = ruvpR[0];
-    double uR = ruvpR[1];
-    double vR = ruvpR[2];
-    double pR = ruvpR[3];
-    double vaml = uL * uL + vL * vL;
-    double vamr = uR * uR + vR * vR;
-    double unL = nx * uL + ny * vL;
-    double unR = nx * uR + ny * vR;
-
-    double FnL[4], FnR[4];
-    FnL[0] = rL * unL;
-    FnL[1] = rL * unL * uL + nx * pL;
-    FnL[2] = rL * unL * vL + ny * pL;
-    double hl = pL * gamma / (rL * (gamma - 1.)) + 0.5 * vaml;
-    FnL[3] = rL * unL * hl;
-    FnR[0] = rR * unR;
-    FnR[1] = rR * unR * uR + nx * pR;
-    FnR[2] = rR * unR * vR + ny * pR;
-    double hr = pR * gamma / (rR * (gamma - 1.)) + 0.5 * vamr;
-    FnR[3] = rR * unR * hr;
-    double lambdaMax = max(abs(unL) + sqrt(gamma * pL / rL), abs(unR) + sqrt(gamma * pR / rR));
-
-    for (int i = 0; i < 4; i++) {
-        flux[i] = 0.5 * (FnL[i] + FnR[i] - lambdaMax * (UR[i] - UL[i]));
-        flux[i] *= length;
-    }
-}
-
-void Solver_2D::LLF_test(const double* UL, const double* UR, const double nx, const double ny, const double length, double* flux) {
-    ////以下为原来的。目前存在发散的问题，可能是ULUR混淆
-    //计算Fn、lambda
-    const double& gamma = Constant::gamma;
-    double Fn_L[4], Fn_R[4];//此处Fn为F·n
-    double lambdaL, lambdaR;
-    //计算Fn展开
-    double ruvpL[4], ruvpR[4];
-    Math_2D::U_2_ruvp(UL, ruvpL, gamma);
-    Math_2D::U_2_ruvp(UR, ruvpR, gamma);
-    //Math_2D::ruvp_2_Fn_lambda_2D(ruvp, Fn, lambda, nx, ny, gamma);
-    double rhoL = ruvpL[0];
-    double uL = ruvpL[1];
-    double vL = ruvpL[2];
-    double pL = ruvpL[3];
-    double unL = uL * nx + vL * ny;
-    double EL = Math_2D::get_E(ruvpL, gamma);
-    Fn_L[0] = rhoL * unL;//rho*u*nx + rho*v*ny = rho*un
-    Fn_L[1] = rhoL * uL * unL + pL * nx;//(rho*u^2+p)*nx + (rho*u*v)*ny = rho * u * un + p * nx
-    Fn_L[2] = rhoL * vL * unL + pL + ny;//rho * v * un + p + ny
-    Fn_L[3] = (rhoL * EL + pL) * unL;//(rho * E + p) * un
-    lambdaL = abs(unL) + sqrt(gamma * pL / rhoL);
-
-    double rhoR = ruvpR[0];
-    double uR = ruvpR[1];
-    double vR = ruvpR[2];
-    double pR = ruvpR[3];
-    double unR = uR * nx + vR * ny;
-    double ER = Math_2D::get_E(ruvpR, gamma);
-    Fn_R[0] = rhoR * unR;//rho*u*nx + rho*v*ny = rho*un
-    Fn_R[1] = rhoR * uR * unR + pR * nx;//(rho*u^2+p)*nx + (rho*u*v)*ny = rho * u * un + p * nx
-    Fn_R[2] = rhoR * vR * unR + pR + ny;//rho * v * un + p + ny
-    Fn_R[3] = (rhoR * ER + pR) * unR;//(rho * E + p) * un
-    lambdaR = abs(unR) + sqrt(gamma * pR / rhoR);
-
-    //计算flux
-    double lambdaMax = max(lambdaL, lambdaR);
-    for (int i = 0; i < 4; i++) {
-        flux[i] = 0.5 * (Fn_L[i] + Fn_R[i]) - 0.5 * lambdaMax * (UR[i] - UL[i]);
-        flux[i] *= length;
-    }
-
-
 }
 
 //void Solver_2D::calFlux_Roe_2() {
@@ -862,17 +786,17 @@ void Solver_2D::cal_ruvp_farfield_new(const double nx, const double ny, double* 
         double tmp_a = (gamma - 1.0) / 4.0 * (u_n - u_n_inf) + 0.5 * (a_n + a_n_inf);// 1/2 *( (ga-1)/2 * (u-uinf) + (a+ainf) )
         double tmp_a2 = tmp_a * tmp_a;
         if (u_n_inf <= 0.0) {//亚音速入口，提3个边界条件
-            double tmp_s_inf = p_n_inf / pow(rho_n_inf, gamma);//
-            rho_n_tmp = pow(tmp_a2 / tmp_s_inf / gamma, 1.0 / (gamma - 1.0));//边
+            double tmp_s_inf = p_n_inf / pow(rho_n_inf, gamma);//根据边界rho和p求出熵
+            rho_n_tmp = pow(tmp_a2 / tmp_s_inf / gamma, 1.0 / (gamma - 1.0));//边界
             u_n_tmp = 0.5 * (u_n + u_n_inf + 2.0 * a_n / (gamma - 1.0) - 2.0 * a_n_inf / (gamma - 1.0));
-            v_n_tmp = v_n_inf;//边
-            p_n_tmp = tmp_a2 * rho_n_tmp / gamma;//边
+            v_n_tmp = v_n_inf;//边界
+            p_n_tmp = tmp_a2 * rho_n_tmp / gamma;//边界
         }
         else {//亚音速出口，提1个边界条件 u_n_tmp
             double tmp_s = p_n / pow(rho_n, gamma);//内 //pow(x,y):若x<0且y非整数，或者x=0且y<=0，将出现结果错误
-            rho_n_tmp = pow(tmp_a2 / tmp_s / gamma, 1.0 / (gamma - 1.0));//内
+            rho_n_tmp = pow(tmp_a2 / tmp_s / gamma, 1.0 / (gamma - 1.0));
             u_n_tmp = 0.5 * (u_n + u_n_inf + 2.0 * a_n / (gamma - 1.0) - 2.0 * a_n_inf / (gamma - 1.0));//边 //法向按公式计算u_n_i_m_η后，与u_n平均
-            v_n_tmp = v_n;
+            v_n_tmp = v_n;//内点
             p_n_tmp = tmp_a2 * rho_n_tmp / gamma;
         }
     }

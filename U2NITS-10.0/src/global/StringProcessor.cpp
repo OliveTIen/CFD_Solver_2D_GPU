@@ -43,3 +43,19 @@ std::vector<std::string> StringProcessor::splitString(std::string tLine) {
 	return tWords;
 
 }
+
+std::string StringProcessor::timeFormat(int dt) {
+	int h = dt / 3600;//专门用int的除法
+	dt -= h * 3600;
+	int m = dt / 60;
+	dt -= m * 60;
+
+	std::string str;
+	str += std::to_string(h);
+	char szBuffer[4]{};
+	sprintf_s(szBuffer, _countof(szBuffer), "%02d", m);
+	str += std::string(":") + szBuffer;
+	sprintf_s(szBuffer, _countof(szBuffer), "%02d", dt);
+	str += std::string(":") + szBuffer;
+	return str;
+}

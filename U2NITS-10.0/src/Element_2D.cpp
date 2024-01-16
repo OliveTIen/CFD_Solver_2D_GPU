@@ -1,6 +1,7 @@
 #include "Element_2D.h"
 #include "FVM_2D.h"
 #include "Edge_2D.h"
+#include "output/LogWriter.h"
 
 //用函数对静态成员初始化，需放进局部namespace
 namespace {
@@ -154,12 +155,13 @@ void Element_T3::updateSlope_Barth(FVM_2D* f) {
             this->Uy[i_] = Uxy[1];
         }
         else {
-            std::cout << "未完成：Element_T3::calSlope_Barth(FVM_2D* f) nNeighbor==1" << std::endl;
+            //该情况很罕见，除非是corner单元
+            LogWriter::writeLogAndCout("未完成：Element_T3::calSlope_Barth(FVM_2D* f) nNeighbor==1 \n");
             //指定梯度方向
         }
 
     }
-    //限制器
+    //Barth限制器
     restructor_in_updateSlope_Barth(f);
 }
 

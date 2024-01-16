@@ -25,8 +25,8 @@ public:
 	std::vector<double> p_nodes;
 
 	double dt = 1e10;
-	double t_solve = 0;//续算时用到
-	int istep_solve = 0;
+	double t_previous = 0;//续算时的起始时间
+	int istep_previous = 0;//续算时的起始步
 	int iCurrentAutosaveFile = 0;//自动保存文件的指标，构成循环队列
 
 public:

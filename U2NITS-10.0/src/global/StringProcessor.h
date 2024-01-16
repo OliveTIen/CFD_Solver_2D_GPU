@@ -13,6 +13,9 @@ public:
 	static std::string DoubleArray_2_String(double* U, int length);
 	// 按空格和制表符分割
 	static std::vector<std::string> splitString(std::string tLine);
+
+	// 时间换算。输入：秒，输出：时:分:秒
+	static std::string timeFormat(int dt);
 };
 
 #endif // !STRING_PROCESSOR_H

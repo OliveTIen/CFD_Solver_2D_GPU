@@ -77,6 +77,11 @@ void TomlFileManager::modifyGlobalParametersAccordingToParsedFile() {
 
     getValueIfExists("time.CFL", GlobalPara::time::CFL);
     getValueIfExists("time.T", GlobalPara::time::T);
+    getValueIfExists("time.time_advance", GlobalPara::time::time_advance);
+    getValueIfExists("time.residual", GlobalPara::time::residual);
+
+    getValueIfExists("inviscid_flux_method.flux_construction", GlobalPara::inviscid_flux_method::flux_construction);
+    getValueIfExists("inviscid_flux_method.flux_limiter", GlobalPara::inviscid_flux_method::flux_limiter);
 
     if (has_error_on_modifying) {
         std::cout << "Please check the file \"input.toml\": " << "\n";

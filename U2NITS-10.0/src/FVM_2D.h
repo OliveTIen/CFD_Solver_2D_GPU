@@ -28,6 +28,8 @@ public:
 	double t_previous = 0;//续算时的起始时间
 	int istep_previous = 0;//续算时的起始步
 	int iCurrentAutosaveFile = 0;//自动保存文件的指标，构成循环队列
+	bool hasInitElementXY = false;//已经初始化单元中心坐标
+	bool hasInitEdgeLengths = false;//已经初始化edges的length, refLength
 
 public:
 	FVM_2D();
@@ -59,20 +61,23 @@ public:
 
 	//初始化pNodeTable。根据nodes将ID作为行号，存入指针
 	void iniPNodeTable(int maxnodeID);
-	//初始化edges所有项。根据elements，注册edges，并对edges初始化
+	//初始化edges的ID, nodes, pElement_L, pElement_R。根据elements，注册edges，并对edges初始化
 	void iniEdges();
+	//被上述函数调用。操作edges，添加或完善edge信息。添加：ID,nodes,Element_L，完善：Element_R
+	void iniEdges_registerSingle(int n0, int n1, Element_T3* pE);
 	//初始化pEdgeTable。根据edges将ID作为行号，存入指针
 	void iniPEdgeTable();
-	//初始化节点剩余项。初始化邻居单元
-	void iniNode_neighborElements();
-	//搜寻edges，根据节点ID判断edge是否存在，不存在则return nullptr。不区分n0, n1先后
-	Edge_2D* isEdgeExisted(int n0, int n1);
-	//操作edges，添加或完善edge信息。添加：ID,nodes,Element_L，完善：Element_R
-	void iniEdges_registerSingle(int n0, int n1, Element_T3* pE);
 	//初始化pElementTable
 	void iniPElementTable(int maxelementID);
-	//初始化单元剩余项。计算element的xy、pEdges
+	//初始化elements的坐标xy、pEdges
 	void iniElement_xy_pEdges();
+	//初始化nodes的邻居单元
+	void iniNode_neighborElements();
+	//初始化edges的length、refLength，存入edge，防止重复计算
+	void iniEdges_lengths();
+
+	//搜寻edges，根据节点ID判断edge是否存在，不存在则return nullptr。不区分n0, n1先后
+	Edge_2D* isEdgeExisted(int n0, int n1);
 	//根据节点ID返回Node指针
 	Node_2D* getNodeByID(int ID);
 

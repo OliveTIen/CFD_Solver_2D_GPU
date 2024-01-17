@@ -476,6 +476,7 @@ int FVM_2D::readContinueFile() {
 	iniPElementTable(maxelementID);
 	iniElement_xy_pEdges();
 	iniNode_neighborElements();
+	iniEdges_lengths();
 	boundaryManager.iniBoundarySetPEdges_in_readContinueFile(this, edges_of_all_sets);
 
 	return 0;
@@ -581,6 +582,18 @@ void FVM_2D::iniElement_xy_pEdges() {
 		elements[ie].inixy(this); //已经calxy，以后不必担心。但是必须要先读取node再读取element
 		elements[ie].iniPEdges(this);
 	}
+	hasInitElementXY = true;//已经初始化单元中心坐标。
+}
+
+void FVM_2D::iniEdges_lengths() {
+	if (hasInitElementXY == false) {
+		LogWriter::writeLogAndCout("Error: hasInitElementXY == false, in FVM_2D::iniEdges_lengths()\n");
+	}
+	for (int i = 0; i < edges.size(); i++) {
+		edges[i].length = (float)edges[i].getLength();
+		edges[i].refLength = (float)edges[i].getRefLength();
+	}
+	hasInitEdgeLengths = true;
 }
 
 Node_2D* FVM_2D::getNodeByID(int ID) {

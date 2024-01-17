@@ -27,6 +27,7 @@
     <ClCompile Include="src\head.cpp" />
     <ClCompile Include="src\main.cpp" />
     <ClCompile Include="src\Math.cpp" />
+    <ClCompile Include="src\math\AMatrix.cpp" />
     <ClCompile Include="src\Node_2D.cpp" />
     <ClCompile Include="src\output\ConsolePrinter.cpp" />
     <ClCompile Include="src\output\FieldWriter.cpp" />
@@ -34,6 +35,8 @@
     <ClCompile Include="src\output\ResidualCalculator.cpp" />
     <ClCompile Include="src\output\HistWriter.cpp" />
     <ClCompile Include="src\Solver_2D.cpp" />
+    <ClCompile Include="src\space\Reconstructor.cpp" />
+    <ClCompile Include="src\space\RiemannSolver.cpp" />
   </ItemGroup>
   <ItemGroup>
     <None Include="README.md" />
@@ -54,6 +57,7 @@
     <ClInclude Include="src\GlobalPara.h" />
     <ClInclude Include="src\head.h" />
     <ClInclude Include="src\Math.h" />
+    <ClInclude Include="src\math\AMatrix.h" />
     <ClInclude Include="src\Node_2D.h" />
     <ClInclude Include="src\output\ConsolePrinter.h" />
     <ClInclude Include="src\output\FieldWriter.h" />
@@ -62,6 +66,8 @@
     <ClInclude Include="src\output\HistWriter.h" />
     <ClInclude Include="src\SignDefine.h" />
     <ClInclude Include="src\Solver_2D.h" />
+    <ClInclude Include="src\space\Reconstructor.h" />
+    <ClInclude Include="src\space\RiemannSolver.h" />
   </ItemGroup>
   <PropertyGroup Label="Globals">
     <ProjectGuid>{79F3A025-855B-49FF-8C77-05D66988186A}</ProjectGuid>
@@ -101,6 +107,7 @@
       <Optimization>Disabled</Optimization>
       <PreprocessorDefinitions>WIN32;WIN64;_DEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <AdditionalOptions>"/bigobj" %(AdditionalOptions)</AdditionalOptions>
+      <OpenMPSupport>true</OpenMPSupport>
     </ClCompile>
     <Link>
       <GenerateDebugInformation>true</GenerateDebugInformation>

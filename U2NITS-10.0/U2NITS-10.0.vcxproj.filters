@@ -31,6 +31,9 @@
     <Filter Include="src\global">
       <UniqueIdentifier>{67b8fe61-ae4b-4c78-bc45-e39b906d045b}</UniqueIdentifier>
     </Filter>
+    <Filter Include="src\math">
+      <UniqueIdentifier>{2922bb1e-c106-4860-a3de-36943be2ad81}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="src\main.cpp">
@@ -101,6 +104,15 @@
     </ClCompile>
     <ClCompile Include="src\input\AirParameterConverter.cpp">
       <Filter>src\input</Filter>
+    </ClCompile>
+    <ClCompile Include="src\space\RiemannSolver.cpp">
+      <Filter>src\space</Filter>
+    </ClCompile>
+    <ClCompile Include="src\space\Reconstructor.cpp">
+      <Filter>src\space</Filter>
+    </ClCompile>
+    <ClCompile Include="src\math\AMatrix.cpp">
+      <Filter>src\math</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -175,6 +187,15 @@
     </ClInclude>
     <ClInclude Include="src\input\AirParameterConverter.h">
       <Filter>src\input</Filter>
+    </ClInclude>
+    <ClInclude Include="src\space\RiemannSolver.h">
+      <Filter>src\space</Filter>
+    </ClInclude>
+    <ClInclude Include="src\space\Reconstructor.h">
+      <Filter>src\space</Filter>
+    </ClInclude>
+    <ClInclude Include="src\math\AMatrix.h">
+      <Filter>src\math</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

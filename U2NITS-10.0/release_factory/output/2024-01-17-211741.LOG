@@ -1,0 +1,13 @@
+2024/01/17 21:17:41
+BoundaryCondition:
+inlet::ruvp	{1.000000,1.000000,0.000000,1.000000}
+outlet::ruvp	{1.000000,1.000000,0.000000,1.000000}
+inf::ruvp	{1.084269,166.051407,0.000000,85418.917950}
+
+  Calculate time: 	0:50:42	(3042.59 s)
+  Calculate step: 	12051
+  Calculate speed: 	3.28273	 step/s
+  Output file num: 	20
+  Residual rho: 	1.703880e-07
+  Physical time: 	0.0317985 s	/20 s
+Press ESC to end Computation

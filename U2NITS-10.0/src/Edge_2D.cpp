@@ -15,7 +15,12 @@ double Edge_2D::gety() {
     return (FVM_2D::pFVM2D->getNodeByID(nodes[0])->y + FVM_2D::pFVM2D->getNodeByID(nodes[1])->y) / 2.0;
 }
 
-double Edge_2D::getLength(FVM_2D* f) {
+
+double Edge_2D::getLength() {
+    FVM_2D* f = FVM_2D::pFVM2D;
+    if (f->hasInitEdgeLengths) {
+        return this->length;
+    }
     double x0, y0, x1, y1;
     x0 = f->getNodeByID(nodes[0])->x;
     y0 = f->getNodeByID(nodes[0])->y;
@@ -24,14 +29,29 @@ double Edge_2D::getLength(FVM_2D* f) {
     return sqrt((x0 - x1) * (x0 - x1) + (y0 - y1) * (y0 - y1));
 }
 
-double Edge_2D::getLength() {
+float Edge_2D::getRefLength() {
+    // 获取两侧单元中心距离
     FVM_2D* f = FVM_2D::pFVM2D;
-    double x0, y0, x1, y1;
-    x0 = f->getNodeByID(nodes[0])->x;
-    y0 = f->getNodeByID(nodes[0])->y;
-    x1 = f->getNodeByID(nodes[1])->x;
-    y1 = f->getNodeByID(nodes[1])->y;
-    return sqrt((x0 - x1) * (x0 - x1) + (y0 - y1) * (y0 - y1));
+    if (f->hasInitEdgeLengths) {
+        return this->refLength;
+    }
+    float xl, yl, xr, yr, dx, dy, dL;
+    xl = (float)this->pElement_L->x;
+    yl = (float)this->pElement_L->y;
+    if (this->pElement_R == nullptr) {
+        xr = (float)this->getx();
+        yr = (float)this->gety();
+        dx = xr - xl;
+        dy = yr - yl;
+        return 2.0f * sqrt(dx * dx + dy * dy);
+    }
+    else {
+        xr = (float)this->pElement_R->x;
+        yr = (float)this->pElement_R->y;
+        dx = xr - xl;
+        dy = yr - yl;
+        return sqrt(dx * dx + dy * dy);
+    }
 }
 
 void Edge_2D::U_2_F_lambda(const Eigen::Vector4d U, Eigen::Vector4d& F, double& lambda) {
@@ -46,46 +66,19 @@ void Edge_2D::U_2_F_lambda(const Eigen::Vector4d U, Eigen::Vector4d& F, double& 
 
 }
 
-std::vector<double> Edge_2D::getDirectionN(FVM_2D* f) {
-    //旧版 不准确
-    //std::vector<double> dir(2);
-    //double dx, dy, dl;
-    //if (pElement_R != nullptr) {
-    //    dx = pElement_R->x - pElement_L->x;
-    //    dy = pElement_R->y - pElement_L->y;
-    //}
-    //else {
-    //    double ex, ey;
-    //    getxy(f, ex, ey);
-    //    dx = ex - pElement_L->x;
-    //    dy = ey - pElement_L->y;
-    //}
-    //dl = sqrt(dx * dx + dy * dy);
-    //dir[0] = dx / dl;//cos(theta)
-    //dir[1] = dy / dl;//sin(theta)
-    //return dir;
-
-    //新版 只要gmesh生成的三角形都是逆时针顶点排列，那么注册时Edge必然也是逆时针顶点排列，故Element_L的外法向在边的右侧
-    //tx=cos(theta_t),ty=sin(theta_t),
-    //theta_n=theta_t-90°
-    //nx=cos(theta_n)=sin=ty,ny=sin(theta_n)=-cos=-tx
-    std::vector<double> T = getDirectionT(f);
-    std::vector<double> N{T[1], -T[0]};
-    return N;
-}
-
 std::vector<double> Edge_2D::getDirectionN() {
-    std::vector<double> T = getDirectionT(FVM_2D::pFVM2D);
+    std::vector<double> T = getDirectionT();
     std::vector<double> N{T[1], -T[0]};
     return N;
 }
 
 void Edge_2D::getDirectionN(double& nx, double& ny) {
-    std::vector<double> T = getDirectionT(FVM_2D::pFVM2D);
+    std::vector<double> T = getDirectionT();
     nx = T[1]; ny = -T[0];
 }
 
-std::vector<double> Edge_2D::getDirectionT(FVM_2D* f) {
+std::vector<double> Edge_2D::getDirectionT() {
+    FVM_2D* f = FVM_2D::pFVM2D;
     double dx = f->getNodeByID(nodes[1])->x - f->getNodeByID(nodes[0])->x;
     double dy = f->getNodeByID(nodes[1])->y - f->getNodeByID(nodes[0])->y;
     double dl = sqrt(dx * dx + dy * dy);
@@ -95,7 +88,7 @@ std::vector<double> Edge_2D::getDirectionT(FVM_2D* f) {
 
 Eigen::Matrix4d Edge_2D::calT(FVM_2D* f,double flag) {
     Eigen::Matrix4d matT;
-    std::vector<double>dir = getDirectionN(f);
+    std::vector<double>dir = getDirectionN();
     double nx = dir[0]; double ny = dir[1];
     ny *= flag;//逆矩阵就是sin变为相反数
     matT <<

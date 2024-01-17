@@ -109,6 +109,7 @@ int GmeshMeshReader::readMeshFile(std::string suffix) {
 	pFVM2D->iniPElementTable(maxelementID);
 	pFVM2D->iniElement_xy_pEdges();
 	pFVM2D->iniNode_neighborElements();
+	pFVM2D->iniEdges_lengths();
 	pFVM2D->boundaryManager.iniBoundarySetPEdges_in_readMeshFile(pFVM2D, vBoundaryEdges);//³õÊ¼»¯vBoundarySetµÄpEdges
 
 

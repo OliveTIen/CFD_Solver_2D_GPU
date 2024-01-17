@@ -73,7 +73,7 @@ namespace GlobalPara {
 		extern int autosaveFileNum;
 	}
 	namespace inviscid_flux_method {
-		extern int flux_construction;// 无粘通量残差构造方法 LLF Roe
+		extern int flux_conservation_scheme;// 无粘通量 守恒格式 用于求解黎曼问题 LLF Roe
 		//extern int flux_construction_lhs;
 		extern int flux_limiter;// 通量限制器
 	}

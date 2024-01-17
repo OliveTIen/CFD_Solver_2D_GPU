@@ -1,6 +1,8 @@
 #ifndef HEAD_H
 #define HEAD_H
 
+#include <omp.h>
+
 #include <conio.h> 
 #include <iostream>
 #include <io.h>

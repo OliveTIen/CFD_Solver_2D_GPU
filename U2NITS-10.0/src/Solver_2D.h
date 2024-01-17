@@ -15,37 +15,33 @@ class Edge_2D;
 class Element_T3;
 
 class Solver_2D {
-public:
-	//static double RK3alpha[6];
-	//static double RK5alpha[6];
+private:
+	// static double RK3alpha[6];
+	// static double RK5alpha[6];
 	
 public:
-	//旋转矩阵。flag=-1表示逆矩阵
-	//Eigen::Matrix4d get_matrixT(double nx, double ny, int flag = 1);
+	// 旋转矩阵。flag=-1表示逆矩阵
+	// Eigen::Matrix4d get_matrixT(double nx, double ny, int flag = 1);
 	void U_2_F_lambda(const Eigen::Vector4d U, Eigen::Vector4d& F, double& lambda);
 
-	//演化
+	// 演化
 	void evolve(double dt);
-	//显式推进
+	// 显式推进
 	void evolve_explicit(double dt);
-	//RK推进
+	// RK推进
 	void evolve_RK3(double dt);
 
 
-	////求解数值通量 new 将LocalLaxFriedrichs和Roe放进其中
-	void calFlux();
-
-	////[使用中]将LLF和Roe集成
-	void calFlux_current();//当前
+	//// [使用中]求解数值通量 
+	void calFlux();//当前
 	void getEdgeFlux_inner(Edge_2D* pE, double* flux);
 	void getEdgeFlux_wallNonViscous(Edge_2D* pE, double* flux);
 	void getEdgeFlux_farfield(Edge_2D* pE, const double* ruvp_inf, double* flux);
+	// 根据远场边界条件修正内场值 被上一个函数使用
+	void modify_ruvpL_in_farfield(const double nx, const double ny, double* ruvp, const double* ruvp_inf);
 	void getEdgeFlux_periodic(Edge_2D* pE, double* flux);
-	///用到的子函数
+	/// 用到的子函数
 	
-	//无粘通量F 根据两侧U值计算界面通量
-	void LLF_new_current(const double* UL, const double* UR, const double nx, const double ny, const double length, double* flux);//功能：根据ULUR等参数，计算flux[0-3]
-	void cal_ruvp_farfield_new(const double nx, const double ny, double* ruvp, const double* ruvp_inf);
 
 	//////原先的 能算出来，但是老师说等熵涡存在耗散
 	//void calFlux_old_LLF_1();
@@ -61,8 +57,14 @@ public:
 	//void calFlux_Roe_2();//仅完成周期边界 老师的fortran代码 存在发散问题
 	void Compute_Deltaeig();//[未使用]Roe格式的特征值计算函数
 
-	//粘性通量
+	// 黎曼求解器。该函数用于处理黎曼求解器的返回值，将RiemannSolver类与GlobalPara类、
+	// LogWriter类解耦
+	void RiemannSolve(const double* UL, const double* UR,
+		const double nx, const double ny, const double length, double* flux,
+		const int conservation_scheme);
 
+	// [开发中]粘性通量
+	void flux_viscous(Edge_2D* pEdge, double* flux_viscous);
 };
 
 #endif

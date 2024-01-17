@@ -8,8 +8,8 @@ class Edge_2D;
 class Data_2D {
 public:
 	double U[4] = { 1,0,0,1e5 / 0.4 };//守恒量ρ,ρu,ρv,ρE
-	double Ux[4] = { 0,0,0,0 };//
-	double Uy[4] = { 0,0,0,0 };//
+	double Ux[4] = { 0,0,0,0 };// 梯度
+	double Uy[4] = { 0,0,0,0 };// 梯度
 	double Flux[4]{};//4个守恒量的数值通量
 };
 
@@ -42,6 +42,7 @@ public:
 	void inixy(FVM_2D*);
 	//寻找相邻单元，返回指针数组
 	std::vector<Element_T3*> findNeighbor();
+	std::vector<Element_T3*> findNeighbor_withoutNullptr();
 	//计算到最近邻居的距离
 	double calDistanceFromNearestNeighbor(FVM_2D* f);
 	//计算Ux、Uy，并进行限制

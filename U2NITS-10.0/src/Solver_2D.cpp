@@ -1,6 +1,8 @@
 #include "Solver_2D.h"
 #include "FVM_2D.h"
 #include "output/LogWriter.h"
+#include "space/RiemannSolver.h"
+#include "space/Reconstructor.h"
 
 //double Solver_2D::RK3alpha[6]{ 0.0,1.0 / 4.0,1.0 / 6.0,3.0 / 8.0 ,0.5,1.0 };
 //double Solver_2D::RK5alpha[6]{ 0.0,1.0 / 4.0,1.0 / 6.0,3.0 / 8.0 ,0.5,1.0 };
@@ -47,6 +49,7 @@ void Solver_2D::evolve_explicit(double dt) {
     //时间推进
     FVM_2D* f = FVM_2D::pFVM2D;
     double omega;//面积
+//#pragma omp parallel for
     for (int ie = 0; ie < f->elements.size(); ie++) {
         omega = f->elements[ie].calArea(f);
         for (int j = 0; j < 4; j++) {
@@ -127,24 +130,29 @@ void Solver_2D::evolve_RK3(double dt) {
 
 }
 
+
 void Solver_2D::calFlux() {
-
-    calFlux_current();
-    return;
-}
-
-void Solver_2D::calFlux_current() {
     FVM_2D* f = FVM_2D::pFVM2D;
 
+//#pragma omp parallel for
     //准备工作。初始化单元数值通量、分布函数
     for (int ie = 0; ie < f->elements.size(); ie++) {
         for (int j = 0; j < 4; j++) {
             f->elements[ie].Flux[j] = 0;//单元数值通量Flux清零，为后面加减做准备
             f->elements[ie].deltaeig = 0;//每一轮deltaeig清零
-            if (GlobalPara::space::flag_reconstruct == _REC_linear)f->elements[ie].updateSlope_Barth(f);//线性重构，Barth限制器
+            if (GlobalPara::space::flag_reconstruct == _REC_constant
+                && GlobalPara::physicsModel::equation == _EQ_euler) {
+                // 如果是常量重构+Euler，则无需计算梯度
+            }
+            else {
+                // 否则需要计算梯度，且用限制器修正
+                Reconstructor::Element_T3_updateSlope_Barth(f, &(f->elements[ie]));
+                //f->elements[ie].updateSlope_Barth(f);//线性重构，Barth限制器
+            }
         }
     }
 
+//#pragma omp parallel for
     //每条边计算无粘通量，然后根据方向分别加减给两侧单元的Flux。所有边遍历后，所有单元的Flux也就计算出来了
     for (int iedge = 0; iedge < f->edges.size(); iedge++) {
         ////计算每条边的黎曼通量
@@ -216,7 +224,8 @@ void Solver_2D::getEdgeFlux_inner(Edge_2D* pE, double* flux) {
     pE->pElement_L->get_U(x_edge, y_edge, U_L);
     pE->pElement_R->get_U(x_edge, y_edge, U_R);
     pE->getDirectionN(nx, ny);
-    LLF_new_current(U_L, U_R, nx, ny, pE->getLength(), flux);
+    RiemannSolve(U_L, U_R, nx, ny, pE->getLength(), flux,
+        GlobalPara::inviscid_flux_method::flux_conservation_scheme);
 
 }
 
@@ -240,7 +249,8 @@ void Solver_2D::getEdgeFlux_wallNonViscous(Edge_2D* pE, double* flux) {
     U_R[2] = U_R[0] * vR;
     U_R[3] = U_L[3];
 
-    LLF_new_current(U_L, U_R, nx, ny, pE->getLength(), flux);
+    RiemannSolve(U_L, U_R, nx, ny, pE->getLength(), flux,
+        GlobalPara::inviscid_flux_method::flux_conservation_scheme);
 }
 
 void Solver_2D::getEdgeFlux_farfield(Edge_2D* pE, const double* ruvp_inf, double* flux) {
@@ -255,7 +265,7 @@ void Solver_2D::getEdgeFlux_farfield(Edge_2D* pE, const double* ruvp_inf, double
     pE->getxy(FVM_2D::pFVM2D, x_edge, y_edge);
     pE->pElement_L->get_U(x_edge, y_edge, U_L);
     Math_2D::U_2_ruvp(U_L, ruvp_L, Constant::gamma);
-    //检查ruvp_L合法性
+    //检查ruvp_L合法性 检测是否发散
     if (ruvp_L[3] < 0) {
         std::cout << "ElementID=" << pE->pElement_L->ID << ",x=" << pE->pElement_L->x << ",y=" << pE->pElement_L->y
             << ":\tp<0" << "\t(Edge_2D::calFlux_Riemann)\n";
@@ -268,9 +278,10 @@ void Solver_2D::getEdgeFlux_farfield(Edge_2D* pE, const double* ruvp_inf, double
         std::cout << "Warning rho>900, ElementID=" << pE->pElement_L->ID << "\n";
     }
     //根据远场边界条件修正ruvp_L
-    cal_ruvp_farfield_new(nx, ny, ruvp_L, ruvp_inf);
+    modify_ruvpL_in_farfield(nx, ny, ruvp_L, ruvp_inf);
     Math_2D::ruvp_2_U(ruvp_L, U_L, Constant::gamma);
-    LLF_new_current(U_L, U_L, nx, ny, pE->getLength(), flux);
+    RiemannSolve(U_L, U_L, nx, ny, pE->getLength(), flux,
+        GlobalPara::inviscid_flux_method::flux_conservation_scheme);
 
 }
 
@@ -295,92 +306,8 @@ void Solver_2D::getEdgeFlux_periodic(Edge_2D* pE, double* flux) {
     //计算数值通量向量。其元素为各守恒量的数值通量
     double UL[4]{ U_L[0],U_L[1],U_L[2],U_L[3] };
     double UR[4]{ U_R[0],U_R[1],U_R[2],U_R[3] };
-    LLF_new_current(UL, UR, nx, ny, pE->getLength(), flux);
-}
-
-void Solver_2D::LLF_new_current(const double* UL, const double* UR, const double nx, const double ny, const double length, double* flux) {
-    //功能：根据ULUR等参数，计算flux
-    //输出：flux
-    const double& gamma = Constant::gamma;
-    double ruvpL[4], ruvpR[4];
-    Math_2D::U_2_ruvp(UL, ruvpL, gamma);
-    Math_2D::U_2_ruvp(UR, ruvpR, gamma);
-    double rL = ruvpL[0];
-    double uL = ruvpL[1];
-    double vL = ruvpL[2];
-    double pL = ruvpL[3];
-    double rR = ruvpR[0];
-    double uR = ruvpR[1];
-    double vR = ruvpR[2];
-    double pR = ruvpR[3];
-    double vaml = uL * uL + vL * vL;
-    double vamr = uR * uR + vR * vR;
-    double unL = nx * uL + ny * vL;
-    double unR = nx * uR + ny * vR;
-
-    double FnL[4], FnR[4];
-    FnL[0] = rL * unL;
-    FnL[1] = rL * unL * uL + nx * pL;
-    FnL[2] = rL * unL * vL + ny * pL;
-    double hl = pL * gamma / (rL * (gamma - 1.)) + 0.5 * vaml;
-    FnL[3] = rL * unL * hl;
-    FnR[0] = rR * unR;
-    FnR[1] = rR * unR * uR + nx * pR;
-    FnR[2] = rR * unR * vR + ny * pR;
-    double hr = pR * gamma / (rR * (gamma - 1.)) + 0.5 * vamr;
-    FnR[3] = rR * unR * hr;
-    double lambdaMax = max(abs(unL) + sqrt(gamma * pL / rL), abs(unR) + sqrt(gamma * pR / rR));
-
-    for (int i = 0; i < 4; i++) {
-        flux[i] = 0.5 * (FnL[i] + FnR[i] - lambdaMax * (UR[i] - UL[i]));
-        flux[i] *= length;
-    }
-
-
-    
-    //////测试成功 new_1_old 老师的fortran代码
-    //const double& gamma = Constant::gamma;
-    //double nx_len, ny_len, sav1n, sav2n, len;
-    //sav1n = nx;
-    //sav2n = ny;
-    //len = length;
-    //nx_len = length * nx;
-    //ny_len = length * ny;
-
-    //double ruvpL[4], ruvpR[4];
-    //Math_2D::U_2_ruvp(UL, ruvpL, gamma);
-    //Math_2D::U_2_ruvp(UR, ruvpR, gamma);
-    //double rL = ruvpL[0];
-    //double uL = ruvpL[1];
-    //double vL = ruvpL[2];
-    //double pL = ruvpL[3];
-    //double rR = ruvpR[0];
-    //double uR = ruvpR[1];
-    //double vR = ruvpR[2];
-    //double pR = ruvpR[3];
-    //
-    //const double ga1 = gamma - 1;
-    //double vaml = uL * uL + vL * vL;
-    //double vamr = uR * uR + vR * vR;
-    //double hl = pL * gamma / (rL * (gamma - 1.)) + 0.5 * vaml;
-    //double hr = pR * gamma / (rR * (gamma - 1.)) + 0.5 * vamr;
-    //double el = pL / (rL * ga1) + 0.5 * vaml;
-    //double er = pR / (rR * ga1) + 0.5 * vamr;
-    //double acl = sqrt(gamma * pL / rL);
-    //double acr = sqrt(gamma * pR / rR);
-
-    //double unL_len = (nx_len * uL + ny_len * vL);
-    //double unR_len = (nx_len * uR + ny_len * vR);
-
-    //double coex = max(abs(unL_len), abs(unR_len)) + max(acl, acr) * len;//lambdaMax=max(lambdaL,lambdaR)
-
-    //double runL_len = rL * unL_len;
-    //double runR_len = rR * unR_len;
-
-    //flux[0] = 0.5 * (runL_len + runR_len - coex * (rR - rL));
-    //flux[1] = 0.5 * (runL_len * uL + runR_len * uR + nx_len * (pL + pR) - coex * (rR * uR - rL * uL));
-    //flux[2] = 0.5 * (runL_len * vL + runR_len * vR + ny_len * (pL + pR) - coex * (rR * vR - rL * vL));
-    //flux[3] = 0.5 * (runL_len * hl + runR_len * hr - coex * (rR * er - rL * el));
+    RiemannSolve(UL, UR, nx, ny, pE->getLength(), flux,
+        GlobalPara::inviscid_flux_method::flux_conservation_scheme);
 }
 
 //void Solver_2D::calFlux_Roe_2() {
@@ -428,7 +355,7 @@ void Solver_2D::LLF_new_current(const double* UL, const double* UR, const double
 //        sav2n = sav2 / sav;
 //
 //
-//        //do ig=1, NG 不知道干嘛的，难道是group？
+//        //do ig=1, NG 高斯积分点
 //
 //        //计算左ruvp
 //        //!计算左单元在边中点处的ruvp
@@ -746,7 +673,21 @@ void Solver_2D::Compute_Deltaeig() {
     }
 }
 
-void Solver_2D::cal_ruvp_farfield_new(const double nx, const double ny, double* ruvp, const double* ruvp_inf) {
+void Solver_2D::RiemannSolve(const double* UL, const double* UR, const double nx, 
+    const double ny, const double length, double* flux, const int conservation_scheme) {
+    int returnCode = RiemannSolver::solve(UL, UR, nx, ny, length, flux,
+        GlobalPara::inviscid_flux_method::flux_conservation_scheme);
+    if (returnCode == RiemannSolver::ReturnStatus::invalid_solver_type) {
+        LogWriter::writeLogAndCout("Error: invalid RiemannSolver type.\n Will exit.\n");
+        exit(returnCode);
+    }
+    else if (returnCode == RiemannSolver::ReturnStatus::compute_error) {
+        LogWriter::writeLogAndCout("Error: compute error in RiemannSolver.\n Will exit.\n");
+        exit(returnCode);
+    }
+}
+
+void Solver_2D::modify_ruvpL_in_farfield(const double nx, const double ny, double* ruvp, const double* ruvp_inf) {
     //边界元的Element_R为null，因此nxny一定朝外
     const double rho = ruvp[0];
     const double u = ruvp[1];
@@ -819,4 +760,88 @@ void Solver_2D::cal_ruvp_farfield_new(const double nx, const double ny, double* 
     ruvp[1] = u_n_tmp * nx - v_n_tmp * ny;//逆变换。这里用了自己的变换方式
     ruvp[2] = u_n_tmp * ny + v_n_tmp * nx;
     ruvp[3] = p_n_tmp;
+}
+
+void Solver_2D::flux_viscous(Edge_2D* pE, double* flux) {
+    // 应放进Solver_2D::calFlux()的for each face boundary中
+    // 此处，不同边界条件的处理全放进一个函数中
+    // edge又称为face
+
+    FVM_2D* pFVM2D = FVM_2D::pFVM2D;
+    double nx, ny;
+    pE->getDirectionN(nx, ny);
+    double x_edge, y_edge;
+    pE->getxy(pFVM2D, x_edge, y_edge);
+    const double& gamma = Constant::gamma;// 引用，避免占空间
+    const int nVar = 4;
+
+    //// UL
+    double U_L[4]{};
+    double ruvp_L[4]{};
+    double rl{};// 初始化为0.0
+    double ul{};// double rl(ruvp_L[0])相当于 double rl = ruvp_L[0]
+    double vl{};
+    double pl{};
+    pE->pElement_L->get_U(x_edge, y_edge, U_L);
+    Math_2D::U_2_ruvp(U_L, ruvp_L, gamma);
+    rl = ruvp_L[0];
+    ul = ruvp_L[1];
+    vl = ruvp_L[2];
+    pl = ruvp_L[3];
+
+    //// UR
+    double U_R[4]{};
+    double ruvp_R[4]{};
+    double rr{};// 初始化为0.0
+    double ur{};
+    double vr{};
+    double pr{};
+    // inner face
+    if (pE->pElement_R != nullptr) {
+        pE->pElement_R->get_U(x_edge, y_edge, U_R);
+        Math_2D::U_2_ruvp(U_R, ruvp_R, gamma);
+        rr = ruvp_R[0];
+        ur = ruvp_R[1];
+        vr = ruvp_R[2];
+        pr = ruvp_R[3];
+
+    }
+    // boundary face
+    else {
+        const int bType = pFVM2D->boundaryManager.vBoundarySets[pE->setID - 1].type;
+
+        // 固壁
+        if (bType == _BC_wall_adiabat ||
+            bType == _BC_wall_isothermal ||
+            bType == _BC_wall_nonViscous) {
+            ul = 0;
+            vl = 0;
+            rr = rl;
+            ur = ul;
+            vr = vl;
+            pr = pl;
+        }
+        // 其他
+        else {
+            rr = rl;
+            ur = ul;
+            vr = vl;
+            pr = pl;
+        }
+    }
+
+    //// viscous flux
+    double r = 0.5 * (rl + rr);
+    double u = 0.5 * (ul + ur);
+    double v = 0.5 * (vl + vr);
+    double p = 0.5 * (pl + pr);
+    // gradient
+    double gradC[2][nVar]{};
+    double tgd[2][nVar]{};
+    for (int k = 0; k < nVar; k++) {
+        gradC[0][k] = pE->pElement_L->Ux[k];
+        gradC[1][k] = pE->pElement_L->Uy[k];
+        tgd[0][k] = gradC[0][k] * nx;
+        tgd[1][k] = gradC[1][k] * ny;
+    }
 }

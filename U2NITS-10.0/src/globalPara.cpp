@@ -71,7 +71,7 @@ namespace GlobalPara {
 		int autosaveFileNum = 3;
 	}
 	namespace inviscid_flux_method {
-		int flux_construction = _SOL_Roe;// 黎曼求解器
+		int flux_conservation_scheme = _SOL_Roe;// 黎曼求解器
 		//int flux_construction_lhs;
 		int flux_limiter = _LIM_minmod;
 	}

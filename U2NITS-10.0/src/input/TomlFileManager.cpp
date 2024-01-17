@@ -80,7 +80,8 @@ void TomlFileManager::modifyGlobalParametersAccordingToParsedFile() {
     getValueIfExists("time.time_advance", GlobalPara::time::time_advance);
     getValueIfExists("time.residual", GlobalPara::time::residual);
 
-    getValueIfExists("inviscid_flux_method.flux_construction", GlobalPara::inviscid_flux_method::flux_construction);
+    getValueIfExists("inviscid_flux_method.flag_reconstruct", GlobalPara::space::flag_reconstruct);
+    getValueIfExists("inviscid_flux_method.flux_conservation_scheme", GlobalPara::inviscid_flux_method::flux_conservation_scheme);
     getValueIfExists("inviscid_flux_method.flux_limiter", GlobalPara::inviscid_flux_method::flux_limiter);
 
     if (has_error_on_modifying) {

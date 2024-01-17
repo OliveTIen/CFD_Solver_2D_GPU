@@ -83,6 +83,19 @@ std::vector<Element_T3*> Element_T3::findNeighbor() {
     return pNeighborElements;
 }
 
+std::vector<Element_T3*> Element_T3::findNeighbor_withoutNullptr() {
+    std::vector<Element_T3*>neighbors_origin = this->findNeighbor();
+    std::vector<Element_T3*>neighbors;
+    //清除nullptr
+    for (int i = 0; i < 3; i++) {
+        if (neighbors_origin[i] != nullptr) {
+            //neighbors_origin[i]->calxy(f);//初始化坐标 calxy!!!
+            neighbors.push_back(neighbors_origin[i]);
+        }
+    }
+    return neighbors;
+}
+
 double Element_T3::calDistanceFromNearestNeighbor(FVM_2D* f) {
     std::vector<Element_T3*> n = findNeighbor();
     double dis = 1e10;
@@ -218,6 +231,7 @@ void Element_T3::get_U(double xpoint, double ypoint, double* _U) {
         }
     }
     //线性重构
+    //根据梯度Ux、Uy计算点(xpoint,ypoint)处_U值
     else if (GlobalPara::space::flag_reconstruct == _REC_linear) {
         for (int j = 0; j < 4; j++) {
             _U[j] = U[j] + Ux[j] * (xpoint - x) + Uy[j] * (ypoint - y);
@@ -320,7 +334,7 @@ double Element_T3::calLambdaFlux(FVM_2D* f) {
         pEdges[ie]->getxy(f, ex, ey);
         get_U(ex, ey, eU);
         //en
-        std::vector<double> en = pEdges[ie]->getDirectionN(f);
+        std::vector<double> en = pEdges[ie]->getDirectionN();
         //eabs
         double u = eU[1] / eU[0];
         double v = eU[2] / eU[0];
@@ -331,7 +345,7 @@ double Element_T3::calLambdaFlux(FVM_2D* f) {
         double& rho = eU[0];
         double p = 0.5 * rho * (Constant::gamma - 1) * (2 * E - V2);
         double ec = sqrt(Constant::gamma * p / rho);
-        double dl = pEdges[ie]->getLength(f);
+        double dl = pEdges[ie]->getLength();
         LambdaC += (eabs + ec) * dl;
     }
     return LambdaC;

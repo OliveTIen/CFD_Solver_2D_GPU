@@ -17,9 +17,13 @@ author: tgl
 以前能够实现光标移动，可是更改代码后发现失效了。经排查，原来是开头输出input.toml时，由于输出内容超过1页，导致屏幕滚动，
 然而目前的ConsolePrinter只支持一行滚动的
  
+2024-01-20
+之前测试线性重构发现和常量重构精度差不多，原来是忘记将计算结果存进单元了
+
 2024-01-17
 添加线性重构。
 发现OpenMP，以后可以研究如何保证数据的原子性：https://blog.csdn.net/xuyiqiang87/article/details/52763653
+粘性求解器进行至Solver_2D.cppP866，
 
 2024-01-15
 复杂的设计模式、不添加注释、奇怪的命名都会增加阅读代码的难度
@@ -53,7 +57,7 @@ UNITS项目`D:\tgl\Local\THUnits-Interface-UNITs\codes_UNITS_old\UNITs-v3.4-2021-1
 Solver_2D::getEdgeFlux_farfield
 Solver_2D::cal_ruvp_farfield_new cpp第825行
 首先要理解Euler方程的数值边界条件处理。参见课堂笔记md文档
-但我看王乾的代码，我确实已经实现了，为什么圆柱绕流的结果不理想？原来是我input.json速度设置为0
+但我看王乾的代码，我确实已经实现了，为什么圆柱绕流的结果不理想？原来是边界条件问题，input.json速度设置为0
 接下来是找标准算例验证自己程序的正确性。希望远场边界是正确的
 此外添加四边形网格，修改程序框架
 

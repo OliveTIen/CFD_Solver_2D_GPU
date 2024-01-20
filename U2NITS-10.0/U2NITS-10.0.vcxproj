@@ -35,6 +35,7 @@
     <ClCompile Include="src\output\ResidualCalculator.cpp" />
     <ClCompile Include="src\output\HistWriter.cpp" />
     <ClCompile Include="src\Solver_2D.cpp" />
+    <ClCompile Include="src\space\Limiter.cpp" />
     <ClCompile Include="src\space\Reconstructor.cpp" />
     <ClCompile Include="src\space\RiemannSolver.cpp" />
   </ItemGroup>
@@ -66,6 +67,7 @@
     <ClInclude Include="src\output\HistWriter.h" />
     <ClInclude Include="src\SignDefine.h" />
     <ClInclude Include="src\Solver_2D.h" />
+    <ClInclude Include="src\space\Limiter.h" />
     <ClInclude Include="src\space\Reconstructor.h" />
     <ClInclude Include="src\space\RiemannSolver.h" />
   </ItemGroup>

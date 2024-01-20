@@ -24,6 +24,8 @@ void FVM_2D::run() {
 			error_msg += "Will try to start from zero again.\n";
 			LogWriter::writeLogAndCout(error_msg);
 			startFromZero = true;
+			// 防止后面histWriter不写文件头
+			GlobalPara::basic::_continue = false;
 		}
 	}
 	else {
@@ -234,6 +236,7 @@ void FVM_2D::solve_(std::string suffix_out, std::string suffix_info) {
 			writeTecplotFile(filePathManager->getExePath_withSlash() + "output\\" + GlobalPara::basic::filename + "[" + szBuffer + "].dat", t);
 			std::cout << "Computation finished as the field is already stable\n";
 #ifdef _WIN32
+			std::cout << "Please close the pop-up window.\n";
 			MessageBox(NULL, "Computation finished", "U2NITS", MB_OK);
 #endif // _WIN32
 			signal_pause = true;

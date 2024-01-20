@@ -114,6 +114,9 @@
     <ClCompile Include="src\math\AMatrix.cpp">
       <Filter>src\math</Filter>
     </ClCompile>
+    <ClCompile Include="src\space\Limiter.cpp">
+      <Filter>src\space</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <None Include="README.md" />
@@ -196,6 +199,9 @@
     </ClInclude>
     <ClInclude Include="src\math\AMatrix.h">
       <Filter>src\math</Filter>
+    </ClInclude>
+    <ClInclude Include="src\space\Limiter.h">
+      <Filter>src\space</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

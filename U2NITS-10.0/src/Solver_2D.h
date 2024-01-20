@@ -65,6 +65,7 @@ public:
 
 	// [开发中]粘性通量
 	void flux_viscous(Edge_2D* pEdge, double* flux_viscous);
+	void flux_viscous_2(Edge_2D* pEdge, double* flux_viscous);
 };
 
 #endif

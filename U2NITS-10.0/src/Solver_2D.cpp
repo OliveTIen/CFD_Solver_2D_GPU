@@ -767,6 +767,8 @@ void Solver_2D::flux_viscous(Edge_2D* pE, double* flux) {
     // 此处，不同边界条件的处理全放进一个函数中
     // edge又称为face
 
+
+
     FVM_2D* pFVM2D = FVM_2D::pFVM2D;
     double nx, ny;
     pE->getDirectionN(nx, ny);
@@ -774,6 +776,14 @@ void Solver_2D::flux_viscous(Edge_2D* pE, double* flux) {
     pE->getxy(pFVM2D, x_edge, y_edge);
     const double& gamma = Constant::gamma;// 引用，避免占空间
     const int nVar = 4;
+    double sav = pE->getRefLength();// ! 此处已经修改！前面的梯度张量部分也要修改！
+    double sav1 = sav * nx;
+    double sav2 = sav * ny;
+    double& sav1n = nx;
+    double& sav2n = ny;
+    double& dx = sav1;
+    double& dy = sav2;
+    bool isWall = false;
 
     //// UL
     double U_L[4]{};
@@ -820,8 +830,8 @@ void Solver_2D::flux_viscous(Edge_2D* pE, double* flux) {
             ur = ul;
             vr = vl;
             pr = pl;
+            isWall = true;
         }
-        // 其他
         else {
             rr = rl;
             ur = ul;
@@ -838,10 +848,126 @@ void Solver_2D::flux_viscous(Edge_2D* pE, double* flux) {
     // gradient
     double gradC[2][nVar]{};
     double tgd[2][nVar]{};
+    double yita = 0.5;
+    
     for (int k = 0; k < nVar; k++) {
         gradC[0][k] = pE->pElement_L->Ux[k];
         gradC[1][k] = pE->pElement_L->Uy[k];
-        tgd[0][k] = gradC[0][k] * nx;
-        tgd[1][k] = gradC[1][k] * ny;
+        tgd[0][k] = pE->pElement_L->Ux[k] * dx;
+        tgd[1][k] = pE->pElement_L->Uy[k] * dy;
+    }
+    if (pE->pElement_R != nullptr) {
+        double dxk = (std::min)(pE->pElement_L->calArea(pFVM2D), pE->pElement_R->calArea(pFVM2D)) / sav;
+        for (int k = 0; k < nVar; k++) {
+            // !!!! 注意WangQ的"flux_viscous.f90第142行"不是用的ruvp是用的puvt，要订正，因为后面耗散是t的耗散
+            tgd[0][k] = 0.5 * (tgd[0][k] + pE->pElement_R->Ux[k] * dx)
+                + yita * sav1n * (ruvp_R[k] - ruvp_L[k]) / dxk;
+            tgd[1][k] = 0.5 * (tgd[1][k] + pE->pElement_R->Uy[k] * dy)
+                + yita * sav2n * (ruvp_R[k] - ruvp_L[k]) / dxk;
+        }
+    }
+    // 接下来是WangQ的"flux_viscous.f90第150行
+    double drdx(tgd[0][0]);
+    double dudx(tgd[0][1]);
+    double dvdx(tgd[0][2]);
+    double dpdx(tgd[0][3]);
+    double drdy(tgd[1][0]);
+    double dudy(tgd[1][1]);
+    double dvdy(tgd[1][2]);
+    double dpdy(tgd[1][3]);
+    if (isWall) {
+
+    }
+
+}
+
+void Solver_2D::flux_viscous_2(Edge_2D* pE, double* flux_viscous) {
+    FVM_2D* pFVM2D = FVM_2D::pFVM2D;
+    bool isWall = false;
+    float reflen = pE->getRefLength();
+    double x_edge{}, y_edge{};
+    pE->getxy(pFVM2D, x_edge, y_edge);
+
+    double vvh[2]{ (x_edge - pE->pElement_L->x) / reflen ,
+        (y_edge - pE->pElement_L->y) / reflen };
+    // reflen 无量纲化的长度 取的是绝对值
+    //// UL
+    double U_L[4]{}, U_R[4]{};
+    double ruvp_L[4]{}, ruvp_R[4]{};
+    const double gamma = Constant::gamma;
+    const double R = Constant::R;
+    pE->pElement_L->get_U(x_edge, y_edge, U_L);
+    Math_2D::U_2_ruvp(U_L, ruvp_L, gamma);
+    double rl = ruvp_L[0];
+    double ul = ruvp_L[1];
+    double vl = ruvp_L[2];
+    double pl = ruvp_L[3];
+    double tl = pl / rl / R; // p=rho*R*T
+
+    if (rl < 0 || pl < 0 || tl < 0) {
+        // do nothing
+    }
+    double rr{}, ur{}, vr{}, pr{}, tr{};
+    if (pE->pElement_R != nullptr) {
+        pE->pElement_R->get_U(x_edge, y_edge, U_R);
+        Math_2D::U_2_ruvp(U_R, ruvp_R, gamma);
+        rr = ruvp_R[0];
+        ur = ruvp_R[1];
+        vr = ruvp_R[2];
+        pr = ruvp_R[3];
+        tr = pr / rr / R;
+    }
+    else {
+        const int bType = pFVM2D->
+            boundaryManager.vBoundarySets[pE->setID - 1].type;
+
+        // 固壁
+        if (bType == _BC_wall_adiabat ||
+            bType == _BC_wall_isothermal ||
+            bType == _BC_wall_nonViscous) {
+            rr = rl;
+            pr = pl;
+            tr = tl;
+            ul = 0;
+            vl = 0;
+            ur = 0;
+            vr = 0;
+            isWall = true;
+        }
+        else {
+            rr = rl;
+            pr = pl;
+            tr = tl;
+
+            ur = ul;
+            vr = vl;
+        }
+    }
+
+    // ------------
+    // viscous flux
+    // ------------
+    double tem = 0.5 * (tl + tr);
+    double uu = 0.5 * (ul + ur);
+    double vv = 0.5 * (vl + vr);
+    double pp = 0.5 * (pl + pr);
+    rr = pp / (R * tem);// p=rho*R*T
+    // Cp-Cv=R, Cp/Cv=gamma
+    // p=rho*R*T,R=287.06
+    // air: Cp=1005 [J/(kg*K)] 
+    //      Cv=717.94
+    // 经验证，air的Cp Cv满足以上两个关系式
+
+    // gradient
+    const int nVar = 4;
+    double gradC[2][nVar]{};
+    double tgd[2][nVar]{};
+    double yita = 0.5;
+
+    for (int k = 0; k < nVar; k++) {
+        gradC[0][k] = pE->pElement_L->Ux[k];
+        gradC[1][k] = pE->pElement_L->Uy[k];
+        //tgd[0][k] = pE->pElement_L->Ux[k] * dx;
+        //tgd[1][k] = pE->pElement_L->Uy[k] * dy;
     }
 }

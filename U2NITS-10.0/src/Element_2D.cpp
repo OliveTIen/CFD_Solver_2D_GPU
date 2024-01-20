@@ -185,12 +185,12 @@ void Element_T3::restructor_in_updateSlope_Barth(FVM_2D* f) {
     double UU[3][4]{};//邻居函数值与自身函数值的差
     double UUup = 0;
     double UUdown = 0;
-    for (int in = 0; in < neighbors.size(); in++) {
-        if (neighbors[in] != nullptr) {
+    for (int i = 0; i < neighbors.size(); i++) {
+        if (neighbors[i] != nullptr) {
             for (int j = 0; j < 4; j++) {
-                UU[in][j] = neighbors[in]->U[j] - this->U[j];
-                UUup = (std::max)(UUup, UU[in][j]);
-                UUdown = (std::min)(UUdown, UU[in][j]);
+                UU[i][j] = neighbors[i]->U[j] - this->U[j];
+                UUup = (std::max)(UUup, UU[i][j]);
+                UUdown = (std::min)(UUdown, UU[i][j]);
             }
         }
     }

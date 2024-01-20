@@ -45,7 +45,7 @@ public:
 	std::vector<Element_T3*> findNeighbor_withoutNullptr();
 	//计算到最近邻居的距离
 	double calDistanceFromNearestNeighbor(FVM_2D* f);
-	//计算Ux、Uy，并进行限制
+	//[未使用]计算Ux、Uy，并进行限制
 	void updateSlope_Barth(FVM_2D* f);
 	//梯度限制器。修正Ux、Uy，防止过大
 	void restructor_in_updateSlope_Barth(FVM_2D* f);

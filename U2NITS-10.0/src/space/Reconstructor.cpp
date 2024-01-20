@@ -93,9 +93,9 @@ void Reconstructor::Element_T3_updateSlope_Barth(FVM_2D* f, Element_T3* pE) {
         dU[j][2] = neighbors[j]->U[2] - pE->U[2];
         dU[j][3] = neighbors[j]->U[3] - pE->U[3];
     }
-    // 最小二乘法
+    // 求解dUdX
     if (nNeighbor == 3) {
-        // x=(A'A)^{-1}A'b
+        // 最小二乘法 x=(A'A)^{-1}A'b 其中A=dXm,b=dUm
         for (int iVar = 0; iVar < nVar; iVar++) {
             AMatrix dXm(3, 2), dUdXm(2, 1), dUm(3, 1);
             dXm(0, 0) = dX[0][0];
@@ -106,7 +106,7 @@ void Reconstructor::Element_T3_updateSlope_Barth(FVM_2D* f, Element_T3* pE) {
             dXm(2, 1) = dX[2][1];
             dUm(0, 0) = dU[0][iVar];
             dUm(1, 0) = dU[1][iVar];
-            //dUdXm = ();
+            
             dUdX[0][iVar] = dUdXm(0, 0);
             dUdX[1][iVar] = dUdXm(1, 0);
             dUdXm = (dXm.transpose() * dXm).inverse() * dXm.transpose() * dUm;
@@ -115,8 +115,8 @@ void Reconstructor::Element_T3_updateSlope_Barth(FVM_2D* f, Element_T3* pE) {
         }
 
     }
-    // 解线性方程组
     else if (nNeighbor == 2) {
+        // 解线性方程组
         for (int iVar = 0; iVar < nVar; iVar++) {
             AMatrix dXm(2, 2), dUdXm(2, 1), dUm(2, 1);
             dXm(0, 0) = dX[0][0];
@@ -130,7 +130,6 @@ void Reconstructor::Element_T3_updateSlope_Barth(FVM_2D* f, Element_T3* pE) {
             dUdX[1][iVar] = dUdXm(1, 0);
         }
     }
-    // 解线性方程组 添加人工条件
     else if (nNeighbor == 1) {
         dX[1][0] = -dX[0][1];
         dX[1][1] = dX[0][0];
@@ -151,6 +150,11 @@ void Reconstructor::Element_T3_updateSlope_Barth(FVM_2D* f, Element_T3* pE) {
     }
     else {
         std::cout << "Error: invalid neighbor number.\n";
+    }
+    // 将dUdX存进单元
+    for (int i = 0; i < nVar; i++) {
+        pE->Ux[i] = dUdX[0][i];
+        pE->Uy[i] = dUdX[1][i];
     }
 
     //Barth限制器

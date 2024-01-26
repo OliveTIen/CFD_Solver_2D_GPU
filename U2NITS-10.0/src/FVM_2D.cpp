@@ -6,7 +6,7 @@
 #include "global/SystemInfo.h"
 #include "global/FilePathManager.h"
 #include "output/HistWriter.h"
-#include "input/GmeshMeshReader.h"
+#include "input/InpMeshReader.h"
 
 FVM_2D* FVM_2D::pFVM2D = nullptr;
 
@@ -33,7 +33,7 @@ void FVM_2D::run() {
 	}
 	//从头开始。读取网格、初始化
 	if (startFromZero) {
-		int flag_readMesh = GmeshMeshReader::readMeshFile(".inp");
+		int flag_readMesh = InpMeshReader::readGmeshFile(".inp");
 		if (flag_readMesh == -1) {
 			std::string error_msg = "Error: Fail to read mesh. Program will exit.\n";
 			LogWriter::writeLogAndCout(error_msg);
@@ -73,7 +73,7 @@ void FVM_2D::setInitialCondition() {
 			//if(elements[ie].ID==173)system()
 		}
 		std::string str;
-		str += "InitialCondition:\nUniform flow, ruvp\t" + StringProcessor::DoubleArray_2_String(inf::ruvp, 4) + "\n";
+		str += "InitialCondition:\nUniform flow, ruvp\t" + StringProcessor::doubleArray_2_string(inf::ruvp, 4) + "\n";
 		LogWriter::writeLog(str);
 	}
 		break;
@@ -84,7 +84,7 @@ void FVM_2D::setInitialCondition() {
 
 		using namespace GlobalPara::boundaryCondition::_2D;
 		std::string str;
-		str += "InitialCondition:\nUniform flow + isentropicVortex, ruvp of Uniform flow:" + StringProcessor::DoubleArray_2_String(inf::ruvp, 4) + "\n";
+		str += "InitialCondition:\nUniform flow + isentropicVortex, ruvp of Uniform flow:" + StringProcessor::doubleArray_2_string(inf::ruvp, 4) + "\n";
 		LogWriter::writeLogAndCout(str);
 		isentropicVortex_2(5, 5, 5, inf::ruvp);
 		//for (int ie = 0; ie < elements.size(); ie++) {
@@ -117,9 +117,9 @@ void FVM_2D::logBoundaryCondition() {
 	//日志记录边界参数
 	std::string str;
 	str += "BoundaryCondition:\n";
-	str += "inlet::ruvp\t" + StringProcessor::DoubleArray_2_String(GlobalPara::boundaryCondition::_2D::inlet::ruvp, 4)
-		+ "\noutlet::ruvp\t" + StringProcessor::DoubleArray_2_String(GlobalPara::boundaryCondition::_2D::outlet::ruvp, 4)
-		+ "\ninf::ruvp\t" + StringProcessor::DoubleArray_2_String(GlobalPara::boundaryCondition::_2D::inf::ruvp, 4)
+	str += "inlet::ruvp\t" + StringProcessor::doubleArray_2_string(GlobalPara::boundaryCondition::_2D::inlet::ruvp, 4)
+		+ "\noutlet::ruvp\t" + StringProcessor::doubleArray_2_string(GlobalPara::boundaryCondition::_2D::outlet::ruvp, 4)
+		+ "\ninf::ruvp\t" + StringProcessor::doubleArray_2_string(GlobalPara::boundaryCondition::_2D::inf::ruvp, 4)
 		+ "\n";
 	LogWriter::writeLog(str);
 }
@@ -158,6 +158,8 @@ void FVM_2D::solve_(std::string suffix_out, std::string suffix_info) {
 		//计算通量、时间推进
 		solver.evolve(dt);
 
+		//输出进度表示正在计算，没有卡顿
+		std::cout << ".";
 		//定期输出进度
 		if (istep % GlobalPara::output::step_per_print == 1) {
 			ConsolePrinter::clearDisplay(p1, ConsolePrinter::getCursorPosition());
@@ -179,6 +181,7 @@ void FVM_2D::solve_(std::string suffix_out, std::string suffix_info) {
 			std::cout << "Computation stopped.\n";
 			char szBuffer[20];
 			sprintf_s(szBuffer, _countof(szBuffer), "%04d", istep);
+			writeTecplotFile(filePathManager->getExePath_withSlash() + "output\\" + GlobalPara::basic::filename + "[" + szBuffer + "].dat", t);
 			writeContinueFile(filePathManager->getExePath_withSlash() + "output\\nan_" + GlobalPara::basic::filename + "[" + szBuffer + "].dat", t, istep);
 			break;
 		}
@@ -465,7 +468,7 @@ int FVM_2D::readContinueFile() {
 			else {//若是数字 1.edges_of_all_sets的初始化
 				//引用最后一个BoundarySet
 				std::vector<int>& edges_of_current_set = edges_of_all_sets[edges_of_all_sets.size() - 1];
-				std::vector<int> intVector = StringProcessor::Words2Ints(tWords);
+				std::vector<int> intVector = StringProcessor::stringVector_2_intVector(tWords);
 				boundaryManager.attachToVector(edges_of_current_set, intVector);
 			}
 		}
@@ -672,20 +675,30 @@ bool FVM_2D::isStable(std::vector<Element_T3> old) {
 }
 
 bool FVM_2D::isNan() {
+	// 检查每个元素的守恒量，输出所有异常值
 	bool is_nan = 0;
 	for (int ie = 0; ie < elements.size(); ie++) {
-		//只需要检查1项即可 rho
-		if (isnan(elements[ie].U[0])) {
+		
+		std::string str;
+		if (isnan(elements[ie].U[0])) {// 这里调用的是系统的isnan函数
 			is_nan = 1;
 			const double& x = elements[ie].x;
 			const double& y = elements[ie].y;
-			std::string str = 
-				"Warning: \"NaN\" detected in element (x=" + std::to_string(x) + ", y=" + std::to_string(y) 
+			str = 
+				"Warning: rho ==\"NaN\", in element (x=" + std::to_string(x) + ", y=" + std::to_string(y) 
 				+ ", U[0,1,2,3]=" + std::to_string(elements[ie].U[0]) + ", " + std::to_string(elements[ie].U[1])
 				+ ", " + std::to_string(elements[ie].U[2]) + ", " + std::to_string(elements[ie].U[3]) + "\n";
-			LogWriter::writeLog(str, 1);
 			//break;
 		}
+		else if(elements[ie].U[0] < 0) {
+			const double& x = elements[ie].x;
+			const double& y = elements[ie].y;
+			str =
+				"Warning: rho < 0, in element (x=" + std::to_string(x) + ", y=" + std::to_string(y)
+				+ ", U[0,1,2,3]=" + std::to_string(elements[ie].U[0]) + ", " + std::to_string(elements[ie].U[1])
+				+ ", " + std::to_string(elements[ie].U[2]) + ", " + std::to_string(elements[ie].U[3]) + "\n";
+		}
+		LogWriter::writeLogAndCout(str);
 	}
 	return is_nan;
 }

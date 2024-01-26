@@ -9,8 +9,9 @@ class Element_T3;
 
 class Reconstructor {
 public:
+	// [未使用]
 	static void compute_reconstruction_matrix();
-	//[过渡函数]
+	// [过渡函数]
 	static void Element_T3_updateSlope_Barth(FVM_2D* f, Element_T3* pE);
 
 private:

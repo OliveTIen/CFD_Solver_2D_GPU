@@ -1,6 +1,7 @@
 #include "Reconstructor.h"
 #include "../FVM_2D.h"
 #include "../math/AMatrix.h"
+#include "Limiter.h"
 
 void Reconstructor::compute_reconstruction_matrix() {
 
@@ -117,18 +118,31 @@ void Reconstructor::Element_T3_updateSlope_Barth(FVM_2D* f, Element_T3* pE) {
     }
     else if (nNeighbor == 2) {
         // 解线性方程组
-        for (int iVar = 0; iVar < nVar; iVar++) {
-            AMatrix dXm(2, 2), dUdXm(2, 1), dUm(2, 1);
-            dXm(0, 0) = dX[0][0];
-            dXm(0, 1) = dX[0][1];
-            dXm(1, 0) = dX[1][0];
-            dXm(1, 1) = dX[1][1];
-            dUm(0, 0) = dU[0][iVar];
-            dUm(1, 0) = dU[1][iVar];
-            dUdXm = AMatrix::solve(dXm, dUm);
-            dUdX[0][iVar] = dUdXm(0, 0);
-            dUdX[1][iVar] = dUdXm(1, 0);
+        try{
+            for (int iVar = 0; iVar < nVar; iVar++) {
+                AMatrix dXm(2, 2), dUdXm(2, 1), dUm(2, 1);
+                dXm(0, 0) = dX[0][0];
+                dXm(0, 1) = dX[0][1];
+                dXm(1, 0) = dX[1][0];
+                dXm(1, 1) = dX[1][1];
+                dUm(0, 0) = dU[0][iVar];
+                dUm(1, 0) = dU[1][iVar];
+                dUdXm = AMatrix::solve(dXm, dUm);
+                dUdX[0][iVar] = dUdXm(0, 0);
+                dUdX[1][iVar] = dUdXm(1, 0);
+            }
         }
+        catch (std::domain_error e) {
+            std::stringstream error_string;
+            error_string << e.what() << "; ";
+            error_string << "in element : ID = " << pE->ID
+                << ", x=" << pE->x
+                << ", y=" << pE->y
+                << "\n";
+            std::cout << error_string.str();
+            //throw e;
+        }
+
     }
     else if (nNeighbor == 1) {
         dX[1][0] = -dX[0][1];
@@ -158,5 +172,25 @@ void Reconstructor::Element_T3_updateSlope_Barth(FVM_2D* f, Element_T3* pE) {
     }
 
     //Barth限制器
-    pE->restructor_in_updateSlope_Barth(f);
+    //pE->restructor_in_updateSlope_Barth(f);
+    Limiter::modifySlope_Barth(pE);
+
+    // 检查异常值
+    std::stringstream error_string;
+    for (int i = 0; i < nVar; i++) {
+        if (isnan(pE->Ux[i])) {
+            error_string << "isnan(pElement->Ux[" << i << "]), in element : ID = " << pE->ID
+                << ", x=" << pE->x
+                << ", y=" << pE->y
+                << "\n";
+        }
+        if (isnan(pE->Uy[i])) {
+            error_string << "isnan(pElement->Uy[" << i << "]), in element : ID = " << pE->ID
+                << ", x=" << pE->x
+                << ", y=" << pE->y
+                << "\n";
+        }
+    }
+    std::cout << error_string.str();
+
 }

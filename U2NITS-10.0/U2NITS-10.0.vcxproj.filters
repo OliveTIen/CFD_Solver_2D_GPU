@@ -96,7 +96,7 @@
     <ClCompile Include="src\global\StringProcessor.cpp">
       <Filter>src\global</Filter>
     </ClCompile>
-    <ClCompile Include="src\input\GmeshMeshReader.cpp">
+    <ClCompile Include="src\input\MeshReader.cpp">
       <Filter>src\input</Filter>
     </ClCompile>
     <ClCompile Include="src\output\FieldWriter.cpp">
@@ -182,7 +182,7 @@
     <ClInclude Include="src\input\TomlFileManager.h">
       <Filter>src\input</Filter>
     </ClInclude>
-    <ClInclude Include="src\input\GmeshMeshReader.h">
+    <ClInclude Include="src\input\MeshReader.h">
       <Filter>src\input</Filter>
     </ClInclude>
     <ClInclude Include="src\output\FieldWriter.h">

@@ -1,6 +1,6 @@
 #include "StringProcessor.h"
 
-std::vector<int> StringProcessor::Words2Ints(std::vector<std::string> words) {
+std::vector<int> StringProcessor::stringVector_2_intVector(std::vector<std::string> words) {
 	std::vector<int> ints;
 	for (int i = 0; i < words.size(); i++) {
 		ints.push_back(std::stoi(words[i]));
@@ -8,7 +8,7 @@ std::vector<int> StringProcessor::Words2Ints(std::vector<std::string> words) {
 	return ints;
 }
 
-std::string StringProcessor::DoubleArray_2_String(double* U, int length) {
+std::string StringProcessor::doubleArray_2_string(double* U, int length) {
 	std::string str;
 	str += "{";
 	for (int i = 0; i < length; i++) {
@@ -42,6 +42,37 @@ std::vector<std::string> StringProcessor::splitString(std::string tLine) {
 	}
 	return tWords;
 
+}
+
+std::string StringProcessor::replaceCharInString(std::string word, char oldChar, std::string newChar) {
+	std::string newString;
+	for (int i = 0; i < word.size(); i++) {
+		if (word[i] == oldChar) {
+			newString = newString + newChar;
+		}
+		else {
+			newString = newString + word[i];
+		}
+	}
+	return newString;
+}
+
+std::string StringProcessor::deleteCommentByChar(std::string word, char flag) {
+	// 删除flag及其后面的字符
+	int i_last_meaningful_char = -1;
+	for (int i = 0; i < word.size(); i++) {
+		// 遇到'%'停止
+		if (word[i] == flag) {
+			break;
+		}
+		// 记录位置
+		i_last_meaningful_char = i;
+	}
+	// 若整行被删去，则返回空字符串
+	if (i_last_meaningful_char == -1) {
+		return std::string();
+	}
+	return word.substr(0, i_last_meaningful_char + 1);
 }
 
 std::string StringProcessor::timeFormat(int dt) {

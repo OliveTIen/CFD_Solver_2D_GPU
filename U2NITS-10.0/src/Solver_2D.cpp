@@ -602,7 +602,7 @@ void Solver_2D::getEdgeFlux_periodic(Edge_2D* pE, double* flux) {
 //    //debug
 //    for (int ie = 0; ie < f->edges.size(); ie++) {
 //        if (f->edges[ie].ID == 5374) {
-//            std::string str = GlobalStatic::DoubleArray_2_String(f->edges[ie].pElement_L->U, 4) + "\n";
+//            std::string str = GlobalStatic::doubleArray_2_string(f->edges[ie].pElement_L->U, 4) + "\n";
 //            GlobalStatic::writeLogAndCout(str);
 //        }
 //    }

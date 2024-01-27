@@ -36,7 +36,7 @@ void ResidualCalculator::cal_error_isentropicVortex(double xmin, double ymin, do
 	//每个单元，计算其与精确解的误差
 	for (int ie = 0; ie < elements.size(); ie++) {
 
-		Element_T3& e = elements[ie];
+		Element_2D& e = elements[ie];
 		//变换坐标系。变换到初始时刻的位置。越界情况用move_period修正
 		double x = move_period(e.x - t_current * ruvp0[1], xmin, xmax);
 		double y = move_period(e.y - t_current * ruvp0[2], ymin, ymax);
@@ -74,7 +74,7 @@ void ResidualCalculator::cal_error_isentropicVortex(double xmin, double ymin, do
 
 }
 
-void ResidualCalculator::cal_residual(const std::vector<Element_T3>& elements_old, const std::vector<Element_T3>& elements, int NORM_TYPE, double* residual_to_be_changed) {
+void ResidualCalculator::cal_residual(const std::vector<Element_2D>& elements_old, const std::vector<Element_2D>& elements, int NORM_TYPE, double* residual_to_be_changed) {
 	double difference_U[4]{};// 全部初始化为0
 	double residual_U[4]{};
 

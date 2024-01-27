@@ -18,8 +18,10 @@
     <ClCompile Include="src\global\FilePathManager.cpp" />
     <ClCompile Include="src\global\StringProcessor.cpp" />
     <ClCompile Include="src\global\SystemInfo.cpp" />
+    <ClCompile Include="src\global\VectorProcessor.cpp" />
     <ClCompile Include="src\input\AirParameterConverter.cpp" />
-    <ClCompile Include="src\input\MeshReader.cpp" />
+    <ClCompile Include="src\input\InpMeshReader.cpp" />
+    <ClCompile Include="src\input\SU2MeshReader.cpp" />
     <ClCompile Include="src\input\TomlFileManager.cpp" />
     <ClCompile Include="src\FVM.cpp" />
     <ClCompile Include="src\FVM_2D.cpp" />
@@ -50,8 +52,10 @@
     <ClInclude Include="src\global\FilePathManager.h" />
     <ClInclude Include="src\global\StringProcessor.h" />
     <ClInclude Include="src\global\SystemInfo.h" />
+    <ClInclude Include="src\global\VectorProcessor.h" />
     <ClInclude Include="src\input\AirParameterConverter.h" />
-    <ClInclude Include="src\input\MeshReader.h" />
+    <ClInclude Include="src\input\InpMeshReader.h" />
+    <ClInclude Include="src\input\SU2MeshReader.h" />
     <ClInclude Include="src\input\TomlFileManager.h" />
     <ClInclude Include="src\FVM.h" />
     <ClInclude Include="src\FVM_2D.h" />

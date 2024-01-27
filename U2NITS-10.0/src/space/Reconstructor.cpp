@@ -57,7 +57,7 @@ void Reconstructor::swapRows(double* row1, double* row2, int size) {
 }
 
 
-void Reconstructor::Element_T3_updateSlope_Barth(FVM_2D* f, Element_T3* pE) {
+void Reconstructor::Element_T3_updateSlope_Barth(FVM_2D* f, Element_2D* pE) {
     //计算UxUy并进行限制
     // 每种守恒量的斜率是相互独立的，可以拆开算
 
@@ -79,7 +79,7 @@ void Reconstructor::Element_T3_updateSlope_Barth(FVM_2D* f, Element_T3* pE) {
     //   |y-y0 x0-x| |Uyi|=|  0   |
     //   
 
-    std::vector<Element_T3*>neighbors = pE->findNeighbor_withoutNullptr();
+    std::vector<Element_2D*>neighbors = pE->findNeighbor_withoutNullptr();
     const int nNeighbor = (int)neighbors.size();
     const int nVar = 4;// 守恒量个数，二维为4
     double dX[3][2]{};

@@ -14,10 +14,10 @@ public:
 	Solver_2D solver;
 	Math_2D math;
 	std::vector<Node_2D> nodes;
-	std::vector<Element_T3> elements;
+	std::vector<Element_2D> elements;
 	std::vector<Edge_2D> edges;
 	std::vector<Node_2D*> pNodeTable;//将ID作为行号，存入指针
-	std::vector<Element_T3*> pElement_T3Table;
+	std::vector<Element_2D*> pElementTable;
 	std::vector<Edge_2D*> pEdgeTable;
 	std::vector<double> u_nodes;//节点u, size=nodes.size()。输出流场时，用作缓存。
 	std::vector<double> v_nodes;
@@ -39,8 +39,6 @@ public:
 	int readContinueFile();
 	//初始化流场。续算不要使用该函数，否则会重新开始
 	void setInitialCondition();
-	//日志记录边界参数
-	void logBoundaryCondition();
 	//求解
 	void solve_(std::string suffix_out, std::string suffix_info);
 	//计算dt
@@ -56,7 +54,7 @@ public:
 	//续算文件
 	void writeContinueFile(std::string f_name, double t, int istep);
 	//是否达到稳态
-	bool isStable(std::vector<Element_T3> old);
+	bool isStable(std::vector<Element_2D> old);
 
 
 	//初始化pNodeTable。根据nodes将ID作为行号，存入指针
@@ -64,7 +62,7 @@ public:
 	//初始化edges的ID, nodes, pElement_L, pElement_R。根据elements，注册edges，并对edges初始化
 	void iniEdges();
 	//被上述函数调用。操作edges，添加或完善edge信息。添加：ID,nodes,Element_L，完善：Element_R
-	void iniEdges_registerSingle(int n0, int n1, Element_T3* pE);
+	void iniEdges_registerSingle(int n0, int n1, Element_2D* pE);
 	//初始化pEdgeTable。根据edges将ID作为行号，存入指针
 	void iniPEdgeTable();
 	//初始化pElementTable
@@ -77,7 +75,7 @@ public:
 	void iniEdges_lengths();
 
 	//搜寻edges，根据节点ID判断edge是否存在，不存在则return nullptr。不区分n0, n1先后
-	Edge_2D* isEdgeExisted(int n0, int n1);
+	Edge_2D* getEdgeByNodeIDs(int n0, int n1);
 	//根据节点ID返回Node指针
 	Node_2D* getNodeByID(int ID);
 

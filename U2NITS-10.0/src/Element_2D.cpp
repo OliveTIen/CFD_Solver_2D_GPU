@@ -29,7 +29,7 @@ namespace {
 //Eigen::MatrixXi Element_Q4::si_ti = iniSiti_Q4();
 //Eigen::MatrixXd Element_Q4::GaussPointMatrix = iniGaussPoint_Q4();
 
-double Element_T3::calArea(FVM_2D* f) {
+double Element_2D::calArea(FVM_2D* f) {
     //计算三角形面积
     double xn[3]{}, yn[3]{};
     for (int i = 0; i < 3; i++) {
@@ -39,25 +39,13 @@ double Element_T3::calArea(FVM_2D* f) {
     return 0.5 * abs(xn[0] * (yn[1] - yn[2]) + xn[1] * (yn[2] - yn[0]) + xn[2] * (yn[0] - yn[1]));
 }
 
-void Element_T3::inixy(FVM_2D* f) {
-    //初始化单元中心坐标
-    double tmp_x = 0;
-    double tmp_y = 0;
-    for (int i = 0; i < 3; i++) {
-        tmp_x += f->getNodeByID(nodes[i])->x;
-        tmp_y += f->getNodeByID(nodes[i])->y;
-    }
-    x = tmp_x / 3.0;
-    y = tmp_y / 3.0;
-    //hasCalxyed = 1;
-}
 
-std::vector<Element_T3*> Element_T3::findNeighbor() {
+std::vector<Element_2D*> Element_2D::findNeighbor() {
     //使用前需保证pEdges是最新的，且pEdges的pElement_L/R是最新的
-    std::vector<Element_T3*> pNeighborElements(3);
+    std::vector<Element_2D*> pNeighborElements(3);
     for (int iedge = 0; iedge < 3; iedge++) {
         if (pEdges[iedge] == nullptr) {
-            std::cout << "Error: Element_T3::pEdges[" << iedge << "] is uninitialized(Element ID: " << this->ID << ")" << std::endl;
+            std::cout << "Error: Element_2D::pEdges[" << iedge << "] is uninitialized(Element ID: " << this->ID << ")" << std::endl;
             pNeighborElements[iedge] = nullptr;
             //continue;//结束本次循环
         }
@@ -83,9 +71,9 @@ std::vector<Element_T3*> Element_T3::findNeighbor() {
     return pNeighborElements;
 }
 
-std::vector<Element_T3*> Element_T3::findNeighbor_withoutNullptr() {
-    std::vector<Element_T3*>neighbors_origin = this->findNeighbor();
-    std::vector<Element_T3*>neighbors;
+std::vector<Element_2D*> Element_2D::findNeighbor_withoutNullptr() {
+    std::vector<Element_2D*>neighbors_origin = this->findNeighbor();
+    std::vector<Element_2D*>neighbors;
     //清除nullptr
     for (int i = 0; i < 3; i++) {
         if (neighbors_origin[i] != nullptr) {
@@ -96,8 +84,8 @@ std::vector<Element_T3*> Element_T3::findNeighbor_withoutNullptr() {
     return neighbors;
 }
 
-double Element_T3::calDistanceFromNearestNeighbor(FVM_2D* f) {
-    std::vector<Element_T3*> n = findNeighbor();
+double Element_2D::calDistanceFromNearestNeighbor(FVM_2D* f) {
+    std::vector<Element_2D*> n = findNeighbor();
     double dis = 1e10;
     double tmpx, tmpy, tmpdis;
     //this->calxy(f);读取文件时已经calxy了
@@ -113,7 +101,7 @@ double Element_T3::calDistanceFromNearestNeighbor(FVM_2D* f) {
     return dis;
 }
 
-void Element_T3::updateSlope_Barth(FVM_2D* f) {
+void Element_2D::updateSlope_Barth(FVM_2D* f) {
     //计算UxUy并进行限制
 
     //3个邻居 超静定
@@ -134,8 +122,8 @@ void Element_T3::updateSlope_Barth(FVM_2D* f) {
     //               |Uyi|
     //   
 
-    std::vector<Element_T3*>neighbors_origin = findNeighbor();
-    std::vector<Element_T3*>neighbors;
+    std::vector<Element_2D*>neighbors_origin = findNeighbor();
+    std::vector<Element_2D*>neighbors;
     //清除nullptr
     for (int i = 0; i < 3; i++) {
         if (neighbors_origin[i] != nullptr) {
@@ -178,10 +166,10 @@ void Element_T3::updateSlope_Barth(FVM_2D* f) {
     restructor_in_updateSlope_Barth(f);
 }
 
-void Element_T3::restructor_in_updateSlope_Barth(FVM_2D* f) {
+void Element_2D::restructor_in_updateSlope_Barth(FVM_2D* f) {
     //限制器，用来修正Ux,Uy。其理论依据是若三个顶点处的Ux,Uy满足有界性，则面内全满足有界性
     //计算偏差上下界
-    std::vector<Element_T3*> neighbors = findNeighbor();
+    std::vector<Element_2D*> neighbors = findNeighbor();
     double UU[3][4]{};//邻居函数值与自身函数值的差
     double UUup = 0;
     double UUdown = 0;
@@ -223,7 +211,7 @@ void Element_T3::restructor_in_updateSlope_Barth(FVM_2D* f) {
     }
 }
 
-void Element_T3::get_U(double xpoint, double ypoint, double* _U) {
+void Element_2D::get_U(double xpoint, double ypoint, double* _U) {
     //常量重构
     if (GlobalPara::space::flag_reconstruct == _REC_constant) {
         for (int j = 0; j < 4; j++) {
@@ -239,7 +227,7 @@ void Element_T3::get_U(double xpoint, double ypoint, double* _U) {
     }
 }
 
-Eigen::Vector4d Element_T3::get_U(double xpoint, double ypoint) {
+Eigen::Vector4d Element_2D::get_U(double xpoint, double ypoint) {
     //初始化_U数组
     double _U[4];
     get_U(xpoint, ypoint, _U);//另一个重载函数
@@ -251,7 +239,7 @@ Eigen::Vector4d Element_T3::get_U(double xpoint, double ypoint) {
     return _U_vector;
 }
 
-std::vector<double> Element_T3::U2uv(const Eigen::Vector4d& Uc) {
+std::vector<double> Element_2D::U2uv(const Eigen::Vector4d& Uc) {
     //守恒量ρ,ρu,ρv,ρE
     std::vector<double> uv;//非守恒量u v
     uv[0] = Uc[1]/Uc[0];
@@ -259,13 +247,13 @@ std::vector<double> Element_T3::U2uv(const Eigen::Vector4d& Uc) {
     return uv;
 }
 
-void Element_T3::generateElementEdge(FVM_2D* f) {
+void Element_2D::generateElementEdge(FVM_2D* f) {
     generateElementEdge_registerSingle(f, nodes[0], nodes[1], 0);
     generateElementEdge_registerSingle(f, nodes[1], nodes[2], 1);
     generateElementEdge_registerSingle(f, nodes[2], nodes[0], 2);
 }
 
-void Element_T3::generateElementEdge_registerSingle(FVM_2D* f, int ID_0, int ID_1, int iEdge) {
+void Element_2D::generateElementEdge_registerSingle(FVM_2D* f, int ID_0, int ID_1, int iEdge) {
     //输入：待注册edge的两个node编号
     //操作：
     //1.添加edge或新增edge的Element_R信息，并修改edges和pEdgeTable
@@ -305,14 +293,8 @@ void Element_T3::generateElementEdge_registerSingle(FVM_2D* f, int ID_0, int ID_
     pEdges[iEdge] = pNewEdge;//取自&(f_edges[f_edges.size() - 1])，因此不会因局部变量而销毁
 }
 
-void Element_T3::iniPEdges(FVM_2D* f) {
-    pEdges[0] = f->isEdgeExisted(nodes[0], nodes[1]);
-    pEdges[1] = f->isEdgeExisted(nodes[1], nodes[2]);
-    pEdges[2] = f->isEdgeExisted(nodes[2], nodes[0]);
-}
 
-
-double Element_T3::calLambda(const double gamma) {
+double Element_2D::calLambda(const double gamma) {
     double rho = U[0];
     double rho_u = U[1];//rho*u
     double rho_v = U[2];
@@ -325,7 +307,7 @@ double Element_T3::calLambda(const double gamma) {
     return sqrt(V2) + sqrt(gamma * p / rho);
 }
 
-double Element_T3::calLambdaFlux(FVM_2D* f) {
+double Element_2D::calLambdaFlux(FVM_2D* f) {
     double LambdaC = 0;
     for (int ie = 0; ie < 3; ie++) {
         //eU

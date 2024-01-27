@@ -1,12 +1,12 @@
 #include "Limiter.h"
 #include "../FVM_2D.h"
 
-void Limiter::modifySlope_Barth(Element_T3* pE) {
+void Limiter::modifySlope_Barth(Element_2D* pE) {
 
     //限制器，用来修正Ux,Uy。其理论依据是若三个顶点处的Ux,Uy满足有界性，则面内全满足有界性
     //计算偏差上下界
     FVM_2D* f = FVM_2D::pFVM2D;
-    std::vector<Element_T3*> neighbors = pE->findNeighbor();
+    std::vector<Element_2D*> neighbors = pE->findNeighbor();
     double UU[3][4]{};//邻居函数值与自身函数值的差
     double UUup = 0;
     double UUdown = 0;

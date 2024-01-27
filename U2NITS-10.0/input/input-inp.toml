@@ -1,10 +1,10 @@
-# 最后修改于2024-01-27
+# 最后修改于2024-01-15
 
 [basic]
 continue = true
 dimension = 2
-filename = "RAE2822_modified"
-meshFileType = "su2"
+filename = "2D_cylinder_simple"
+meshFileType = "inp"
 
 [constant]
 T0 = 288.16   # 海平面温度参考

@@ -12,7 +12,7 @@
 #include "./include/Eigen/Core" // 该函数库被U_2_F_lambda使用
 #include "./include/Eigen/Dense"
 class Edge_2D;
-class Element_T3;
+class Element_2D;
 
 class Solver_2D {
 private:

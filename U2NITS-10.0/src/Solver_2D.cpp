@@ -162,7 +162,7 @@ void Solver_2D::calFlux() {
             FVM_2D* f = FVM_2D::pFVM2D;
             Edge_2D* pE = &(f->edges[iedge]);
             if (pE->pElement_R == nullptr) {//边界
-                const int bType = f->boundaryManager.vBoundarySets[pE->setID - 1].type;
+                const int bType = f->boundaryManager.boundaries[pE->setID - 1].type;
                 switch (bType) {
                     //对称。对欧拉方程而言，对称边界即无粘固壁边界
                 case _BC_symmetry:
@@ -296,7 +296,7 @@ void Solver_2D::getEdgeFlux_periodic(Edge_2D* pE, double* flux) {
     {
         //找到这条edge对应的虚拟pElement_R(本来该edge没有pElement_R，但我们根据周期边界找到它的虚拟pElement_R)
         Edge_2D* pEdge_1 = f->boundaryManager.get_pairEdge_periodic(pE);//找到edge在周期边界中对应的edge_1
-        Element_T3* virtual_pElement_R = pEdge_1->pElement_L;//pEdge_1的pElement_L即为pEdge的虚拟pElement_R
+        Element_2D* virtual_pElement_R = pEdge_1->pElement_L;//pEdge_1的pElement_L即为pEdge的虚拟pElement_R
         //获取edge_1的中点坐标
         double x_virtual_edge, y_virtual_edge;
         pEdge_1->getxy(f, x_virtual_edge, y_virtual_edge);
@@ -427,7 +427,7 @@ void Solver_2D::getEdgeFlux_periodic(Edge_2D* pE, double* flux) {
 //        }
 //
 //        else {//边界 尚未完成
-//            const int bType = f->boundaryManager.vBoundarySets[pE->setID - 1].type;
+//            const int bType = f->boundaryManager.boundaries[pE->setID - 1].type;
 //            switch (bType) {
 //                //对称。对欧拉方程而言，对称边界即无粘固壁边界
 //            case _BC_symmetry:
@@ -472,7 +472,7 @@ void Solver_2D::getEdgeFlux_periodic(Edge_2D* pE, double* flux) {
 //                {
 //                    //找到这条edge对应的虚拟pElement_R(本来该edge没有pElement_R，但我们根据周期边界找到它的虚拟pElement_R)
 //                    Edge_2D* pEdge_1 = f->boundaryManager.get_pairEdge_periodic(pE);//找到edge在周期边界中对应的edge_1
-//                    Element_T3* virtual_pElement_R = pEdge_1->pElement_L;//pEdge_1的pElement_L即为pEdge的虚拟pElement_R
+//                    Element_2D* virtual_pElement_R = pEdge_1->pElement_L;//pEdge_1的pElement_L即为pEdge的虚拟pElement_R
 //                    UR_ele = virtual_pElement_R->U;
 //                    //获取edge_1的中点坐标
 //                    double x_virtual_edge, y_virtual_edge;
@@ -818,7 +818,7 @@ void Solver_2D::flux_viscous(Edge_2D* pE, double* flux) {
     }
     // boundary face
     else {
-        const int bType = pFVM2D->boundaryManager.vBoundarySets[pE->setID - 1].type;
+        const int bType = pFVM2D->boundaryManager.boundaries[pE->setID - 1].type;
 
         // 固壁
         if (bType == _BC_wall_adiabat ||
@@ -919,7 +919,7 @@ void Solver_2D::flux_viscous_2(Edge_2D* pE, double* flux_viscous) {
     }
     else {
         const int bType = pFVM2D->
-            boundaryManager.vBoundarySets[pE->setID - 1].type;
+            boundaryManager.boundaries[pE->setID - 1].type;
 
         // 固壁
         if (bType == _BC_wall_adiabat ||

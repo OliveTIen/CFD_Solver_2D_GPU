@@ -7,6 +7,8 @@
 #include "global/FilePathManager.h"
 #include "output/HistWriter.h"
 #include "input/InpMeshReader.h"
+#include "global/VectorProcessor.h"
+#include "input/SU2MeshReader.h"
 
 FVM_2D* FVM_2D::pFVM2D = nullptr;
 
@@ -15,7 +17,8 @@ FVM_2D::FVM_2D() {
 }
 
 void FVM_2D::run() {
-	//尝试读取续算文件。若读取失败或者_continue==false则从头开始
+	//// 初始化
+	// 尝试读取续算文件。若读取失败或者_continue==false则从头开始
 	bool startFromZero = false;
 	if (GlobalPara::basic::_continue) {
 		int flag_readContinue = readContinueFile();
@@ -31,28 +34,47 @@ void FVM_2D::run() {
 	else {
 		startFromZero = true;
 	}
-	//从头开始。读取网格、初始化
+	// 从头开始。读取网格、初始化
 	if (startFromZero) {
-		int flag_readMesh = InpMeshReader::readGmeshFile(".inp");
-		if (flag_readMesh == -1) {
-			std::string error_msg = "Error: Fail to read mesh. Program will exit.\n";
-			LogWriter::writeLogAndCout(error_msg);
-			return;//退出
+		const std::string& type = GlobalPara::basic::meshFileType;
+		if (type == "inp") {
+			std::string dir = FilePathManager::getInstance()->getExePath_withSlash() + "input\\";
+			int flag_readMesh = InpMeshReader::readGmeshFile(dir + GlobalPara::basic::filename + ".inp");
+			if (flag_readMesh == -1) {
+				std::string error_msg = "Error: Fail to read mesh. Program will exit.\n";
+				LogWriter::writeLogAndCout(error_msg);
+				return;//退出
+			}
+			setInitialCondition();
 		}
-		setInitialCondition();
+		else if (type == "su2") {
+			std::string dir = FilePathManager::getInstance()->getExePath_withSlash() + "input\\";
+			int flag_readMesh = SU2MeshReader::readFile(dir + GlobalPara::basic::filename + ".su2", true);
+			if (flag_readMesh == -1) {
+				std::string error_msg = "Error: Fail to read mesh. Program will exit.\n";
+				LogWriter::writeLogAndCout(error_msg);
+				return;//退出
+			}
+			setInitialCondition();
+		}
+		else {
+			std::string error_msg = "Invalid mesh file type: " + type + ". Program will exit.\n";
+			LogWriter::writeLogAndCout(error_msg);
+			return;
+		}
+
 	}
 
-	
-	//将边界edge打上标签，并检查周期边界完整性
-	{
-		int ret = boundaryManager.iniBoundaryEdgeSetID_and_iniBoundaryType(this);
-		if (ret != 0)return;
-	}
+	// 日志记录边界参数
+	std::string str;
+	str += "BoundaryCondition:\n";
+	str += "inlet::ruvp\t" + StringProcessor::doubleArray_2_string(GlobalPara::boundaryCondition::_2D::inlet::ruvp, 4)
+		+ "\noutlet::ruvp\t" + StringProcessor::doubleArray_2_string(GlobalPara::boundaryCondition::_2D::outlet::ruvp, 4)
+		+ "\ninf::ruvp\t" + StringProcessor::doubleArray_2_string(GlobalPara::boundaryCondition::_2D::inf::ruvp, 4)
+		+ "\n";
+	LogWriter::writeLog(str);
 
-	//日志记录边界参数
-	logBoundaryCondition();
-
-	//求解器
+	//// 求解
 	if (GlobalPara::physicsModel::equation == _EQ_euler) {
 		solve_("_Euler.out", "_Euler.info");
 	}
@@ -113,17 +135,6 @@ void FVM_2D::setInitialCondition() {
 
 }
 
-void FVM_2D::logBoundaryCondition() {
-	//日志记录边界参数
-	std::string str;
-	str += "BoundaryCondition:\n";
-	str += "inlet::ruvp\t" + StringProcessor::doubleArray_2_string(GlobalPara::boundaryCondition::_2D::inlet::ruvp, 4)
-		+ "\noutlet::ruvp\t" + StringProcessor::doubleArray_2_string(GlobalPara::boundaryCondition::_2D::outlet::ruvp, 4)
-		+ "\ninf::ruvp\t" + StringProcessor::doubleArray_2_string(GlobalPara::boundaryCondition::_2D::inf::ruvp, 4)
-		+ "\n";
-	LogWriter::writeLog(str);
-}
-
 void FVM_2D::solve_(std::string suffix_out, std::string suffix_info) {
 	FilePathManager* filePathManager = FilePathManager::getInstance();
 	HistWriter histWriter(filePathManager->outputFolder_path + "\\" + GlobalPara::basic::filename + "_hist.dat");
@@ -133,7 +144,7 @@ void FVM_2D::solve_(std::string suffix_out, std::string suffix_info) {
 	histWriter.writeHead();
 
 	//输出格式(tecplot)，在文件夹中输出，每一帧存成一个文件
-	std::vector<Element_T3> elements_old;
+	std::vector<Element_2D> elements_old;
 
 	//变量
 	double t = t_previous;//当前物理时间。
@@ -335,14 +346,14 @@ void FVM_2D::writeContinueFile(std::string f_name, double t, int istep) {
 	}
 
 	outfile << "boundaries: ID, name; edgeIDs" << std::endl;
-	for (int ib = 0; ib < boundaryManager.vBoundarySets.size(); ib++) {
-		outfile << boundaryManager.vBoundarySets[ib].ID << " ";
-		outfile << boundaryManager.vBoundarySets[ib].name << std::endl;
+	for (int ib = 0; ib < boundaryManager.boundaries.size(); ib++) {
+		outfile << boundaryManager.boundaries[ib].ID << " ";
+		outfile << boundaryManager.boundaries[ib].name << std::endl;
 		//一行太长会导致读取时buffer长度不够，从而导致难以预料的结果(死循环、读取失败等)
-		int nEdge = (int)boundaryManager.vBoundarySets[ib].pEdges.size();//控制输出' '还是'\n'
+		int nEdge = (int)boundaryManager.boundaries[ib].pEdges.size();//控制输出' '还是'\n'
 		bool check = 0;//控制
 		for (int iEdge = 0; iEdge < nEdge;iEdge++) {
-			outfile << boundaryManager.vBoundarySets[ib].pEdges[iEdge]->ID;
+			outfile << boundaryManager.boundaries[ib].pEdges[iEdge]->ID;
 			if (iEdge % 10 == 9){
 				outfile << std::endl; 
 				check = 1;
@@ -442,7 +453,7 @@ int FVM_2D::readContinueFile() {
 			maxnodeID = (std::max)(maxnodeID, node.ID);
 		}
 		else if (state == 3 && tWords[0].substr(0, 1) != "e") {//elements: ID, nodes, U
-			Element_T3 ele;
+			Element_2D ele;
 			ele.ID = (int)std::stod(tWords[0]);
 			ele.nodes[0] = (int)std::stod(tWords[1]);
 			ele.nodes[1] = (int)std::stod(tWords[2]);
@@ -456,20 +467,26 @@ int FVM_2D::readContinueFile() {
 		}
 		else if (state == 4 && tWords[0].substr(0, 1) != "b") {//boundaries: ID, name, edgeIDs
 			iline_set++;
-			if (!isdigit(tWords[1][0])) {//若不是数字 1.vBoundarySets新增条目、该条目的部分初始化 2.edges_of_all_sets新增条目
+			if (!isdigit(tWords[1][0])) {
+				/*
+				"1 inf" 
+				1.vBoundarySets新增条目、该条目的部分初始化
+				2.edges_of_all_sets新增条目
+				*/
 				//set的ID,name初始化
 				VirtualBoundarySet_2D vb;
 				vb.ID = (int)std::stod(tWords[0]);
 				vb.name = tWords[1];
-				boundaryManager.vBoundarySets.push_back(vb);
+				boundaryManager.boundaries.push_back(vb);
 				//edges_of_all_sets新增条目
 				edges_of_all_sets.push_back(std::vector<int>());
 			}
-			else {//若是数字 1.edges_of_all_sets的初始化
-				//引用最后一个BoundarySet
+			else {
+				// 1.edges_of_all_sets的初始化
+				// 引用最后一个BoundarySet
 				std::vector<int>& edges_of_current_set = edges_of_all_sets[edges_of_all_sets.size() - 1];
 				std::vector<int> intVector = StringProcessor::stringVector_2_intVector(tWords);
-				boundaryManager.attachToVector(edges_of_current_set, intVector);
+				VectorProcessor::appendToVector(edges_of_current_set, intVector);
 			}
 		}
 	}
@@ -483,7 +500,33 @@ int FVM_2D::readContinueFile() {
 	iniElement_xy_pEdges();
 	iniNode_neighborElements();
 	iniEdges_lengths();
-	boundaryManager.iniBoundarySetPEdges_in_readContinueFile(this, edges_of_all_sets);
+
+
+	// 初始化boundaryManager.boundaries的pEdges，但不初始化pEdge所指的edge的setID等信息，该部分工作留给后面函数
+	// 前置条件：需要初始化pEdgeTable
+	if (this->pEdgeTable.size() == 0) {
+		LogWriter::writeLogAndCout("Error: uninitialized pEdgeTable. (BoundaryManager_2D::iniBoundarySetPEdges)\n");
+		throw "uninitialized pEdgeTable";
+	}
+	else {
+		//初始化boundaryManager.boundaries的每个set的pEdges
+		for (int iset = 0; iset < edges_of_all_sets.size(); iset++) {
+			std::vector<int>& edgeIDs = edges_of_all_sets[iset];//第iset条set的edgeIDs
+			for (int iw = 0; iw < edgeIDs.size(); iw++) {//第iset条set的第iw个edge
+				//在f->pEdgeTable中，根据edgeID查询pEdge，完成初始化
+				int edge_ID = edgeIDs[iw];
+				Edge_2D* pE = this->pEdgeTable[edge_ID];
+				this->boundaryManager.boundaries[iset].pEdges.push_back(pE);
+			}
+		}
+	}
+
+	// 设置edges中的setID，设置boundaryManager.boundaries的type
+	// 前置条件：有edges向量，有boundaries向量，且boundaries有name、pEdges、ID
+	{
+		int ret = pFVM2D->boundaryManager.iniBoundaryEdgeSetID_and_iniBoundaryType(pFVM2D);
+		if (ret != 0)return ret;
+	}
 
 	return 0;
 }
@@ -542,8 +585,8 @@ void FVM_2D::iniPEdgeTable() {
 }
 
 void FVM_2D::iniNode_neighborElements() {
+	// 前置条件：elements, elements.nodes, pNodeTable
 	for (int ie = 0; ie < elements.size(); ie++) {
-		elements[ie].nodes;
 		for (int jn = 0; jn < 3; jn++) {
 			Node_2D* pN = getNodeByID(elements[ie].nodes[jn]);
 			pN->neighborElements.push_back(&(elements[ie]));
@@ -551,7 +594,8 @@ void FVM_2D::iniNode_neighborElements() {
 	}
 }
 
-Edge_2D* FVM_2D::isEdgeExisted(int n0, int n1) {
+Edge_2D* FVM_2D::getEdgeByNodeIDs(int n0, int n1) {
+	// 在edges中根据nodeIDs查询edge
 	//n0, n1表示节点ID
 	if(edges.size()==0)return nullptr;
 	for (int i = 0; i < edges.size(); i++) {
@@ -561,8 +605,8 @@ Edge_2D* FVM_2D::isEdgeExisted(int n0, int n1) {
 	return nullptr;
 }
 
-void FVM_2D::iniEdges_registerSingle(int n0, int n1, Element_T3* pE) {
-	Edge_2D* pEdge = isEdgeExisted(n0, n1);
+void FVM_2D::iniEdges_registerSingle(int n0, int n1, Element_2D* pE) {
+	Edge_2D* pEdge = getEdgeByNodeIDs(n0, n1);
 	if (pEdge == nullptr) {
 		Edge_2D tmp_edge;
 		tmp_edge.ID = (int)edges.size() + 1;
@@ -572,21 +616,51 @@ void FVM_2D::iniEdges_registerSingle(int n0, int n1, Element_T3* pE) {
 		edges.push_back(tmp_edge);
 	}
 	else {
+		/*
+		隐含假设：一个edge如果已经属于某个element A，则A是该edge的左element
+		一个edge最多同时属于2个element
+		*/ 
 		pEdge->pElement_R = pE;
 	}
 }
 
 void FVM_2D::iniPElementTable(int maxelementID) {
-	pElement_T3Table.resize(maxelementID + 1);
+	pElementTable.resize(maxelementID + 1);
 	for (int ie = 0; ie < elements.size(); ie++) {
-		pElement_T3Table[elements[ie].ID] = &(elements[ie]);
+		pElementTable[elements[ie].ID] = &(elements[ie]);
 	}
 }
 
 void FVM_2D::iniElement_xy_pEdges() {
+	/*
+	初始化单元的x,y,pEdges，便于以后查找
+	前置条件：
+	  需要有elements数组
+	  需要已知element的nodeIDs
+	  node的坐标已初始化
+	  有edges数组，且edge的nodeIDs已初始化
+	*/
+
 	for (int ie = 0; ie < elements.size(); ie++) {
-		elements[ie].inixy(this); //已经calxy，以后不必担心。但是必须要先读取node再读取element
-		elements[ie].iniPEdges(this);
+		//已经calxy，以后不必担心。但是必须要先读取node再读取element
+
+		Element_2D* pElement = &(elements[ie]);
+		//初始化单元中心坐标
+		double tmp_x = 0;
+		double tmp_y = 0;
+		for (int i = 0; i < 3; i++) {
+			tmp_x += this->getNodeByID(pElement->nodes[i])->x;
+			tmp_y += this->getNodeByID(pElement->nodes[i])->y;
+		}
+		pElement->x = tmp_x / 3.0;
+		pElement->y = tmp_y / 3.0;
+
+
+		pElement->pEdges[0] = this->getEdgeByNodeIDs(pElement->nodes[0], pElement->nodes[1]);
+		pElement->pEdges[1] = this->getEdgeByNodeIDs(pElement->nodes[1], pElement->nodes[2]);
+		pElement->pEdges[2] = this->getEdgeByNodeIDs(pElement->nodes[2], pElement->nodes[0]);
+
+
 	}
 	hasInitElementXY = true;//已经初始化单元中心坐标。
 }
@@ -625,7 +699,7 @@ void FVM_2D::isentropicVortex(double x, double y, double xc, double yc, double c
 void FVM_2D::isentropicVortex_2(double xc, double yc, double chi, const double* ruvp0) {
 	//ruvp0：均匀流参数
 	for (int ie = 0; ie < elements.size(); ie++) {
-		Element_T3& e = elements[ie];
+		Element_2D& e = elements[ie];
 		double rho, u, v, p;
 		double xbar, ybar, r2, du, dv, dT;
 		const double PI = Constant::PI;
@@ -661,7 +735,7 @@ void FVM_2D::writeFileHeader_isentropicVortex() {
 	outfile.close();
 }
 
-bool FVM_2D::isStable(std::vector<Element_T3> old) {
+bool FVM_2D::isStable(std::vector<Element_2D> old) {
 	double sum = 0;
 	double res;
 	for (int ie = 0; ie < elements.size(); ie++) {

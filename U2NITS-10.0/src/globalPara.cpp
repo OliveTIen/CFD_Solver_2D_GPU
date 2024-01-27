@@ -20,6 +20,7 @@ namespace GlobalPara {
 		int dimension = 2;
 		bool _continue = 1;
 		std::string filename = "default_project";
+		std::string meshFileType = "inp";
 	}
 	namespace space {
 		namespace _1D {

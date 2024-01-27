@@ -1,11 +1,11 @@
 #ifndef LIMITER_H
 #define LIMITER_H
 #include <iostream>
-class Element_T3;
+class Element_2D;
 class Limiter {
 	
 public:
-	static void modifySlope_Barth(Element_T3* pE);
+	static void modifySlope_Barth(Element_2D* pE);
 	static double BAP(double* a, int n, int n_wbap);
 	static double TVDlimiter(double var1, double var2, double epsm,
 		int lim_type);

@@ -22,6 +22,7 @@ namespace GlobalPara {
 		extern int dimension;
 		extern bool _continue;
 		extern std::string filename;
+		extern std::string meshFileType;
 	}
 	namespace space {
 		namespace _1D {

@@ -5,23 +5,15 @@
 class FVM_2D;
 class Edge_2D;
 
-class Data_2D {
-public:
-	double U[4] = { 1,0,0,1e5 / 0.4 };//守恒量ρ,ρu,ρv,ρE
-	double Ux[4] = { 0,0,0,0 };// 梯度
-	double Uy[4] = { 0,0,0,0 };// 梯度
-	double Flux[4]{};//4个守恒量的数值通量
-};
-
-
-class Element_T3 {
-	//三角形单元 三角形单元用普通数值积分，不用高斯积分
+class Element_2D {
+	//三角形单元用普通数值积分，不用高斯积分
+	//四边形单元
 public:
 	//结构信息
 	int ID = -1;
-	int set = -1;//未使用
-	int nodes[3];//node ID 之所以用ID而不是指针，是因为读取文件是直接读的ElementID-NodeID-NodeID-NodeID
-	Edge_2D* pEdges[3];//已经在读取文件时初始化，放心用
+	int node_num = 3;//单元类型
+	int nodes[4]{-1,-1,-1,-1};//node ID 之所以用ID而不是指针，是因为读取文件是直接读的ElementID-NodeID-NodeID-NodeID
+	Edge_2D* pEdges[4]{};//已经在读取文件时初始化，放心用
 	//数据信息
 	double x = 0;//单元中心坐标。使用前务必calxy!
 	double y = 0;//单元中心坐标
@@ -38,11 +30,9 @@ public:
 public:
 	//计算面积
 	double calArea(FVM_2D*);
-	//初始化单元中心坐标。对于静网格，只需要初始化一次即可
-	void inixy(FVM_2D*);
 	//寻找相邻单元，返回指针数组
-	std::vector<Element_T3*> findNeighbor();
-	std::vector<Element_T3*> findNeighbor_withoutNullptr();
+	std::vector<Element_2D*> findNeighbor();
+	std::vector<Element_2D*> findNeighbor_withoutNullptr();
 	//计算到最近邻居的距离
 	double calDistanceFromNearestNeighbor(FVM_2D* f);
 	//[未使用]计算Ux、Uy，并进行限制
@@ -60,7 +50,6 @@ public:
 	void generateElementEdge(FVM_2D* f);
 	//[old]子函数，用于注册某条边
 	void generateElementEdge_registerSingle(FVM_2D* f, int ID_0, int ID_1, int iEdge);
-	void iniPEdges(FVM_2D* f);
 	double calLambda(const double gamma);
 	//计算Λ
 	double calLambdaFlux(FVM_2D* f);

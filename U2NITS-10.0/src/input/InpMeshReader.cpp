@@ -8,11 +8,22 @@
 #include "../global/StringProcessor.h"
 #include "../FVM_2D.h"
 
-int InpMeshReader::readGmeshFile(std::string suffix) {
+int InpMeshReader::readGmeshFile(std::string filepath) {
+	/*
+	读取网格文件，要求初始化以下内容：
+	1. nodes。包括坐标、ID、neighboringElements
+	2. elements。包括ID、单元类型、节点ID。此外，为减少后续计算，需要提前计算单元中心坐标
+	3. edges。包括ID、节点ID、所属边集合ID、左右单元指针。此外，也需要提前计算length和refLength
+
+	用boundarySet维护一个pEdgeTable而不是直接在edge中存boundaryType，是为了处理周期边界。
+	在处理周期边界时，要保证边与边的一一对应性
+	
+	*/
+
+
 	FVM_2D* pFVM2D = FVM_2D::pFVM2D;
 	std::cout << "read mesh file\n";
-	std::string dir = FilePathManager::getInstance()->getExePath_withSlash() + "input\\";
-	std::ifstream infile(dir + GlobalPara::basic::filename + suffix);
+	std::ifstream infile(filepath);
 	if (!infile) {
 		LogWriter::writeLogAndCout("Warning: fail to read mesh(*.inp). (InpMeshReader::readGmeshFile) \n");
 		return -1;
@@ -26,8 +37,7 @@ int InpMeshReader::readGmeshFile(std::string suffix) {
 	char buffer[bufferLength];
 	std::string tLine;
 	std::vector<std::string> tWords;
-	std::vector<std::vector<std::string>> tWordsMatrix;
-	std::vector<VirtualEdge_2D> vBoundaryEdges;//临时变量。存储边界元节点ID
+	std::vector<VirtualEdge_2D> vBoundaryEdges;//临时变量。存储边界元节点ID。数据结构为nx2的矩阵
 	vBoundaryEdges.push_back(VirtualEdge_2D());//填充1个null元素，以保证行号表示ID
 	std::vector<int>vInts;//临时变量
 	std::string setName;//临时变量
@@ -52,7 +62,11 @@ int InpMeshReader::readGmeshFile(std::string suffix) {
 		}
 
 		//translate//注意慎用stoi
-		if (state == 1 && tWords[0].substr(0, 1) != "*") {//"*NODE" 读取节点ID和坐标
+		if (state == 1 && tWords[0].substr(0, 1) != "*") {
+			//"*NODE" 
+			// 4个数，第1个是节点ID，后3个是坐标
+
+			// 存储点 存进nodes
 			Node_2D node;
 			node.ID = (int)std::stod(tWords[0]);
 			node.x = std::stod(tWords[1]);
@@ -60,14 +74,23 @@ int InpMeshReader::readGmeshFile(std::string suffix) {
 			pFVM2D->nodes.push_back(node);
 			maxnodeID = (std::max)(maxnodeID, node.ID);
 		}
-		else if (state == 2 && substate == 1 && tWords[0].substr(0, 1) != "*") {//边界元 "*ELEMENT""ELSET=Line"
+		else if (state == 2 && substate == 1 && tWords[0].substr(0, 1) != "*") {
+			// *ELEMENT, type=T3D2, ELSET=Line1
+			// 3个数，第1个是线元ID，后2个是节点编号
+			// 名称(Line1)不重要，之后都会统一成inf之类的边界名称
+
+			// 存储边界线元 存进vBoundaryEdges
 			VirtualEdge_2D ve;//成员：nodes[2]
 			ve.nodes[0] = std::stoi(tWords[1]);//1, 1, 6; EdgeID,node0,node1
 			ve.nodes[1] = std::stoi(tWords[2]);
 			vBoundaryEdges.push_back(ve);
 		}
-		else if (state == 2 && substate == 2 && tWords[0].substr(0, 1) != "*") {//面单元 "*ELEMENT""ELSET=Surface"
-			Element_T3 e;
+		else if (state == 2 && substate == 2 && tWords[0].substr(0, 1) != "*") {
+			// *ELEMENT, type=CPS3, ELSET=Surface1
+			// 4个数，第1个是三角元ID，后3个是节点编号
+
+			// 存储三角元 存进elements
+			Element_2D e;
 			e.ID = (int)std::stod(tWords[0]);
 			e.nodes[0] = (int)std::stod(tWords[1]);
 			e.nodes[1] = (int)std::stod(tWords[2]);
@@ -75,18 +98,21 @@ int InpMeshReader::readGmeshFile(std::string suffix) {
 			pFVM2D->elements.push_back(e);
 			maxelementID = (std::max)(maxelementID, e.ID);
 		}
-		else if (state == 3) {//"*ELSET"
+		else if (state == 3) {
+			// *ELSET,ELSET=inf
+			// 每行最多10个数，都是单元ID
 			if (tWords[0].substr(0, 1) == "*") {
-				//初始化vBoundarySets
-				std::vector<int> start_end = pFVM2D->boundaryManager.splitInts(vInts);
+				// 根据vInts，确定有多少段连续数列，即有多少边界
+				// 下面函数用于压缩存储分段连续的数列，例如"1-5,11-14,21-26"->"1,5,11,14,21,26"，存进start_end
+				std::vector<int> start_end = pFVM2D->boundaryManager.compressSeveralSequences(vInts);
 				int nSets = (int)start_end.size() / 2;
 				for (int is = 0; is < nSets; is++) {//暗含nSets!=0，说明setName已经被初始化
-					VirtualBoundarySet_2D vb;
-					vb.name = setName;
-					vb.ID = (int)pFVM2D->boundaryManager.vBoundarySets.size() + 1;
-					vb.startID = start_end[is * 2 + 0];//0,2,4,... 0=is*2+0
-					vb.endID = start_end[is * 2 + 1];
-					pFVM2D->boundaryManager.vBoundarySets.push_back(vb);
+					VirtualBoundarySet_2D vb;// 一条具有名称的边界，由一串连续的Edge构成的集合
+					vb.name = setName;// 边界名称
+					vb.ID = (int)pFVM2D->boundaryManager.boundaries.size() + 1;
+					vb.startID = start_end[is * 2 + 0];//0,2,4,... 0=is*2+0 // 首EdgeID
+					vb.endID = start_end[is * 2 + 1];// 尾EdgeID
+					pFVM2D->boundaryManager.boundaries.push_back(vb);
 				}
 				//重置
 				vInts.clear();
@@ -94,6 +120,10 @@ int InpMeshReader::readGmeshFile(std::string suffix) {
 			}
 			else {
 				for (int iword = 0; iword < tWords.size(); iword++) {
+					/* 
+					vInts用于存储"*ELSET,ELSET=inf"下面所有数字。一般是连续的，如果
+					不连续，表示是2条边界
+					*/
 					vInts.push_back(std::stoi(tWords[iword]));
 				}
 			}
@@ -102,16 +132,61 @@ int InpMeshReader::readGmeshFile(std::string suffix) {
 	infile.close();
 
 	std::cout << "Generate and initiate elements..." << std::endl;
+	/*
+	已完成：
+	建立nodes数组，初始化node的ID、x、y
+	建立elements数组，初始化element的ID、nodeIDs
+	*/
 
-	pFVM2D->iniPNodeTable(maxnodeID);
-	pFVM2D->iniEdges();
-	pFVM2D->iniPEdgeTable();
-	pFVM2D->iniPElementTable(maxelementID);
-	pFVM2D->iniElement_xy_pEdges();
+	pFVM2D->iniPNodeTable(maxnodeID);// 需要先建立nodes数组，知道每个node的ID。已完成
+	pFVM2D->iniPElementTable(maxelementID);// 需要先建立elements数组，知道每个element的ID。已完成
+	pFVM2D->iniEdges();// 建立edges数组。需要知道每个element的nodeIDs。已完成
+
+	pFVM2D->iniPEdgeTable();// 建立pEdges数组。需要先建立edges数组，知道每个edge的ID。依赖于iniEdges
+	
+	pFVM2D->iniElement_xy_pEdges();// 需要
 	pFVM2D->iniNode_neighborElements();
 	pFVM2D->iniEdges_lengths();
-	pFVM2D->boundaryManager.iniBoundarySetPEdges_in_readMeshFile(pFVM2D, vBoundaryEdges);//初始化vBoundarySet的pEdges
+	
 
+	// 初始化boundaryManager.boundaries的pEdges
+	// 前置条件：有boundaries向量，有edges向量且edges已初始化nodeIDs
+	{
+		/*
+		函数目的：初始化vBoundarySets的每个set的pEdges
+		vBoundaryEdges包含未经提取的边界edge信息
+		boundaries[iset]的startID、endID指示了应当提取vBoundaryEdges的哪一段
+
+		vBoundarySets的每个元素为VirtualBoundarySet_2D类型
+		VirtualBoundarySet_2D类型：定义了一条边界，成员变量有：边界ID、name、startID、endID、pEdges，
+		分别存储边界ID、边界名称、起始点和终止点的ID、各edge单元指针
+
+		vBoundaryEdges的每个元素为VirtualEdge_2D类型
+		VirtualEdge_2D类型：定义了一个edge单元，成员变量为nodes，存储了两个节点的ID
+		*/
+		std::vector<VirtualBoundarySet_2D>& boundaries = pFVM2D->boundaryManager.boundaries;
+		int istart = 1; int iend = 10;
+		for (int iset = 0; iset < boundaries.size(); iset++) {
+			//指示应当提取vBoundaryEdges的哪一段
+			istart = boundaries[iset].startID;
+			iend = boundaries[iset].endID;
+			//提取这一段，存入vBoundarySets[iset].pEdges
+			for (int ie = istart; ie <= iend; ie++) {
+				int n0 = vBoundaryEdges[ie].nodes[0];
+				int n1 = vBoundaryEdges[ie].nodes[1];
+				Edge_2D* pEdge = pFVM2D->getEdgeByNodeIDs(n0, n1);
+				//pEdge->set = boundaries[iset].ID;
+				boundaries[iset].pEdges.push_back(pEdge);
+			}
+		}
+	}
+
+	// 设置edges中的setID，设置boundaryManager.boundaries的type
+	// 前置条件：有edges向量，有boundaries向量，且boundaries有name
+	{
+		int ret = pFVM2D->boundaryManager.iniBoundaryEdgeSetID_and_iniBoundaryType(pFVM2D);
+		if (ret != 0)return ret;
+	}
 
 	return 0;
 

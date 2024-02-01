@@ -9,6 +9,7 @@
 #include "input/InpMeshReader.h"
 #include "global/VectorProcessor.h"
 #include "input/SU2MeshReader.h"
+#include "gpu/GPUSolver.h"
 
 FVM_2D* FVM_2D::pFVM2D = nullptr;
 
@@ -76,7 +77,7 @@ void FVM_2D::run() {
 
 	//// 求解
 	if (GlobalPara::physicsModel::equation == _EQ_euler) {
-		solve_("_Euler.out", "_Euler.info");
+		solve_CPU("_Euler.out", "_Euler.info");
 	}
 	else {
 		std::cout << "Error: Invalid equation type";
@@ -135,7 +136,10 @@ void FVM_2D::setInitialCondition() {
 
 }
 
-void FVM_2D::solve_(std::string suffix_out, std::string suffix_info) {
+void FVM_2D::solve_CPU(std::string suffix_out, std::string suffix_info) {
+	// 输入参数没有被用到
+
+	Solver_2D solver;
 	FilePathManager* filePathManager = FilePathManager::getInstance();
 	HistWriter histWriter(filePathManager->outputFolder_path + "\\" + GlobalPara::basic::filename + "_hist.dat");
 	const int residual_vector_size = 4;
@@ -179,8 +183,8 @@ void FVM_2D::solve_(std::string suffix_out, std::string suffix_info) {
 
 			calculateTime = (double)(clock() - start_t) / CLOCKS_PER_SEC;//
 			calculateSpeed = ((istep - istep_previous)/calculateTime);
-			std::cout;
-			solveInfo = ConsolePrinter::printSolveInfo(calculateTime, istep, calculateSpeed, nFiles, t, T, residual_vector);
+			solveInfo = ConsolePrinter::assemblySolveInfo(calculateTime, istep, calculateSpeed, nFiles, t, T, residual_vector);
+			std::cout << solveInfo;
 		}
 		//检查非法值
 		if (isNan()|| residual_vector[0] > big_value) {
@@ -262,6 +266,128 @@ void FVM_2D::solve_(std::string suffix_out, std::string suffix_info) {
 		}
 	}
 
+}
+
+void FVM_2D::solve_GPU() {
+	/*
+	[开发中]以下为GPU代码
+	*/
+	
+
+
+	const int residual_vector_size = 4;
+	const double big_value = 1e8;
+	const double T = GlobalPara::time::T;//目标物理时间。用于控制是否终止计算
+	int nFiles = 0;//输出文件个数，用于显示
+	bool signal_pause = 0;//暂停信号，用于控制
+	double residual_vector[residual_vector_size]{ 1,1,1,1 };
+	double t = t_previous;//当前物理时间。由续算时的起始时间决定
+	std::vector<Element_2D> elements_old;
+	std::string solveInfo;
+	std::string outputPathWithSlash = FilePathManager::getInstance()->outputFolder_path + "\\";
+	std::string basicFileName = GlobalPara::basic::filename;
+	clock_t start_t;
+	COORD p1;
+	HistWriter histWriter(outputPathWithSlash + basicFileName + "_hist.dat");
+	GPUSolver gpuSolver;
+
+	// 初始化
+	start_t = clock();
+	histWriter.writeHead();
+	gpuSolver.initialze();
+	p1 = ConsolePrinter::getCursorPosition();
+	ConsolePrinter::drawProgressBar(int(t / T));
+
+
+	// 迭代
+	for (int istep = istep_previous; istep < 1e6 && t < T; istep++) {
+		// --- 更新 ---
+		// 更新文件名
+		char szBuffer[20];
+		sprintf_s(szBuffer, _countof(szBuffer), "%04d", istep);//若istep小于4位数，则补0
+		std::string str_istep_withBracket = "[" + std::string(szBuffer) + "]";
+		std::string tecplotFilePath = outputPathWithSlash + basicFileName + str_istep_withBracket + ".dat";
+		std::string continueFilePath = outputPathWithSlash + "pause_" + basicFileName + str_istep_withBracket + ".dat";
+		std::string continueFilePath_nan = outputPathWithSlash + "nan_" + basicFileName + str_istep_withBracket + ".dat";
+		// 更新旧结果
+		elements_old = elements;
+		// 更新时间和时间步长
+		caldt();
+		dt = (t + dt > T) ? (T - t) : dt;//if (t + dt > T)dt = T - t;
+		t += dt;
+
+		// --- 计算 ---
+		// GPU计算
+		
+
+		// --- 输出 ---
+		// 输出进度表示正在计算，没有卡顿
+		std::cout << ".";
+		// 定期输出进度
+		if (istep % GlobalPara::output::step_per_print == 1) {
+			ConsolePrinter::clearDisplay(p1, ConsolePrinter::getCursorPosition());
+			ConsolePrinter::setCursorPosition(p1);
+			ConsolePrinter::drawProgressBar(int(t / T * 100 + 2));//+x是为了防止停在99%
+
+			double calculateTime = (double)(clock() - start_t) / CLOCKS_PER_SEC;
+			double calculateSpeed = ((istep - istep_previous) / calculateTime);
+			solveInfo = ConsolePrinter::assemblySolveInfo(calculateTime, istep, calculateSpeed, nFiles, t, T, residual_vector);
+			std::cout << solveInfo;
+		}
+		// 检查非法值
+		if (isNan() || residual_vector[0] > big_value) {
+			ConsolePrinter::printInfo(ConsolePrinter::InfoType::type_nan_detected);
+			writeTecplotFile(tecplotFilePath, t);
+			writeContinueFile(continueFilePath_nan, t, istep);
+			break;
+		}
+		// 定期输出流场
+		if (istep % GlobalPara::output::step_per_output == 1) {
+			writeTecplotFile(tecplotFilePath, t);
+			nFiles++;
+			//.autosave 自动保存文件 续算文件
+			updateAutoSaveFile(t, istep);
+
+		}
+		// 定期输出残差
+		if (istep % GlobalPara::output::step_per_output_hist == 1) {
+			//计算残差，结果保存在residual_vector中
+			ResidualCalculator::cal_residual(elements_old, elements, ResidualCalculator::NORM_INF, residual_vector);
+			histWriter.writeData(istep, residual_vector, residual_vector_size);
+		}
+
+		// --- 终止 ---
+		// 按esc终止
+		if (_kbhit()) {
+			char ch = _getch();
+			if (_getch() == 27) {
+				writeContinueFile(continueFilePath, t, istep);
+				std::cout << "[ESC]: Computation Interrupted\n";
+				signal_pause = true;
+			}
+		}
+		// 达到规定迭代时间，终止
+		else if (t >= T) {
+			writeContinueFile(continueFilePath, t, istep);
+			writeTecplotFile(tecplotFilePath, t);
+			std::cout << "Computation finished\n";
+			signal_pause = true;
+		}
+		// 残差足够小，终止
+		else if (residual_vector[0] <= Constant::epsilon) {
+			writeContinueFile(continueFilePath, t, istep);
+			writeTecplotFile(tecplotFilePath, t);
+			std::cout << "Computation finished as the field is already stable\n";
+			signal_pause = true;
+		}
+		// 终止操作
+		if (signal_pause) {
+			LogWriter::writeLog(solveInfo);
+			break;
+		}
+	}
+
+	gpuSolver.free();
 }
 
 void FVM_2D::caldt() {

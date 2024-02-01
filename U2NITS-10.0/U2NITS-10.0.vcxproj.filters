@@ -34,6 +34,9 @@
     <Filter Include="src\math">
       <UniqueIdentifier>{2922bb1e-c106-4860-a3de-36943be2ad81}</UniqueIdentifier>
     </Filter>
+    <Filter Include="src\gpu">
+      <UniqueIdentifier>{471a958b-1d7a-4580-80b4-e61968854b83}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="src\main.cpp">
@@ -122,6 +125,9 @@
     </ClCompile>
     <ClCompile Include="src\global\VectorProcessor.cpp">
       <Filter>src\global</Filter>
+    </ClCompile>
+    <ClCompile Include="src\gpu\GPUSolver.cu">
+      <Filter>src\gpu</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -215,5 +221,25 @@
     <ClInclude Include="src\global\VectorProcessor.h">
       <Filter>src\global</Filter>
     </ClInclude>
+    <ClInclude Include="src\gpu\GPUSolver.h">
+      <Filter>src\gpu</Filter>
+    </ClInclude>
+    <ClInclude Include="src\gpu\DataType.h">
+      <Filter>src\gpu</Filter>
+    </ClInclude>
+    <ClInclude Include="src\gpu\ElementDataPack.h">
+      <Filter>src\gpu</Filter>
+    </ClInclude>
+    <ClInclude Include="src\gpu\GPU_space.h">
+      <Filter>src\gpu</Filter>
+    </ClInclude>
+    <ClInclude Include="src\gpu\GPUMathKernel.h">
+      <Filter>src\gpu</Filter>
+    </ClInclude>
+  </ItemGroup>
+  <ItemGroup>
+    <CudaCompile Include="src\gpu\GPU_space.cu">
+      <Filter>src\gpu</Filter>
+    </CudaCompile>
   </ItemGroup>
 </Project>

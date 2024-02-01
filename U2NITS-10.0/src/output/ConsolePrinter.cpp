@@ -19,6 +19,41 @@ void ConsolePrinter::printHeader() {
 
 }
 
+void ConsolePrinter::printGenshinStart() {
+	// 原神，启动
+	if (false) {
+	// doh 生成工具：https://tools.kalvinbg.cn/txt/ascii
+	std::cout << R"(	    GGGGGGGGGGGGG                                                      hhhhhhh               iiii                    )" << "\n";
+	std::cout << R"(     GGG::::::::::::G                                                      h:::::h              i::::i                   )" << "\n";
+	std::cout << R"(   GG:::::::::::::::G                                                      h:::::h               iiii                    )" << "\n";
+	std::cout << R"(  G:::::GGGGGGGG::::G                                                      h:::::h                                       )" << "\n";
+	std::cout << R"( G:::::G       GGGGGG    eeeeeeeeeeee    nnnn  nnnnnnnn        ssssssssss   h::::h hhhhh       iiiiiiinnnn  nnnnnnnn     )" << "\n";
+	std::cout << R"(G:::::G                ee::::::::::::ee  n:::nn::::::::nn    ss::::::::::s  h::::hh:::::hhh    i:::::in:::nn::::::::nn   )" << "\n";
+	std::cout << R"(G:::::G               e::::::eeeee:::::een::::::::::::::nn ss:::::::::::::s h::::::::::::::hh   i::::in::::::::::::::nn  )" << "\n";
+	std::cout << R"(G:::::G    GGGGGGGGGGe::::::e     e:::::enn:::::::::::::::ns::::::ssss:::::sh:::::::hhh::::::h  i::::inn:::::::::::::::n )" << "\n";
+	std::cout << R"(G:::::G    G::::::::Ge:::::::eeeee::::::e  n:::::nnnn:::::n s:::::s  ssssss h::::::h   h::::::h i::::i  n:::::nnnn:::::n )" << "\n";
+	std::cout << R"(G:::::G    GGGGG::::Ge:::::::::::::::::e   n::::n    n::::n   s::::::s      h:::::h     h:::::h i::::i  n::::n    n::::n )" << "\n";
+	std::cout << R"(G:::::G        G::::Ge::::::eeeeeeeeeee    n::::n    n::::n      s::::::s   h:::::h     h:::::h i::::i  n::::n    n::::n )" << "\n";
+	std::cout << R"( G:::::G       G::::Ge:::::::e             n::::n    n::::nssssss   s:::::s h:::::h     h:::::h i::::i  n::::n    n::::n )" << "\n";
+	std::cout << R"(  G:::::GGGGGGGG::::Ge::::::::e            n::::n    n::::ns:::::ssss::::::sh:::::h     h:::::hi::::::i n::::n    n::::n )" << "\n";
+	std::cout << R"(   GG:::::::::::::::G e::::::::eeeeeeee    n::::n    n::::ns::::::::::::::s h:::::h     h:::::hi::::::i n::::n    n::::n )" << "\n";
+	std::cout << R"(     GGG::::::GGG:::G  ee:::::::::::::e    n::::n    n::::n s:::::::::::ss  h:::::h     h:::::hi::::::i n::::n    n::::n )" << "\n";
+	std::cout << R"(        GGGGGG   GGGG    eeeeeeeeeeeeee    nnnnnn    nnnnnn  sssssssssss    hhhhhhh     hhhhhhhiiiiiiii nnnnnn    nnnnnn )" << "\n";
+	}
+
+	// big https://tool.cccyun.cc/ascii_art
+	std::cout << R"(  _____                _     _         _____                            _   )" << "\n";
+	std::cout << R"( / ____|              | |   (_)       |_   _|                          | |  )" << "\n";
+	std::cout << R"(| |  __  ___ _ __  ___| |__  _ _ __     | |  _ __ ___  _ __   __ _  ___| |_ )" << "\n";
+	std::cout << R"(| | |_ |/ _ \ '_ \/ __| '_ \| | '_ \    | | | '_ ` _ \| '_ \ / _` |/ __| __|)" << "\n";
+	std::cout << R"(| |__| |  __/ | | \__ \ | | | | | | |  _| |_| | | | | | |_) | (_| | (__| |_ )" << "\n";
+	std::cout << R"( \_____|\___|_| |_|___/_| |_|_|_| |_| |_____|_| |_| |_| .__/ \__,_|\___|\__|)" << "\n";
+	std::cout << R"(                                                      | |                   )" << "\n";
+	std::cout << R"(                                                      |_|                   )" << "\n";
+
+
+}
+
 void ConsolePrinter::drawProgressBar(double percent) {
 	std::cout << "Progress:";
 	if (percent > 100)percent = 100;
@@ -105,7 +140,7 @@ void ConsolePrinter::clearDisplay(COORD p1, COORD p2){
 
 
 }
-std::string ConsolePrinter::printSolveInfo(double calTime, double calStep, double calSpeed, double nFile, double t, double T, const double* residual_vector) {
+std::string ConsolePrinter::assemblySolveInfo(double calTime, double calStep, double calSpeed, double nFile, double t, double T, const double* residual_vector) {
 	std::stringstream info;
 	info << "\n"
 		<< "  Calculate time: \t" << StringProcessor::timeFormat((int)calTime) << "\t(" << calTime << " s)\n"
@@ -116,7 +151,22 @@ std::string ConsolePrinter::printSolveInfo(double calTime, double calStep, doubl
 		<< "  Physical time: \t" << t << " s\t/" << T << " s\n"
 		<< "Press ESC to end Computation\n";
 	std::string str = info.str();
-	std::cout << str;
 	return str;
+}
+void ConsolePrinter::printInfo(InfoType type) {
+	switch (type) {
+	case InfoType::type_nan_detected:
+	{
+		std::cout << "\nWarning: \"NaN\" detected. ";
+		std::cout << "Possible Reason: \n"
+			<< "  1. Last time, this program terminated abnormally, leading to broken autosave files.\n"
+			<< "  2. Invalid boundary condition.\n"
+			<< "  3. When you continue to compute, you use a different boundary condition.\n";
+		std::cout << "Computation stopped.\n";
+		break;
+	}
+	default:
+		break;
+	}
 }
 #endif

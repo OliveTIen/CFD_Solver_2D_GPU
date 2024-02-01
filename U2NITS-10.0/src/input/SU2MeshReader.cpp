@@ -18,7 +18,7 @@ int SU2MeshReader::readFile(std::string filePath, bool convertRectToTriangle) {
 	SU2文件读取规范 https://zhuanlan.zhihu.com/p/641146110
 	*/
 
-
+	std::cout << "Read \".su2\" mesh file\n";
 	FVM_2D* pFVM2D = FVM_2D::pFVM2D;
 	std::ifstream infile(filePath);
 	if (!infile) {
@@ -34,10 +34,10 @@ int SU2MeshReader::readFile(std::string filePath, bool convertRectToTriangle) {
 	std::vector<VirtualEdge_2D> vBoundaryEdges;//临时变量。存储边界元节点ID
 	vBoundaryEdges.push_back(VirtualEdge_2D());//填充1个null元素，以保证行号表示ID
 	std::vector<SimpleBoundary>tmp_boudaries;
-	while (1) {
+	while (infile.getline(buffer, bufferLength)) {
 		//get words and set state
-		infile.getline(buffer, bufferLength);
-		if (infile.eof())break;
+		//infile.getline(buffer, bufferLength);
+		//if (infile.eof())break;
 		tLine = buffer;
 		tLine = StringProcessor::replaceCharInString(tLine, '=', " = ");
 		tWords = StringProcessor::splitString(tLine);
@@ -143,7 +143,7 @@ int SU2MeshReader::readFile(std::string filePath, bool convertRectToTriangle) {
 	pFVM2D->iniElement_xy_pEdges();
 	pFVM2D->iniEdges_lengths();
 
-
+	std::cout << "Initialize boundary condition\n";
 	// 初始化boundaryManager.boundaries的pEdges、type
 	// 初始化edge的setID
 	// 初始化周期边界关系，由boundaryManager.periodPairs维护

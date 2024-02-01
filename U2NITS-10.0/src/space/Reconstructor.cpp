@@ -107,9 +107,11 @@ void Reconstructor::Element_T3_updateSlope_Barth(FVM_2D* f, Element_2D* pE) {
             dXm(2, 1) = dX[2][1];
             dUm(0, 0) = dU[0][iVar];
             dUm(1, 0) = dU[1][iVar];
+			dUm(2, 0) = dU[2][iVar];
             
             dUdX[0][iVar] = dUdXm(0, 0);
             dUdX[1][iVar] = dUdXm(1, 0);
+            // 以下代码可以优化，用硬编码实现，不用矩阵类。
             dUdXm = (dXm.transpose() * dXm).inverse() * dXm.transpose() * dUm;
             dUdX[0][iVar] = dUdXm(0, 0);
             dUdX[1][iVar] = dUdXm(1, 0);

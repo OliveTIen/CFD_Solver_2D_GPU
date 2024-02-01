@@ -6,6 +6,7 @@ int main() {
 	FVM app;
 	app.run();
 
+	// 停止
 #ifdef _WIN32
 	system("pause");
 #elif defined __linux__

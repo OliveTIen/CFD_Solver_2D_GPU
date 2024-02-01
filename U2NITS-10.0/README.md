@@ -17,6 +17,47 @@ author: tgl
 以前能够实现光标移动，可是更改代码后发现失效了。经排查，原来是开头输出input.toml时，由于输出内容超过1页，导致屏幕滚动，
 然而目前的ConsolePrinter只支持一行滚动的
 
+
+2024-02-06 ~ 2024-02-08
+完善FVM2D中solve_GPU函数。
+接下来要编写GPU_calculateGradient()函数，参见GPU_space.h
+修复代码错误：原CPU代码中“nNeighbor == 3”部分遗漏代码“dUm(2, 0) = dU[2][iVar]”(Reconstructor.cpp第110行)
+进行至写__global__ void GPU::calculateGradientKernel(GPU::ElementDataPack& deviceDataPack)函数（2024-02-08）
+
+2024-02-01
+感觉科学计算不太适合用太多的面向对象。用纯过程和函数式编程更利于并行。
+面向对象(OO)更适合桌面应用、GUI。OO是一种编程范式，它不能一招鲜吃遍天。
+阅读OpenCFD-SCU，发现其cuda并行代码位于solver内计算通量的部分，这意味着我需要将Edge_2D的数据与方法分离，
+将处理Edge_2D数据的方法放进新类中。
+把所有cuda kelnel放进kernel.cu中，总共不超过200行，因为kernel都是简单的加减乘除运算
+
+GPU编程的难点在于，它的所有kernel类似于函数式编程，仅知道当前编号。而非结构网格要操作的数据位置是不固定的。
+例如进行规约操作，对于CPU编程，只需简单求和即可，但在GPU上需要二分法求和。
+
+可能的解决办法：
+在计算前，将所需数据(相邻单元数据、梯度、)整理成数组，将数组指针传给kernel。
+虽然考虑到复制会耗费时间，但不试一试怎么知道最终效果如何呢。
+
+鉴于GPU核心数上千（是CPU的数百倍），带宽大，可以将计算全部放进GPU
+
+方案1：单元仅存最少数据：
+nodeCoordinates[3][3]
+values[4]
+neighborValues[3][3]
+先计算梯度
+然后计算边界值
+再计算边界数值通量(要用到黎曼求解器)
+改变单元值
+
+经过该步骤后，传输到主机，基于更新后的values，将所有单元的neighborValues更新，再传输进GPU
+然后进行下一步循环
+
+方案2：
+nodeCoordinates[3][3]
+fieldValues[4]
+fieldValue
+
+
 2024-01-27
 pEdges向量在用push添加pEdge时，仅仅添加了
  

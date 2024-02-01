@@ -11,7 +11,7 @@ class FVM_2D {
 public:
 	static FVM_2D* pFVM2D;
 	BoundaryManager_2D boundaryManager;
-	Solver_2D solver;
+	//Solver_2D solver;
 	Math_2D math;
 	std::vector<Node_2D> nodes;
 	std::vector<Element_2D> elements;
@@ -40,7 +40,8 @@ public:
 	//初始化流场。续算不要使用该函数，否则会重新开始
 	void setInitialCondition();
 	//求解
-	void solve_(std::string suffix_out, std::string suffix_info);
+	void solve_CPU(std::string suffix_out, std::string suffix_info);
+	void solve_GPU();
 	//计算dt
 	void caldt();
 	//检查非法值

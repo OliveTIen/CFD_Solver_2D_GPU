@@ -46,6 +46,12 @@ namespace GPU {
 			neighbors[1].cuda_copy_to_device(&(device->neighbors[1]), num_element);
 			neighbors[2].cuda_copy_to_device(&(device->neighbors[2]), num_element);
         }
+		void cuda_copy_to_host(ElementDataPack* host) {
+            self.cuda_copy_to_host(&(host->self), num_element);
+			neighbors[0].cuda_copy_to_host(&(host->neighbors[0]), num_element);
+			neighbors[1].cuda_copy_to_host(&(host->neighbors[1]), num_element);
+			neighbors[2].cuda_copy_to_host(&(host->neighbors[2]), num_element);
+        }   
     };
 }
 

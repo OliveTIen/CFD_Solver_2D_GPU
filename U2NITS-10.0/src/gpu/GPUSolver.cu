@@ -16,10 +16,49 @@ void GPUSolver::initialze() {
 	2. 初始化selfValue.U1~U4, neighbor1.U1~U4, neighbor2.U1~U4, neighbor3.U1~U4
 	3. 梯度初始化为0
 	*/
+	/*
+cudaMalloc应放在循环外，以减少开销 参加书P364
+但是计算单元和计算边是两套不同大小的数组，因此需要申请两套
+主机复制到设备
+
+需要初始化：
+	单元坐标
+	单元节点坐标
+
+*/
+	// 设置GPU
+	int iDeviceCount = 0;
+	cudaError_t error = cudaGetDeviceCount(&iDeviceCount);
+	if (error != cudaSuccess || iDeviceCount <= 0) {
+		printf("No GPU found\n");
+		throw error;
+	}
+	printf("Num of GPU: %d\n", iDeviceCount);
+
+	int iDev = 0;
+	error = cudaSetDevice(iDev);
+	if (error != cudaSuccess) {
+		printf("Fail to set GPU %d\n", iDev);
+		throw error;
+	}
+	printf("Activate GPU: %d\n", iDev);
+
+	// 申请内存
 	FVM_2D* pFVM2D = FVM_2D::pFVM2D;
 	int num_element = pFVM2D->elements.size();
 	this->element_host.alloc(num_element);
-
+	
+	try{ 
+		element_device.cuda_alloc(num_element); 
+	}
+	catch (const char* e) {
+		// ! 异常处理未完成
+		std::cout << e << std::endl;
+		cudaError_t error = cudaError_t::cudaErrorDeviceUninitialized;
+		throw error;
+	}
+	
+	// 初始化host数据
 	#pragma omp parallel for
 	for (int i = 0; i < num_element; i++) {
 		
@@ -68,22 +107,7 @@ void GPUSolver::initialze() {
 				element_host.neighbors[j].Uy4[i] = 0;
 			}
 		}
-
-
 	}
-
-	/*
-	cudaMalloc应放在循环外，以减少开销 参加书P364
-	但是计算单元和计算边是两套不同大小的数组，因此需要申请两套
-	主机复制到设备
-
-	需要初始化：
-	    单元坐标
-		单元节点坐标
-	
-	*/
-	element_device.alloc(num_element);
-	
 
 }
 
@@ -119,14 +143,24 @@ void GPUSolver::iteration() {
 
  
 	*/
+	// 复制host数据到device
+	element_host.cuda_copy_to_device(&element_device);
 
 	// --- 计算单元梯度 --- 
 	// 输入：单元坐标、单元U、单元邻居坐标、单元邻居U
-	// 输出：单元梯度、邻居梯度
-	element_host.cuda_copy_to_device(&element_device);
+	// 输出：单元梯度
+	GPU::calculateGradient(this->element_device);
+	// 复制device数据到host
+	element_device.cuda_copy_to_host(&element_host);
+	// 限制器 目前不需要加
+	
+	// TODO: 更新邻居梯度 1.在ElementDataPack中添加neighborIndex数组
 
-	int block_size = 512;
-	int grid_size = (element_device.num_element + block_size - 1) / block_size;
-	GPU::calculateGradient(block_size, grid_size, this->element_device);
+	// --- 计算边界数值通量 --- 
 
+}
+
+inline void GPUSolver::finalize() {
+	this->element_host.free(); 
+	this->element_device.cuda_free();
 }

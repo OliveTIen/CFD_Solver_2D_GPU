@@ -7,44 +7,44 @@ void Limiter::modifySlope_Barth(Element_2D* pE) {
     //计算偏差上下界
     FVM_2D* f = FVM_2D::pFVM2D;
     std::vector<Element_2D*> neighbors = pE->findNeighbor();
-    double UU[3][4]{};//邻居函数值与自身函数值的差
-    double UUup = 0;
-    double UUdown = 0;
+    double UNeighborRelative[3][4]{};//邻居函数值与自身函数值的差 i-第i个邻居，j-jVar
+    double UNeighborRelativeMax = 0;
+    double UNeighborRelativeMin = 0;
     for (int i = 0; i < neighbors.size(); i++) {
         if (neighbors[i] != nullptr) {
             for (int j = 0; j < 4; j++) {
-                UU[i][j] = neighbors[i]->U[j] - pE->U[j];
-                UUup = (std::max)(UUup, UU[i][j]);
-                UUdown = (std::min)(UUdown, UU[i][j]);
+                UNeighborRelative[i][j] = neighbors[i]->U[j] - pE->U[j];
+                UNeighborRelativeMax = (std::max)(UNeighborRelativeMax, UNeighborRelative[i][j]);
+                UNeighborRelativeMin = (std::min)(UNeighborRelativeMin, UNeighborRelative[i][j]);
             }
         }
     }
     //计算顶点偏差
-    double U_node[3][4]{};
-    double UU_node[3][4]{};//顶点函数值与自身函数值的差
-    double UUup_node = 0;
-    double UUdown_node = 0;
+    double UNode[3][4]{};
+    double UNodeRelative[3][4]{};//顶点函数值与自身函数值的差
+    double UNodeRelativeMax = 0;
+    double UNodeRelativeMin = 0;
     for (int i_node = 0; i_node < 3; i_node++) {
         Node_2D* pNode = f->pNodeTable[pE->nodes[i_node]];
-        pE->get_U(pNode->x, pNode->y, U_node[i_node]);
+        pE->get_U(pNode->x, pNode->y, UNode[i_node]);
         for (int j = 0; j < 4; j++) {
-            UU_node[i_node][j] = U_node[i_node][j] - pE->U[j];
-            UUup_node = (std::max)(UUup_node, UU_node[i_node][j]);
-            UUdown_node = (std::min)(UUdown_node, UU_node[i_node][j]);
+            UNodeRelative[i_node][j] = UNode[i_node][j] - pE->U[j];
+            UNodeRelativeMax = (std::max)(UNodeRelativeMax, UNodeRelative[i_node][j]);
+            UNodeRelativeMin = (std::min)(UNodeRelativeMin, UNodeRelative[i_node][j]);
         }
     }
     //修正Ux, Uy
-    double ratio = 1;
-    if (UUup_node > UUup) {
-        ratio = (std::max)(ratio, UUup_node / UUup);
+    double scale = 1;
+    if (UNodeRelativeMax > UNeighborRelativeMax) {
+        scale = (std::max)(scale, UNodeRelativeMax / UNeighborRelativeMax);
     }
-    if (UUdown_node < UUdown) {
-        ratio = (std::max)(ratio, UUdown_node / UUdown);
+    if (UNodeRelativeMin < UNeighborRelativeMin) {
+        scale = (std::max)(scale, UNodeRelativeMin / UNeighborRelativeMin);
     }
 
     for (int j = 0; j < 4; j++) {
-        pE->Ux[j] /= ratio;
-        pE->Uy[j] /= ratio;
+        pE->Ux[j] /= scale;
+        pE->Uy[j] /= scale;
     }
 
 }

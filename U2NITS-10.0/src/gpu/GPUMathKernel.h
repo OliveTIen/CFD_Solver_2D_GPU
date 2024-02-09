@@ -1,7 +1,11 @@
 #ifndef __GPUMATHKERNEL_H__
 #define __GPUMATHKERNEL_H__
 
+#ifdef _WIN32
 #include <cuda_runtime.h>
+#include "device_launch_parameters.h"
+#endif
+
 #include <iostream>
 #define REAL double
 
@@ -68,7 +72,6 @@ namespace GPU {
 				}
 			}
 		}
-
 
 	}
 

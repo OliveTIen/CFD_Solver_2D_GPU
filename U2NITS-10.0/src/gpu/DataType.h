@@ -161,6 +161,13 @@ namespace GPU {
             cudaMalloc((void**)&this->Uy2, sizeof(REAL) * num_element);
             cudaMalloc((void**)&this->Uy3, sizeof(REAL) * num_element);
             cudaMalloc((void**)&this->Uy4, sizeof(REAL) * num_element);
+
+            if (isNull == nullptr || x == nullptr || y == nullptr
+                || U1 == nullptr || U2 == nullptr || U3 == nullptr || U4 == nullptr
+                || Ux1 == nullptr || Ux2 == nullptr || Ux3 == nullptr || Ux4 == nullptr
+                || Uy1 == nullptr || Uy2 == nullptr || Uy3 == nullptr || Uy4 == nullptr) {
+                throw "cuda malloc error";
+            }
         }
         void cuda_free() {
             cudaFree(this->isNull);
@@ -201,6 +208,26 @@ namespace GPU {
             cudaMemcpy(element_device->Uy4, this->Uy4, sizeof(REAL) * num_element, cudaMemcpyHostToDevice);
 
         }
+		void cuda_copy_to_host(Element* element_host, int num_element) {
+			cudaMemcpy(element_host->isNull, this->isNull, sizeof(bool) * num_element, cudaMemcpyDeviceToHost);
+			cudaMemcpy(element_host->x, this->x, sizeof(REAL) * num_element, cudaMemcpyDeviceToHost);
+			cudaMemcpy(element_host->y, this->y, sizeof(REAL) * num_element, cudaMemcpyDeviceToHost);
+
+			cudaMemcpy(element_host->U1, this->U1, sizeof(REAL) * num_element, cudaMemcpyDeviceToHost);
+			cudaMemcpy(element_host->U2, this->U2, sizeof(REAL) * num_element, cudaMemcpyDeviceToHost);
+			cudaMemcpy(element_host->U3, this->U3, sizeof(REAL) * num_element, cudaMemcpyDeviceToHost);
+			cudaMemcpy(element_host->U4, this->U4, sizeof(REAL) * num_element, cudaMemcpyDeviceToHost);
+
+			cudaMemcpy(element_host->Ux1, this->Ux1, sizeof(REAL) * num_element, cudaMemcpyDeviceToHost);
+			cudaMemcpy(element_host->Ux2, this->Ux2, sizeof(REAL) * num_element, cudaMemcpyDeviceToHost);
+			cudaMemcpy(element_host->Ux3, this->Ux3, sizeof(REAL) * num_element, cudaMemcpyDeviceToHost);
+			cudaMemcpy(element_host->Ux4, this->Ux4, sizeof(REAL) * num_element, cudaMemcpyDeviceToHost);
+			cudaMemcpy(element_host->Uy1, this->Uy1, sizeof(REAL) * num_element, cudaMemcpyDeviceToHost);
+			cudaMemcpy(element_host->Uy2, this->Uy2, sizeof(REAL) * num_element, cudaMemcpyDeviceToHost);
+			cudaMemcpy(element_host->Uy3, this->Uy3, sizeof(REAL) * num_element, cudaMemcpyDeviceToHost);
+			cudaMemcpy(element_host->Uy4, this->Uy4, sizeof(REAL) * num_element, cudaMemcpyDeviceToHost);
+		}
+
     };
 
     //class ElementPlus : public Element {

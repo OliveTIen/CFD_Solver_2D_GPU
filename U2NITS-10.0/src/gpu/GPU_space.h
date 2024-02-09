@@ -5,9 +5,14 @@
 
 
 namespace GPU {
-	void calculateGradient(int block_size, int grid_size, GPU::ElementDataPack& elementDataPack);
+	void calculateGradient(GPU::ElementDataPack& elementDataPack);
 
 	__global__ void GPU::calculateGradientKernel(GPU::ElementDataPack& deviceDataPack);
+
+
+	namespace Limiter {
+		__device__ inline void Barth();
+	}
 }
 
 

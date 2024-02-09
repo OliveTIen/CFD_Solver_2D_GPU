@@ -14,9 +14,10 @@ public:
 
 	void iteration();
 
-    void free(){this->element_host.free();}
+    void finalize();
 	//void run();
-
+private:
+    //void setGPU();
 };
 
 

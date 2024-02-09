@@ -294,7 +294,13 @@ void FVM_2D::solve_GPU() {
 	// 初始化
 	start_t = clock();
 	histWriter.writeHead();
-	gpuSolver.initialze();
+	try{
+		gpuSolver.initialze();
+	}
+	catch (cudaError_t e) {
+		std::cout << "GPU initialize failed. Cuda error code: " << e << std::endl;
+		return;
+	}
 	p1 = ConsolePrinter::getCursorPosition();
 	ConsolePrinter::drawProgressBar(int(t / T));
 
@@ -387,7 +393,8 @@ void FVM_2D::solve_GPU() {
 		}
 	}
 
-	gpuSolver.free();
+	// 释放资源
+	gpuSolver.finalize();
 }
 
 void FVM_2D::caldt() {

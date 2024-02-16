@@ -15,6 +15,7 @@ public:
 	Element_2D* pElement_R = nullptr;
 	float length{};// 边长度。初始计算好，后续无需计算。为减小内存占用，用float
 	float refLength{};// 两侧单元中心距离，用于梯度计算。
+	int GPUID = -1;
 
 public:
 	void getxy(FVM_2D* f, double& x, double& y);

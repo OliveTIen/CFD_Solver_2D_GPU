@@ -1,13 +1,17 @@
 #ifndef GPU_SOLVER_H
 #define GPU_SOLVER_H
 
-#include "DataType.h"
-#include "ElementDataPack.h"
+#include "dataType/ElementDataPack.h"
+#include "dataType/ElementAdjacent.h"
+#include "dataType/EdgeSoA.h"
 
 class GPUSolver {
 public:
 	GPU::ElementDataPack element_host;
 	GPU::ElementDataPack element_device;
+    GPU::ElementAdjacent elementAdjacent;
+    GPU::EdgeSoA edge_host;
+    GPU::EdgeSoA edge_device;
 
 public:
 	void initialze();
@@ -17,7 +21,9 @@ public:
     void finalize();
 	//void run();
 private:
-    //void setGPU();
+    void initialize_elementHost_elementAdjacent(void* _pFVM2D_, int num_element, int num_neighbor);
+
+    void initialize_edgeHost(void* _pFVM2D_, int num_edge);
 };
 
 

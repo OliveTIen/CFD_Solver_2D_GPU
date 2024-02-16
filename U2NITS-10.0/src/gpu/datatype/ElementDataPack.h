@@ -1,87 +1,9 @@
-#ifndef GPU_DATATYPE_H
-#define GPU_DATATYPE_H
+#ifndef __ELEMENT_DATA_PACK_H__
+#define __ELEMENT_DATA_PACK_H__
 
-#include <cuda_runtime.h>
-
-// define data type
-#define REAL double
+#include "Define.h"
 
 namespace GPU {
-    // 未使用
-    class Coordinate {
-    public:
-        REAL* x;
-        REAL* y;
-    public:
-		void alloc(int num_element) {
-            this->x = new REAL[num_element]{};
-            this->y = new REAL[num_element]{};
-		}
-		void free() {
-			delete[] x;
-			delete[] y;
-		}
-    };
-    // 未使用 守恒量
-    class Value {
-    public:
-        REAL* U1;
-        REAL* U2;
-        REAL* U3;
-        REAL* U4;
-    public:
-        void alloc(int num_element) {
-            this->U1 = new REAL[num_element]{};
-            this->U2 = new REAL[num_element]{};
-            this->U3 = new REAL[num_element]{};
-            this->U4 = new REAL[num_element]{};
-        }
-        void free() {
-            delete[] U1;
-            delete[] U2;
-            delete[] U3;
-            delete[] U4;
-        }
-    };
-    // 未使用
-    class ValueWithGradient: public Value {
-    public:
-        bool* isNull;
-        REAL* Ux1;
-        REAL* Ux2;
-        REAL* Ux3;
-        REAL* Ux4;
-        REAL* Uy1;
-        REAL* Uy2;
-        REAL* Uy3;
-        REAL* Uy4;
-    public:
-        void alloc(int num_element) {
-            Value::alloc(num_element);
-            this->isNull = new bool[num_element]{};
-            this->Ux1 = new REAL[num_element]{};
-            this->Ux2 = new REAL[num_element]{};
-            this->Ux3 = new REAL[num_element]{};
-            this->Ux4 = new REAL[num_element]{};
-            this->Uy1 = new REAL[num_element]{};
-            this->Uy2 = new REAL[num_element]{};
-            this->Uy3 = new REAL[num_element]{};
-            this->Uy4 = new REAL[num_element]{};
-        }
-        void free() {
-            Value::free();
-			delete[] isNull;
-            delete[] Ux1;
-            delete[] Ux2;
-            delete[] Ux3;
-            delete[] Ux4;
-            delete[] Uy1;
-            delete[] Uy2;
-            delete[] Uy3;
-            delete[] Uy4;
-        }
-    };
-
     // 当前
     class Element {
     public:
@@ -106,7 +28,7 @@ namespace GPU {
 
     public:
         void alloc(int num_element) {
-            this->isNull = new bool[num_element]{};
+            this->isNull = new bool[num_element] {};
             this->x = new REAL[num_element]{};
             this->y = new REAL[num_element]{};
 
@@ -125,7 +47,7 @@ namespace GPU {
             this->Uy4 = new REAL[num_element]{};
         }
         void free() {
-			delete[] isNull;
+            delete[] isNull;
             delete[] x;
             delete[] y;
 
@@ -208,42 +130,83 @@ namespace GPU {
             cudaMemcpy(element_device->Uy4, this->Uy4, sizeof(REAL) * num_element, cudaMemcpyHostToDevice);
 
         }
-		void cuda_copy_to_host(Element* element_host, int num_element) {
-			cudaMemcpy(element_host->isNull, this->isNull, sizeof(bool) * num_element, cudaMemcpyDeviceToHost);
-			cudaMemcpy(element_host->x, this->x, sizeof(REAL) * num_element, cudaMemcpyDeviceToHost);
-			cudaMemcpy(element_host->y, this->y, sizeof(REAL) * num_element, cudaMemcpyDeviceToHost);
+        void cuda_copy_to_host(Element* element_host, int num_element) {
+            cudaMemcpy(element_host->isNull, this->isNull, sizeof(bool) * num_element, cudaMemcpyDeviceToHost);
+            cudaMemcpy(element_host->x, this->x, sizeof(REAL) * num_element, cudaMemcpyDeviceToHost);
+            cudaMemcpy(element_host->y, this->y, sizeof(REAL) * num_element, cudaMemcpyDeviceToHost);
 
-			cudaMemcpy(element_host->U1, this->U1, sizeof(REAL) * num_element, cudaMemcpyDeviceToHost);
-			cudaMemcpy(element_host->U2, this->U2, sizeof(REAL) * num_element, cudaMemcpyDeviceToHost);
-			cudaMemcpy(element_host->U3, this->U3, sizeof(REAL) * num_element, cudaMemcpyDeviceToHost);
-			cudaMemcpy(element_host->U4, this->U4, sizeof(REAL) * num_element, cudaMemcpyDeviceToHost);
+            cudaMemcpy(element_host->U1, this->U1, sizeof(REAL) * num_element, cudaMemcpyDeviceToHost);
+            cudaMemcpy(element_host->U2, this->U2, sizeof(REAL) * num_element, cudaMemcpyDeviceToHost);
+            cudaMemcpy(element_host->U3, this->U3, sizeof(REAL) * num_element, cudaMemcpyDeviceToHost);
+            cudaMemcpy(element_host->U4, this->U4, sizeof(REAL) * num_element, cudaMemcpyDeviceToHost);
 
-			cudaMemcpy(element_host->Ux1, this->Ux1, sizeof(REAL) * num_element, cudaMemcpyDeviceToHost);
-			cudaMemcpy(element_host->Ux2, this->Ux2, sizeof(REAL) * num_element, cudaMemcpyDeviceToHost);
-			cudaMemcpy(element_host->Ux3, this->Ux3, sizeof(REAL) * num_element, cudaMemcpyDeviceToHost);
-			cudaMemcpy(element_host->Ux4, this->Ux4, sizeof(REAL) * num_element, cudaMemcpyDeviceToHost);
-			cudaMemcpy(element_host->Uy1, this->Uy1, sizeof(REAL) * num_element, cudaMemcpyDeviceToHost);
-			cudaMemcpy(element_host->Uy2, this->Uy2, sizeof(REAL) * num_element, cudaMemcpyDeviceToHost);
-			cudaMemcpy(element_host->Uy3, this->Uy3, sizeof(REAL) * num_element, cudaMemcpyDeviceToHost);
-			cudaMemcpy(element_host->Uy4, this->Uy4, sizeof(REAL) * num_element, cudaMemcpyDeviceToHost);
-		}
+            cudaMemcpy(element_host->Ux1, this->Ux1, sizeof(REAL) * num_element, cudaMemcpyDeviceToHost);
+            cudaMemcpy(element_host->Ux2, this->Ux2, sizeof(REAL) * num_element, cudaMemcpyDeviceToHost);
+            cudaMemcpy(element_host->Ux3, this->Ux3, sizeof(REAL) * num_element, cudaMemcpyDeviceToHost);
+            cudaMemcpy(element_host->Ux4, this->Ux4, sizeof(REAL) * num_element, cudaMemcpyDeviceToHost);
+            cudaMemcpy(element_host->Uy1, this->Uy1, sizeof(REAL) * num_element, cudaMemcpyDeviceToHost);
+            cudaMemcpy(element_host->Uy2, this->Uy2, sizeof(REAL) * num_element, cudaMemcpyDeviceToHost);
+            cudaMemcpy(element_host->Uy3, this->Uy3, sizeof(REAL) * num_element, cudaMemcpyDeviceToHost);
+            cudaMemcpy(element_host->Uy4, this->Uy4, sizeof(REAL) * num_element, cudaMemcpyDeviceToHost);
+        }
 
     };
 
-    //class ElementPlus : public Element {
-    //public:
-    //    REAL* flux;
-    //};
-
-    class Edge {
+    class ElementDataPack {
     public:
-        int* element_index1;
-        int* element_index2;
-        int* node_index1;
-        int* node_index2;
-        int num_edge = 0;
-    };
+        GPU::Element self;
+        GPU::Element neighbors[3];
 
+        int num_element = 0;
+
+    public:
+        void alloc(int num_element) {
+            this->num_element = num_element;
+            self.alloc(num_element);
+            neighbors[0].alloc(num_element);
+            neighbors[1].alloc(num_element);
+            neighbors[2].alloc(num_element);
+        }
+        void free() {
+            self.free();
+            neighbors[0].free();
+            neighbors[1].free();
+            neighbors[2].free();
+            num_element = 0;
+        }
+        void cuda_alloc(int num_element) {
+            this->num_element = num_element;
+            self.cuda_alloc(num_element);
+            neighbors[0].cuda_alloc(num_element);
+            neighbors[1].cuda_alloc(num_element);
+            neighbors[2].cuda_alloc(num_element);
+        }
+		void cuda_free() {
+            self.cuda_free();
+            neighbors[0].cuda_free();
+            neighbors[1].cuda_free();
+            neighbors[2].cuda_free();
+            num_element = 0;
+        }
+        void cuda_copy_to_device(ElementDataPack* device) {
+            self.cuda_copy_to_device(&(device->self), num_element);
+			neighbors[0].cuda_copy_to_device(&(device->neighbors[0]), num_element);
+			neighbors[1].cuda_copy_to_device(&(device->neighbors[1]), num_element);
+			neighbors[2].cuda_copy_to_device(&(device->neighbors[2]), num_element);
+        }
+		void cuda_copy_to_host(ElementDataPack* host) {
+            self.cuda_copy_to_host(&(host->self), num_element);
+			neighbors[0].cuda_copy_to_host(&(host->neighbors[0]), num_element);
+			neighbors[1].cuda_copy_to_host(&(host->neighbors[1]), num_element);
+			neighbors[2].cuda_copy_to_host(&(host->neighbors[2]), num_element);
+        }   
+    };
+    /*
+    inline void cuda_memcpy(ElementDataPack* dist, const ElementDataPack* src, cudaMemcpyKind kind) {
+
+    }
+    */
 }
 
-#endif // !GPU_DATATYPE_H
+
+#endif

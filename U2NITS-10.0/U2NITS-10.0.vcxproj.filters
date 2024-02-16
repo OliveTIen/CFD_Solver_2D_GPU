@@ -37,6 +37,15 @@
     <Filter Include="src\gpu">
       <UniqueIdentifier>{471a958b-1d7a-4580-80b4-e61968854b83}</UniqueIdentifier>
     </Filter>
+    <Filter Include="src\gpu\dataType">
+      <UniqueIdentifier>{1910dc79-9a23-4a79-a3fa-f424481752dc}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="src\gpu\space">
+      <UniqueIdentifier>{023646a1-a5b9-489d-96b6-7b7c3a32aca6}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="src\gpu\math">
+      <UniqueIdentifier>{598e267a-bee9-4095-9636-acf1116b6c59}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="src\main.cpp">
@@ -129,6 +138,7 @@
     <ClCompile Include="src\gpu\GPUSolver.cu">
       <Filter>src\gpu</Filter>
     </ClCompile>
+    <ClCompile Include="src\gpu\datatype\EdgeSoA.cpp" />
   </ItemGroup>
   <ItemGroup>
     <None Include="README.md" />
@@ -224,22 +234,34 @@
     <ClInclude Include="src\gpu\GPUSolver.h">
       <Filter>src\gpu</Filter>
     </ClInclude>
-    <ClInclude Include="src\gpu\DataType.h">
-      <Filter>src\gpu</Filter>
+    <ClInclude Include="src\gpu\DataType\ElementAdjacent.h">
+      <Filter>src\gpu\dataType</Filter>
     </ClInclude>
-    <ClInclude Include="src\gpu\ElementDataPack.h">
-      <Filter>src\gpu</Filter>
+    <ClInclude Include="src\gpu\DataType\ElementDataPack.h">
+      <Filter>src\gpu\dataType</Filter>
     </ClInclude>
-    <ClInclude Include="src\gpu\GPU_space.h">
-      <Filter>src\gpu</Filter>
+    <ClInclude Include="src\gpu\DataType\Define.h">
+      <Filter>src\gpu\dataType</Filter>
     </ClInclude>
-    <ClInclude Include="src\gpu\GPUMathKernel.h">
-      <Filter>src\gpu</Filter>
+    <ClInclude Include="src\gpu\space\CalculateGradient.h">
+      <Filter>src\gpu\space</Filter>
+    </ClInclude>
+    <ClInclude Include="src\gpu\math\GPUMathKernel.h">
+      <Filter>src\gpu\math</Filter>
+    </ClInclude>
+    <ClInclude Include="src\gpu\space\CalculateFlux.h">
+      <Filter>src\gpu\space</Filter>
+    </ClInclude>
+    <ClInclude Include="src\gpu\datatype\EdgeSoA.h">
+      <Filter>src\gpu\dataType</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
-    <CudaCompile Include="src\gpu\GPU_space.cu">
-      <Filter>src\gpu</Filter>
+    <CudaCompile Include="src\gpu\space\CalculateGradient.cu">
+      <Filter>src\gpu\space</Filter>
+    </CudaCompile>
+    <CudaCompile Include="src\gpu\space\CalculateFlux.cu">
+      <Filter>src\gpu\space</Filter>
     </CudaCompile>
   </ItemGroup>
 </Project>

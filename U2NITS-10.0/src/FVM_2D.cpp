@@ -324,7 +324,7 @@ void FVM_2D::solve_GPU() {
 
 		// --- 计算 ---
 		// GPU计算
-		
+		gpuSolver.iteration();
 
 		// --- 输出 ---
 		// 输出进度表示正在计算，没有卡顿

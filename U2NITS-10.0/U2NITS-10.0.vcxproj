@@ -19,6 +19,7 @@
     <ClCompile Include="src\global\StringProcessor.cpp" />
     <ClCompile Include="src\global\SystemInfo.cpp" />
     <ClCompile Include="src\global\VectorProcessor.cpp" />
+    <ClCompile Include="src\gpu\datatype\EdgeSoA.cpp" />
     <ClCompile Include="src\gpu\GPUSolver.cu" />
     <ClCompile Include="src\input\AirParameterConverter.cpp" />
     <ClCompile Include="src\input\InpMeshReader.cpp" />
@@ -54,11 +55,14 @@
     <ClInclude Include="src\global\StringProcessor.h" />
     <ClInclude Include="src\global\SystemInfo.h" />
     <ClInclude Include="src\global\VectorProcessor.h" />
-    <ClInclude Include="src\gpu\DataType.h" />
-    <ClInclude Include="src\gpu\ElementDataPack.h" />
-    <ClInclude Include="src\gpu\GPUMathKernel.h" />
+    <ClInclude Include="src\gpu\DataType\Define.h" />
+    <ClInclude Include="src\gpu\datatype\EdgeSoA.h" />
+    <ClInclude Include="src\gpu\DataType\ElementAdjacent.h" />
+    <ClInclude Include="src\gpu\DataType\ElementDataPack.h" />
     <ClInclude Include="src\gpu\GPUSolver.h" />
-    <ClInclude Include="src\gpu\GPU_space.h" />
+    <ClInclude Include="src\gpu\math\GPUMathKernel.h" />
+    <ClInclude Include="src\gpu\space\CalculateFlux.h" />
+    <ClInclude Include="src\gpu\space\CalculateGradient.h" />
     <ClInclude Include="src\input\AirParameterConverter.h" />
     <ClInclude Include="src\input\InpMeshReader.h" />
     <ClInclude Include="src\input\SU2MeshReader.h" />
@@ -82,7 +86,8 @@
     <ClInclude Include="src\space\RiemannSolver.h" />
   </ItemGroup>
   <ItemGroup>
-    <CudaCompile Include="src\gpu\GPU_space.cu" />
+    <CudaCompile Include="src\gpu\space\CalculateFlux.cu" />
+    <CudaCompile Include="src\gpu\space\CalculateGradient.cu" />
   </ItemGroup>
   <PropertyGroup Label="Globals">
     <ProjectGuid>{79F3A025-855B-49FF-8C77-05D66988186A}</ProjectGuid>

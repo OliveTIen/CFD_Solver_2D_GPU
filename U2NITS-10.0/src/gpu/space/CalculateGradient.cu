@@ -1,6 +1,6 @@
-#include "GPUSolver.h"
-#include "GPU_space.h"
-#include "GPUMathKernel.h"
+#include "../GPUSolver.h"
+#include "CalculateGradient.h"
+#include "../math/GPUMathKernel.h"
 
 void GPU::calculateGradient(GPU::ElementDataPack& element_device) {
 	// --- 计算单元梯度 --- 
@@ -13,7 +13,7 @@ void GPU::calculateGradient(GPU::ElementDataPack& element_device) {
 
 	dim3 block(block_size, 1, 1);
 	dim3 grid(grid_size, 1, 1);
-	calculateGradientKernel<<<grid, block>>>(element_device);
+	calculateGradientKernel <<<grid, block >>> (element_device);
 	cudaDeviceSynchronize();
 
 
@@ -25,7 +25,7 @@ void GPU::updateNeighborGradient(GPU::ElementDataPack& element_host, GPU::Elemen
 	// 输出：单元邻居梯度
 	const int nE = element_host.num_element;
 	const int nN = 3;
-	#pragma omp parallel for
+#pragma omp parallel for
 	for (int iE = 0; iE < nE; iE++) {
 		for (int iN = 0; iN < nN; iN++) {
 			// 第iE个单元的第iN个邻居的编号
@@ -47,14 +47,7 @@ void GPU::updateNeighborGradient(GPU::ElementDataPack& element_host, GPU::Elemen
 		}
 	}
 }
-void GPU::calculateFlux(GPU::ElementDataPack& element_device) {
-	// --- 计算边界数值通量 --- 
-	// 输入：单元
-	// 输出：边界数值通量
-	// 首先初始化Flux为0，然后
-	// 需要构建边界结构体，还需要初始化， 参照Solver_2D.cpp
 
-}
 __global__ void GPU::calculateGradientKernel(GPU::ElementDataPack& element_device) {
 	// --- 计算单元梯度核函数 已完成 --- 
 	// 输入：单元坐标、单元U、单元邻居坐标、单元邻居U

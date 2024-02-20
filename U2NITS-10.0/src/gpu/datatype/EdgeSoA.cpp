@@ -1,7 +1,7 @@
 #include "EdgeSoA.h"
 
 void GPU::EdgeSoA::cuda_memcpy(EdgeSoA* dist, const EdgeSoA* src, cudaMemcpyKind kind) {
-	int num_edge = src->num_edge;
+	int num_edge = dist->num_edge;
 	cudaMemcpy(dist->ID, src->ID, num_edge * sizeof(int), kind);
 	cudaMemcpy(dist->nodes[0], src->nodes[0], num_edge * sizeof(int), kind);
 	cudaMemcpy(dist->nodes[1], src->nodes[1], num_edge * sizeof(int), kind);

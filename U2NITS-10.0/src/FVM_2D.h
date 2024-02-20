@@ -32,6 +32,10 @@ public:
 	bool hasInitEdgeLengths = false;//已经初始化edges的length, refLength
 
 public:
+	void run_GPU();
+	void solve_GPU();
+
+
 	FVM_2D();
 	//主函数
 	void run();
@@ -41,14 +45,15 @@ public:
 	void setInitialCondition();
 	//求解
 	void solve_CPU(std::string suffix_out, std::string suffix_info);
-	void solve_GPU();
+	void solve_CPU2(std::string suffix_out, std::string suffix_info);
 	//计算dt
 	void caldt();
 	//检查非法值
 	bool isNan();
 	//更新自动保存文件
 	void updateAutoSaveFile(double t, int istep);
-	//输出流场到文件
+	//输出流场到文件 旧函数，不推荐使用，仅用于solve_CPU()
+	// solve_GPU中，用FieldWriter实现该功能
 	void writeTecplotFile(std::string f_name, double t_current);
 	//计算节点函数值，输出文件时用到
 	void calculateNodeValue();

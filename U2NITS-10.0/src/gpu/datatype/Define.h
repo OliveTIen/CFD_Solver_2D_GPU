@@ -7,7 +7,8 @@
 #endif
 
 // define data type
-#define REAL double
+// 相比宏定义，typedef作用域仅限定义的文件中，而宏定义作用域为全局。
+typedef double REAL;// 定义实数类型为double 等价于 #define REAL double
 
 
 #endif // !GPU_DATATYPE_H

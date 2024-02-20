@@ -20,7 +20,8 @@ namespace GPU {
 		__device__ inline void Barth();
 	}
 
-	
+
+
 }
 
 #endif

@@ -68,7 +68,7 @@ void GPUSolver::initialze() {
 	// 初始化Element_2D vector中的GPUindex
 	#pragma omp parallel for
 	for (int i = 0; i < num_element; i++) {
-		pFVM2D->elements[i].GPUindex = i;
+		pFVM2D->elements[i].GPUID = i;
 	}
 	#pragma omp barrier
 	#pragma omp parallel for
@@ -216,7 +216,7 @@ void GPUSolver::initialize_elementHost_elementAdjacent(void* _pFVM2D_, int num_e
 				element_host.neighbors[j].Uy4[i] = 0;
 
 				// 初始化elementAdjacent
-				elementAdjacent.neighbors[j].index[i] = neighbors_element_i[j]->GPUindex;
+				elementAdjacent.neighbors[j].index[i] = neighbors_element_i[j]->GPUID;
 			}
 
 
@@ -234,8 +234,8 @@ void GPUSolver::initialize_edgeHost(void* _pFVM2D_, int num_edge) {
 		edge_host.nodes[0][i] = edge_i.nodes[0];
 		edge_host.nodes[1][i] = edge_i.nodes[1];
 		edge_host.setID[i] = edge_i.setID;
-		edge_host.elementL[i] = edge_i.pElement_L->GPUindex;
-		edge_host.elementR[i] = edge_i.pElement_R->GPUindex;
+		edge_host.elementL[i] = edge_i.pElement_L->GPUID;
+		edge_host.elementR[i] = edge_i.pElement_R->GPUID;
 		edge_host.length[i] = edge_i.length;
 		edge_host.distanceOfElements[i] = edge_i.refLength;
 	}

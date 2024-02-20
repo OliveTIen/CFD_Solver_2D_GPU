@@ -23,6 +23,7 @@ namespace GlobalPara {
 		extern bool _continue;
 		extern std::string filename;
 		extern std::string meshFileType;
+		extern bool useGPU;// 必须有extern，否则报错“重定义”
 	}
 	namespace space {
 		namespace _1D {

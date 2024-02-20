@@ -27,6 +27,11 @@ void FVM::run() {
 	}
 	else if (GlobalPara::basic::dimension == 2) {
 		FVM_2D fvm2d;
-		fvm2d.run();
+		if (GlobalPara::basic::useGPU) {
+			fvm2d.run_GPU();
+		}
+		else {
+			fvm2d.run();
+		}
 	}
 }

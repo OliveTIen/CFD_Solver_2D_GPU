@@ -30,6 +30,7 @@ void TomlFileManager::modifyGlobalParametersAccordingToParsedFile() {
     getValueIfExists("basic.dimension", GlobalPara::basic::dimension);
     getValueIfExists("basic.filename", GlobalPara::basic::filename);
     getValueIfExists("basic.meshFileType", GlobalPara::basic::meshFileType);
+    getValueIfExists("basic.useGPU", GlobalPara::basic::useGPU);
     //meshFileType = "inp"
 
     getValueIfExists("constant.T0", Constant::T0);

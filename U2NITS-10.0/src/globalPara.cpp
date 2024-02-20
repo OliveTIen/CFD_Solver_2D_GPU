@@ -21,6 +21,7 @@ namespace GlobalPara {
 		bool _continue = 1;
 		std::string filename = "default_project";
 		std::string meshFileType = "inp";
+		bool useGPU = false;
 	}
 	namespace space {
 		namespace _1D {

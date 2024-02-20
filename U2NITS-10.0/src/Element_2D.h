@@ -26,7 +26,7 @@ public:
 
 	//static Eigen::MatrixXi si_ti;//顶点的参数坐标
 	//static Eigen::MatrixXd GaussPointMatrix;//顶点的参数坐标
-	int GPUindex = -1;
+	int GPUID = -1;
 
 public:
 	//计算面积

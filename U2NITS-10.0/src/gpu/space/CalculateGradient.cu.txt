@@ -73,7 +73,7 @@ __global__ void GPU::calculateGradientKernel(GPU::ElementDataPack& element_devic
 	GPU::Element* self = &(element_device.self);
 	const int nVar = 4;// 守恒量个数，二维为4
 	const int nX = 2;// 坐标个数，二维为2
-	const int nVNmax = 3;// 最大邻居个数
+	//const int nVNmax = 3;// 最大邻居个数
 	REAL dUdX[nX][nVar]{};// 已初始化为0
 	if (nValidNeighbor == 3) {
 		// 初始化dX、dU

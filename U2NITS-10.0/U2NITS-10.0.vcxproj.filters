@@ -46,6 +46,9 @@
     <Filter Include="src\gpu\math">
       <UniqueIdentifier>{598e267a-bee9-4095-9636-acf1116b6c59}</UniqueIdentifier>
     </Filter>
+    <Filter Include="src\gpu\time">
+      <UniqueIdentifier>{ff2fbec0-e84a-4fe6-840c-34dbb0257c25}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="src\main.cpp">
@@ -135,19 +138,19 @@
     <ClCompile Include="src\global\VectorProcessor.cpp">
       <Filter>src\global</Filter>
     </ClCompile>
-    <ClCompile Include="src\gpu\datatype\ElementSoA.cpp">
+    <ClCompile Include="src\gpu\datatype\ElementSoA.cu">
       <Filter>src\gpu\dataType</Filter>
     </ClCompile>
     <ClCompile Include="src\gpu\GPUSolver2.cu">
       <Filter>src\gpu</Filter>
     </ClCompile>
-    <ClCompile Include="src\gpu\datatype\EdgeSoA.cpp">
+    <ClCompile Include="src\gpu\datatype\EdgeSoA.cu">
       <Filter>src\gpu\dataType</Filter>
     </ClCompile>
     <ClCompile Include="src\gpu\GPUMain.cpp">
       <Filter>src\gpu</Filter>
     </ClCompile>
-    <ClCompile Include="src\gpu\datatype\NodeSoA.cpp">
+    <ClCompile Include="src\gpu\datatype\NodeSoA.cu">
       <Filter>src\gpu\dataType</Filter>
     </ClCompile>
     <ClCompile Include="src\input\ContinueFileReader.cpp">
@@ -245,23 +248,11 @@
     <ClInclude Include="src\global\VectorProcessor.h">
       <Filter>src\global</Filter>
     </ClInclude>
-    <ClInclude Include="src\gpu\DataType\ElementAdjacent.h">
-      <Filter>src\gpu\dataType</Filter>
-    </ClInclude>
-    <ClInclude Include="src\gpu\DataType\ElementDataPack.h">
-      <Filter>src\gpu\dataType</Filter>
-    </ClInclude>
     <ClInclude Include="src\gpu\DataType\Define.h">
       <Filter>src\gpu\dataType</Filter>
     </ClInclude>
-    <ClInclude Include="src\gpu\space\CalculateGradient.h">
-      <Filter>src\gpu\space</Filter>
-    </ClInclude>
-    <ClInclude Include="src\gpu\math\GPUMathKernel.h">
+    <ClInclude Include="src\gpu\math\GPUMatrixKernel.h">
       <Filter>src\gpu\math</Filter>
-    </ClInclude>
-    <ClInclude Include="src\gpu\space\CalculateFlux.h">
-      <Filter>src\gpu\space</Filter>
     </ClInclude>
     <ClInclude Include="src\gpu\datatype\EdgeSoA.h">
       <Filter>src\gpu\dataType</Filter>
@@ -287,19 +278,28 @@
     <ClInclude Include="src\input\ContinueFileReader.h">
       <Filter>src\input</Filter>
     </ClInclude>
+    <ClInclude Include="src\gpu\datatype\FieldSoA.h">
+      <Filter>src\gpu\dataType</Filter>
+    </ClInclude>
+    <ClInclude Include="src\gpu\time\CalculateDt.h">
+      <Filter>src\gpu\time</Filter>
+    </ClInclude>
+    <ClInclude Include="src\gpu\math\PhysicalConvertKernel.h">
+      <Filter>src\gpu\math</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
-    <CudaCompile Include="src\gpu\space\CalculateGradient.cu">
-      <Filter>src\gpu\space</Filter>
-    </CudaCompile>
-    <CudaCompile Include="src\gpu\space\CalculateFlux.cu">
-      <Filter>src\gpu\space</Filter>
-    </CudaCompile>
     <CudaCompile Include="src\gpu\space\CalculateFlux2.cu">
       <Filter>src\gpu\space</Filter>
     </CudaCompile>
     <CudaCompile Include="src\gpu\space\CalculateGradient2.cu">
       <Filter>src\gpu\space</Filter>
+    </CudaCompile>
+    <CudaCompile Include="src\gpu\datatype\FieldSoA.cu">
+      <Filter>src\gpu\dataType</Filter>
+    </CudaCompile>
+    <CudaCompile Include="src\gpu\time\CalculateDt.cu">
+      <Filter>src\gpu\time</Filter>
     </CudaCompile>
   </ItemGroup>
 </Project>

@@ -126,3 +126,58 @@ void ResidualCalculator::cal_residual(const std::vector<Element_2D>& elements_ol
 	residual_to_be_changed[3] = residual_U[3];
 }
 
+void ResidualCalculator::cal_residual_GPU(REAL* elements_U_old[4], GPU::FieldSoA elements, int NORM_TYPE, double* residual) {
+	// 计算残差
+	double difference_U[4]{};// 全部初始化为0
+	double residual_U[4]{};
+	const int numElements = elements.num;
+
+	switch (NORM_TYPE) {
+	case NORM_1:
+		for (int ie = 0; ie < numElements; ie++) {
+			difference_U[0] = elements.U[0][ie] - elements_U_old[0][ie];
+			difference_U[1] = elements.U[1][ie] - elements_U_old[1][ie];
+			difference_U[2] = elements.U[2][ie] - elements_U_old[2][ie];
+			difference_U[3] = elements.U[3][ie] - elements_U_old[3][ie];
+			residual_U[0] += Math::abs_(difference_U[0]);
+			residual_U[1] += Math::abs_(difference_U[1]);
+			residual_U[2] += Math::abs_(difference_U[2]);
+			residual_U[3] += Math::abs_(difference_U[3]);
+		}
+		break;
+	case NORM_2:
+		for (int ie = 0; ie < numElements; ie++) {
+			difference_U[0] = elements.U[0][ie] - elements_U_old[0][ie];
+			difference_U[1] = elements.U[1][ie] - elements_U_old[1][ie];
+			difference_U[2] = elements.U[2][ie] - elements_U_old[2][ie];
+			difference_U[3] = elements.U[3][ie] - elements_U_old[3][ie];
+			residual_U[0] += difference_U[0] * difference_U[0];
+			residual_U[1] += difference_U[1] * difference_U[1];
+			residual_U[2] += difference_U[2] * difference_U[2];
+			residual_U[3] += difference_U[3] * difference_U[3];
+		}
+		residual_U[0] = sqrt(residual_U[0]);
+		residual_U[1] = sqrt(residual_U[1]);
+		residual_U[2] = sqrt(residual_U[2]);
+		residual_U[3] = sqrt(residual_U[3]);
+		break;
+	default:// NORM_INF
+		for (int ie = 0; ie < numElements; ie++) {
+			difference_U[0] = elements.U[0][ie] - elements_U_old[0][ie];
+			difference_U[1] = elements.U[1][ie] - elements_U_old[1][ie];
+			difference_U[2] = elements.U[2][ie] - elements_U_old[2][ie];
+			difference_U[3] = elements.U[3][ie] - elements_U_old[3][ie];
+			residual_U[0] = Math::max_(residual_U[0], Math::abs_(difference_U[0]));
+			residual_U[1] = Math::max_(residual_U[1], Math::abs_(difference_U[1]));
+			residual_U[2] = Math::max_(residual_U[2], Math::abs_(difference_U[2]));
+			residual_U[3] = Math::max_(residual_U[3], Math::abs_(difference_U[3]));
+		}
+	}
+	// 输出
+	residual[0] = residual_U[0];
+	residual[1] = residual_U[1];
+	residual[2] = residual_U[2];
+	residual[3] = residual_U[3];
+
+}
+

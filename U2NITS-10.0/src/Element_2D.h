@@ -29,7 +29,7 @@ public:
 	int GPUID = -1;
 
 public:
-	//计算面积
+	//计算面积 叉乘法计算三角形面积
 	double calArea(FVM_2D*);
 	//寻找相邻单元，返回指针数组
 	std::vector<Element_2D*> findNeighbor();

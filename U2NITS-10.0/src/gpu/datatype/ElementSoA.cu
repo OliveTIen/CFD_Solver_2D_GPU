@@ -5,16 +5,17 @@
 void GPU::ElementSoA::cuda_memcpy(ElementSoA* dist, const ElementSoA* src, cudaMemcpyKind kind) {
 	int num_element = dist->num_element;
 	cudaMemcpy(dist->ID, src->ID, num_element * sizeof(int), kind);
-	cudaMemcpy(dist->x, src->x, num_element * sizeof(REAL), kind);
-	cudaMemcpy(dist->y, src->y, num_element * sizeof(REAL), kind);
+	cudaMemcpy(dist->xy[0], src->xy[0], num_element * sizeof(REAL), kind);
+	cudaMemcpy(dist->xy[1], src->xy[1], num_element * sizeof(REAL), kind);
+	cudaMemcpy(dist->volume, src->volume, num_element * sizeof(REAL), kind);
 	for (int i = 0; i < 4; i++) {
 		cudaMemcpy(dist->nodes[i], src->nodes[i], num_element * sizeof(int), kind);
 		cudaMemcpy(dist->edges[i], src->edges[i], num_element * sizeof(int), kind);
 		cudaMemcpy(dist->neighbors[i], src->neighbors[i], num_element * sizeof(int), kind);
-		cudaMemcpy(dist->U[i], src->U[i], num_element * sizeof(REAL), kind);
-		cudaMemcpy(dist->Ux[i], src->Ux[i], num_element * sizeof(REAL), kind);
-		cudaMemcpy(dist->Uy[i], src->Uy[i], num_element * sizeof(REAL), kind);
-		cudaMemcpy(dist->Flux[i], src->Flux[i], num_element * sizeof(REAL), kind);
+		//cudaMemcpy(dist->U[i], src->U[i], num_element * sizeof(REAL), kind);
+		//cudaMemcpy(dist->Ux[i], src->Ux[i], num_element * sizeof(REAL), kind);
+		//cudaMemcpy(dist->Uy[i], src->Uy[i], num_element * sizeof(REAL), kind);
+		//cudaMemcpy(dist->Flux[i], src->Flux[i], num_element * sizeof(REAL), kind);
 	}
 	
 }

@@ -6,8 +6,6 @@ author: tgl
 
 # 日志
 ## 代办
-1. 当务之急，输出残差曲线，查看收敛情况 ResidualCalculator中继续 √
-2. 将一些文件放进目录层级中。例如把输入文件的类放进input中 √
 3. 尝试课件的算例？？？可是它是非结构网格不可压，不知道是否需要另外写求解器
 4. 尝试添加粘性(N-S)处理复杂边界
 ## 问题
@@ -16,6 +14,11 @@ author: tgl
 ### ConsoleWindow问题
 以前能够实现光标移动，可是更改代码后发现失效了。经排查，原来是开头输出input.toml时，由于输出内容超过1页，导致屏幕滚动，
 然而目前的ConsolePrinter只支持一行滚动的
+2024-02-26
+TODO:
+- 在GPUSolver2中添加存储旧ID的结构，实现从GPUID到ID的转换。(采取了另一种方式)
+- 在以上基础上，改写write file函数 √
+- 计算节点值 √
 
 2024-02-20
 添加GPU。
@@ -23,6 +26,8 @@ author: tgl
 	重写输出函数，直接用ElementSoA计算node值，而不是先复制到Element_2D
 	更具体地，由于事先无法确定需要输出哪些内容，计算过程应放在文件输出中
 	计算Flux
+测量内存带宽：参见书《并行计算与高性能计算》P274，文件位于D:\tgl\Local\HPC\GPU
+进行至：void FVM_2D::calculateNodeValue_GPU
 
 2024-02-09 ~ 
 发现Limiter.cpp中Barth限制器的错误。

@@ -19,9 +19,9 @@
     <ClCompile Include="src\global\StringProcessor.cpp" />
     <ClCompile Include="src\global\SystemInfo.cpp" />
     <ClCompile Include="src\global\VectorProcessor.cpp" />
-    <ClCompile Include="src\gpu\datatype\EdgeSoA.cpp" />
-    <ClCompile Include="src\gpu\datatype\ElementSoA.cpp" />
-    <ClCompile Include="src\gpu\datatype\NodeSoA.cpp" />
+    <ClCompile Include="src\gpu\datatype\EdgeSoA.cu" />
+    <ClCompile Include="src\gpu\datatype\ElementSoA.cu" />
+    <ClCompile Include="src\gpu\datatype\NodeSoA.cu" />
     <ClCompile Include="src\gpu\GPUMain.cpp" />
     <ClCompile Include="src\gpu\GPUSolver2.cu" />
     <ClCompile Include="src\input\AirParameterConverter.cpp" />
@@ -61,17 +61,16 @@
     <ClInclude Include="src\global\VectorProcessor.h" />
     <ClInclude Include="src\gpu\DataType\Define.h" />
     <ClInclude Include="src\gpu\datatype\EdgeSoA.h" />
-    <ClInclude Include="src\gpu\DataType\ElementAdjacent.h" />
-    <ClInclude Include="src\gpu\DataType\ElementDataPack.h" />
+    <ClInclude Include="src\gpu\datatype\FieldSoA.h" />
     <ClInclude Include="src\gpu\datatype\ElementSoA.h" />
     <ClInclude Include="src\gpu\datatype\NodeSoA.h" />
     <ClInclude Include="src\gpu\GPUMain.h" />
     <ClInclude Include="src\gpu\GPUSolver2.h" />
-    <ClInclude Include="src\gpu\math\GPUMathKernel.h" />
-    <ClInclude Include="src\gpu\space\CalculateFlux.h" />
+    <ClInclude Include="src\gpu\math\GPUMatrixKernel.h" />
+    <ClInclude Include="src\gpu\math\PhysicalConvertKernel.h" />
     <ClInclude Include="src\gpu\space\CalculateFlux2.h" />
-    <ClInclude Include="src\gpu\space\CalculateGradient.h" />
     <ClInclude Include="src\gpu\space\CalculateGradient2.h" />
+    <ClInclude Include="src\gpu\time\CalculateDt.h" />
     <ClInclude Include="src\input\AirParameterConverter.h" />
     <ClInclude Include="src\input\ContinueFileReader.h" />
     <ClInclude Include="src\input\InpMeshReader.h" />
@@ -96,10 +95,10 @@
     <ClInclude Include="src\space\RiemannSolver.h" />
   </ItemGroup>
   <ItemGroup>
-    <CudaCompile Include="src\gpu\space\CalculateFlux.cu" />
+    <CudaCompile Include="src\gpu\datatype\FieldSoA.cu" />
     <CudaCompile Include="src\gpu\space\CalculateFlux2.cu" />
-    <CudaCompile Include="src\gpu\space\CalculateGradient.cu" />
     <CudaCompile Include="src\gpu\space\CalculateGradient2.cu" />
+    <CudaCompile Include="src\gpu\time\CalculateDt.cu" />
   </ItemGroup>
   <PropertyGroup Label="Globals">
     <ProjectGuid>{79F3A025-855B-49FF-8C77-05D66988186A}</ProjectGuid>

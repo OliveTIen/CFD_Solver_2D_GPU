@@ -1,19 +1,17 @@
-#include "../GPUSolver.h"
+#include "../GPUSolver2.h"
 #include "CalculateGradient2.h"
-#include "../math/GPUMathKernel.h"
+#include "../math/GPUMatrixKernel.h"
 
-void GPU::calculateGradient2(GPU::ElementSoA& element_device) {
+void GPU::calculateGradient2(GPU::ElementSoA& element_device, GPU::FieldSoA elementField_device) {
 	int block_size = 512;// 最好是128 256 512
 	int grid_size = (element_device.num_element + block_size - 1) / block_size;
-
-
 	dim3 block(block_size, 1, 1);
 	dim3 grid(grid_size, 1, 1);
-	calculateGradientKernel2 <<<grid, block >>> (element_device);
-	cudaDeviceSynchronize();
+	calculateGradientKernel2 <<<grid, block >>> (element_device, elementField_device);
+	// cudaDeviceSynchronize();放在外面
 }
 
-__global__ void GPU::calculateGradientKernel2(GPU::ElementSoA& element_device) {
+__global__ void GPU::calculateGradientKernel2(GPU::ElementSoA& element_device, GPU::FieldSoA elementField_device) {
 	// --- 计算单元梯度核函数 已完成 --- 
 	// 输入：单元坐标、单元U、单元邻居坐标、单元邻居U
 	// 输出：单元梯度
@@ -37,7 +35,7 @@ __global__ void GPU::calculateGradientKernel2(GPU::ElementSoA& element_device) {
 	// 计算梯度dUdX
 	const int nVar = 4;// 守恒量个数，二维为4
 	const int nX = 2;// 坐标个数，二维为2
-	const int nVNmax = 3;// 最大邻居个数
+	//const int nVNmax = 3;// 最大邻居个数
 	REAL dUdX[nX][nVar]{};// 已初始化为0
 	if (nValidNeighbor == 3) {
 		// 初始化dX、dU
@@ -46,10 +44,10 @@ __global__ void GPU::calculateGradientKernel2(GPU::ElementSoA& element_device) {
 		REAL dU[nVN][nVar]{};
 		for (int iVN = 0; iVN < nVN; iVN++) {
 			int index = validNeighbors[iVN];// 邻居的ID
-			dX[iVN][0] = element_device.x[index] - element_device.x[i];
-			dX[iVN][1] = element_device.y[index] - element_device.y[i];
+			dX[iVN][0] = element_device.xy[0][index] - element_device.xy[0][i];
+			dX[iVN][1] = element_device.xy[1][index] - element_device.xy[1][i];
 			for (int iVar = 0; iVar < nVar; iVar++) {
-				dU[iVN][iVar] = element_device.U[index][iVar] - element_device.U[i][iVar];
+				dU[iVN][iVar] = elementField_device.U[index][iVar] - elementField_device.U[i][iVar];
 			}
 		}
 
@@ -72,10 +70,10 @@ __global__ void GPU::calculateGradientKernel2(GPU::ElementSoA& element_device) {
 		REAL dU[nVN][nVar]{};
 		for (int iVN = 0; iVN < nVN; iVN++) {
 			int index = validNeighbors[iVN];// 邻居的ID
-			dX[iVN][0] = element_device.x[index] - element_device.x[i];
-			dX[iVN][1] = element_device.y[index] - element_device.y[i];
+			dX[iVN][0] = element_device.xy[0][index] - element_device.xy[0][i];
+			dX[iVN][1] = element_device.xy[1][index] - element_device.xy[1][i];
 			for (int iVar = 0; iVar < nVar; iVar++) {
-				dU[iVN][iVar] = element_device.U[index][iVar] - element_device.U[i][iVar];
+				dU[iVN][iVar] = elementField_device.U[index][iVar] - elementField_device.U[i][iVar];
 			}
 		}
 
@@ -98,10 +96,10 @@ __global__ void GPU::calculateGradientKernel2(GPU::ElementSoA& element_device) {
 		REAL dU[nVN][nVar]{};
 		for (int iVN = 0; iVN < nVN; iVN++) {
 			int index = validNeighbors[iVN];// 邻居的ID
-			dX[iVN][0] = element_device.x[index] - element_device.x[i];
-			dX[iVN][1] = element_device.y[index] - element_device.y[i];
+			dX[iVN][0] = element_device.xy[0][index] - element_device.xy[0][i];
+			dX[iVN][1] = element_device.xy[1][index] - element_device.xy[1][i];
 			for (int iVar = 0; iVar < nVar; iVar++) {
-				dU[iVN][iVar] = element_device.U[index][iVar] - element_device.U[i][iVar];
+				dU[iVN][iVar] = elementField_device.U[index][iVar] - elementField_device.U[i][iVar];
 			}
 		}
 
@@ -119,8 +117,8 @@ __global__ void GPU::calculateGradientKernel2(GPU::ElementSoA& element_device) {
 
 	// 将dUdX存进单元
 	for (int j = 0; j < nVar; j++) {
-		element_device.Ux[j][i] = dUdX[0][j];
-		element_device.Uy[j][i] = dUdX[1][j];
+		elementField_device.Ux[j][i] = dUdX[0][j];
+		elementField_device.Uy[j][i] = dUdX[1][j];
 	}
 
 	// Barth限制器 一阶精度格式不需要加

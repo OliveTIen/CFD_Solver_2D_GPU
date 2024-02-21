@@ -15,6 +15,8 @@ namespace GPU {
 		int* elementR;
 		REAL* length;
 		REAL* distanceOfElements;// 两侧单元中心距离
+		REAL* xy[2];// 边坐标
+		REAL* normal[2];// 边法向量(归一化)
 
 	public:
 		// 申请内存 初始化放在后面，因为后面被覆盖，初始化没有意义
@@ -28,6 +30,10 @@ namespace GPU {
 			elementR = new int[num];
 			length = new REAL[num];
 			distanceOfElements = new REAL[num];	
+			xy[0] = new REAL[num];
+			xy[1] = new REAL[num];
+			normal[0] = new REAL[num];
+			normal[1] = new REAL[num];
 		}
 
 		void free() {
@@ -39,6 +45,10 @@ namespace GPU {
 			delete[] elementR;
 			delete[] length;
 			delete[] distanceOfElements;
+			delete[] xy[0];
+			delete[] xy[1];
+			delete[] normal[0];
+			delete[] normal[1];
 			num_edge = 0;
 		}
 		// cuda 申请内存
@@ -52,6 +62,10 @@ namespace GPU {
 			cudaMalloc((void**)&elementR, num * sizeof(int));
 			cudaMalloc((void**)&length, num * sizeof(REAL));
 			cudaMalloc((void**)&distanceOfElements, num * sizeof(REAL));
+			cudaMalloc((void**)&xy[0], num * sizeof(REAL));
+			cudaMalloc((void**)&xy[1], num * sizeof(REAL));
+			cudaMalloc((void**)&normal[0], num * sizeof(REAL));
+			cudaMalloc((void**)&normal[1], num * sizeof(REAL));
 		}
 
 		void cuda_free() {
@@ -63,6 +77,10 @@ namespace GPU {
 			cudaFree(elementR);
 			cudaFree(length);
 			cudaFree(distanceOfElements);
+			cudaFree(xy[0]);
+			cudaFree(xy[1]);
+			cudaFree(normal[0]);
+			cudaFree(normal[1]);
 			num_edge = 0;
 		}
 

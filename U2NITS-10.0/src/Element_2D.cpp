@@ -30,7 +30,7 @@ namespace {
 //Eigen::MatrixXd Element_Q4::GaussPointMatrix = iniGaussPoint_Q4();
 
 double Element_2D::calArea(FVM_2D* f) {
-    //计算三角形面积
+    // 叉乘法计算三角形面积
     double xn[3]{}, yn[3]{};
     for (int i = 0; i < 3; i++) {
         xn[i] = f->getNodeByID(nodes[i])->x;
@@ -309,13 +309,15 @@ double Element_2D::calLambda(const double gamma) {
 
 double Element_2D::calLambdaFlux(FVM_2D* f) {
     double LambdaC = 0;
+    // 对于每条边，计算其坐标，然后获取边上的LambdaC
+    // 目前这段代码有问题
     for (int ie = 0; ie < 3; ie++) {
-        //eU
+        // 边坐标、U
         double ex, ey;
         double eU[4]{};//边中点处ρ,ρu,ρv,ρE
         pEdges[ie]->getxy(f, ex, ey);
         get_U(ex, ey, eU);
-        //en
+        // 边法向量
         std::vector<double> en = pEdges[ie]->getDirectionN();
         //eabs
         double u = eU[1] / eU[0];

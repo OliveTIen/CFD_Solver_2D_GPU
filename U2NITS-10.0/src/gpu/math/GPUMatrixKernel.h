@@ -44,7 +44,7 @@ namespace GPU {
 		}
 
 		inline void __device__ inv_2x2(REAL(*mat)[2], REAL(*res)[2]) {
-			REAL det, inv_det, inv_a, inv_b, inv_c, inv_d;
+			REAL det, inv_det;
 			det = mat[0][0] * mat[1][1] - mat[0][1] * mat[1][0];
 			if (det >= 0 && det < EPSILON) det = EPSILON;
 			else if (det > -EPSILON)det = -EPSILON;

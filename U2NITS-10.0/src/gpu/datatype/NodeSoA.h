@@ -10,33 +10,32 @@ namespace GPU {
 		int num_node = 0;
 
 		int* ID;
-		REAL* x;
-		REAL* y;
+		REAL* xy[2];
 	public:
 		void alloc(int _num_node) {
 			num_node = _num_node;
 			ID = new int[num_node];
-			x = new REAL[num_node];
-			y = new REAL[num_node];
+			xy[0] = new REAL[num_node];
+			xy[1] = new REAL[num_node];
 		}
 
 		void free() {
 			delete[] ID;
-			delete[] x;
-			delete[] y;
+			delete[] xy[0];
+			delete[] xy[1];
 		}
 
 		void cuda_alloc(int _num_node) {
 			num_node = _num_node;
 			cudaMalloc(&ID, num_node * sizeof(int));
-			cudaMalloc(&x, num_node * sizeof(REAL));
-			cudaMalloc(&y, num_node * sizeof(REAL));
+			cudaMalloc(&xy[0], num_node * sizeof(REAL));
+			cudaMalloc(&xy[1], num_node * sizeof(REAL));
 		}
 
 		void cuda_free() {
 			cudaFree(ID);
-			cudaFree(x);
-			cudaFree(y);
+			cudaFree(xy[0]);
+			cudaFree(xy[1]);
 		}
 
 		static void cuda_memcpy(NodeSoA* dist, const NodeSoA* src, cudaMemcpyKind kind);

@@ -2,6 +2,13 @@
 #define _ELEMENT_SOA_H_
 
 #include "Define.h"
+/*
+ElementSoA中有两种数据，一种是基本不变的数据，如ID、节点、边、邻居等，
+另一种是变化的数据，如U、Ux、Uy、Flux等。
+变化的数据需要在host和device之间同步，因此需要用到cudaMemcpy。
+
+
+*/
 
 namespace GPU {
 	class ElementSoA {
@@ -10,14 +17,16 @@ namespace GPU {
 
 		int* ID;
 		int* nodes[4];
-		int* edges[4];
+		int* edges[4];// faces
 		int* neighbors[4];
-		REAL* x;
-		REAL* y;
-		REAL* U[4];
-		REAL* Ux[4];
-		REAL* Uy[4];
-		REAL* Flux[4];
+		REAL* xy[2];
+		REAL* volume;
+		//REAL* y;
+
+		//REAL* U[4];
+		//REAL* Ux[4];
+		//REAL* Uy[4];
+		//REAL* Flux[4];
 		
 	public:
 		void alloc(int _num_element) {
@@ -27,13 +36,14 @@ namespace GPU {
 				nodes[i] = new int[num_element];
 				edges[i] = new int[num_element];
 				neighbors[i] = new int[num_element];
-				U[i] = new REAL[num_element];
-				Ux[i] = new REAL[num_element];
-				Uy[i] = new REAL[num_element];
-				Flux[i] = new REAL[num_element];
+				//U[i] = new REAL[num_element];
+				//Ux[i] = new REAL[num_element];
+				//Uy[i] = new REAL[num_element];
+				//Flux[i] = new REAL[num_element];
 			}
-			x = new REAL[num_element];
-			y = new REAL[num_element];
+			xy[0] = new REAL[num_element];
+			xy[1] = new REAL[num_element];
+			volume = new REAL[num_element];
 		}
 
 		void free() {
@@ -42,13 +52,14 @@ namespace GPU {
 				delete[] nodes[i];
 				delete[] edges[i];
 				delete[] neighbors[i];
-				delete[] U[i];
-				delete[] Ux[i];
-				delete[] Uy[i];
-				delete[] Flux[i];
+				//delete[] U[i];
+				//delete[] Ux[i];
+				//delete[] Uy[i];
+				//delete[] Flux[i];
 			}
-			delete[] x;
-			delete[] y;
+			delete[] xy[0];
+			delete[] xy[1];
+			delete[] volume;
 		}
 
 		void cuda_alloc(int _num_element) {
@@ -58,13 +69,14 @@ namespace GPU {
 				cudaMalloc(&nodes[i], num_element * sizeof(int));
 				cudaMalloc(&edges[i], num_element * sizeof(int));
 				cudaMalloc(&neighbors[i], num_element * sizeof(int));
-				cudaMalloc(&U[i], num_element * sizeof(REAL));
-				cudaMalloc(&Ux[i], num_element * sizeof(REAL));
-				cudaMalloc(&Uy[i], num_element * sizeof(REAL));
-				cudaMalloc(&Flux[i], num_element * sizeof(REAL));
+				//cudaMalloc(&U[i], num_element * sizeof(REAL));
+				//cudaMalloc(&Ux[i], num_element * sizeof(REAL));
+				//cudaMalloc(&Uy[i], num_element * sizeof(REAL));
+				//cudaMalloc(&Flux[i], num_element * sizeof(REAL));
 			}
-			cudaMalloc(&x, num_element * sizeof(REAL));
-			cudaMalloc(&y, num_element * sizeof(REAL));
+			cudaMalloc(&xy[0], num_element * sizeof(REAL));
+			cudaMalloc(&xy[1], num_element * sizeof(REAL));
+			cudaMalloc(&volume, num_element * sizeof(REAL));
 		}
 
 		void cuda_free() {
@@ -73,13 +85,14 @@ namespace GPU {
 				cudaFree(nodes[i]);
 				cudaFree(edges[i]);
 				cudaFree(neighbors[i]);
-				cudaFree(U[i]);
-				cudaFree(Ux[i]);
-				cudaFree(Uy[i]);
-				cudaFree(Flux[i]);
+				//cudaFree(U[i]);
+				//cudaFree(Ux[i]);
+				//cudaFree(Uy[i]);
+				//cudaFree(Flux[i]);
 			}
-			cudaFree(x);
-			cudaFree(y);
+			cudaFree(xy[0]);
+			cudaFree(xy[1]);
+			cudaFree(volume);
 		}
 
 		static void cuda_memcpy(ElementSoA* dist, const ElementSoA* src, cudaMemcpyKind kind);

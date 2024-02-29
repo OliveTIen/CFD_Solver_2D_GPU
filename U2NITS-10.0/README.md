@@ -1,155 +1,190 @@
----
+﻿---
 date:   2024-01-12
 author: tgl
 
 ---
 
-# ��־
-## ����
-3. ���Կμ��������������������Ƿǽṹ���񲻿�ѹ����֪���Ƿ���Ҫ����д�����
-4. ��������ճ��(N-S)�������ӱ߽�
-## ����
-1. ԭ������Ŀ�У�����square_perʱ�����ڴ�����
-## �ѽ��
-### ConsoleWindow����
-��ǰ�ܹ�ʵ�ֹ���ƶ������Ǹ��Ĵ������ʧЧ�ˡ����Ų飬ԭ���ǿ�ͷ���input.tomlʱ������������ݳ���1ҳ��������Ļ������
-Ȼ��Ŀǰ��ConsolePrinterֻ֧��һ�й�����
+# 日志
+## 代办
+3. 尝试课件的算例？？？可是它是非结构网格不可压，不知道是否需要另外写求解器
+4. 尝试添加粘性(N-S)处理复杂边界
+## 问题
+1. 原来的项目中，输入square_per时出现内存问题
+## 已解决
+### ConsoleWindow问题
+以前能够实现光标移动，可是更改代码后发现失效了。经排查，原来是开头输出input.toml时，由于输出内容超过1页，导致屏幕滚动，
+然而目前的ConsolePrinter只支持一行滚动的
+
+2024-03-08
+为什么收敛这么慢？虽然算了接近1万步，但流场变化缓慢
+
 2024-02-26
 TODO:
-- ��GPUSolver2�����Ӵ洢��ID�Ľṹ��ʵ�ִ�GPUID��ID��ת����(��ȡ����һ�ַ�ʽ)
-- �����ϻ����ϣ���дwrite file���� ��
-- ����ڵ�ֵ ��
+- 在GPUSolver2中添加存储旧ID的结构，实现从GPUID到ID的转换。(采取了另一种方式)
+- 在以上基础上，改写write file函数 √
+- 计算节点值 √
 
 2024-02-20
-����GPU��
+添加GPU。
 	TODO:
-	��д���������ֱ����ElementSoA����nodeֵ���������ȸ��Ƶ�Element_2D
-	������أ����������޷�ȷ����Ҫ�����Щ���ݣ��������Ӧ�����ļ������
-	����Flux
-�����ڴ�������μ��顶���м���������ܼ��㡷P274���ļ�λ��D:\tgl\Local\HPC\GPU
-��������void FVM_2D::calculateNodeValue_GPU
+	重写输出函数，直接用ElementSoA计算node值，而不是先复制到Element_2D
+	更具体地，由于事先无法确定需要输出哪些内容，计算过程应放在文件输出中
+	计算Flux
+测量内存带宽：参见书《并行计算与高性能计算》P274，文件位于D:\tgl\Local\HPC\GPU
+进行至：void FVM_2D::calculateNodeValue_GPU
 
 2024-02-09 ~ 
-����Limiter.cpp��Barth�������Ĵ���
-���ȣ��������ĳ�����������ˡ���û�����������������á�
-��Σ�������ֻ�����ڶ��׾��ȸ�ʽ������������ɫɢ�����α�񵴣����˹�ճ�Ե��������ơ�
+发现Limiter.cpp中Barth限制器的错误。
+首先，限制器的除法好像除反了。并没有体现限制器的作用。
+其次，限制器只需用于二阶精度格式，它用于消除色散引起的伪振荡，跟人工粘性的作用类似。
 
-�����ڲ��õ���AoS���ݽṹ�������ɸ����鲢�С�������CudaVS��Ŀ�е������ӷ���������֪��������ȡ�᲻��Ӱ�����ܡ�
+我现在采用的是AoS数据结构，即若干个数组并列。它参照CudaVS项目中的向量加法函数。不知道这样读取会不会影响性能。
 
 2024-02-06 ~ 2024-02-08
-����FVM2D��solve_GPU������
-������Ҫ��дGPU_calculateGradient()�������μ�GPU_space.h
-�޸��������ԭCPU�����С�nNeighbor == 3��������©���롰dUm(2, 0) = dU[2][iVar]��(Reconstructor.cpp��110��)
-������д__global__ void GPU::calculateGradientKernel(GPU::ElementDataPack& deviceDataPack)������2024-02-08��
+完善FVM2D中solve_GPU函数。
+接下来要编写GPU_calculateGradient()函数，参见GPU_space.h
+修复代码错误：原CPU代码中“nNeighbor == 3”部分遗漏代码“dUm(2, 0) = dU[2][iVar]”(Reconstructor.cpp第110行)
+进行至写__global__ void GPU::calculateGradientKernel(GPU::ElementDataPack& deviceDataPack)函数（2024-02-08）
 
 2024-02-01
-�о���ѧ���㲻̫�ʺ���̫�����������ô����̺ͺ���ʽ��̸����ڲ��С�
-�������(OO)���ʺ�����Ӧ�á�GUI��OO��һ�ֱ�̷�ʽ��������һ���ʳԱ��졣
-�Ķ�OpenCFD-SCU��������cuda���д���λ��solver�ڼ���ͨ���Ĳ��֣�����ζ������Ҫ��Edge_2D�������뷽�����룬
-������Edge_2D���ݵķ����Ž������С�
-������cuda kelnel�Ž�kernel.cu�У��ܹ�������200�У���Ϊkernel���Ǽ򵥵ļӼ��˳�����
+感觉科学计算不太适合用太多的面向对象。用纯过程和函数式编程更利于并行。
+面向对象(OO)更适合桌面应用、GUI。OO是一种编程范式，它不能一招鲜吃遍天。
+阅读OpenCFD-SCU，发现其cuda并行代码位于solver内计算通量的部分，这意味着我需要将Edge_2D的数据与方法分离，
+将处理Edge_2D数据的方法放进新类中。
+把所有cuda kelnel放进kernel.cu中，总共不超过200行，因为kernel都是简单的加减乘除运算
 
-GPU��̵��ѵ����ڣ���������kernel�����ں���ʽ��̣���֪����ǰ��š����ǽṹ����Ҫ����������λ���ǲ��̶��ġ�
-������й�Լ����������CPU��̣�ֻ�����ͼ��ɣ�����GPU����Ҫ���ַ���͡�
+GPU编程的难点在于，它的所有kernel类似于函数式编程，仅知道当前编号。而非结构网格要操作的数据位置是不固定的。
+例如进行规约操作，对于CPU编程，只需简单求和即可，但在GPU上需要二分法求和。
 
-���ܵĽ���취��
-�ڼ���ǰ������������(���ڵ�Ԫ���ݡ��ݶȡ�)���������飬������ָ�봫��kernel��
-��Ȼ���ǵ����ƻ�ķ�ʱ�䣬������һ����ô֪������Ч������ء�
+可能的解决办法：
+在计算前，将所需数据(相邻单元数据、梯度、)整理成数组，将数组指针传给kernel。
+虽然考虑到复制会耗费时间，但不试一试怎么知道最终效果如何呢。
 
-����GPU��������ǧ����CPU�����ٱ����������󣬿��Խ�����ȫ���Ž�GPU
+鉴于GPU核心数上千（是CPU的数百倍），带宽大，可以将计算全部放进GPU
 
-����1����Ԫ�����������ݣ�
+方案1：单元仅存最少数据：
 nodeCoordinates[3][3]
 values[4]
 neighborValues[3][3]
-�ȼ����ݶ�
-Ȼ�����߽�ֵ
-�ټ���߽���ֵͨ��(Ҫ�õ����������)
-�ı䵥Ԫֵ
+先计算梯度
+然后计算边界值
+再计算边界数值通量(要用到黎曼求解器)
+改变单元值
 
-�����ò���󣬴��䵽���������ڸ��º��values�������е�Ԫ��neighborValues���£��ٴ����GPU
-Ȼ�������һ��ѭ��
+经过该步骤后，传输到主机，基于更新后的values，将所有单元的neighborValues更新，再传输进GPU
+然后进行下一步循环
 
-����2��
+方案2：
 nodeCoordinates[3][3]
 fieldValues[4]
 fieldValue
 
 
 2024-01-27
-pEdges��������push����pEdgeʱ������������
+pEdges向量在用push添加pEdge时，仅仅添加了
  
 2024-01-26
-�����дSU2�ļ���ȡ����Ҫ����������ǰ�Ĵ��룬������vBoundary2D
-���·��֣�SU2�ļ���ReadContinueFile�Ķ�ȡ��ʽ����
+今天编写SU2文件读取。需要重新理解以前的代码，进行至vBoundary2D
+！新发现，SU2文件与ReadContinueFile的读取方式很像
 
 2024-01-20
-֮ǰ���������ع����ֺͳ����ع����Ȳ�࣬ԭ�������ǽ������������Ԫ��
-����д��Щ�����������������ع���ɢ�����⻹û�н������������Ҫ���ӷ���ɢ���� ����������⣿
-����������
-  �����ع� isNan()��⵽rho<0
-  �ļ���26������-nan(ind)����12����Ϊͬһ����Ԫ�����������ֵ��
-  -nan(ind)���ֵ�ԭ���Ƿ�ĸΪ0���߸�����ƽ��
+之前测试线性重构发现和常量重构精度差不多，原来是忘记将计算结果存进单元了
+今天写了些限制器，但是线性重构发散的问题还没有解决。。。或许要添加防发散机制 是网格的问题？
+问题描述：
+  线性重构 isNan()检测到rho<0
+  文件第26步出现-nan(ind)，共12处，为同一个单元的三个顶点的值。
+  -nan(ind)出现的原因是分母为0或者负数开平方
 
-  ��isNan()�����Ӷ�rho<0�ļ�⣬δ��⵽
-  ���ݶȼ����������Ӷ�Ux Uy==nan�ļ�⣬δ��⵽
-  ����Ϊ����cylinder_2_41��AMatrix������Error: the coefficient matrix has 0 as a pivot. Please fix the input and try again.
-    ���������쳣�㣬�ֱ�λ����˺��Ҷ�
-    ������element ID = 1549, x=1.98499, y=-0.917184
-    ������Ӹþ��棬�ܹ�����ȥ��˵�����������������
+  在isNan()中添加对rho<0的检测，未检测到
+  在梯度计算器中添加对Ux Uy==nan的检测，未检测到
+  更换为网格cylinder_2_41后，AMatrix报错：Error: the coefficient matrix has 0 as a pivot. Please fix the input and try again.
+    共有两个异常点，分别位于左端和右端
+    发生于element ID = 1549, x=1.98499, y=-0.917184
+    如果忽视该警告，能够算下去。说明可能是网格的问题
 
 2024-01-17
-���������ع���
-����OpenMP���Ժ�����о���α�֤���ݵ�ԭ���ԣ�https://blog.csdn.net/xuyiqiang87/article/details/52763653
-ճ�������������Solver_2D.cppP866��
+添加线性重构。
+发现OpenMP，以后可以研究如何保证数据的原子性：https://blog.csdn.net/xuyiqiang87/article/details/52763653
+粘性求解器进行至Solver_2D.cppP866，
 
 2024-01-15
-���ӵ����ģʽ��������ע�͡���ֵ��������������Ķ�������Ѷ�
-����TestCode��Ŀ�в����½���TomlFileManager��
-���봴��һ���ļ�����࣬��������У��ļ�·�����ļ��Ĵ򿪷�ʽ�����ǻ������ӣ�������
+复杂的设计模式、不添加注释、奇怪的命名都会增加阅读代码的难度
+先在TestCode项目中测试新建的TomlFileManager类
+我想创建一种文件输出类，输入参数有：文件路径、文件的打开方式（覆盖还是添加）、内容
 
-���������⣺
-����в�ʱ����ʾ���������Ϊ�ҽ����е�Ԫ�ľ��������ӣ�������double�ı�ʾ��Χ����ȷ���������������ʾ��
-����ȡ���������Ԫ�����ֵ��
+遇到的问题：
+计算残差时，显示无穷。这是因为我将所有单元的绝对误差相加，超出了double的表示范围。正确做法是用相对误差表示，
+或者取无穷范数（即元素最大值）
 
 2024-01-14
-����toml��ʽ�ļ���ȡ����ǰ���Լ����˸����ӣ����������ˣ�������Include��
-> ת������ https://tooltt.com/json2toml/
-�����鼮���ع�:�������д�������
-�����򲻵��Ѳ���Ҫ�ع��������Ȱ���õ��ع��ˣ�һ���ع�һ��
-ͳ�ƴ��������ļ��ɣ���srcĿ¼�£��Ҽ�git bash here��Ȼ������
+新增toml格式文件读取（以前还自己造了个轮子，看来白造了），放在Include中
+> 转换工具 https://tooltt.com/json2toml/
+发现书籍：重构:改善现有代码的设计
+不到万不得已不需要重构。或者先把最常用的重构了，一次重构一点
+统计代码行数的技巧：在src目录下，右键git bash here，然后输入
 ```
 find . -name "*.cpp" -or -name "*.h" | grep -v "include"  | xargs wc -l
 ```
-> �ο����ϣ�https://blog.csdn.net/jimojianghu/article/details/129792250
+> 参考资料：https://blog.csdn.net/jimojianghu/article/details/129792250
 
 2024-01-13
-֮ǰ������һЩ��Ŀ������ʱ��̫���������Ķ��ܷѾ���
-���Ƿ���UNITSĿ¼�ṹ�����˱���Ŀ������������ֲ
-UNITS��Ŀ`D:\tgl\Local\THUnits-Interface-UNITs\codes_UNITS_old\UNITs-v3.4-2021-12\UNITs_Solver`
+之前创建了一些项目，可是时间太长，重新阅读很费劲。
+于是仿照UNITS目录结构创建了本项目，方便后面的移植
+UNITS项目`D:\tgl\Local\THUnits-Interface-UNITs\codes_UNITS_old\UNITs-v3.4-2021-12\UNITs_Solver`
 
-��ǰĿ�꣺3άŷ�������
-���Ȱ�FVM_2D�Ĵ�����ֲ�˹�����Ȼ��������git
+当前目标：3维欧拉求解器
+首先把FVM_2D的代码移植了过来，然后添加了git
 
-�ѵ㣺Solver_2D::getEdgeFlux_wallNonViscous��λ��Solver_2D
+难点：Solver_2D::getEdgeFlux_wallNonViscous，位于Solver_2D
 Solver_2D::getEdgeFlux_farfield
-Solver_2D::cal_ruvp_farfield_new cpp��825��
-����Ҫ����Euler���̵���ֵ�߽������������μ����ñʼ�md�ĵ�
-���ҿ���Ǭ�Ĵ��룬��ȷʵ�Ѿ�ʵ���ˣ�ΪʲôԲ�������Ľ�������룿ԭ���Ǳ߽��������⣬input.json�ٶ�����Ϊ0
-���������ұ�׼������֤�Լ��������ȷ�ԡ�ϣ��Զ���߽�����ȷ��
-���������ı��������޸ĳ�����
+Solver_2D::cal_ruvp_farfield_new cpp第825行
+首先要理解Euler方程的数值边界条件处理。参见课堂笔记md文档
+但我看王乾的代码，我确实已经实现了，为什么圆柱绕流的结果不理想？原来是边界条件问题，input.json速度设置为0
+接下来是找标准算例验证自己程序的正确性。希望远场边界是正确的
+此外添加四边形网格，修改程序框架
 
 
-# Ŀ¼�ṹ
-include - �ⲿ��
+# 目录结构
+include - 外部库
 
-# ����淶
-�ļ���UTF-8��ʽ����
+# 代码规范
+文件用UTF-8格式保存
 
-## ����
-Ŀ¼������Сд+�»���
-�ļ������շ�������
+## 命名
+目录名称用小写+下划线
+文件名用驼峰命名法
 
-# ע������
-.h��.cpp�ֿ���Ϊ�˱�������ʱ̫��
-����git
+# 注意事项
+.h和.cpp分开是为了避免编译耗时太长
+多用git
+
+# Visual Studio 配置宏介绍
+来源：https://blog.csdn.net/qianniulaoren/article/details/133160383
+也可以在项目属性中点击任意项-编辑，展开宏，以进行浏览。
+如果在常规的浏览中找不到，可以在调试的浏览中找
+
+
+$(TargetDir)                                           # 目标输出文件所在的目录
+$(TargetName) = U2NITS-10.0                            # 目标的名称
+$(TargetExt) = .exe                                    # 目标的扩展名
+$(TargetFileName) = $(TargetName)$(TargetExt)          # 目标输出文件名，包括扩展名
+$(TargetPath) = $(TargetDir)$(TargetFileName)                      
+
+$(SolutionDir) = D:\tgl\Local\HPC\U2NITS-10.0\         # 解决方案目录，即主目录
+$(SolutionName) = U2NITS-10.0
+$(SolutionExt) = .sln
+$(SolutionFileName) = $(SolutionName)$(SolutionExt)    # .sln文件全名
+$(SolutionPath) = $(SolutionDir)$(SolutionFileName)    # .sln文件全路径
+
+$(Platform) = x64                                      # 解决方案平台名称，如x86、x64
+$(Configuration) = Debug                               # 当前的编译配置名称，如Release、Debug
+$(IntDir) = $(Platform)\$(Configuration) = x64\Debug\  # 编译器使用的中间目录，产出obj文件
+
+$(ProjectName) = U2NITS-10.0                           # 当前工程名称
+$(ProjectDir) = $(SolutionDir)$(ProjectName)\
+              = D:\tgl\Local\HPC\U2NITS-10.0\U2NITS-10.0\ # 项目目录
+
+$(OutDir) = $(SolutionDir)$(Platform)\$(Configuration)\
+          = D:\tgl\Local\HPC\U2NITS-10.0\x64\Debug\    # 输出目录 该目录下生成exe pdb等文件
+
+例如我将调试的工作目录修改为$(ProjectDir)WorkingDirectory\。设置后注意点“应用”

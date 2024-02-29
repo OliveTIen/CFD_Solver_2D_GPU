@@ -1,5 +1,5 @@
-#ifndef _CALCULATE_GRADIENT_2_H_
-#define _CALCULATE_GRADIENT_2_H_
+#ifndef _CALCULATE_GRADIENT_2_CUH_
+#define _CALCULATE_GRADIENT_2_CUH_
 
 #include "../datatype/ElementSoA.h"
 #include "../datatype/FieldSoA.h"

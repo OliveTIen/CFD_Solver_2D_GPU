@@ -4,7 +4,7 @@
 #include "LogWriter.h"
 #include "../GlobalPara.h"
 
-void HistWriter::writeHead() {
+void HistWriter::writeHistFileHead() {
 	// 如果是续算则不必添加文件头
 	if (GlobalPara::basic::_continue) {
 		hasWritten = true;
@@ -23,7 +23,7 @@ void HistWriter::writeHead() {
 	hasWritten = true;
 }
 
-void HistWriter::writeData(int iteration, const double* residual, int length) {
+void HistWriter::writeHistFileData(int iteration, const double* residual, int length) {
 	if (!hasWritten) {
 		std::cout << "Error: has't written file head. \n";
 		std::cout << "(Code: " << __FILE__ << ")\n";

@@ -1,5 +1,5 @@
 #include "../GPUSolver2.h"
-#include "CalculateGradient2.h"
+#include "CalculateGradient2.cuh"
 #include "../math/GPUMatrixKernel.h"
 
 void GPU::calculateGradient2(GPU::ElementSoA& element_device, GPU::FieldSoA elementField_device) {

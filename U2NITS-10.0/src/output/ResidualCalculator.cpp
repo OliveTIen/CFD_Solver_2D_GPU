@@ -62,7 +62,7 @@ void ResidualCalculator::cal_error_isentropicVortex(double xmin, double ymin, do
 	error_norm2 = sqrt(error_norm2 / sumvol);//sqrt( sum(err_i^2 * vol_i)/sum(vol_i) ) = sqrt( sum(err_i^2 * weight_i) ) 误差平方的加权平均，然后开根号
 
 	//写入文件
-	std::ofstream outfile(FilePathManager::getInstance()->getExePath_withSlash() + "output\\" + "error_isentropicVortex_" + GlobalPara::basic::filename + ".txt", std::ios::app);//追加模式
+	std::ofstream outfile(FilePathManager::getInstance()->getOutputDirectory() + "error_isentropicVortex_" + GlobalPara::basic::filename + ".txt", std::ios::app);//追加模式
 	outfile
 		<< istep << "\t"
 		<< cpu_time << "\t"

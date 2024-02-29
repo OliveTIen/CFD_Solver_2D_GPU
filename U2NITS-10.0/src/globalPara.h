@@ -12,6 +12,8 @@ namespace Constant {
 	extern double c0;//海平面声速参考值[未使用]
 	extern double gamma;
 	extern double epsilon;
+	extern double Re;
+	extern double Pr;
 }
 
 
@@ -38,6 +40,9 @@ namespace GlobalPara {
 		extern double T;
 		extern double residual;// 残差限制
 		extern int time_advance;// 时间推进方式
+		// 以下数据从ContinueFile中读取，不是Toml
+		extern double t_previous;// 续算时的起始时间 从readContineFile()中读取
+		extern int istep_previous;// 续算时的起始步 从readContineFile()中读取
 	}
 	namespace physicsModel {
 		extern int equation;//"equation:1-Eluer,2-NS": 1
@@ -73,6 +78,7 @@ namespace GlobalPara {
 		extern int step_per_output_hist;
 		extern bool output_var_ruvp[4];
 		extern int autosaveFileNum;
+		extern int maxIteration;
 	}
 	namespace inviscid_flux_method {
 		extern int flux_conservation_scheme;// 无粘通量 守恒格式 用于求解黎曼问题 LLF Roe

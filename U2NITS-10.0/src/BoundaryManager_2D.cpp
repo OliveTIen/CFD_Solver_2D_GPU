@@ -44,15 +44,19 @@ std::vector<int> BoundaryManager_2D::compressSeveralSequences(const std::vector<
 }
 
 int BoundaryManager_2D::getBoundaryTypeByName(std::string boundaryName) {
-	// 边界名称转边界类型
+	// 应考虑字符串匹配/关键词检测算法。例如前缀树（Trie）可以应用于自动补全等
+	// 边界名称转边界类型 内部是-1
 	int bType = -1;
-	if (boundaryName == "wall" || boundaryName == "obstacle") {
-		if (GlobalPara::physicsModel::equation == _EQ_euler)bType = _BC_wall_nonViscous;
-		else bType = _BC_wall_adiabat;
+	if (boundaryName == "wall" || boundaryName == "obstacle" || boundaryName == "airfoil") {
+		//if (GlobalPara::physicsModel::equation == _EQ_euler)bType = _BC_wall_nonViscous;
+		//else bType = _BC_wall_adiabat;
+
+		bType = _BC_wall_adiabat;
 	}
 	else if (boundaryName == "inlet")bType = _BC_inlet;
 	else if (boundaryName == "outlet")bType = _BC_outlet;
-	else if (boundaryName == "inf")bType = _BC_inf;
+	else if (boundaryName == "inf" || boundaryName == "infinity"
+		|| boundaryName == "far" || boundaryName == "farfield")bType = _BC_inf;
 	else if (boundaryName == "symmetry")bType = _BC_symmetry;
 	else if (boundaryName.substr(0, 8) == "periodic") {//periodic_x
 		int x = std::stoi(boundaryName.substr(boundaryName.size() - 1, 1));//取最后一个字符
@@ -75,7 +79,7 @@ int BoundaryManager_2D::iniBoundaryEdgeSetID_and_iniBoundaryType(FVM_2D* f) {
 	//检查f->edges是否已初始化
 	if (f->edges.size() == 0) {
 		std::string str = "Warning: f->edges.size() == 0, in \"BoundaryManager_2D::iniEdgeBoundaryCondition(FVM_2D* f)\"\n";
-		LogWriter::writeLog(str, 1);
+		LogWriter::writeLog(str);
 		std::cout<< str;
 		return -1;
 	}
@@ -194,7 +198,7 @@ void BoundaryManager_2D::setBoundaryElementU(int tag) {
 
 VirtualBoundarySet_2D* BoundaryManager_2D::getBoundarySetByID(const int setID) {
 	if (setID <= 0 || setID > boundaries.size()) {//setID范围应从1开始，最大为vBoundarySets的size
-		LogWriter::writeLogAndCout("Error: setID out of range. (getBoundarySetByID)\n");
+		LogWriter::writeLogAndCout("Error: setID out of range. (getBoundarySetByID)\n", LogWriter::Error);
 		return nullptr;
 	}
 	return &(boundaries[setID - 1]);
@@ -233,7 +237,7 @@ void BoundaryManager_2D::checkPeriodPairs() {
 		//不满足则报错
 		if (!check_2) {
 			std::string str = "Error: invalid periodic boundary, for not meeting translation conditions. (BoundaryManager_2D::iniBoundaryEdge_SetType)\n";
-			LogWriter::writeLogAndCout(str);
+			LogWriter::writeLogAndCout(str, LogWriter::Error);
 			throw str;
 		}
 	}
@@ -254,13 +258,13 @@ VirtualBoundarySet_2D* BoundaryManager_2D::getPairByID_periodicBoundary(const in
 		}
 		//若找到配对的ID，则返回指针，否则报错
 		if (setID_to_find == -1) {
-			LogWriter::writeLogAndCout("Error: pair not found. (getPairByID_periodicBoundary)\n");
+			LogWriter::writeLogAndCout("Error: pair not found. (getPairByID_periodicBoundary)\n", LogWriter::Error);
 			return nullptr;
 		}
 		else return getBoundarySetByID(setID_to_find);
 	}
 	else {
-		LogWriter::writeLogAndCout("Error: not periodic type. (getPairByID_periodicBoundary)\n");
+		LogWriter::writeLogAndCout("Error: not periodic type. (getPairByID_periodicBoundary)\n", LogWriter::Error);
 		return nullptr;
 	}
 }

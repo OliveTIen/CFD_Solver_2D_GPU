@@ -10,7 +10,14 @@ public:
 		ERROR_PARSE
 	};
 	enum State {
-
+		state_START,
+		state_NDIME,
+		state_NPOIN,
+		state_NPOIN_data,
+		state_NELEM,
+		state_NELEM_data,
+		state_NMARK,
+		state_NMARK_data,
 	};
 
 	

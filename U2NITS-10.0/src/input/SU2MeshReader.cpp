@@ -2,6 +2,7 @@
 #include "../FVM_2D.h"
 #include "../global/FilePathManager.h"
 #include "../global/StringProcessor.h"
+#include "../output/LogWriter.h"
 //#include "../global/VectorProcessor.h"
 
 
@@ -24,7 +25,7 @@ int SU2MeshReader::readFile(std::string filePath, bool convertRectToTriangle) {
 	if (!infile) {
 		return ERROR_READ_FILE;
 	}
-	int state = -1;//1-Node, 2-Element
+	State state = state_START;//1-Node, 2-Element
 	int maxnodeID = 1;
 	int maxelementID = 1;
 	const int bufferLength = 300;
@@ -35,39 +36,53 @@ int SU2MeshReader::readFile(std::string filePath, bool convertRectToTriangle) {
 	vBoundaryEdges.push_back(VirtualEdge_2D());//填充1个null元素，以保证行号表示ID
 	std::vector<SimpleBoundary>tmp_boudaries;
 	while (infile.getline(buffer, bufferLength)) {
-		//get words and set state
-		//infile.getline(buffer, bufferLength);
-		//if (infile.eof())break;
+
 		tLine = buffer;
 		tLine = StringProcessor::replaceCharInString(tLine, '=', " = ");
 		tWords = StringProcessor::splitString(tLine);
-		if (tWords.size() == 0)continue;//对于空行，强迫进入下一次循环，防止读取tWords[0]出现内存错误
-		else {
-			// 维度
-			if (tWords[0] == "NDIME")state = 0;
-			// 点
-			if (tWords[0] == "NPOIN")state = 1;
-			// 单元
-			if (tWords[0] == "NELEM") {
-				state = 2;
-			}
-			// 边界
-			if (tWords[0] == "NMARK") {
-				state = 3;
-			}
-			
+		long tWordsSize = tWords.size();
+		// 更新状态
+		if (tWordsSize == 0) {
+			continue;//对于空行，强迫进入下一次循环，防止读取tWords[0]出现内存错误
 		}
+		if (tWords[0] == "NDIME") {
+			state = state_NDIME;
+		}
+		else if (tWords[0] == "NPOIN") {
+			state = state_NPOIN;
+		}
+		else if (tWords[0] == "NELEM") {
+			state = state_NELEM;
+			std::cout << "Read SU2 elements\n";
+		}
+		else if (tWords[0] == "NMARK") {
+			state = state_NMARK;
+		}
+			
+		// 根据状态进行特定操作
+		if (state == state_NDIME) {
+			if (tWordsSize == 3 && tWords[2] == "2") {
 
-		//translate
-		if (state == 1 && tWords[0].substr(0, 1) != "N") {//"*NODE" 读取节点ID和坐标
+			}
+			else {
+				LogWriter::writeLogAndCout("Error: SU2 mesh dimension is not 2D\n", LogWriter::Error);
+				exit(-1);
+			}
+		}
+		else if (state == state_NPOIN && tWords[0].substr(0, 1) != "N") {//"*NODE" 读取节点ID和坐标
 			Node_2D node;
 			node.x = std::stod(tWords[0]);
 			node.y = std::stod(tWords[1]);
-			node.ID = (int)std::stod(tWords[3]) + 1;// 跟inp保持一致，从1开始
+			if (tWordsSize == 3) {// x y ID
+				node.ID = (int)std::stod(tWords[2]) + 1;
+			}
+			else if (tWordsSize == 4) {// x y z ID
+				node.ID = (int)std::stod(tWords[3]) + 1;// 跟inp保持一致，从1开始
+			}
 			pFVM2D->nodes.push_back(node);
 			maxnodeID = (std::max)(maxnodeID, node.ID);
 		}
-		else if (state == 2 && tWords[0].substr(0, 1) != "N") {
+		else if (state == state_NELEM && tWords[0].substr(0, 1) != "N") {
 			// 三角元
 			if (tWords[0] == "5") {
 				Element_2D e;
@@ -108,7 +123,7 @@ int SU2MeshReader::readFile(std::string filePath, bool convertRectToTriangle) {
 				}
 			}
 		}
-		else if (state == 3) {//"NMARK"
+		else if (state == state_NMARK) {//"NMARK"
 			if (tWords[0] == "NMARK") {
 
 			}
@@ -192,6 +207,7 @@ int SU2MeshReader::readFile(std::string filePath, bool convertRectToTriangle) {
 			}
 		}
 	}
+	//pFVM2D->boundaryManager.iniBoundaryEdgeSetID_and_iniBoundaryType(pFVM2D);
 	// 检查周期边界正确性
 	pFVM2D->boundaryManager.checkPeriodPairs();
 

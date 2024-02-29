@@ -25,7 +25,7 @@ public:
 	double getLength();
 	// 计算两个单元中心的距离
 	float getRefLength();
-	void U_2_F_lambda(const Eigen::Vector4d U, Eigen::Vector4d& F, double& lambda);
+	//void U_2_F_lambda(const Eigen::Vector4d U, Eigen::Vector4d& F, double& lambda);
 
 	//计算法向，从Element_L到Element_R
 	std::vector<double> getDirectionN();
@@ -35,9 +35,9 @@ public:
 	//旋转矩阵。flag=-1表示逆矩阵
 	Eigen::Matrix4d calT(FVM_2D* f, double flag=1);
 	//获取边中点坐标，代入左/右单元分布函数，获取U
-	Eigen::Vector4d get_UL();
-	Eigen::Vector4d get_UR();
-	void get_ULUR(Eigen::Vector4d& U_L, Eigen::Vector4d&U_R);
+	//Eigen::Vector4d get_UL();
+	//Eigen::Vector4d get_UR();
+	//void get_ULUR(Eigen::Vector4d& U_L, Eigen::Vector4d&U_R);
 	void get_ULUR(double* U_L, double* U_R);
 };
 

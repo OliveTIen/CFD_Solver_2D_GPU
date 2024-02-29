@@ -24,6 +24,7 @@
     <ClCompile Include="src\gpu\datatype\NodeSoA.cu" />
     <ClCompile Include="src\gpu\GPUMain.cpp" />
     <ClCompile Include="src\gpu\GPUSolver2.cu" />
+    <ClCompile Include="src\gpu\time\Evolve.cu" />
     <ClCompile Include="src\input\AirParameterConverter.cpp" />
     <ClCompile Include="src\input\ContinueFileReader.cpp" />
     <ClCompile Include="src\input\InpMeshReader.cpp" />
@@ -68,9 +69,12 @@
     <ClInclude Include="src\gpu\GPUSolver2.h" />
     <ClInclude Include="src\gpu\math\GPUMatrixKernel.h" />
     <ClInclude Include="src\gpu\math\PhysicalConvertKernel.h" />
-    <ClInclude Include="src\gpu\space\CalculateFlux2.h" />
-    <ClInclude Include="src\gpu\space\CalculateGradient2.h" />
+    <ClInclude Include="src\gpu\space\CalculateFlux2.cuh" />
+    <ClInclude Include="src\gpu\space\CalculateGradient2.cuh" />
+    <ClInclude Include="src\gpu\space\RiemannSolve.cuh" />
+    <ClInclude Include="src\gpu\space\ViscousFlux.cuh" />
     <ClInclude Include="src\gpu\time\CalculateDt.h" />
+    <ClInclude Include="src\gpu\time\Evolve.h" />
     <ClInclude Include="src\input\AirParameterConverter.h" />
     <ClInclude Include="src\input\ContinueFileReader.h" />
     <ClInclude Include="src\input\InpMeshReader.h" />
@@ -84,6 +88,7 @@
     <ClInclude Include="src\math\AMatrix.h" />
     <ClInclude Include="src\Node_2D.h" />
     <ClInclude Include="src\output\ConsolePrinter.h" />
+    <ClInclude Include="src\output\Debugger.h" />
     <ClInclude Include="src\output\FieldWriter.h" />
     <ClInclude Include="src\output\LogWriter.h" />
     <ClInclude Include="src\output\ResidualCalculator.h" />
@@ -98,6 +103,8 @@
     <CudaCompile Include="src\gpu\datatype\FieldSoA.cu" />
     <CudaCompile Include="src\gpu\space\CalculateFlux2.cu" />
     <CudaCompile Include="src\gpu\space\CalculateGradient2.cu" />
+    <CudaCompile Include="src\gpu\space\RiemannSolve.cu" />
+    <CudaCompile Include="src\gpu\space\ViscousFlux.cu" />
     <CudaCompile Include="src\gpu\time\CalculateDt.cu" />
   </ItemGroup>
   <PropertyGroup Label="Globals">

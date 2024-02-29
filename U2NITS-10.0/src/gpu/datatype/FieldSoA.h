@@ -63,7 +63,32 @@ namespace GPU {
 	class EdgeFieldSoA {
 	public:
 		int num_edge;
+		REAL* numeralFlux[4];
 
+	public:
+		void alloc(int _num_edge) {
+			num_edge = _num_edge;
+			for (int i = 0; i < 4; i++) {
+				numeralFlux[i] = new REAL[num_edge];
+			}
+		}
+		void free() {
+			for (int i = 0; i < 4; i++) {
+				delete[] numeralFlux[i];
+			}
+		}
+		void cuda_alloc(int _num_edge) {
+			num_edge = _num_edge;
+			for (int i = 0; i < 4; i++) {
+				cudaMalloc(&numeralFlux[i], num_edge * sizeof(REAL));
+			}
+		}
+		void cuda_free() {
+			for (int i = 0; i < 4; i++) {
+				cudaFree(numeralFlux[i]);
+			}
+		}
+		static void cuda_memcpy(EdgeFieldSoA* dist, const EdgeFieldSoA* src, cudaMemcpyKind kind);
 	};
 
 	// 用于输出Tecplot文件的场变量

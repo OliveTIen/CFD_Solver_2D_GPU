@@ -1,28 +1,49 @@
 #include "LogWriter.h"
-#include <fstream>
-#include <iostream>
+
 #include "../global/FilePathManager.h"
 #include "../global/SystemInfo.h"
 
-std::string LogWriter::dateAndTime = std::string();
+std::ofstream LogWriter::m_logFile = std::ofstream();
+std::string LogWriter::m_logFilePath = std::string();
+bool LogWriter::m_hasInitilized = false;
+LogWriter::LogLevel LogWriter::m_logLevel = LogWriter::LogLevel::Debug;
+LogWriter::LogLevel LogWriter::m_coutLevel = LogWriter::LogLevel::Info;
 
-void LogWriter::writeLog(std::string content, bool app) {
-	if (dateAndTime.empty()) {
-		dateAndTime = SystemInfo::getCurrentDateTime_suitableForFileName();
+std::string LogWriter::enumToString(LogLevel level) {
+	switch (level) {
+	case LogLevel::Fatal:
+		return "Fatal";
+	case LogLevel::Error:
+		return "Error";
+	case LogLevel::Warning:
+		return "Warning";
+	case LogLevel::Info:
+		return "Info";
+	case LogLevel::Debug:
+		return "Debug";
+	default:
+		return "Unknown";
 	}
-
-	//须在filename初始化后使用，否则会生成".LOG"
-	std::ofstream f;
-	// exePath_withSlash + "output\\" + 日期时间 + ".LOG"
-	std::string exePath_withSlash = FilePathManager::getInstance()->getExePath_withSlash();
-	std::string m_fullFilePath = exePath_withSlash + "output\\" + dateAndTime + ".LOG";
-	if (app)f.open(m_fullFilePath, std::ios::app);
-	else f.open(m_fullFilePath);
-	f << content;
-	f.close();
 }
 
-void LogWriter::writeLogAndCout(std::string content) {
-	writeLog(content, 1);
-	std::cout << content;
+void LogWriter::writeLog(std::string content, LogLevel logLevel) {
+	if (!m_hasInitilized) {
+		std::string directory = FilePathManager::getInstance()->getOutputDirectory();
+		std::string dateAndTime = SystemInfo::getCurrentDateTime_suitableForFileName();
+		m_logFilePath = directory + dateAndTime + ".LOG";
+		m_hasInitilized = true;
+	}
+	if (logLevel <= m_logLevel) {// logLevel小于参考，说明更紧急，写入日志
+		m_logFile.open(m_logFilePath, std::ios::app);
+		m_logFile << content;
+		m_logFile.close();
+	}
+
+}
+
+void LogWriter::writeLogAndCout(std::string content, LogLevel logLevel, LogLevel coutLevel) {
+	writeLog(content);
+	if (coutLevel <= m_coutLevel) {
+		std::cout << content;
+	}
 }

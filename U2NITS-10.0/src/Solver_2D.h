@@ -22,7 +22,7 @@ private:
 public:
 	// 旋转矩阵。flag=-1表示逆矩阵
 	// Eigen::Matrix4d get_matrixT(double nx, double ny, int flag = 1);
-	void U_2_F_lambda(const Eigen::Vector4d U, Eigen::Vector4d& F, double& lambda);
+	//void U_2_F_lambda(const Eigen::Vector4d U, Eigen::Vector4d& F, double& lambda);
 
 	// 演化
 	void evolve(double dt);

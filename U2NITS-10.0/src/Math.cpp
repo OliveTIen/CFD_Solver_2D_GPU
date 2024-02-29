@@ -117,23 +117,23 @@ void Math_2D::U_2_F(const double* U, double* F, double gamma) {
 
 }
 
-void Math_2D::U_2_F(const Eigen::Vector4d& U, Eigen::Vector4d& F, double gamma) {
-	double p = 0.5 * U[0] * (gamma - 1) * (2 * U[3] / U[0] - U[1] / U[0] * U[1] / U[0] - U[2] / U[0] * U[2] / U[0]);
-	F[0] = U[1];//rho*u
-	F[1] = U[1] * U[1] / U[0] + p;//rho*u^2+p
-	F[2] = U[1] * U[2] / U[0];//rho*u*v
-	F[3] = (U[3] + p) * U[1] / U[0];//(rho*E+p)*u
-}
+//void Math_2D::U_2_F(const Eigen::Vector4d& U, Eigen::Vector4d& F, double gamma) {
+//	double p = 0.5 * U[0] * (gamma - 1) * (2 * U[3] / U[0] - U[1] / U[0] * U[1] / U[0] - U[2] / U[0] * U[2] / U[0]);
+//	F[0] = U[1];//rho*u
+//	F[1] = U[1] * U[1] / U[0] + p;//rho*u^2+p
+//	F[2] = U[1] * U[2] / U[0];//rho*u*v
+//	F[3] = (U[3] + p) * U[1] / U[0];//(rho*E+p)*u
+//}
 
-void Math_2D::U_2_F_lambda(const Eigen::Vector4d U, Eigen::Vector4d& F, double& lambda, double gamma) {
-	double rho = U[0];
-	double u = U[1] / U[0];
-	double v = U[2] / U[0];
-	double E = U[3] / U[0];
-	Math_2D::U_2_F(U, F, gamma);
-	double p = Math_2D::get_p(rho, gamma, E, u, v);
-	lambda = sqrt(u * u + v * v) + sqrt(gamma * p / rho);
-}
+//void Math_2D::U_2_F_lambda(const Eigen::Vector4d U, Eigen::Vector4d& F, double& lambda, double gamma) {
+//	double rho = U[0];
+//	double u = U[1] / U[0];
+//	double v = U[2] / U[0];
+//	double E = U[3] / U[0];
+//	Math_2D::U_2_F(U, F, gamma);
+//	double p = Math_2D::get_p(rho, gamma, E, u, v);
+//	lambda = sqrt(u * u + v * v) + sqrt(gamma * p / rho);
+//}
 
 void Math_2D::ruvp_2_F(const double* ruvp, double* F, double gamma) {
 	F[0] = ruvp[0] * ruvp[1];

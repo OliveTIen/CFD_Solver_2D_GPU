@@ -156,6 +156,9 @@
     <ClCompile Include="src\input\ContinueFileReader.cpp">
       <Filter>src\input</Filter>
     </ClCompile>
+    <ClCompile Include="src\gpu\time\Evolve.cu">
+      <Filter>src\gpu\time</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <None Include="README.md" />
@@ -263,10 +266,10 @@
     <ClInclude Include="src\gpu\GPUSolver2.h">
       <Filter>src\gpu</Filter>
     </ClInclude>
-    <ClInclude Include="src\gpu\space\CalculateFlux2.h">
+    <ClInclude Include="src\gpu\space\CalculateFlux2.cuh">
       <Filter>src\gpu\space</Filter>
     </ClInclude>
-    <ClInclude Include="src\gpu\space\CalculateGradient2.h">
+    <ClInclude Include="src\gpu\space\CalculateGradient2.cuh">
       <Filter>src\gpu\space</Filter>
     </ClInclude>
     <ClInclude Include="src\gpu\GPUMain.h">
@@ -287,6 +290,18 @@
     <ClInclude Include="src\gpu\math\PhysicalConvertKernel.h">
       <Filter>src\gpu\math</Filter>
     </ClInclude>
+    <ClInclude Include="src\gpu\space\RiemannSolve.cuh">
+      <Filter>src\gpu\space</Filter>
+    </ClInclude>
+    <ClInclude Include="src\gpu\time\Evolve.h">
+      <Filter>src\gpu\time</Filter>
+    </ClInclude>
+    <ClInclude Include="src\output\Debugger.h">
+      <Filter>src\output</Filter>
+    </ClInclude>
+    <ClInclude Include="src\gpu\space\ViscousFlux.cuh">
+      <Filter>src\gpu\space</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <CudaCompile Include="src\gpu\space\CalculateFlux2.cu">
@@ -300,6 +315,12 @@
     </CudaCompile>
     <CudaCompile Include="src\gpu\time\CalculateDt.cu">
       <Filter>src\gpu\time</Filter>
+    </CudaCompile>
+    <CudaCompile Include="src\gpu\space\RiemannSolve.cu">
+      <Filter>src\gpu\space</Filter>
+    </CudaCompile>
+    <CudaCompile Include="src\gpu\space\ViscousFlux.cu">
+      <Filter>src\gpu\space</Filter>
     </CudaCompile>
   </ItemGroup>
 </Project>

@@ -19,17 +19,17 @@
 //    return matT;
 //}
 
-void Solver_2D::U_2_F_lambda(const Eigen::Vector4d U, Eigen::Vector4d& F, double& lambda) {
-    double rho = U[0];
-    double u = U[1] / U[0];
-    double v = U[2] / U[0];
-    double E = U[3] / U[0];
-    double gamma = Constant::gamma;
-    Math_2D::U_2_F(U, F, gamma);
-    double p = Math_2D::get_p(rho, gamma, E, u, v);
-    lambda = sqrt(u * u + v * v) + sqrt(gamma * p / rho);
-
-}
+//void Solver_2D::U_2_F_lambda(const Eigen::Vector4d U, Eigen::Vector4d& F, double& lambda) {
+//    double rho = U[0];
+//    double u = U[1] / U[0];
+//    double v = U[2] / U[0];
+//    double E = U[3] / U[0];
+//    double gamma = Constant::gamma;
+//    Math_2D::U_2_F(U, F, gamma);
+//    double p = Math_2D::get_p(rho, gamma, E, u, v);
+//    lambda = sqrt(u * u + v * v) + sqrt(gamma * p / rho);
+//
+//}
 
 void Solver_2D::evolve(double dt) {
     if (GlobalPara::time::time_advance == _EVO_explicit) {
@@ -39,7 +39,7 @@ void Solver_2D::evolve(double dt) {
         evolve_RK3(dt);
     }
     else {
-        LogWriter::writeLogAndCout("Error: invalid input \"time.time_advance\". Will exit.");
+        LogWriter::writeLogAndCout("Error: invalid input \"time.time_advance\". Will exit.", LogWriter::Error);
     }
 }
 
@@ -312,26 +312,46 @@ void Solver_2D::getEdgeFlux_farfield(Edge_2D* pE, const double* ruvp_inf, double
 }
 
 void Solver_2D::getEdgeFlux_periodic(Edge_2D* pE, double* flux) {
+    //FVM_2D* f = FVM_2D::pFVM2D;
+    ////计算边中点坐标、坐标变换矩阵、坐标逆变换矩阵、边法线方向
+    //double x_edge, y_edge; pE->getxy(f, x_edge, y_edge);
+    //double nx, ny;    pE->getDirectionN(nx, ny);
+    ////计算U_L、U_R
+    //Eigen::Vector4d U_L = pE->pElement_L->get_U(x_edge, y_edge);
+    //Eigen::Vector4d U_R;
+    //{
+    //    //找到这条edge对应的虚拟pElement_R(本来该edge没有pElement_R，但我们根据周期边界找到它的虚拟pElement_R)
+    //    Edge_2D* pE_pair = f->boundaryManager.get_pairEdge_periodic(pE);//找到edge在周期边界中对应的edge_1
+    //    Element_2D* pElement_R = pE_pair->pElement_L;//pEdge_1的pElement_L即为pEdge的虚拟pElement_R
+    //    //获取edge_1的中点坐标
+    //    double x_virtual_edge, y_virtual_edge;
+    //    pE_pair->getxy(f, x_virtual_edge, y_virtual_edge);
+    //    //重构。根据虚拟单元计算U_R
+    //    U_R = pElement_R->get_U(x_virtual_edge, y_virtual_edge);
+    //}
+    ////计算数值通量向量。其元素为各守恒量的数值通量
+    //double UL[4]{ U_L[0],U_L[1],U_L[2],U_L[3] };
+    //double UR[4]{ U_R[0],U_R[1],U_R[2],U_R[3] };
+    //RiemannSolve(UL, UR, nx, ny, pE->getLength(), flux,
+    //    GlobalPara::inviscid_flux_method::flux_conservation_scheme);
+
+    // 重新写
     FVM_2D* f = FVM_2D::pFVM2D;
-    //计算边中点坐标、坐标变换矩阵、坐标逆变换矩阵、边法线方向
-    double x_edge, y_edge; pE->getxy(f, x_edge, y_edge);
-    double nx, ny;    pE->getDirectionN(nx, ny);
-    //计算U_L、U_R
-    Eigen::Vector4d U_L = pE->pElement_L->get_U(x_edge, y_edge);
-    Eigen::Vector4d U_R;
-    {
-        //找到这条edge对应的虚拟pElement_R(本来该edge没有pElement_R，但我们根据周期边界找到它的虚拟pElement_R)
-        Edge_2D* pEdge_1 = f->boundaryManager.get_pairEdge_periodic(pE);//找到edge在周期边界中对应的edge_1
-        Element_2D* virtual_pElement_R = pEdge_1->pElement_L;//pEdge_1的pElement_L即为pEdge的虚拟pElement_R
-        //获取edge_1的中点坐标
-        double x_virtual_edge, y_virtual_edge;
-        pEdge_1->getxy(f, x_virtual_edge, y_virtual_edge);
-        //重构。根据虚拟单元计算U_R
-        U_R = virtual_pElement_R->get_U(x_virtual_edge, y_virtual_edge);
-    }
-    //计算数值通量向量。其元素为各守恒量的数值通量
-    double UL[4]{ U_L[0],U_L[1],U_L[2],U_L[3] };
-    double UR[4]{ U_R[0],U_R[1],U_R[2],U_R[3] };
+    double x_edge{};
+    double y_edge{};
+    pE->getxy(f, x_edge, y_edge);
+    double nx{};
+    double ny{};
+    pE->getDirectionN(nx, ny);
+    double UL[4]{};
+    pE->pElement_L->get_U(x_edge, y_edge, UL);
+    Edge_2D* pE_pair = f->boundaryManager.get_pairEdge_periodic(pE);
+    Element_2D* pElement_pairL = pE_pair->pElement_L;
+    double x_edge_pair{};
+    double y_edge_pair{};
+    pE_pair->getxy(f, x_edge_pair, y_edge_pair);
+    double UR[4]{};
+    pElement_pairL->get_U(x_edge_pair,y_edge_pair,UR);
     RiemannSolve(UL, UR, nx, ny, pE->getLength(), flux,
         GlobalPara::inviscid_flux_method::flux_conservation_scheme);
 }
@@ -671,21 +691,19 @@ void Solver_2D::Compute_Deltaeig() {
         double rl, ul, vl, pl, acl;
         double rr, ur, vr, pr, acr;
         if (pE->pElement_R != nullptr) {
-            //计算左单元在边中点处的ruvp
-            Eigen::Vector4d UL = pE->get_UL();
-            double _UL[4]{ UL[0],UL[1],UL[2],UL[3] };
+            //计算单元在边中点处的ruvp
+            double _UL[4]{};
+            double _UR[4]{};
+            pE->get_ULUR(_UL, _UR);
             double ruvp_L[4];
+            double ruvp_R[4];
             Math_2D::U_2_ruvp(_UL, ruvp_L, Constant::gamma);
+            Math_2D::U_2_ruvp(_UR, ruvp_R, Constant::gamma);
             rl = ruvp_L[0];
             ul = ruvp_L[1];
             vl = ruvp_L[2];
             pl = ruvp_L[3];
             acl = sqrt(gamma * pl / rl);
-            //计算右单元在边中点处的ruvp
-            Eigen::Vector4d UR = pE->get_UR();
-            double _UR[4]{ UR[0],UR[1],UR[2],UR[3] };
-            double ruvp_R[4];
-            Math_2D::U_2_ruvp(_UR, ruvp_R, Constant::gamma);
             rr = ruvp_R[0];
             ur = ruvp_R[1];
             vr = ruvp_R[2];

@@ -89,4 +89,4 @@ namespace GPU {
 
 }
 
-#endif // !_EDGE_H
+#endif // !_EDGE_SOA_H

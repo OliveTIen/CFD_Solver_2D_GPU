@@ -16,3 +16,10 @@ void GPU::OutputNodeFieldSoA::cuda_memcpy(OutputNodeFieldSoA* dist, const Output
 		cudaMemcpy(dist->ruvp[i], src->ruvp[i], _num * sizeof(REAL), kind);
 	}
 }
+
+void GPU::EdgeFieldSoA::cuda_memcpy(EdgeFieldSoA* dist, const EdgeFieldSoA* src, cudaMemcpyKind kind) {
+	int _num = dist->num_edge;
+	for (int i = 0; i < 4; i++) {
+		cudaMemcpy(dist->numeralFlux[i], src->numeralFlux[i], _num * sizeof(REAL), kind);
+	}
+}

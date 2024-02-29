@@ -7,19 +7,20 @@
 #include "global/Config.h"
 #include "output/LogWriter.h"
 #include "input/TomlFileManager.h"
+#include "gpu/GPUMain.h"
 
 void FVM::run() {
 	ConsolePrinter::printHeader();
 
 	// 初始化路径，创建文件夹
 	FilePathManager* filePathManager = FilePathManager::getInstance();
-	filePathManager->createFolderIfDoesntExist("input");
-	filePathManager->createFolderIfDoesntExist("output");
+	//filePathManager->createFolderIfDoesntExist("input");
+	//filePathManager->createFolderIfDoesntExist("output");
 	// 生成日志
-	LogWriter::writeLog(SystemInfo::getCurrentDateTime() + "\n", 0);
+	LogWriter::writeLog(SystemInfo::getCurrentDateTime() + "\n");
 	// 读取input.toml输入参数，处理部分输入参数
 	TomlFileManager tomlFileManager;
-	tomlFileManager.readFileAndParseFile(filePathManager->getExePath_withSlash() + "input\\input.toml");
+	tomlFileManager.readFileAndParseFile(filePathManager->getTomlFilePath());
 	//tomlFileManager.printParsedFile();
 	// 读网格，初始化初值，求解
 	if (GlobalPara::basic::dimension == 1) {
@@ -28,9 +29,12 @@ void FVM::run() {
 	else if (GlobalPara::basic::dimension == 2) {
 		FVM_2D fvm2d;
 		if (GlobalPara::basic::useGPU) {
-			fvm2d.run_GPU();
+			LogWriter::writeLogAndCout("Using GPU to solve 2D PDE.\n");
+			//fvm2d.run_GPU();
+			GPU::GPUMain::run_GPU();
 		}
 		else {
+			LogWriter::writeLogAndCout("Using CPU to solve 2D PDE.\n");
 			fvm2d.run();
 		}
 	}

@@ -91,6 +91,11 @@ void FieldWriter::writeTecplotFile_GPU(double t_current, std::string title, GPU:
 	// ½Úµã
 	for (int i = 0; i < nodes.num_node; i++) {
 		f << nodes.xy[0][i] << ' ' << nodes.xy[1][i];
+		REAL& rho = output_node_field.ruvp[0][i];
+		REAL& p = output_node_field.ruvp[3][i];
+		if (rho < 0) {
+			//std::cout<<"rho<0"<<std::endl;
+		}
 		if (GlobalPara::output::output_var_ruvp[0])		f << ' ' << output_node_field.ruvp[0][i];
 		if (GlobalPara::output::output_var_ruvp[1])		f << ' ' << output_node_field.ruvp[1][i];
 		if (GlobalPara::output::output_var_ruvp[2])		f << ' ' << output_node_field.ruvp[2][i];

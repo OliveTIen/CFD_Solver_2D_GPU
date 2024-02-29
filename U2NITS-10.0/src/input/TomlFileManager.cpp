@@ -35,6 +35,8 @@ void TomlFileManager::modifyGlobalParametersAccordingToParsedFile() {
 
     getValueIfExists("constant.T0", Constant::T0);
     getValueIfExists("constant.p0", Constant::p0);
+    getValueIfExists("constant.Re", Constant::Re);
+    getValueIfExists("constant.Pr", Constant::Pr);
 
     getValueIfExists("boundaryCondition.2D.inf.AOA", GlobalPara::boundaryCondition::_2D::inf::AOA);
     getValueIfExists("boundaryCondition.2D.inf.Ma", GlobalPara::boundaryCondition::_2D::inf::Ma);
@@ -65,6 +67,7 @@ void TomlFileManager::modifyGlobalParametersAccordingToParsedFile() {
     getValueIfExists("output.step_per_print", GlobalPara::output::step_per_print);
     getValueIfExists("output.step_per_output", GlobalPara::output::step_per_output);
     getValueIfExists("output.step_per_output_hist", GlobalPara::output::step_per_output_hist);
+    getValueIfExists("output.maxIteration", GlobalPara::output::maxIteration);
 
     getValueIfExists("output.output_var.rho", GlobalPara::output::output_var_ruvp[0]);
     getValueIfExists("output.output_var.u", GlobalPara::output::output_var_ruvp[1]);

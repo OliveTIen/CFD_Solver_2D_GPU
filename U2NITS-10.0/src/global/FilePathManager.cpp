@@ -17,46 +17,28 @@ FilePathManager* FilePathManager::class_pointer = nullptr;
 
 void FilePathManager::initialzeVariables() {
 
-	// 获取工作目录所在路径 不含后面的"/"
-	const int maxPathLength = 260;
-	char buffer[maxPathLength];
-	_getcwd(buffer, maxPathLength);
-	workingDirectory = buffer;
-	// 其他目录
-	exePath_withSlash = workingDirectory + "\\";
-	inputTomlFile_path = workingDirectory + "\\" + inputFolder_name + "\\" + "input.toml";
-	inputJsonFile_path = workingDirectory + "\\" + inputFolder_name + "\\" + "input.json";
-	outputFolder_path = workingDirectory + "\\" + outputFolder_name;
+	createFolderIfDoesntExist(m_inputFolderName);
+	createFolderIfDoesntExist(m_outputFolderName);
+
+	m_initializeWorkingDirectory();
+	m_inputDirectory = m_workingDirectory + m_inputFolderName + "\\";
+	m_outputDirectory = m_workingDirectory + m_outputFolderName + "\\";
+	
+	m_tomlFilePath = m_inputDirectory + m_TomlFileName;
+	m_jsonFilePath = m_inputDirectory + m_JsonFileName;
 
 	// 设置标志符，表示已初始化
 	if_initialized = true;
 }
 
-std::string FilePathManager::getExePath(int if_contain_slash) {
-	if (!if_initialized) {
-		std::cout << "Error: FilePathManager not initialized.\n";
-	}
-	std::string str = workingDirectory;
-	if (if_contain_slash == 1) {
-		str += std::string("\\");
-	}
-	return str;
-}
 
-std::string FilePathManager::getExePath_withSlash(int flag) {
-	if (!if_initialized) {
-		std::cout << "Error: FilePathManager not initialized.\n";
-	}
-	return exePath_withSlash;
-}
-
-std::vector<std::string> FilePathManager::ls(std::string path) {
+std::vector<std::string> FilePathManager::getFiles(std::string path) {
 	path += "*";
 	_finddata64i32_t fileInfo;
 	std::vector<std::string> files;
 	intptr_t hFile = _findfirst(path.c_str(), &fileInfo);
 	if (hFile == -1) {
-		std::cout << "Error in FilePathManager::ls()" << std::endl;
+		std::cout << "Error in FilePathManager::getFiles()" << std::endl;
 		return files;
 	}
 	do {
@@ -97,15 +79,28 @@ void FilePathManager::getFileName_UseUserInput() {
 
 }
 
+void FilePathManager::m_initializeWorkingDirectory() {
+	// 获取工作目录
+	char* buffer = _getcwd(nullptr, 0);
+	if (buffer == nullptr) {
+		std::cout << "Error: getWorkingDirectory() failed.\n";
+		m_workingDirectory = "";
+		return;
+	}
+	std::string workingDirectory(buffer);
+	workingDirectory += "\\";
+	//std::cout << "Working Directory: " << workingDirectory << std::endl;
+	free(buffer);// free不可删 详见 https://baike.baidu.com/item/getcwd/4746955?fr=ge_ala
+	m_workingDirectory = workingDirectory;
+}
+
 void FilePathManager::createFolderIfDoesntExist(std::string foldername) {
+	if(foldername == "") return;
 	// 工作目录下检测文件/目录是否存在
 	if (_access(foldername.c_str(), 0) == 0) {// 成功返回0，失败返回-1
-		// 存在
-		//std::cout << foldername << " exists.\n";
+
 	}
 	else {
-		// 不存在
-		//std::cout << foldername << " doesn't exist.\n";
-		system(("mkdir " + workingDirectory + "\\" + foldername).c_str());
+		system(("mkdir " + m_workingDirectory + foldername).c_str());
 	}
 }

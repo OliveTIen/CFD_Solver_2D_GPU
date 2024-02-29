@@ -140,11 +140,11 @@ void ConsolePrinter::clearDisplay(COORD p1, COORD p2){
 
 
 }
-std::string ConsolePrinter::assemblySolveInfo(double calTime, double calStep, double calSpeed, double nFile, double t, double T, const double* residual_vector) {
+std::string ConsolePrinter::assemblySolveInfo(double calTime, int calStep, int maxIteration, double calSpeed, double nFile, double t, double T, const double* residual_vector) {
 	std::stringstream info;
 	info << "\n"
 		<< "  Calculate time: \t" << StringProcessor::timeFormat((int)calTime) << "\t(" << calTime << " s)\n"
-		<< "  Calculate step: \t" << calStep << "\n"
+		<< "  Calculate step: \t" << calStep << " \t/" << maxIteration << "\n"
 		<< "  Calculate speed: \t" << calSpeed << "\t step/s\n"
 		<< "  Output file num: \t" << nFile << "\n"
 		<< "  Residual rho: \t" << std::scientific << residual_vector[0] << "\n" << std::defaultfloat

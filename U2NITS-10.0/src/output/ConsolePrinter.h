@@ -34,7 +34,7 @@ public:
 	// 清除p1, p2之间的控制台内容，光标不变
 	static void clearDisplay(COORD p1, COORD p2);
 	// 组装求解信息
-	static std::string assemblySolveInfo(double calTime, double calStep, double calSpeed, double nFile, double t, double T, const double* residual_vector);
+	static std::string assemblySolveInfo(double calTime, int calStep, int maxIteration, double calSpeed, double nFile, double t, double T, const double* residual_vector);
 	// 打印求解信息
 	static void printInfo(InfoType type);
 };

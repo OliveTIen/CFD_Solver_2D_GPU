@@ -15,7 +15,7 @@ void Config::writeConfig(std::string filename) {
 	rapidjson::PrettyWriter<rapidjson::StringBuffer> prettyWriter(buffer);//PrettyWriter的大括号格式化了更好看
 	config.Accept(prettyWriter);
 	std::string content = buffer.GetString();
-	std::string exePath_withSlash = FilePathManager::getInstance()->getExePath_withSlash();
+	std::string exePath_withSlash = FilePathManager::getInstance()->getWorkingDirectory();
 	std::ofstream outfile(exePath_withSlash + ".config\\config.json");
 	if (outfile.is_open()) {
 		outfile << content;
@@ -27,7 +27,7 @@ void Config::writeConfig(std::string filename) {
 
 void Config::readConfig() {
 	//读取json文件，赋给config
-	std::string exePath_withSlash = FilePathManager::getInstance()->getExePath_withSlash();
+	std::string exePath_withSlash = FilePathManager::getInstance()->getWorkingDirectory();
 	std::ifstream inf(exePath_withSlash + ".config\\config.json");
 	if (inf.is_open()) {
 		std::string json_content((std::istreambuf_iterator<char>(inf)), std::istreambuf_iterator<char>()); //将文件的数据流转为std::string类型

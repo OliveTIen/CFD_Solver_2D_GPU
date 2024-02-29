@@ -26,14 +26,15 @@ public:
 	int nodes[2]{};
 };
 
+// 虚拟边界集合，是对一条边的抽象表示
 class VirtualBoundarySet_2D {
 public:
-	int ID = -1;//从1开始。push_back之前自动赋ID，等于数组指标+1。
+	int ID = -1;     // 从1开始。push_back之前自动赋ID，等于数组指标+1。
 	std::string name;// 需要保留，因为writeContinueFile中需要输出
-	int type = -1;//边界类型 参见head.h _BC_xxx。由name翻译而来
+	int type = -1;   // 边界类型 参见head.h _BC_xxx。由name翻译而来
 	
-	int startID;//临时变量，仅初始化时有意义
-	int endID;//临时变量，仅初始化时有意义
+	int startID;     // 临时变量，仅初始化时有意义
+	int endID;       // 临时变量，仅初始化时有意义
 
 	std::vector<Edge_2D*> pEdges;
 
@@ -42,6 +43,7 @@ public:
 	int get_pEdge_index(Edge_2D* pEdge);
 };
 
+// 边界管理器
 class BoundaryManager_2D {
 public:
 	struct PeriodPair {
@@ -53,8 +55,9 @@ public:
 		
 	};
 
-	//
+	// 边界集合数组
 	std::vector<VirtualBoundarySet_2D> boundaries;
+	// 周期边界数组
 	std::vector<PeriodPair> periodPairs;//用来检查周期边界完整性
 
 

@@ -228,7 +228,7 @@ NPOIN:
 
 */
 	FVM_2D* pFVM2D = FVM_2D::pFVM2D;
-	std::string dir = FilePathManager::getInstance()->getExePath_withSlash() + "input\\";
+	std::string dir = FilePathManager::getInstance()->getInputDirectory();
 	std::ifstream infile(dir + GlobalPara::basic::filename + suffix);
 	if (!infile) {
 		return E_open_file_error;

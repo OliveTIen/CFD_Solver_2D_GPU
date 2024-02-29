@@ -12,8 +12,8 @@ private:
 
 public:
 	HistWriter(std::string fullFilePath) { m_filePath = fullFilePath; }
-	void writeHead();
-	void writeData(int iteration, const double* residual, int length);
+	void writeHistFileHead();
+	void writeHistFileData(int iteration, const double* residual, int length);
 };
 
 #endif

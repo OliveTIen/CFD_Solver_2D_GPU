@@ -157,7 +157,7 @@ void Element_2D::updateSlope_Barth(FVM_2D* f) {
         }
         else {
             //该情况很罕见，除非是corner单元
-            LogWriter::writeLogAndCout("未完成：Element_T3::calSlope_Barth(FVM_2D* f) nNeighbor==1 \n");
+            LogWriter::writeLogAndCout("未完成：Element_T3::calSlope_Barth(FVM_2D* f) nNeighbor==1 \n", LogWriter::Fatal);
             //指定梯度方向
         }
 

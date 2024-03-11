@@ -13,14 +13,8 @@
     <Filter Include="src\output">
       <UniqueIdentifier>{ca54a5f7-932d-4cdd-8af9-a251edfdfba8}</UniqueIdentifier>
     </Filter>
-    <Filter Include="src\turbulence_model">
-      <UniqueIdentifier>{46b17362-5664-4cac-a6c8-d49ae1850fa7}</UniqueIdentifier>
-    </Filter>
     <Filter Include="src\include">
       <UniqueIdentifier>{a7adfe9a-cfd7-41f3-8596-c693afbac073}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="src\time">
-      <UniqueIdentifier>{d1707c13-bcab-4560-a599-b2f3bed0817c}</UniqueIdentifier>
     </Filter>
     <Filter Include="src\include\easyloggingpp">
       <UniqueIdentifier>{ad3f2508-6f02-4c87-9a17-7bc2a083267f}</UniqueIdentifier>
@@ -40,14 +34,29 @@
     <Filter Include="src\gpu\dataType">
       <UniqueIdentifier>{1910dc79-9a23-4a79-a3fa-f424481752dc}</UniqueIdentifier>
     </Filter>
-    <Filter Include="src\gpu\space">
-      <UniqueIdentifier>{023646a1-a5b9-489d-96b6-7b7c3a32aca6}</UniqueIdentifier>
+    <Filter Include="src\drivers">
+      <UniqueIdentifier>{ccddfbdd-cbba-4f43-9d9e-6fed70bf332b}</UniqueIdentifier>
     </Filter>
-    <Filter Include="src\gpu\math">
-      <UniqueIdentifier>{598e267a-bee9-4095-9636-acf1116b6c59}</UniqueIdentifier>
+    <Filter Include="src\solvers">
+      <UniqueIdentifier>{96c658b4-a9fc-4ac4-a206-d363fc1407a2}</UniqueIdentifier>
     </Filter>
-    <Filter Include="src\gpu\time">
-      <UniqueIdentifier>{ff2fbec0-e84a-4fe6-840c-34dbb0257c25}</UniqueIdentifier>
+    <Filter Include="src\solvers\equation">
+      <UniqueIdentifier>{31ac204d-20fe-4480-86cf-e2901f8dc73e}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="src\solvers\platform">
+      <UniqueIdentifier>{ff7db8e5-191f-47a2-9085-43718ff75f01}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="src\space\convection">
+      <UniqueIdentifier>{3a7fbd9c-3914-43f4-bf17-909cc713848a}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="src\include\AMatrix">
+      <UniqueIdentifier>{a1719419-c33c-4263-b2e6-5cfbf21f2c5b}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="src\time">
+      <UniqueIdentifier>{a6b01b9c-b6dc-4171-bce4-4f85e2632d47}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="src\space\gradient">
+      <UniqueIdentifier>{7a6d9b49-c9f3-445c-8bb4-d73029c88f1b}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
   <ItemGroup>
@@ -61,9 +70,6 @@
       <Filter>src</Filter>
     </ClCompile>
     <ClCompile Include="src\Element_2D.cpp">
-      <Filter>src</Filter>
-    </ClCompile>
-    <ClCompile Include="src\FVM.cpp">
       <Filter>src</Filter>
     </ClCompile>
     <ClCompile Include="src\FVM_2D.cpp">
@@ -126,9 +132,6 @@
     <ClCompile Include="src\space\Reconstructor.cpp">
       <Filter>src\space</Filter>
     </ClCompile>
-    <ClCompile Include="src\math\AMatrix.cpp">
-      <Filter>src\math</Filter>
-    </ClCompile>
     <ClCompile Include="src\space\Limiter.cpp">
       <Filter>src\space</Filter>
     </ClCompile>
@@ -141,14 +144,8 @@
     <ClCompile Include="src\gpu\datatype\ElementSoA.cu">
       <Filter>src\gpu\dataType</Filter>
     </ClCompile>
-    <ClCompile Include="src\gpu\GPUSolver2.cu">
-      <Filter>src\gpu</Filter>
-    </ClCompile>
     <ClCompile Include="src\gpu\datatype\EdgeSoA.cu">
       <Filter>src\gpu\dataType</Filter>
-    </ClCompile>
-    <ClCompile Include="src\gpu\GPUMain.cpp">
-      <Filter>src\gpu</Filter>
     </ClCompile>
     <ClCompile Include="src\gpu\datatype\NodeSoA.cu">
       <Filter>src\gpu\dataType</Filter>
@@ -156,8 +153,41 @@
     <ClCompile Include="src\input\ContinueFileReader.cpp">
       <Filter>src\input</Filter>
     </ClCompile>
-    <ClCompile Include="src\gpu\time\Evolve.cu">
-      <Filter>src\gpu\time</Filter>
+    <ClCompile Include="src\drivers\CDriver.cpp">
+      <Filter>src\drivers</Filter>
+    </ClCompile>
+    <ClCompile Include="src\solvers\CSolver.cpp">
+      <Filter>src\solvers</Filter>
+    </ClCompile>
+    <ClCompile Include="src\solvers\equation\CEquation.cpp">
+      <Filter>src\solvers\equation</Filter>
+    </ClCompile>
+    <ClCompile Include="src\solvers\platform\CPlatform.cpp">
+      <Filter>src\solvers\platform</Filter>
+    </ClCompile>
+    <ClCompile Include="src\solvers\CEulerSolver.cpp">
+      <Filter>src\solvers</Filter>
+    </ClCompile>
+    <ClCompile Include="src\output\COutput.cpp">
+      <Filter>src\output</Filter>
+    </ClCompile>
+    <ClCompile Include="src\include\AMatrix\AMatrix.cpp">
+      <Filter>src\include\AMatrix</Filter>
+    </ClCompile>
+    <ClCompile Include="src\time\Evolve.cpp">
+      <Filter>src\time</Filter>
+    </ClCompile>
+    <ClCompile Include="src\time\CalculateDt.cpp">
+      <Filter>src\time</Filter>
+    </ClCompile>
+    <ClCompile Include="src\space\Flux.cpp">
+      <Filter>src\space</Filter>
+    </ClCompile>
+    <ClCompile Include="src\space\convection\LocalLaxFriedrichs.cpp">
+      <Filter>src\space\convection</Filter>
+    </ClCompile>
+    <ClCompile Include="src\gpu\datatype\BoundarySetMap.cu">
+      <Filter>src\gpu\dataType</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -171,9 +201,6 @@
       <Filter>src</Filter>
     </ClInclude>
     <ClInclude Include="src\Element_2D.h">
-      <Filter>src</Filter>
-    </ClInclude>
-    <ClInclude Include="src\FVM.h">
       <Filter>src</Filter>
     </ClInclude>
     <ClInclude Include="src\FVM_2D.h">
@@ -239,9 +266,6 @@
     <ClInclude Include="src\space\Reconstructor.h">
       <Filter>src\space</Filter>
     </ClInclude>
-    <ClInclude Include="src\math\AMatrix.h">
-      <Filter>src\math</Filter>
-    </ClInclude>
     <ClInclude Include="src\space\Limiter.h">
       <Filter>src\space</Filter>
     </ClInclude>
@@ -254,26 +278,11 @@
     <ClInclude Include="src\gpu\DataType\Define.h">
       <Filter>src\gpu\dataType</Filter>
     </ClInclude>
-    <ClInclude Include="src\gpu\math\GPUMatrixKernel.h">
-      <Filter>src\gpu\math</Filter>
-    </ClInclude>
     <ClInclude Include="src\gpu\datatype\EdgeSoA.h">
       <Filter>src\gpu\dataType</Filter>
     </ClInclude>
     <ClInclude Include="src\gpu\datatype\ElementSoA.h">
       <Filter>src\gpu\dataType</Filter>
-    </ClInclude>
-    <ClInclude Include="src\gpu\GPUSolver2.h">
-      <Filter>src\gpu</Filter>
-    </ClInclude>
-    <ClInclude Include="src\gpu\space\CalculateFlux2.cuh">
-      <Filter>src\gpu\space</Filter>
-    </ClInclude>
-    <ClInclude Include="src\gpu\space\CalculateGradient2.cuh">
-      <Filter>src\gpu\space</Filter>
-    </ClInclude>
-    <ClInclude Include="src\gpu\GPUMain.h">
-      <Filter>src\gpu</Filter>
     </ClInclude>
     <ClInclude Include="src\gpu\datatype\NodeSoA.h">
       <Filter>src\gpu\dataType</Filter>
@@ -284,43 +293,106 @@
     <ClInclude Include="src\gpu\datatype\FieldSoA.h">
       <Filter>src\gpu\dataType</Filter>
     </ClInclude>
-    <ClInclude Include="src\gpu\time\CalculateDt.h">
-      <Filter>src\gpu\time</Filter>
-    </ClInclude>
-    <ClInclude Include="src\gpu\math\PhysicalConvertKernel.h">
-      <Filter>src\gpu\math</Filter>
-    </ClInclude>
-    <ClInclude Include="src\gpu\space\RiemannSolve.cuh">
-      <Filter>src\gpu\space</Filter>
-    </ClInclude>
-    <ClInclude Include="src\gpu\time\Evolve.h">
-      <Filter>src\gpu\time</Filter>
-    </ClInclude>
     <ClInclude Include="src\output\Debugger.h">
       <Filter>src\output</Filter>
     </ClInclude>
-    <ClInclude Include="src\gpu\space\ViscousFlux.cuh">
-      <Filter>src\gpu\space</Filter>
+    <ClInclude Include="src\drivers\CDriver.h">
+      <Filter>src\drivers</Filter>
+    </ClInclude>
+    <ClInclude Include="src\solvers\CSolver.h">
+      <Filter>src\solvers</Filter>
+    </ClInclude>
+    <ClInclude Include="src\solvers\equation\CEquation.h">
+      <Filter>src\solvers\equation</Filter>
+    </ClInclude>
+    <ClInclude Include="src\solvers\platform\CPlatform.h">
+      <Filter>src\solvers\platform</Filter>
+    </ClInclude>
+    <ClInclude Include="src\solvers\CEulerSolver.h">
+      <Filter>src\solvers</Filter>
+    </ClInclude>
+    <ClInclude Include="src\output\COutput.h">
+      <Filter>src\output</Filter>
+    </ClInclude>
+    <ClInclude Include="src\space\convection\Roe.h">
+      <Filter>src\space\convection</Filter>
+    </ClInclude>
+    <ClInclude Include="src\include\AMatrix\AMatrix.h">
+      <Filter>src\include\AMatrix</Filter>
+    </ClInclude>
+    <ClInclude Include="src\space\convection\RoeGPU.h">
+      <Filter>src\space\convection</Filter>
+    </ClInclude>
+    <ClInclude Include="src\time\EvolveGPU.h">
+      <Filter>src\time</Filter>
+    </ClInclude>
+    <ClInclude Include="src\time\Evolve.h">
+      <Filter>src\time</Filter>
+    </ClInclude>
+    <ClInclude Include="src\time\CalculateDt.h">
+      <Filter>src\time</Filter>
+    </ClInclude>
+    <ClInclude Include="src\space\FluxGPU.h">
+      <Filter>src\space</Filter>
+    </ClInclude>
+    <ClInclude Include="src\space\gradient\CalculateGradientGPU.h">
+      <Filter>src\space\gradient</Filter>
+    </ClInclude>
+    <ClInclude Include="src\gpu\datatype\Datatype.h">
+      <Filter>src\gpu\dataType</Filter>
+    </ClInclude>
+    <ClInclude Include="src\math\GPUMatrixKernel.h">
+      <Filter>src\math</Filter>
+    </ClInclude>
+    <ClInclude Include="src\math\PhysicalConvertKernel.h">
+      <Filter>src\math</Filter>
+    </ClInclude>
+    <ClInclude Include="src\solvers\GPUSolver2.h">
+      <Filter>src\solvers</Filter>
+    </ClInclude>
+    <ClInclude Include="src\space\Flux.h">
+      <Filter>src\space</Filter>
+    </ClInclude>
+    <ClInclude Include="src\space\convection\LocalLaxFriedrichs.h">
+      <Filter>src\space\convection</Filter>
+    </ClInclude>
+    <ClInclude Include="src\gpu\datatype\BoundarySetMap.h">
+      <Filter>src\gpu\dataType</Filter>
+    </ClInclude>
+    <ClInclude Include="src\space\convection\Convection.h">
+      <Filter>src\space\convection</Filter>
+    </ClInclude>
+    <ClInclude Include="src\space\convection\ConvectionGPU.h">
+      <Filter>src\space\convection</Filter>
+    </ClInclude>
+    <ClInclude Include="src\gpu\datatype\DeviceData.h">
+      <Filter>src\gpu\dataType</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
-    <CudaCompile Include="src\gpu\space\CalculateFlux2.cu">
-      <Filter>src\gpu\space</Filter>
-    </CudaCompile>
-    <CudaCompile Include="src\gpu\space\CalculateGradient2.cu">
-      <Filter>src\gpu\space</Filter>
-    </CudaCompile>
     <CudaCompile Include="src\gpu\datatype\FieldSoA.cu">
       <Filter>src\gpu\dataType</Filter>
     </CudaCompile>
-    <CudaCompile Include="src\gpu\time\CalculateDt.cu">
-      <Filter>src\gpu\time</Filter>
+    <CudaCompile Include="src\space\convection\Roe.cpp">
+      <Filter>src\space\convection</Filter>
     </CudaCompile>
-    <CudaCompile Include="src\gpu\space\RiemannSolve.cu">
-      <Filter>src\gpu\space</Filter>
+    <CudaCompile Include="src\space\convection\RoeGPU.cu">
+      <Filter>src\space\convection</Filter>
     </CudaCompile>
-    <CudaCompile Include="src\gpu\space\ViscousFlux.cu">
-      <Filter>src\gpu\space</Filter>
+    <CudaCompile Include="src\time\EvolveGPU.cu">
+      <Filter>src\time</Filter>
+    </CudaCompile>
+    <CudaCompile Include="src\space\FluxGPU.cu">
+      <Filter>src\space</Filter>
+    </CudaCompile>
+    <CudaCompile Include="src\space\gradient\CalculateGradientGPU.cu">
+      <Filter>src\space\gradient</Filter>
+    </CudaCompile>
+    <CudaCompile Include="src\solvers\GPUSolver2.cu">
+      <Filter>src\solvers</Filter>
+    </CudaCompile>
+    <CudaCompile Include="src\gpu\datatype\DeviceData.cu">
+      <Filter>src\gpu\dataType</Filter>
     </CudaCompile>
   </ItemGroup>
 </Project>

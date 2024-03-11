@@ -24,7 +24,7 @@
 //    double u = U[1] / U[0];
 //    double v = U[2] / U[0];
 //    double E = U[3] / U[0];
-//    double gamma = Constant::gamma;
+//    double gamma = GlobalPara::constant::gamma;
 //    Math_2D::U_2_F(U, F, gamma);
 //    double p = Math_2D::get_p(rho, gamma, E, u, v);
 //    lambda = sqrt(u * u + v * v) + sqrt(gamma * p / rho);
@@ -47,7 +47,7 @@ void Solver_2D::evolve_explicit(double dt) {
     //数值通量
     calFlux();
     //时间推进
-    FVM_2D* f = FVM_2D::pFVM2D;
+    FVM_2D* f = FVM_2D::getInstance();
     double omega;//面积
 //#pragma omp parallel for
     for (int ie = 0; ie < f->elements.size(); ie++) {
@@ -60,7 +60,7 @@ void Solver_2D::evolve_explicit(double dt) {
 
 void Solver_2D::evolve_RK3(double dt) {
 
-    FVM_2D* f = FVM_2D::pFVM2D;
+    FVM_2D* f = FVM_2D::getInstance();
     //定义(局部)结构体，用于存储U值
     struct Data {
         double U[4]{};
@@ -158,7 +158,7 @@ void Solver_2D::calFlux() {
     */
 
 
-    FVM_2D* f = FVM_2D::pFVM2D;
+    FVM_2D* f = FVM_2D::getInstance();
 
 //#pragma omp parallel for
     //准备工作。初始化单元数值通量、分布函数
@@ -185,7 +185,7 @@ void Solver_2D::calFlux() {
         double flux[4]{};
 
         {
-            FVM_2D* f = FVM_2D::pFVM2D;
+            FVM_2D* f = FVM_2D::getInstance();
             Edge_2D* pE = &(f->edges[iedge]);
             if (pE->pElement_R == nullptr) {//边界
                 const int bType = f->boundaryManager.boundaries[pE->setID - 1].type;
@@ -246,7 +246,7 @@ void Solver_2D::getEdgeFlux_inner(Edge_2D* pE, double* flux) {
     double x_edge, y_edge;     
     double U_L[4], U_R[4];
     double nx, ny;
-    pE->getxy(FVM_2D::pFVM2D, x_edge, y_edge);
+    pE->getxy(FVM_2D::getInstance(), x_edge, y_edge);
     pE->pElement_L->get_U(x_edge, y_edge, U_L);
     pE->pElement_R->get_U(x_edge, y_edge, U_R);
     pE->getDirectionN(nx, ny);
@@ -261,7 +261,7 @@ void Solver_2D::getEdgeFlux_wallNonViscous(Edge_2D* pE, double* flux) {
     double U_L[4];
     double nx, ny;
     pE->getDirectionN(nx, ny);
-    pE->getxy(FVM_2D::pFVM2D, x_edge, y_edge);
+    pE->getxy(FVM_2D::getInstance(), x_edge, y_edge);
     pE->pElement_L->get_U(x_edge, y_edge, U_L);
 
     //计算U_R
@@ -281,16 +281,16 @@ void Solver_2D::getEdgeFlux_wallNonViscous(Edge_2D* pE, double* flux) {
 
 void Solver_2D::getEdgeFlux_farfield(Edge_2D* pE, const double* ruvp_inf, double* flux) {
     //函数功能：根据远场边界条件计算边界数值通量
-    FVM_2D* f = FVM_2D::pFVM2D;
+    FVM_2D* f = FVM_2D::getInstance();
     double nx, ny; 
     double x_edge, y_edge;
     double U_L[4];
     double ruvp_L[4];
     //计算ruvp_L
     pE->getDirectionN(nx, ny);
-    pE->getxy(FVM_2D::pFVM2D, x_edge, y_edge);
+    pE->getxy(FVM_2D::getInstance(), x_edge, y_edge);
     pE->pElement_L->get_U(x_edge, y_edge, U_L);
-    Math_2D::U_2_ruvp(U_L, ruvp_L, Constant::gamma);
+    Math_2D::U_2_ruvp(U_L, ruvp_L, GlobalPara::constant::gamma);
     //检查ruvp_L合法性 检测是否发散
     if (ruvp_L[3] < 0) {
         std::cout << "ElementID=" << pE->pElement_L->ID << ",x=" << pE->pElement_L->x << ",y=" << pE->pElement_L->y
@@ -305,14 +305,14 @@ void Solver_2D::getEdgeFlux_farfield(Edge_2D* pE, const double* ruvp_inf, double
     }
     //根据远场边界条件修正ruvp_L
     modify_ruvpL_in_farfield(nx, ny, ruvp_L, ruvp_inf);
-    Math_2D::ruvp_2_U(ruvp_L, U_L, Constant::gamma);
+    Math_2D::ruvp_2_U(ruvp_L, U_L, GlobalPara::constant::gamma);
     RiemannSolve(U_L, U_L, nx, ny, pE->getLength(), flux,
         GlobalPara::inviscid_flux_method::flux_conservation_scheme);
 
 }
 
 void Solver_2D::getEdgeFlux_periodic(Edge_2D* pE, double* flux) {
-    //FVM_2D* f = FVM_2D::pFVM2D;
+    //FVM_2D* f = FVM_2D::getInstance();
     ////计算边中点坐标、坐标变换矩阵、坐标逆变换矩阵、边法线方向
     //double x_edge, y_edge; pE->getxy(f, x_edge, y_edge);
     //double nx, ny;    pE->getDirectionN(nx, ny);
@@ -336,7 +336,7 @@ void Solver_2D::getEdgeFlux_periodic(Edge_2D* pE, double* flux) {
     //    GlobalPara::inviscid_flux_method::flux_conservation_scheme);
 
     // 重新写
-    FVM_2D* f = FVM_2D::pFVM2D;
+    FVM_2D* f = FVM_2D::getInstance();
     double x_edge{};
     double y_edge{};
     pE->getxy(f, x_edge, y_edge);
@@ -360,7 +360,7 @@ void Solver_2D::getEdgeFlux_periodic(Edge_2D* pE, double* flux) {
 //    //功能：计算单元数值通量
 //
 //    //准备工作
-//    FVM_2D* f = FVM_2D::pFVM2D;
+//    FVM_2D* f = FVM_2D::getInstance();
 //    for (int ie = 0; ie < f->elements.size(); ie++) {
 //        for (int j = 0; j < 4; j++) {
 //            f->elements[ie].Flux[j] = 0;//单元数值通量Flux清零，为后面加减做准备
@@ -408,7 +408,7 @@ void Solver_2D::getEdgeFlux_periodic(Edge_2D* pE, double* flux) {
 //        Eigen::Vector4d UL = pE->get_UL();
 //        double _UL[4]{ UL[0],UL[1],UL[2],UL[3] };
 //        double ruvp_L[4];
-//        Math_2D::U_2_ruvp(_UL, ruvp_L, Constant::gamma);
+//        Math_2D::U_2_ruvp(_UL, ruvp_L, GlobalPara::constant::gamma);
 //        double rl = ruvp_L[0];
 //        double ul = ruvp_L[1];
 //        double vl = ruvp_L[2];
@@ -416,7 +416,7 @@ void Solver_2D::getEdgeFlux_periodic(Edge_2D* pE, double* flux) {
 //        //计算左单元中心点处的ruvp
 //        double* UL_ele = pE->pElement_L->U;
 //        double ruvp_L_ele[4];
-//        Math_2D::U_2_ruvp(UL_ele, ruvp_L_ele, Constant::gamma);
+//        Math_2D::U_2_ruvp(UL_ele, ruvp_L_ele, GlobalPara::constant::gamma);
 //        double rlt = ruvp_L_ele[0];
 //        double ult = ruvp_L_ele[1];
 //        double vlt = ruvp_L_ele[2];
@@ -450,7 +450,7 @@ void Solver_2D::getEdgeFlux_periodic(Edge_2D* pE, double* flux) {
 //            Eigen::Vector4d UR = pE->get_UR();
 //            double _UR[4]{ UR[0],UR[1],UR[2],UR[3] };
 //            double ruvp_R[4];
-//            Math_2D::U_2_ruvp(_UR, ruvp_R, Constant::gamma);
+//            Math_2D::U_2_ruvp(_UR, ruvp_R, GlobalPara::constant::gamma);
 //            rr = ruvp_R[0];
 //            ur = ruvp_R[1];
 //            vr = ruvp_R[2];
@@ -458,7 +458,7 @@ void Solver_2D::getEdgeFlux_periodic(Edge_2D* pE, double* flux) {
 //            //计算右单元中心点处的ruvp
 //            double* UR_ele = pE->pElement_R->U;
 //            double ruvp_R_ele[4];
-//            Math_2D::U_2_ruvp(UR_ele, ruvp_R_ele, Constant::gamma);
+//            Math_2D::U_2_ruvp(UR_ele, ruvp_R_ele, GlobalPara::constant::gamma);
 //            rrt = ruvp_R_ele[0];
 //            urt = ruvp_R_ele[1];
 //            vrt = ruvp_R_ele[2];
@@ -531,14 +531,14 @@ void Solver_2D::getEdgeFlux_periodic(Edge_2D* pE, double* flux) {
 //                Eigen::Vector4d UR = U_R;
 //                double _UR[4]{ UR[0],UR[1],UR[2],UR[3] };
 //                double ruvp_R[4];
-//                Math_2D::U_2_ruvp(_UR, ruvp_R, Constant::gamma);
+//                Math_2D::U_2_ruvp(_UR, ruvp_R, GlobalPara::constant::gamma);
 //                rr = ruvp_R[0];
 //                ur = ruvp_R[1];
 //                vr = ruvp_R[2];
 //                pr = ruvp_R[3];
 //                //计算右单元中心点处的ruvp
 //                double ruvp_R_ele[4];
-//                Math_2D::U_2_ruvp(UR_ele, ruvp_R_ele, Constant::gamma);
+//                Math_2D::U_2_ruvp(UR_ele, ruvp_R_ele, GlobalPara::constant::gamma);
 //                rrt = ruvp_R_ele[0];
 //                urt = ruvp_R_ele[1];
 //                vrt = ruvp_R_ele[2];
@@ -560,7 +560,7 @@ void Solver_2D::getEdgeFlux_periodic(Edge_2D* pE, double* flux) {
 //        rrt = max(rrt, d_small);
 //        prt = max(prt, d_small);
 //
-//        const double& gama = Constant::gamma;
+//        const double& gama = GlobalPara::constant::gamma;
 //        const double ga1 = gama - 1;
 //        double vaml = ult * ult + vlt * vlt;
 //        double vamr = urt * urt + vrt * vrt;
@@ -657,14 +657,14 @@ void Solver_2D::getEdgeFlux_periodic(Edge_2D* pE, double* flux) {
 
 void Solver_2D::Compute_Deltaeig() {
     //准备工作
-    FVM_2D* f = FVM_2D::pFVM2D;
+    FVM_2D* f = FVM_2D::getInstance();
     for (int ie = 0; ie < f->elements.size(); ie++) {
         for (int j = 0; j < 4; j++) {
             f->elements[ie].deltaeig = 0;//每一轮deltaeig清零
         }
     }
     //计算每个单元的deltaeig
-    const double gamma = Constant::gamma;
+    const double gamma = GlobalPara::constant::gamma;
     for (int ie = 0; ie < f->edges.size(); ie++) {
         Edge_2D* pE = &(f->edges[ie]);
 
@@ -697,8 +697,8 @@ void Solver_2D::Compute_Deltaeig() {
             pE->get_ULUR(_UL, _UR);
             double ruvp_L[4];
             double ruvp_R[4];
-            Math_2D::U_2_ruvp(_UL, ruvp_L, Constant::gamma);
-            Math_2D::U_2_ruvp(_UR, ruvp_R, Constant::gamma);
+            Math_2D::U_2_ruvp(_UL, ruvp_L, GlobalPara::constant::gamma);
+            Math_2D::U_2_ruvp(_UR, ruvp_R, GlobalPara::constant::gamma);
             rl = ruvp_L[0];
             ul = ruvp_L[1];
             vl = ruvp_L[2];
@@ -741,7 +741,7 @@ void Solver_2D::modify_ruvpL_in_farfield(const double nx, const double ny, doubl
     const double u_inf = ruvp_inf[1];
     const double v_inf = ruvp_inf[2];
     const double p_inf = ruvp_inf[3];
-    const double gamma = Constant::gamma;
+    const double gamma = GlobalPara::constant::gamma;
 
     //坐标变换
     const double rho_n = rho;
@@ -813,12 +813,12 @@ void Solver_2D::flux_viscous(Edge_2D* pE, double* flux) {
 
 
 
-    FVM_2D* pFVM2D = FVM_2D::pFVM2D;
+    FVM_2D* pFVM2D = FVM_2D::getInstance();
     double nx, ny;
     pE->getDirectionN(nx, ny);
     double x_edge, y_edge;
     pE->getxy(pFVM2D, x_edge, y_edge);
-    const double& gamma = Constant::gamma;// 引用，避免占空间
+    const double& gamma = GlobalPara::constant::gamma;// 引用，避免占空间
     const int nVar = 4;
     double sav = pE->getRefLength();// ! 此处已经修改！前面的梯度张量部分也要修改！
     double sav1 = sav * nx;
@@ -926,7 +926,7 @@ void Solver_2D::flux_viscous(Edge_2D* pE, double* flux) {
 }
 
 void Solver_2D::flux_viscous_2(Edge_2D* pE, double* flux_viscous) {
-    FVM_2D* pFVM2D = FVM_2D::pFVM2D;
+    FVM_2D* pFVM2D = FVM_2D::getInstance();
     bool isWall = false;
     float reflen = pE->getRefLength();
     double x_edge{}, y_edge{};
@@ -938,8 +938,8 @@ void Solver_2D::flux_viscous_2(Edge_2D* pE, double* flux_viscous) {
     //// UL
     double U_L[4]{}, U_R[4]{};
     double ruvp_L[4]{}, ruvp_R[4]{};
-    const double gamma = Constant::gamma;
-    const double R = Constant::R;
+    const double gamma = GlobalPara::constant::gamma;
+    const double R = GlobalPara::constant::R;
     pE->pElement_L->get_U(x_edge, y_edge, U_L);
     Math_2D::U_2_ruvp(U_L, ruvp_L, gamma);
     double rl = ruvp_L[0];

@@ -8,6 +8,9 @@
 /U2NITS-10.0/x64
 /TestCode
 
+/U2NITs-10.1/workingDirectory
+/U2NITs-10.1/x64
+
 
 # Prerequisites
 *.d

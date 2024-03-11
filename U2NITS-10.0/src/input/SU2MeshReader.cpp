@@ -20,7 +20,7 @@ int SU2MeshReader::readFile(std::string filePath, bool convertRectToTriangle) {
 	*/
 
 	std::cout << "Read \".su2\" mesh file\n";
-	FVM_2D* pFVM2D = FVM_2D::pFVM2D;
+	FVM_2D* pFVM2D = FVM_2D::getInstance();
 	std::ifstream infile(filePath);
 	if (!infile) {
 		return ERROR_READ_FILE;

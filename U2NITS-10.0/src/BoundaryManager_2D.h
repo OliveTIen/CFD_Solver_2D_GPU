@@ -40,7 +40,7 @@ public:
 
 public:
 	//查询pEdge是否在pEdges中，若是，则返回指标(从0开始)，否则返回-1
-	int get_pEdge_index(Edge_2D* pEdge);
+	int getEdgeIndex(Edge_2D* pEdge);
 };
 
 // 边界管理器

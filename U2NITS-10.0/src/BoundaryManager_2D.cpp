@@ -62,6 +62,9 @@ int BoundaryManager_2D::getBoundaryTypeByName(std::string boundaryName) {
 		int x = std::stoi(boundaryName.substr(boundaryName.size() - 1, 1));//取最后一个字符
 		bType = _BC_periodic_0 + x;//_BC_periodic_x = _BC_periodic_0 + x
 	}
+	else {
+		throw "Error: unknown boundary type.";
+	}
 	return bType;
 }
 
@@ -145,47 +148,47 @@ void BoundaryManager_2D::setBoundaryElementU(int tag) {
 	using namespace GlobalPara::boundaryCondition::_2D;
 	switch (tag) {
 	case 0:
-		for (int ie = 0; ie < FVM_2D::pFVM2D->edges.size(); ie++) {
-			Edge_2D& edge_tmp = FVM_2D::pFVM2D->edges[ie];
+		for (int ie = 0; ie < FVM_2D::getInstance()->edges.size(); ie++) {
+			Edge_2D& edge_tmp = FVM_2D::getInstance()->edges[ie];
 			const int bType = boundaries[edge_tmp.setID - 1].type;
 			if (bType == _BC_inf) {
-				Math_2D::ruvp_2_U(inf::ruvp, edge_tmp.pElement_L->U, Constant::gamma);
+				Math_2D::ruvp_2_U(inf::ruvp, edge_tmp.pElement_L->U, GlobalPara::constant::gamma);
 			}
 			else if (bType == _BC_inlet) {
-				Math_2D::ruvp_2_U(inlet::ruvp, edge_tmp.pElement_L->U, Constant::gamma);
+				Math_2D::ruvp_2_U(inlet::ruvp, edge_tmp.pElement_L->U, GlobalPara::constant::gamma);
 			}
 			else if (bType == _BC_outlet) {
-				Math_2D::ruvp_2_U(outlet::ruvp, edge_tmp.pElement_L->U, Constant::gamma);
+				Math_2D::ruvp_2_U(outlet::ruvp, edge_tmp.pElement_L->U, GlobalPara::constant::gamma);
 			}
 		}
 		break;
 
 	case 101:
-		for (int ie = 0; ie < FVM_2D::pFVM2D->edges.size(); ie++) {
-			Edge_2D& edge_tmp = FVM_2D::pFVM2D->edges[ie];
+		for (int ie = 0; ie < FVM_2D::getInstance()->edges.size(); ie++) {
+			Edge_2D& edge_tmp = FVM_2D::getInstance()->edges[ie];
 			const int bType = boundaries[edge_tmp.setID - 1].type;
 			if (bType == _BC_wall_nonViscous) {
-				//Math_2D::ruvp_2_U(inf::ruvp, edge_tmp.pElement_L->U, Constant::gamma);
+				//Math_2D::ruvp_2_U(inf::ruvp, edge_tmp.pElement_L->U, GlobalPara::constant::gamma);
 				//edge_tmp.pElement_L->U[0] = ruvp[0];
 				//edge_tmp.pElement_L->U[1] = ruvp[0] * ruvp[1];
 				//edge_tmp.pElement_L->U[2] = ruvp[0] * ruvp[2];
 			}
 			else if (bType == _BC_inlet) {
-				//Math_2D::ruvp_2_U(inlet::ruvp, edge_tmp.pElement_L->U, Constant::gamma);
+				//Math_2D::ruvp_2_U(inlet::ruvp, edge_tmp.pElement_L->U, GlobalPara::constant::gamma);
 				double* ruvp = inlet::ruvp;
 				//edge_tmp.pElement_L->U[0] = ruvp[0];
 				//edge_tmp.pElement_L->U[1] = ruvp[0] * ruvp[1];
 				//edge_tmp.pElement_L->U[2] = ruvp[0] * ruvp[2];
-				//edge_tmp.pElement_L->U[3] = Math_2D::get_rhoE(ruvp, Constant::gamma);
+				//edge_tmp.pElement_L->U[3] = Math_2D::get_rhoE(ruvp, GlobalPara::constant::gamma);
 			}
 			else if (bType == _BC_outlet) {
-				//Math_2D::ruvp_2_U(outlet::ruvp, edge_tmp.pElement_L->U, Constant::gamma);
+				//Math_2D::ruvp_2_U(outlet::ruvp, edge_tmp.pElement_L->U, GlobalPara::constant::gamma);
 				double* ruvp = outlet::ruvp;
 				//edge_tmp.pElement_L->U[0] = ruvp[0];
 				//edge_tmp.pElement_L->U[1] = ruvp[0] * ruvp[1];
 				//edge_tmp.pElement_L->U[2] = ruvp[0] * ruvp[2];
 
-				//edge_tmp.pElement_L->U[3] = Math_2D::get_rhoE(ruvp, Constant::gamma);
+				//edge_tmp.pElement_L->U[3] = Math_2D::get_rhoE(ruvp, GlobalPara::constant::gamma);
 			}
 		}
 		break;
@@ -273,10 +276,10 @@ Element_2D* BoundaryManager_2D::get_pElement_R_periodic(Edge_2D* pEdge_0) {
 	//函数功能：找到某edge的虚拟pElement_R。仅限于周期边界
 
 	//找到pEdge对应的boundarySet(pBoundary_0)，以及配对boundarySet(pBoundary_1)
-	VirtualBoundarySet_2D* pBoundary_0 = FVM_2D::pFVM2D->boundaryManager.getBoundarySetByID(pEdge_0->setID);//pEdge对应的boundarySet
-	VirtualBoundarySet_2D* pBoundary_1 = FVM_2D::pFVM2D->boundaryManager.getPairByID_periodicBoundary(pEdge_0->setID);
+	VirtualBoundarySet_2D* pBoundary_0 = FVM_2D::getInstance()->boundaryManager.getBoundarySetByID(pEdge_0->setID);//pEdge对应的boundarySet
+	VirtualBoundarySet_2D* pBoundary_1 = FVM_2D::getInstance()->boundaryManager.getPairByID_periodicBoundary(pEdge_0->setID);
 	//获取pEdge在pBoundary_0的pEdges中的序号(从0开始的指标)
-	int index_0 = pBoundary_0->get_pEdge_index(pEdge_0);
+	int index_0 = pBoundary_0->getEdgeIndex(pEdge_0);
 	if (index_0 == -1) {
 		LogWriter::writeLogAndCout("Error: edge not found. (BoundaryManager_2D::get_pElement_R_periodic)\n");
 		return nullptr;
@@ -296,10 +299,10 @@ Edge_2D* BoundaryManager_2D::get_pairEdge_periodic(Edge_2D* pEdge_0) {
 	// 
 	
 	//找到pEdge对应的boundarySet(pBoundary_0)，以及配对boundarySet(pBoundary_1)
-	VirtualBoundarySet_2D* pBoundary_0 = FVM_2D::pFVM2D->boundaryManager.getBoundarySetByID(pEdge_0->setID);//pEdge对应的boundarySet
-	VirtualBoundarySet_2D* pBoundary_1 = FVM_2D::pFVM2D->boundaryManager.getPairByID_periodicBoundary(pEdge_0->setID);
+	VirtualBoundarySet_2D* pBoundary_0 = FVM_2D::getInstance()->boundaryManager.getBoundarySetByID(pEdge_0->setID);//pEdge对应的boundarySet
+	VirtualBoundarySet_2D* pBoundary_1 = FVM_2D::getInstance()->boundaryManager.getPairByID_periodicBoundary(pEdge_0->setID);
 	//获取pEdge在pBoundary_0的pEdges中的序号(从0开始的指标)
-	int index_0 = pBoundary_0->get_pEdge_index(pEdge_0);
+	int index_0 = pBoundary_0->getEdgeIndex(pEdge_0);
 	if (index_0 == -1) {
 		LogWriter::writeLogAndCout("Error: edge not found. (BoundaryManager_2D::get_pElement_R_periodic)\n");
 		return nullptr;
@@ -311,7 +314,7 @@ Edge_2D* BoundaryManager_2D::get_pairEdge_periodic(Edge_2D* pEdge_0) {
 	return pBoundary_1->pEdges[index_1];
 }
 
-int VirtualBoundarySet_2D::get_pEdge_index(Edge_2D* pEdge) {
+int VirtualBoundarySet_2D::getEdgeIndex(Edge_2D* pEdge) {
 	//查询pEdge是否在pEdges中，若是，则返回指标(从0开始)，否则返回-1
 	for (int i = 0; i < pEdges.size(); i++) {
 		if (pEdge == pEdges[i])return i;

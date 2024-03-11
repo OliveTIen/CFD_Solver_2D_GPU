@@ -2,21 +2,19 @@
 #include "SignDefine.h"
 #include "input/AirParameterConverter.h"
 
-namespace Constant {
-	double const R = 287.06;//气体常数
-	double const PI = 3.1415926535897;
-	double T0 = 288.16;//海平面温度参考值
-	double p0 = 101325.0;//海平面压力参考值
-	double c0 = 340.28;//海平面声速参考值
-	double gamma = 1.4;
-	double epsilon = 1e-7;// 1e-7
-	double Re = 1.0e8;
-	double Pr = 0.73;
-}
-
 namespace GlobalPara {
-
-
+	namespace constant {
+		double const R = 287.06;// 气体常数
+		double const PI = 3.1415926535897;
+		double T0 = 288.16;// 海平面温度参考值
+		double p0 = 101325.0;// 海平面压力参考值
+		double c0 = 340.28;// 海平面声速参考值
+		double gamma = 1.4;
+		double epsilon = 1e-7;
+		double Re = 1.0e8;
+		double Pr = 0.73;
+		double mu = 17.9e-6;// 空气动力粘性系数
+	}
 
 	namespace basic {
 		int dimension = 2;
@@ -73,7 +71,7 @@ namespace GlobalPara {
 	}
 	namespace output {
 		int step_per_print = 50;
-		int step_per_output = 50;
+		int step_per_output_field = 50;
 		int step_per_output_hist = 50;
 		bool output_var_ruvp[4] = { 1,1,1,1 };
 		int autosaveFileNum = 3;

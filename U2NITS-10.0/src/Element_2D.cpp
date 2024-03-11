@@ -327,8 +327,8 @@ double Element_2D::calLambdaFlux(FVM_2D* f) {
         //ec
         double V2 = u * u + v * v;
         double& rho = eU[0];
-        double p = 0.5 * rho * (Constant::gamma - 1) * (2 * E - V2);
-        double ec = sqrt(Constant::gamma * p / rho);
+        double p = 0.5 * rho * (GlobalPara::constant::gamma - 1) * (2 * E - V2);
+        double ec = sqrt(GlobalPara::constant::gamma * p / rho);
         double dl = pEdges[ie]->getLength();
         LambdaC += (eabs + ec) * dl;
     }

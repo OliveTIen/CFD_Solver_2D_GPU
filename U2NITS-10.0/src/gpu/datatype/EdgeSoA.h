@@ -11,6 +11,7 @@ namespace GPU {
 		int* ID;
 		int* nodes[2];
 		int* setID;
+		int* periodicPair;// 周期边界的对应边界ID，默认-1
 		int* elementL;
 		int* elementR;
 		REAL* length;
@@ -26,6 +27,7 @@ namespace GPU {
 			nodes[0] = new int[num];
 			nodes[1] = new int[num];
 			setID = new int[num];
+			periodicPair = new int[num];
 			elementL = new int[num];
 			elementR = new int[num];
 			length = new REAL[num];
@@ -41,6 +43,7 @@ namespace GPU {
 			delete[] nodes[0];
 			delete[] nodes[1];
 			delete[] setID;
+			delete[] periodicPair;
 			delete[] elementL;
 			delete[] elementR;
 			delete[] length;
@@ -58,6 +61,7 @@ namespace GPU {
 			cudaMalloc((void**)&nodes[0], num * sizeof(int));
 			cudaMalloc((void**)&nodes[1], num * sizeof(int));
 			cudaMalloc((void**)&setID, num * sizeof(int));
+			cudaMalloc((void**)&periodicPair, num * sizeof(int));
 			cudaMalloc((void**)&elementL, num * sizeof(int));
 			cudaMalloc((void**)&elementR, num * sizeof(int));
 			cudaMalloc((void**)&length, num * sizeof(REAL));
@@ -73,6 +77,7 @@ namespace GPU {
 			cudaFree(nodes[0]);
 			cudaFree(nodes[1]);
 			cudaFree(setID);
+			cudaFree(periodicPair);
 			cudaFree(elementL);
 			cudaFree(elementR);
 			cudaFree(length);

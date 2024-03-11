@@ -12,6 +12,7 @@
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="src\BoundaryManager_2D.cpp" />
+    <ClCompile Include="src\drivers\CDriver.cpp" />
     <ClCompile Include="src\Edge_2D.cpp" />
     <ClCompile Include="src\Element_2D.cpp" />
     <ClCompile Include="src\global\Config.cpp" />
@@ -19,40 +20,47 @@
     <ClCompile Include="src\global\StringProcessor.cpp" />
     <ClCompile Include="src\global\SystemInfo.cpp" />
     <ClCompile Include="src\global\VectorProcessor.cpp" />
+    <ClCompile Include="src\gpu\datatype\BoundarySetMap.cu" />
     <ClCompile Include="src\gpu\datatype\EdgeSoA.cu" />
     <ClCompile Include="src\gpu\datatype\ElementSoA.cu" />
     <ClCompile Include="src\gpu\datatype\NodeSoA.cu" />
-    <ClCompile Include="src\gpu\GPUMain.cpp" />
-    <ClCompile Include="src\gpu\GPUSolver2.cu" />
-    <ClCompile Include="src\gpu\time\Evolve.cu" />
+    <ClCompile Include="src\include\AMatrix\AMatrix.cpp" />
     <ClCompile Include="src\input\AirParameterConverter.cpp" />
     <ClCompile Include="src\input\ContinueFileReader.cpp" />
     <ClCompile Include="src\input\InpMeshReader.cpp" />
     <ClCompile Include="src\input\SU2MeshReader.cpp" />
     <ClCompile Include="src\input\TomlFileManager.cpp" />
-    <ClCompile Include="src\FVM.cpp" />
     <ClCompile Include="src\FVM_2D.cpp" />
     <ClCompile Include="src\GlobalPara.cpp" />
     <ClCompile Include="src\head.cpp" />
     <ClCompile Include="src\main.cpp" />
     <ClCompile Include="src\Math.cpp" />
-    <ClCompile Include="src\math\AMatrix.cpp" />
     <ClCompile Include="src\Node_2D.cpp" />
     <ClCompile Include="src\output\ConsolePrinter.cpp" />
+    <ClCompile Include="src\output\COutput.cpp" />
     <ClCompile Include="src\output\FieldWriter.cpp" />
     <ClCompile Include="src\output\LogWriter.cpp" />
     <ClCompile Include="src\output\ResidualCalculator.cpp" />
     <ClCompile Include="src\output\HistWriter.cpp" />
+    <ClCompile Include="src\solvers\CEulerSolver.cpp" />
+    <ClCompile Include="src\solvers\CSolver.cpp" />
+    <ClCompile Include="src\solvers\equation\CEquation.cpp" />
+    <ClCompile Include="src\solvers\platform\CPlatform.cpp" />
     <ClCompile Include="src\Solver_2D.cpp" />
+    <ClCompile Include="src\space\convection\LocalLaxFriedrichs.cpp" />
+    <ClCompile Include="src\space\Flux.cpp" />
     <ClCompile Include="src\space\Limiter.cpp" />
     <ClCompile Include="src\space\Reconstructor.cpp" />
     <ClCompile Include="src\space\RiemannSolver.cpp" />
+    <ClCompile Include="src\time\CalculateDt.cpp" />
+    <ClCompile Include="src\time\Evolve.cpp" />
   </ItemGroup>
   <ItemGroup>
     <None Include="README.md" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="src\BoundaryManager_2D.h" />
+    <ClInclude Include="src\drivers\CDriver.h" />
     <ClInclude Include="src\Edge_2D.h" />
     <ClInclude Include="src\Element_2D.h" />
     <ClInclude Include="src\global\Config.h" />
@@ -60,52 +68,65 @@
     <ClInclude Include="src\global\StringProcessor.h" />
     <ClInclude Include="src\global\SystemInfo.h" />
     <ClInclude Include="src\global\VectorProcessor.h" />
+    <ClInclude Include="src\gpu\datatype\BoundarySetMap.h" />
+    <ClInclude Include="src\gpu\datatype\Datatype.h" />
     <ClInclude Include="src\gpu\DataType\Define.h" />
+    <ClInclude Include="src\gpu\datatype\DeviceData.h" />
     <ClInclude Include="src\gpu\datatype\EdgeSoA.h" />
     <ClInclude Include="src\gpu\datatype\FieldSoA.h" />
     <ClInclude Include="src\gpu\datatype\ElementSoA.h" />
     <ClInclude Include="src\gpu\datatype\NodeSoA.h" />
-    <ClInclude Include="src\gpu\GPUMain.h" />
-    <ClInclude Include="src\gpu\GPUSolver2.h" />
-    <ClInclude Include="src\gpu\math\GPUMatrixKernel.h" />
-    <ClInclude Include="src\gpu\math\PhysicalConvertKernel.h" />
-    <ClInclude Include="src\gpu\space\CalculateFlux2.cuh" />
-    <ClInclude Include="src\gpu\space\CalculateGradient2.cuh" />
-    <ClInclude Include="src\gpu\space\RiemannSolve.cuh" />
-    <ClInclude Include="src\gpu\space\ViscousFlux.cuh" />
-    <ClInclude Include="src\gpu\time\CalculateDt.h" />
-    <ClInclude Include="src\gpu\time\Evolve.h" />
+    <ClInclude Include="src\include\AMatrix\AMatrix.h" />
     <ClInclude Include="src\input\AirParameterConverter.h" />
     <ClInclude Include="src\input\ContinueFileReader.h" />
     <ClInclude Include="src\input\InpMeshReader.h" />
     <ClInclude Include="src\input\SU2MeshReader.h" />
     <ClInclude Include="src\input\TomlFileManager.h" />
-    <ClInclude Include="src\FVM.h" />
     <ClInclude Include="src\FVM_2D.h" />
     <ClInclude Include="src\GlobalPara.h" />
     <ClInclude Include="src\head.h" />
     <ClInclude Include="src\Math.h" />
-    <ClInclude Include="src\math\AMatrix.h" />
+    <ClInclude Include="src\math\GPUMatrixKernel.h" />
+    <ClInclude Include="src\math\PhysicalConvertKernel.h" />
     <ClInclude Include="src\Node_2D.h" />
     <ClInclude Include="src\output\ConsolePrinter.h" />
+    <ClInclude Include="src\output\COutput.h" />
     <ClInclude Include="src\output\Debugger.h" />
     <ClInclude Include="src\output\FieldWriter.h" />
     <ClInclude Include="src\output\LogWriter.h" />
     <ClInclude Include="src\output\ResidualCalculator.h" />
     <ClInclude Include="src\output\HistWriter.h" />
     <ClInclude Include="src\SignDefine.h" />
+    <ClInclude Include="src\solvers\CEulerSolver.h" />
+    <ClInclude Include="src\solvers\CSolver.h" />
+    <ClInclude Include="src\solvers\equation\CEquation.h" />
+    <ClInclude Include="src\solvers\GPUSolver2.h" />
+    <ClInclude Include="src\solvers\platform\CPlatform.h" />
     <ClInclude Include="src\Solver_2D.h" />
+    <ClInclude Include="src\space\convection\Convection.h" />
+    <ClInclude Include="src\space\convection\ConvectionGPU.h" />
+    <ClInclude Include="src\space\convection\LocalLaxFriedrichs.h" />
+    <ClInclude Include="src\space\convection\Roe.h" />
+    <ClInclude Include="src\space\convection\RoeGPU.h" />
+    <ClInclude Include="src\space\Flux.h" />
+    <ClInclude Include="src\space\FluxGPU.h" />
+    <ClInclude Include="src\space\gradient\CalculateGradientGPU.h" />
     <ClInclude Include="src\space\Limiter.h" />
     <ClInclude Include="src\space\Reconstructor.h" />
     <ClInclude Include="src\space\RiemannSolver.h" />
+    <ClInclude Include="src\time\CalculateDt.h" />
+    <ClInclude Include="src\time\Evolve.h" />
+    <ClInclude Include="src\time\EvolveGPU.h" />
   </ItemGroup>
   <ItemGroup>
+    <CudaCompile Include="src\gpu\datatype\DeviceData.cu" />
     <CudaCompile Include="src\gpu\datatype\FieldSoA.cu" />
-    <CudaCompile Include="src\gpu\space\CalculateFlux2.cu" />
-    <CudaCompile Include="src\gpu\space\CalculateGradient2.cu" />
-    <CudaCompile Include="src\gpu\space\RiemannSolve.cu" />
-    <CudaCompile Include="src\gpu\space\ViscousFlux.cu" />
-    <CudaCompile Include="src\gpu\time\CalculateDt.cu" />
+    <CudaCompile Include="src\solvers\GPUSolver2.cu" />
+    <CudaCompile Include="src\space\convection\Roe.cpp" />
+    <CudaCompile Include="src\space\convection\RoeGPU.cu" />
+    <CudaCompile Include="src\space\FluxGPU.cu" />
+    <CudaCompile Include="src\space\gradient\CalculateGradientGPU.cu" />
+    <CudaCompile Include="src\time\EvolveGPU.cu" />
   </ItemGroup>
   <PropertyGroup Label="Globals">
     <ProjectGuid>{79F3A025-855B-49FF-8C77-05D66988186A}</ProjectGuid>
@@ -170,6 +191,7 @@
       <OptimizeReferences>true</OptimizeReferences>
       <SubSystem>Console</SubSystem>
       <AdditionalDependencies>cudart_static.lib;kernel32.lib;user32.lib;gdi32.lib;winspool.lib;comdlg32.lib;advapi32.lib;shell32.lib;ole32.lib;oleaut32.lib;uuid.lib;odbc32.lib;odbccp32.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <StackCommitSize>8000</StackCommitSize>
     </Link>
     <CudaCompile>
       <TargetMachinePlatform>64</TargetMachinePlatform>

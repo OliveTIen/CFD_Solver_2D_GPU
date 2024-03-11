@@ -6,8 +6,8 @@
 void ResidualCalculator::cal_error_isentropicVortex(double xmin, double ymin, double xmax, double ymax, 
 	double chi, const double t_current, const int istep, const double cpu_time, const double* ruvp0) {
 	//ruvp0：均匀流参数
-	const double gamma = Constant::gamma;
-	const double PI = Constant::PI;
+	const double gamma = GlobalPara::constant::gamma;
+	const double PI = GlobalPara::constant::PI;
 	double xc = 0.5 * (xmin + xmax);
 	double yc = 0.5 * (ymin + ymax);
 	double error_norm1 = 0;//误差对体积的加权平均
@@ -32,7 +32,7 @@ void ResidualCalculator::cal_error_isentropicVortex(double xmin, double ymin, do
 		return xbar + y1;
 	};
 
-	auto elements = FVM_2D::pFVM2D->elements;
+	auto elements = FVM_2D::getInstance()->elements;
 	//每个单元，计算其与精确解的误差
 	for (int ie = 0; ie < elements.size(); ie++) {
 
@@ -52,7 +52,7 @@ void ResidualCalculator::cal_error_isentropicVortex(double xmin, double ymin, do
 		//误差
 		double error = abs(rho - rho_exact);
 		double error2 = error * error;
-		double vol = e.calArea(FVM_2D::pFVM2D);
+		double vol = e.calArea(FVM_2D::getInstance());
 		error_norm1 += error * vol;//1-范数误差
 		error_norm2 += error2 * vol;//2-范数误差
 		error_max = max(error_max, error);

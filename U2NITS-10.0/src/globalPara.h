@@ -4,20 +4,19 @@
 #include <string>
 
 
-namespace Constant {
-	extern const double R;//气体常数
-	extern const double PI;
-	extern double T0;//海平面温度参考值
-	extern double p0;//海平面压力参考值
-	extern double c0;//海平面声速参考值[未使用]
-	extern double gamma;
-	extern double epsilon;
-	extern double Re;
-	extern double Pr;
-}
-
-
 namespace GlobalPara {
+	namespace constant {
+		extern double const R;// 气体常数
+		extern double const PI;
+		extern double T0;// 海平面温度参考值
+		extern double p0;// 海平面压力参考值
+		extern double c0;// 海平面声速参考值
+		extern double gamma;
+		extern double epsilon;
+		extern double Re;
+		extern double Pr;
+		extern double mu;// 动力粘性系数
+	}
 
 	//文件类
 	namespace basic {
@@ -74,7 +73,7 @@ namespace GlobalPara {
 	}
 	namespace output {
 		extern int step_per_print;
-		extern int step_per_output;
+		extern int step_per_output_field;
 		extern int step_per_output_hist;
 		extern bool output_var_ruvp[4];
 		extern int autosaveFileNum;

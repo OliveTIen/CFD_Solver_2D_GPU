@@ -22,7 +22,7 @@ int RiemannSolver::LocalLaxFriedrichs(const double* UL, const double* UR,
 	const double nx, const double ny, const double length, double* flux) {
     //功能：无粘通量黎曼求解器。根据ULUR等参数，进行坐标变换，计算无粘数值通量flux
     //输出：flux
-    const double& gamma = Constant::gamma;
+    const double& gamma = GlobalPara::constant::gamma;
     double ruvpL[4], ruvpR[4];
     Math_2D::U_2_ruvp(UL, ruvpL, gamma);
     Math_2D::U_2_ruvp(UR, ruvpR, gamma);

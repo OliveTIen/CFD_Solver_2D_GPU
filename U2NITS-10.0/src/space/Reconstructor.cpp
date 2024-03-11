@@ -1,6 +1,6 @@
 #include "Reconstructor.h"
 #include "../FVM_2D.h"
-#include "../math/AMatrix.h"
+#include "../include/AMatrix/AMatrix.h"
 #include "Limiter.h"
 
 void Reconstructor::compute_reconstruction_matrix() {

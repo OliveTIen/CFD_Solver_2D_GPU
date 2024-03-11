@@ -21,7 +21,7 @@ int InpMeshReader::readGmeshFile(std::string filepath) {
 	*/
 
 
-	FVM_2D* pFVM2D = FVM_2D::pFVM2D;
+	FVM_2D* pFVM2D = FVM_2D::getInstance();
 	std::cout << "read mesh file\n";
 	std::ifstream infile(filepath);
 	if (!infile) {
@@ -227,7 +227,7 @@ NPOIN:
 
 
 */
-	FVM_2D* pFVM2D = FVM_2D::pFVM2D;
+	FVM_2D* pFVM2D = FVM_2D::getInstance();
 	std::string dir = FilePathManager::getInstance()->getInputDirectory();
 	std::ifstream infile(dir + GlobalPara::basic::filename + suffix);
 	if (!infile) {

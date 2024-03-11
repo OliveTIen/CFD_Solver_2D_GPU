@@ -8,6 +8,9 @@
 #include "BoundaryManager_2D.h"
 #include "Solver_2D.h"
 class FVM_2D {
+private:
+	FVM_2D() {};
+
 public:
 	static FVM_2D* pFVM2D;
 	BoundaryManager_2D boundaryManager;
@@ -22,9 +25,9 @@ public:
 	bool hasInitEdgeLengths = false;// 已经初始化edges的length, refLength
 
 public:
+	//static FVM_2D* getInstance();
+	static FVM_2D* getInstance();
 	
-
-	FVM_2D();
 	// 主函数 run_CPU
 	void run();
 	// 读取output文件夹中的续算文件(pause_*.dat)(绝对路径)，初始化网格变量，更新t_solve和istep_solve

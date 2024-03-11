@@ -9,15 +9,18 @@
 #include "input/InpMeshReader.h"
 #include "global/VectorProcessor.h"
 #include "input/SU2MeshReader.h"
-#include "gpu/GPUSolver2.h"
-#include "gpu/space/CalculateFlux2.cuh"
-#include "gpu/time/CalculateDt.h"
+#include "solvers/GPUSolver2.h"
+#include "space/FluxGPU.h"
+#include "time/CalculateDt.h"
 #include "output/FieldWriter.h"
 
 FVM_2D* FVM_2D::pFVM2D = nullptr;
 
-FVM_2D::FVM_2D() {
-	pFVM2D = this;
+FVM_2D* FVM_2D::getInstance() {
+	if (pFVM2D == nullptr) {
+		pFVM2D = new FVM_2D();
+	}
+	return pFVM2D;
 }
 
 void FVM_2D::run() {
@@ -97,7 +100,7 @@ void FVM_2D::setInitialCondition() {
 		//1.常数
 		using namespace GlobalPara::boundaryCondition::_2D;
 		for (int ie = 0; ie < elements.size(); ie++) {
-			Math_2D::ruvp_2_U(inf::ruvp, elements[ie].U, Constant::gamma);
+			Math_2D::ruvp_2_U(inf::ruvp, elements[ie].U, GlobalPara::constant::gamma);
 			//if(elements[ie].ID==173)system()
 		}
 		std::string str;
@@ -126,12 +129,12 @@ void FVM_2D::setInitialCondition() {
 		//	ruvp[2] = inf::ruvp[2] + deltav;
 		//	double rho0 = inf::ruvp[0];
 		//	double p0 = inf::ruvp[3];
-		//	double T0 = p0 / rho0 / Constant::gamma;//p=rho*R*T
-		//	double deltap = deltaT * rho0 / (1 - Constant::R * rho0 * T0 / pow(p0, Constant::gamma));
-		//	double deltarho = deltap * rho0 / pow(p0, Constant::gamma);
+		//	double T0 = p0 / rho0 / GlobalPara::constant::gamma;//p=rho*R*T
+		//	double deltap = deltaT * rho0 / (1 - Constant::R * rho0 * T0 / pow(p0, GlobalPara::constant::gamma));
+		//	double deltarho = deltap * rho0 / pow(p0, GlobalPara::constant::gamma);
 		//	ruvp[0] = rho0 + deltarho;
 		//	ruvp[3] = p0 + deltap;
-		//	Math_2D::ruvp_2_U(ruvp, elements[ie].U, Constant::gamma);
+		//	Math_2D::ruvp_2_U(ruvp, elements[ie].U, GlobalPara::constant::gamma);
 		//}
 
 	}
@@ -214,7 +217,7 @@ void FVM_2D::setInitialCondition() {
 //			break;
 //		}
 //		//定期输出流场
-//		if (istep % GlobalPara::output::step_per_output == 1) {
+//		if (istep % GlobalPara::output::step_per_output_field == 1) {
 //			//.dat 流场显示文件 tecplot格式
 //			char szBuffer[20];
 //			sprintf_s(szBuffer, _countof(szBuffer), "%04d", istep);//若istep小于4位数，则补0
@@ -324,8 +327,6 @@ void FVM_2D::solve_CPU2(std::string suffix_out, std::string suffix_info) {
 	COORD p1;
 	Solver_2D cpuSolver2;
 	HistWriter histWriter(outputPathWithSlash + basicFileName + "_hist.dat");
-	FieldWriter tecplotWriter;
-	FieldWriter continueWriter;
 
 	// 初始化
 	start_t = clock();
@@ -380,16 +381,15 @@ void FVM_2D::solve_CPU2(std::string suffix_out, std::string suffix_info) {
 			//writeTecplotFile(tecplotFilePath, t);// 别删
 			// 根据单元U更新节点ruvp
 			this->calculateNodeValue(rho_nodes,u_nodes,v_nodes,p_nodes);
-			tecplotWriter.setFilePath(tecplotFilePath);
-			tecplotWriter.writeTecplotFile(t, "title", nodes, elements, rho_nodes, u_nodes, v_nodes, p_nodes);
+			FieldWriter::writeTecplotFile(t, tecplotFilePath, "title", nodes, elements, rho_nodes, u_nodes, v_nodes, p_nodes);
 			//this->writeContinueFile(continueFilePath_nan, t, istep);// 别删
-			continueWriter.writeContinueFile(
+			FieldWriter::writeContinueFile(
 				istep, t, continueFilePath_nan, nodes, elements, &(this->boundaryManager)
 			);
 			break;
 		}
 		// 定期输出流场
-		if (istep % GlobalPara::output::step_per_output == 1) {
+		if (istep % GlobalPara::output::step_per_output_field == 1) {
 			//writeTecplotFile(tecplotFilePath, t);
 			b_writeTecplot = true;
 			nFiles++;
@@ -421,7 +421,7 @@ void FVM_2D::solve_CPU2(std::string suffix_out, std::string suffix_info) {
 			promptSignal = _TimeReached;
 		}
 		// 残差足够小，终止
-		else if (residual_vector[0] <= Constant::epsilon) {
+		else if (residual_vector[0] <= GlobalPara::constant::epsilon) {
 			b_writeContinue = true;
 			b_writeTecplot = true;
 			b_pause = true;
@@ -434,14 +434,13 @@ void FVM_2D::solve_CPU2(std::string suffix_out, std::string suffix_info) {
 			this->calculateNodeValue(rho_nodes, u_nodes, v_nodes, p_nodes);
 			if (b_writeContinue) {
 				//this->writeContinueFile(continueFilePath, t, istep);
-				continueWriter.writeContinueFile(
+				FieldWriter::writeContinueFile(
 					istep, t, continueFilePath, nodes, elements, &(this->boundaryManager)
 				);
 			}
 			if (b_writeTecplot) {
 				//writeTecplotFile(tecplotFilePath, t);
-				tecplotWriter.setFilePath(tecplotFilePath);
-				tecplotWriter.writeTecplotFile(t, "title", nodes, elements, rho_nodes, u_nodes, v_nodes, p_nodes);
+				FieldWriter::writeTecplotFile(t, tecplotFilePath, "title", nodes, elements, rho_nodes, u_nodes, v_nodes, p_nodes);
 			}
 		}
 
@@ -595,7 +594,7 @@ void FVM_2D::solve_CPU2(std::string suffix_out, std::string suffix_info) {
 //		// 更新时间和时间步长
 //		// 目前默认是无粘的，因此ifViscous和ifConstViscous都为false
 //		double dt = gpuSolver2.calculateDt(
-//			t, T, Constant::gamma, Constant::Re, Constant::Pr, GlobalPara::time::CFL, Constant::R,
+//			t, T, GlobalPara::constant::gamma, Constant::Re, Constant::Pr, GlobalPara::time::CFL, Constant::R,
 //			false, false
 //		);
 //		t += dt;
@@ -644,7 +643,7 @@ void FVM_2D::solve_CPU2(std::string suffix_out, std::string suffix_info) {
 //			break;
 //		}
 //		// 定期输出流场
-//		if (istep % GlobalPara::output::step_per_output == 1) {
+//		if (istep % GlobalPara::output::step_per_output_field == 1) {
 //			//writeTecplotFile(tecplotFilePath, t);
 //			b_writeTecplot = true;
 //			nFiles++;
@@ -757,7 +756,7 @@ double FVM_2D::caldt(double t, double T) {
 //	// 目前默认是无粘的，因此ifViscous和ifConstViscous都为false
 //	GPU::GPUSolver2* g = (GPU::GPUSolver2*)gpuSolver2;
 //	return GPU::calculateDt(
-//		t, T, Constant::gamma, Re, Pr, GlobalPara::time::CFL, Constant::R,
+//		t, T, GlobalPara::constant::gamma, Re, Pr, GlobalPara::time::CFL, Constant::R,
 //		false, false,
 //		(*g)
 //	);
@@ -1019,7 +1018,7 @@ int FVM_2D::readContinueFile() {
 	// 设置edges中的setID，设置boundaryManager.boundaries的type
 	// 前置条件：有edges向量，有boundaries向量，且boundaries有name、pEdges、ID
 	{
-		int ret = pFVM2D->boundaryManager.iniBoundaryEdgeSetID_and_iniBoundaryType(pFVM2D);
+		int ret = getInstance()->boundaryManager.iniBoundaryEdgeSetID_and_iniBoundaryType(getInstance());
 		if (ret != 0)return ret;
 	}
 
@@ -1049,7 +1048,7 @@ void FVM_2D::calculateNodeValue(
 		double U[4];
 		nodes[i].calNodeValue(U);
 		double ruvp[4];
-		Math_2D::U_2_ruvp(U, ruvp, Constant::gamma);
+		Math_2D::U_2_ruvp(U, ruvp, GlobalPara::constant::gamma);
 		if (GlobalPara::output::output_var_ruvp[0]) 		rho_nodes[i] = ruvp[0];
 		if (GlobalPara::output::output_var_ruvp[1]) 		u_nodes[i] = ruvp[1];
 		if (GlobalPara::output::output_var_ruvp[2]) 		v_nodes[i] = ruvp[2];
@@ -1241,8 +1240,8 @@ void FVM_2D::isentropicVortex(double x, double y, double xc, double yc, double c
 	double xbar = x - xc;
 	double ybar = y - yc;
 	double r2 = xbar * xbar + ybar * ybar;
-	const double gamma = Constant::gamma;
-	const double PI = Constant::PI;
+	const double gamma = GlobalPara::constant::gamma;
+	const double PI = GlobalPara::constant::PI;
 	deltau = chi / 2.0 / PI * exp(0.5 * (1 - r2)) * (-ybar);
 	deltav = chi / 2.0 / PI * exp(0.5 * (1 - r2)) * xbar;
 	deltaT = -(gamma - 1) / chi / chi * 8 * gamma * PI * PI * exp(1 - r2);
@@ -1254,8 +1253,8 @@ void FVM_2D::isentropicVortex_2(double xc, double yc, double chi, const double* 
 		Element_2D& e = elements[ie];
 		double rho, u, v, p;
 		double xbar, ybar, r2, du, dv, dT;
-		const double PI = Constant::PI;
-		const double gamma = Constant::gamma;
+		const double PI = GlobalPara::constant::PI;
+		const double gamma = GlobalPara::constant::gamma;
 		xbar = e.x - xc;
 		ybar = e.y - yc;
 		r2 = xbar * xbar + ybar * ybar;

@@ -6,6 +6,7 @@ void GPU::EdgeSoA::cuda_memcpy(EdgeSoA* dist, const EdgeSoA* src, cudaMemcpyKind
 	cudaMemcpy(dist->nodes[0], src->nodes[0], num_edge * sizeof(int), kind);
 	cudaMemcpy(dist->nodes[1], src->nodes[1], num_edge * sizeof(int), kind);
 	cudaMemcpy(dist->setID, src->setID, num_edge * sizeof(int), kind);
+	cudaMemcpy(dist->periodicPair, src->periodicPair, num_edge * sizeof(int), kind);
 	cudaMemcpy(dist->elementL, src->elementL, num_edge * sizeof(int), kind);
 	cudaMemcpy(dist->elementR, src->elementR, num_edge * sizeof(int), kind);
 	cudaMemcpy(dist->length, src->length, num_edge * sizeof(REAL), kind);

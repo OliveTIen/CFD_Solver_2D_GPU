@@ -8,16 +8,16 @@ void Edge_2D::getxy(FVM_2D* f, double& x, double& y) {
 }
 
 double Edge_2D::getx() {
-    return (FVM_2D::pFVM2D->getNodeByID(nodes[0])->x + FVM_2D::pFVM2D->getNodeByID(nodes[1])->x) / 2.0;
+    return (FVM_2D::getInstance()->getNodeByID(nodes[0])->x + FVM_2D::getInstance()->getNodeByID(nodes[1])->x) / 2.0;
 }
 
 double Edge_2D::gety() {
-    return (FVM_2D::pFVM2D->getNodeByID(nodes[0])->y + FVM_2D::pFVM2D->getNodeByID(nodes[1])->y) / 2.0;
+    return (FVM_2D::getInstance()->getNodeByID(nodes[0])->y + FVM_2D::getInstance()->getNodeByID(nodes[1])->y) / 2.0;
 }
 
 
 double Edge_2D::getLength() {
-    FVM_2D* f = FVM_2D::pFVM2D;
+    FVM_2D* f = FVM_2D::getInstance();
     if (f->hasInitEdgeLengths) {
         return this->length;
     }
@@ -31,11 +31,11 @@ double Edge_2D::getLength() {
 
 float Edge_2D::getRefLength() {
     // 获取两侧单元中心距离
-    FVM_2D* f = FVM_2D::pFVM2D;
+    FVM_2D* f = FVM_2D::getInstance();
     if (f->hasInitEdgeLengths) {
         return this->refLength;
     }
-    float xl, yl, xr, yr, dx, dy, dL;
+    float xl, yl, xr, yr, dx, dy;
     xl = (float)this->pElement_L->x;
     yl = (float)this->pElement_L->y;
     if (this->pElement_R == nullptr) {
@@ -59,7 +59,7 @@ float Edge_2D::getRefLength() {
 //    double u = U[1] / U[0];
 //    double v = U[2] / U[0];
 //    double E = U[3] / U[0];
-//    double gamma = Constant::gamma;
+//    double gamma = GlobalPara::constant::gamma;
 //    Math_2D::U_2_F(U, F, gamma);
 //    double p = Math_2D::get_p(rho, gamma, E, u, v);
 //    lambda = sqrt(u * u + v * v) + sqrt(gamma * p / rho);
@@ -78,7 +78,7 @@ void Edge_2D::getDirectionN(double& nx, double& ny) {
 }
 
 std::vector<double> Edge_2D::getDirectionT() {
-    FVM_2D* f = FVM_2D::pFVM2D;
+    FVM_2D* f = FVM_2D::getInstance();
     double dx = f->getNodeByID(nodes[1])->x - f->getNodeByID(nodes[0])->x;
     double dy = f->getNodeByID(nodes[1])->y - f->getNodeByID(nodes[0])->y;
     double dl = sqrt(dx * dx + dy * dy);
@@ -101,25 +101,25 @@ Eigen::Matrix4d Edge_2D::calT(FVM_2D* f,double flag) {
 
 //Eigen::Vector4d Edge_2D::get_UL() {
 //    //获取边中点坐标，代入左单元分布函数，获取U
-//    double x_edge, y_edge; getxy(FVM_2D::pFVM2D, x_edge, y_edge);
+//    double x_edge, y_edge; getxy(FVM_2D::getInstance(), x_edge, y_edge);
 //    return pElement_L->get_U(x_edge, y_edge);
 //}
 
 //Eigen::Vector4d Edge_2D::get_UR() {
 //    //获取边中点坐标，代入左单元分布函数，获取U
-//    double x_edge, y_edge; getxy(FVM_2D::pFVM2D, x_edge, y_edge);
+//    double x_edge, y_edge; getxy(FVM_2D::getInstance(), x_edge, y_edge);
 //    return pElement_R->get_U(x_edge, y_edge);
 //}
 
 //void Edge_2D::get_ULUR(Eigen::Vector4d& U_L, Eigen::Vector4d& U_R) {
 //    //获取边中点坐标，代入左/右单元分布函数，获取U
-//    double x_edge, y_edge; getxy(FVM_2D::pFVM2D, x_edge, y_edge);
+//    double x_edge, y_edge; getxy(FVM_2D::getInstance(), x_edge, y_edge);
 //    U_L = pElement_L->get_U(x_edge, y_edge);
 //    U_R = pElement_R->get_U(x_edge, y_edge);
 //}
 
 void Edge_2D::get_ULUR(double* U_L, double* U_R) {
-    double x_edge, y_edge; getxy(FVM_2D::pFVM2D, x_edge, y_edge);
+    double x_edge, y_edge; getxy(FVM_2D::getInstance(), x_edge, y_edge);
     pElement_L->get_U(x_edge, y_edge, U_L);
     pElement_R->get_U(x_edge, y_edge, U_R);
 }

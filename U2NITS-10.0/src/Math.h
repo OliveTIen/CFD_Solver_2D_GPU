@@ -63,8 +63,6 @@ public:
 	static void ruvp_2_U(const double* ruvp, double* U, double gamma);
 	//
 	static void U_2_F(const double* U, double* F, double gamma);
-	//static void U_2_F(const Eigen::Vector4d& U, Eigen::Vector4d& F, double gamma);
-	//static void U_2_F_lambda(const Eigen::Vector4d U, Eigen::Vector4d& F, double& lambda, double gamma);
 	//
 	static void ruvp_2_F(const double* ruvp, double* F, double gamma);
 	static void ruvp_2_Fn_lambda_2D(const double* ruvp, double* Fn, double& lambda, double nx, double ny, double gamma);

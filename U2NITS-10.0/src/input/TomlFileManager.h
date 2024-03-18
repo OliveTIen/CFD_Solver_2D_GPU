@@ -4,11 +4,13 @@
 #include "../include/toml/cpptoml.h"
 
 class TomlFileManager {
+	// 内部枚举类
 	enum ErrorCode {
 		noError,
 		getValueFailed,
 		getOptionalValueFailed
 	};
+	// 内部类
 	class ErrorMessage {
 		ErrorCode m_code;
 		std::string m_message;
@@ -29,8 +31,11 @@ private:
 	std::shared_ptr<cpptoml::table>m_parsedFile = nullptr;
 	bool has_getValueFailed = false;
 	bool has_getOptionalValueFailed = false;
+	TomlFileManager() {};
+	static TomlFileManager* classPointer;
 
 public:
+	static TomlFileManager* getInstance();
 	void readFileAndParseFile(std::string fullFilePath);
 	void printParsedFile();
 

@@ -1,11 +1,20 @@
 #include "TomlFileManager.h"
-#include "../GlobalPara.h"
+#include "../global/GlobalPara.h"
 #include <iostream>
 #include "../output/LogWriter.h"
 #include "AirParameterConverter.h"
 
-// CPP读取TOML文件格式的方法 https://blog.csdn.net/jiaostyle/article/details/125695972
+// 类指针
+TomlFileManager* TomlFileManager::classPointer = nullptr;
 
+TomlFileManager* TomlFileManager::getInstance() {
+    if (classPointer == nullptr) {
+        classPointer = new TomlFileManager();
+    }
+    return classPointer;
+}
+
+// CPP读取TOML文件格式的方法 https://blog.csdn.net/jiaostyle/article/details/125695972
 void TomlFileManager::readFileAndParseFile(std::string fullFilePath) {
     // 对于OptionalValue，不应该用异常处理，因为throw会中断try后面的代码，
     // 导致后面的变量没有被初始化

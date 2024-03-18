@@ -28,8 +28,7 @@
 #include "./include/rapidjson/prettyWriter.h"
 #include "./include/rapidjson/stringbuffer.h"
 
-#include "SignDefine.h"
-#include "globalPara.h"
+#include "global/globalPara.h"
 
 #ifdef _WIN32
 

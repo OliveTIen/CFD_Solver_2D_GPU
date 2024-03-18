@@ -14,7 +14,7 @@ int SU2MeshReader::readFile(std::string filePath, bool convertRectToTriangle) {
 	3. edges。包括ID、节点ID、所属边集合ID、左右单元指针。此外，也需要提前计算length和refLength
 
 	其他的潜在问题
-	1. 有的su2文件会用%写注释。目前没遇到过
+	1. 有的su2文件会用%写注释。例如Pointwise导出的
 
 	SU2文件读取规范 https://zhuanlan.zhihu.com/p/641146110
 	*/
@@ -42,7 +42,7 @@ int SU2MeshReader::readFile(std::string filePath, bool convertRectToTriangle) {
 		tWords = StringProcessor::splitString(tLine);
 		long tWordsSize = tWords.size();
 		// 更新状态
-		if (tWordsSize == 0) {
+		if (tWordsSize == 0 || tWords[0] == "%") {
 			continue;//对于空行，强迫进入下一次循环，防止读取tWords[0]出现内存错误
 		}
 		if (tWords[0] == "NDIME") {

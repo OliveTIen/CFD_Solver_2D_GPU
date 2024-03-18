@@ -1,7 +1,6 @@
 #include "RiemannSolver.h"
-#include "../GlobalPara.h"
+#include "../global/GlobalPara.h"
 #include "../Math.h"
-#include "../SignDefine.h"
 
 
 int RiemannSolver::solve(const double* UL, const double* UR,

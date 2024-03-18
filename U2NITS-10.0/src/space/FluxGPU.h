@@ -11,23 +11,23 @@ namespace GPU {
 	namespace Space {
 		// Î´Íê³É
 		namespace Flux {
-			void calculateFluxDevice(ElementSoA& element_device, FieldSoA& elementField_device, EdgeSoA& edge_device, BoundarySetMap& boundary_device, DInfPara& infPara_device);
+			void calculateFluxDevice(ElementSoA& element_device, FieldSoA& elementField_device, EdgeSoA& edge_device, BoundarySetMap& boundary_device, DGlobalPara& infPara_device);
 
 			void resetElementFlux(FieldSoA& elementField_device);
-			void calculateFlux(ElementSoA& element_device, FieldSoA& elementField_device, EdgeSoA& edge_device, BoundarySetMap& boundary_device, DInfPara& infPara_device);
+			void calculateFlux(ElementSoA& element_device, FieldSoA& elementField_device, EdgeSoA& edge_device, BoundarySetMap& boundary_device, DGlobalPara& infPara_device);
+
 			__global__ void resetElementFluxKernel(FieldSoA& elementField_device);
-			__global__ void calculateFluxKernel(ElementSoA& element_device, FieldSoA& elementField_device, EdgeSoA& edge_device, BoundarySetMap& boundary_device, DInfPara& infPara_device);
-			__device__ void getEdgeFlux_wallNonViscous(ElementSoA& element_host, FieldSoA& elementField_host, EdgeSoA& edge_host, long idx, double* flux);
-			__device__ void getEdgeFlux_wall_adiabat(ElementSoA& element_host, FieldSoA& elementField_host, EdgeSoA& edge_host, long idx, double* flux);
-			__device__ void getEdgeFlux_farField(ElementSoA& element_host, FieldSoA& elementField_host, EdgeSoA& edge_host, long idx, REAL* ruvp_inf, REAL* flux);
-			__device__ void modify_ruvpL_farField(const REAL nx, const REAL ny, REAL* ruvp, const REAL* ruvp_inf);
-			__device__ void getEdgeFlux_inner_and_periodic(ElementSoA& element_host, FieldSoA& elementField_host, EdgeSoA& edge_host, long idx, REAL* flux);
-			__device__ void getUByXYandElementID(ElementSoA& element_host, FieldSoA& elementField_host, REAL x, REAL y, int elementID, REAL* U);
+			__global__ void calculateFluxKernel(ElementSoA& element_device, FieldSoA& elementField_device, EdgeSoA& edge_device, BoundarySetMap& boundary_device, DGlobalPara& infPara_device);
+			__device__ void getEdgeFlux_wallNonViscous(ElementSoA& element_device, FieldSoA& elementField_device, EdgeSoA& edge_device, long idx, REAL* flux, DGlobalPara& infPara_device);
+			__device__ void getEdgeFlux_wall_adiabat(ElementSoA& element_device, FieldSoA& elementField_device, EdgeSoA& edge_device, long idx, REAL* flux, DGlobalPara& infPara_device);
+			__device__ void getEdgeFlux_farField(ElementSoA& element_device, FieldSoA& elementField_device, EdgeSoA& edge_device, long idx, REAL* flux, DGlobalPara& infPara_device);
+			__device__ void modify_ruvpL_farField(const REAL nx, const REAL ny, REAL* ruvp, DGlobalPara& infPara_device);
+			__device__ void getEdgeFlux_inner_and_periodic(ElementSoA& element_device, FieldSoA& elementField_device, EdgeSoA& edge_device, long idx, REAL* flux, DGlobalPara& infPara_device);
+			__device__ void getUByXYandElementID(ElementSoA& element_device, FieldSoA& elementField_device, REAL x, REAL y, int elementID, REAL* U);
 
 			__device__ void RiemannSolve(
 				const REAL* UL, const REAL* UR, const REAL nx, const REAL ny,
-				const REAL length, REAL* flux,
-				const int scheme);
+				const REAL length, REAL* flux, DGlobalPara& para);
 		}
 	}
 }

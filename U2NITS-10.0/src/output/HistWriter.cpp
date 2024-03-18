@@ -2,7 +2,7 @@
 #include <fstream>
 #include <iostream>
 #include "LogWriter.h"
-#include "../GlobalPara.h"
+#include "../global/GlobalPara.h"
 
 void HistWriter::writeHistFileHead() {
 	// 如果是续算则不必添加文件头

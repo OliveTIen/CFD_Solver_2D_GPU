@@ -1,7 +1,7 @@
 #include <ctime>
 #include "CDriver.h"
 #include "../FVM_2D.h"
-#include "../GlobalPara.h"
+#include "../global/GlobalPara.h"
 #include "../global/FilePathManager.h"
 #include "../global/StringProcessor.h"
 #include "../solvers/GPUSolver2.h"
@@ -75,6 +75,8 @@ void U2NITS::CDriver::run_GPU() {
 	//// 求解
 	if (GlobalPara::physicsModel::equation == _EQ_euler) {
 		solve_GPU();
+
+
 	}
 	else {
 		LogWriter::writeLogAndCout("Error: Invalid equation type.\n", LogWriter::Error, LogWriter::Error);
@@ -88,7 +90,6 @@ void U2NITS::CDriver::solve_GPU() {
 	[开发中]以下为GPU代码
 	TODO:
 	*/
-	FVM_2D* pFVM2D = FVM_2D::getInstance();
 	const int residual_vector_size = 4;
 	const int istep_previous = GlobalPara::time::istep_previous;
 	const double previous_t = GlobalPara::time::t_previous;
@@ -107,15 +108,23 @@ void U2NITS::CDriver::solve_GPU() {
 	COORD p1;
 	GPU::GPUSolver2 gpuSolver2;
 	HistWriter histWriter(outputPathWithSlash + basicFileName + "_hist.dat");
+	bool useGPU = GlobalPara::basic::useGPU;
+	if (useGPU) {
+		LogWriter::writeLogAndCout("Using GPU to solve 2D PDE.\n");
+	}
+	else {
+		LogWriter::writeLogAndCout("Using CPU to solve 2D PDE.\n");
+	}
 
 	// 初始化
 	start_t = clock();
 	histWriter.writeHistFileHead();
-	gpuSolver2.initialze();
+	gpuSolver2.initialze();// 由于host内存也要初始化，因此不可省略
 	p1 = ConsolePrinter::getCursorPosition();
-	ConsolePrinter::drawProgressBar(int(t / T));
+	//ConsolePrinter::drawProgressBar(int(t / T));
 
 	// 迭代
+	const int offset = 0;
 	for (int istep = istep_previous; istep <= maxIteration && t <= T; istep++) {
 		// 更新文件名
 		char szBuffer[20];
@@ -125,7 +134,12 @@ void U2NITS::CDriver::solve_GPU() {
 		std::string continueFilePath = outputPathWithSlash + "pause_" + basicFileName + str_istep_withBracket + ".dat";
 		std::string continueFilePath_nan = outputPathWithSlash + "nan_" + basicFileName + str_istep_withBracket + ".dat";
 
-		gpuSolver2.iteration(t, T);
+		if (useGPU) {
+			gpuSolver2.iterationGPU(t, T);
+		}
+		else {
+			gpuSolver2.iterationTotalCPU(t, T);
+		}
 
 		// --- 输出 ---
 		std::cout << ".";// 输出“.”表示正在计算，没有卡顿
@@ -134,10 +148,10 @@ void U2NITS::CDriver::solve_GPU() {
 		bool b_pause = false;//暂停信号，为true则终止
 		MySignal promptSignal = _NoSignal;// 提示词分类
 		// 定期输出进度
-		if (istep % GlobalPara::output::step_per_print == 1) {
+		if (istep % GlobalPara::output::step_per_print == offset) {
 			ConsolePrinter::clearDisplay(p1, ConsolePrinter::getCursorPosition());
 			ConsolePrinter::setCursorPosition(p1);
-			ConsolePrinter::drawProgressBar(int(t / T * 100 + 2));//+x是为了防止停在99%
+			ConsolePrinter::drawProgressBar(int(double(istep) / double(maxIteration) * 100.0 + 2));//+x是为了防止停在99%
 
 			double calculateTime = (double)(clock() - start_t) / CLOCKS_PER_SEC;
 			double calculateSpeed = ((istep - istep_previous) / calculateTime);
@@ -156,12 +170,12 @@ void U2NITS::CDriver::solve_GPU() {
 			// 写nan文件
 			FieldWriter::writeContinueFile_GPU(
 				istep, t, continueFilePath_nan,
-				gpuSolver2.node_host, gpuSolver2.element_host, gpuSolver2.elementField_host, &(pFVM2D->boundaryManager)
+				gpuSolver2.node_host, gpuSolver2.element_host, gpuSolver2.elementField_host
 			);// 完成于2024-02-28
 			break;
 		}
 		// 定期输出流场
-		if (istep % GlobalPara::output::step_per_output_field == 1) {
+		if (istep % GlobalPara::output::step_per_output_field == offset) {
 			//writeTecplotFile(tecplotFilePath, t);
 			b_writeTecplot = true;
 			nFiles++;
@@ -173,7 +187,7 @@ void U2NITS::CDriver::solve_GPU() {
 
 		}
 		// 定期输出残差
-		if (istep % GlobalPara::output::step_per_output_hist == 1) {
+		if (istep % GlobalPara::output::step_per_output_hist == offset) {
 			//计算残差，结果保存在residual_vector中
 			ResidualCalculator::cal_residual_GPU(gpuSolver2.element_U_old, gpuSolver2.elementField_host, ResidualCalculator::NORM_INF, residual_vector);
 			histWriter.writeHistFileData(istep, residual_vector, residual_vector_size);
@@ -210,7 +224,7 @@ void U2NITS::CDriver::solve_GPU() {
 			if (b_writeContinue) {
 				FieldWriter::writeContinueFile_GPU(
 					istep, t, continueFilePath,
-					gpuSolver2.node_host, gpuSolver2.element_host, gpuSolver2.elementField_host, &(pFVM2D->boundaryManager)
+					gpuSolver2.node_host, gpuSolver2.element_host, gpuSolver2.elementField_host
 				);
 			}
 			if (b_writeTecplot) {

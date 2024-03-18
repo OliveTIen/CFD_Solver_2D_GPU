@@ -1,7 +1,7 @@
 #include "Roe.h"
 #include "../../math/PhysicalConvertKernel.h"
 #include "../../math/GPUMatrixKernel.h"
-#include "../../GlobalPara.h"
+#include "../../global/GlobalPara.h"
 #include <cmath>
 
 void U2NITS::Space::EigenValueAndVector4x4(REAL mat[4][4], REAL eigens[4], REAL R[4][4]) {
@@ -200,9 +200,9 @@ void U2NITS::Space::ConvectRoeCommon3d(const REAL UL[5], const REAL UR[5], const
 	real rcpcv = GlobalPara::constant::R;
 	// 守恒量转场变量rho u v w p
 	real ruvwpL[5]{};
-	U2NITS::Math::U2rvuwp_host(UL, ruvwpL, gamma);
+	U2NITS::Math::U2ruvwp_host(UL, ruvwpL, gamma);
 	real ruvwpR[5]{};
-	U2NITS::Math::U2rvuwp_host(UR, ruvwpR, gamma);
+	U2NITS::Math::U2ruvwp_host(UR, ruvwpR, gamma);
 	real rL = ruvwpL[0];
 	real uL = ruvwpL[1];
 	real vL = ruvwpL[2];
@@ -397,8 +397,8 @@ void U2NITS::Space::ConvectRoeCommon2d(const REAL UL[4], const REAL UR[4], const
 	real velocity_dynaMesh = 0;//动网格相关，目前不需要
 	real rcpcv = GlobalPara::constant::R;
 	// 守恒量转场变量rho u v w p
-	U2NITS::Math::U2rvuwp_host(UL, ruvpL, gamma);
-	U2NITS::Math::U2rvuwp_host(UR, ruvpR, gamma);
+	U2NITS::Math::U2ruvp_host(UL, ruvpL, gamma);
+	U2NITS::Math::U2ruvp_host(UR, ruvpR, gamma);
 	real rL = ruvpL[0];
 	real uL = ruvpL[1];
 	real vL = ruvpL[2];
@@ -445,15 +445,12 @@ void U2NITS::Space::ConvectRoeCommon2d(const REAL UL[4], const REAL UR[4], const
 	faceFlux[1] -= funscheme * drRoe[1];
 	faceFlux[2] -= funscheme * drRoe[2];
 	faceFlux[3] -= funscheme * drRoe[3];
-	// 在debug模式下，会出现Runtime check failure #2 the stack问题
+	// 在debug模式下，函数结束时会出现 Runtime check failure #2 the stack around ... was corrupted 问题
 	// 但release模式下没问题
-	// 将ruvpL和ruvpR设置为堆指针后出现死循环，检查发现停留在delete[] ruvpL上
+	// 将ruvpL和ruvpR设置为堆指针后，出现死循环，检查发现停留在delete[] ruvpL上
 	// 后缀无论是cu还是cpp都一样
 	// 而且“复制详细信息”时显示open clipboard failed
-
-	//delete[] ruvpL;
-	//delete[] ruvpR;
-	//delete ruvpL;
+	// 已解决：原来是U2ruvwp_host函数没有修改
 }
 
 void U2NITS::Space::RoeDissapationTerm2d(REAL gamma, REAL ruvpL[4], REAL ruvpR[4], const REAL faceNormal[2], REAL faceArea, bool bEntropyFix, REAL KEntropyFix[3], REAL pShockWaveSensor, REAL drRoe[4]) {

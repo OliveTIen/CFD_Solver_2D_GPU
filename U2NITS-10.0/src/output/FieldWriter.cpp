@@ -180,14 +180,14 @@ void FieldWriter::writeContinueFile(
 
 }
 
-void FieldWriter::writeContinueFile_GPU(int i_step, double t_current, std::string filePath, GPU::NodeSoA& nodes, GPU::ElementSoA& elements, GPU::FieldSoA& elementField, void* pBoundaryManager) {
+void FieldWriter::writeContinueFile_GPU(int i_step, double t_current, std::string filePath, GPU::NodeSoA& nodes, GPU::ElementSoA& elements, GPU::FieldSoA& elementField) {
 	// 输出暂存文件，用于下次续算
 	// 目前还不敢直接用GPUID
 
     // 变量定义
 	std::ofstream outfile;
-	BoundaryManager_2D& boundaryManager = *(BoundaryManager_2D*)pBoundaryManager;
 	FVM_2D* pFVM2D = FVM_2D::getInstance();
+	BoundaryManager_2D& boundaryManager = pFVM2D->boundaryManager;
 
 	// 打开文件
 	outfile.open(filePath);

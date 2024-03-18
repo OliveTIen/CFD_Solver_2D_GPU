@@ -1,10 +1,12 @@
 #include "GPUSolver2.h"
 #include "../FVM_2D.h"
 #include "../space/gradient/CalculateGradientGPU.h"
+#include "../space/gradient/Gradient.h"
 #include "../space/FluxGPU.h"
 #include "../math/PhysicalConvertKernel.h"
-#include "../time/Evolve.h"
 #include "../time/CalculateDt.h"
+#include "../time/Evolve.h"
+#include "../time/EvolveGPU.h"
 #include "../output/LogWriter.h"
 
 void GPU::GPUSolver2::initialze() {
@@ -55,7 +57,8 @@ void GPU::GPUSolver2::initialze() {
 
 		// 仅传入GPU的数据
 		using namespace GlobalPara::boundaryCondition::_2D;// using有作用域，不用担心混淆
-		infPara_device = new GPU::DInfPara(inf::ruvp, inlet::ruvp, outlet::ruvp, 4);
+		infPara_device = new GPU::DGlobalPara(inf::ruvp, inlet::ruvp, outlet::ruvp, 4
+			, &GlobalPara::constant::R, &GlobalPara::constant::gamma,&GlobalPara::inviscid_flux_method::flux_conservation_scheme);
 	}
 	catch (const char* e) {
 		// ! 异常处理未完成
@@ -97,27 +100,100 @@ void GPU::GPUSolver2::initialze() {
 
 }
 
-void GPU::GPUSolver2::iteration(REAL& t, REAL T) {
+void GPU::GPUSolver2::iterationTotalCPU(REAL& t, REAL T) {
+	update_ruvp_Uold();
+	REAL dt = calculateDt(t, T);
+	t += dt;
+	U2NITS::Space::Gradient::GradientLeastSquare(element_host, elementField_host);
+	U2NITS::Time::EvolveHost(dt, GlobalPara::time::time_advance, element_host, elementField_host, edge_host, edge_periodic_pair);
+}
+
+void GPU::GPUSolver2::iterationHalfGPU(REAL& t, REAL T) {
 	// 更新时间t
 	update_ruvp_Uold();
 	REAL dt = calculateDt(t, T);
 	t += dt;
-	iterationDevice(dt);
+
+	GPU::calculateGradient2(element_device, elementField_device);
+	cudaDeviceSynchronize();
 	device_to_host();
-	iterationHost(dt);
+	U2NITS::Time::EvolveHost(dt, GlobalPara::time::time_advance, element_host, elementField_host, edge_host, edge_periodic_pair);
 	host_to_device();
+
+	//iterationDevice(dt);
+	//device_to_host();
+	//iterationHost(dt);
+	//host_to_device();
+}
+
+void GPU::GPUSolver2::iterationGPU(REAL& t, REAL T) {
+	// 更新时间t
+	update_ruvp_Uold();
+	REAL dt = calculateDt(t, T);
+	t += dt;
+
+	cudaError_t cuda_error;
+	GPU::calculateGradient2(element_device, elementField_device);
+
+	cuda_error = cudaGetLastError();
+	if (cuda_error != 0) {
+		std::string e = "cudaError=" + std::to_string(cuda_error) + ", " + cudaGetErrorString(cuda_error);
+		LogWriter::writeLogAndCout(e, LogWriter::Error, LogWriter::Error);
+		// 没有检测到错误
+	}
+
+
+	cudaDeviceSynchronize();
+
+	cuda_error = cudaGetLastError();
+	if (cuda_error != 0) {
+		std::string e = "cudaError=" + std::to_string(cuda_error) + ", " + cudaGetErrorString(cuda_error);
+		LogWriter::writeLogAndCout(e, LogWriter::Error, LogWriter::Error);
+		// cudaErrorIllegalAddress(700)
+		// an illegal memory access was encountered
+		// 可以尝试用更小的块？
+	}
+
+	GPU::Time::EvolveDevice(dt, GlobalPara::time::time_advance, element_host, elementField_host, edge_host, boundary_device, *infPara_device);
+	cudaDeviceSynchronize();
+	device_to_host();// 传递到主机，用于输出
+	//host_to_device();// 不需要，因为已经将主机与设备同步
+
 }
 
 void GPU::GPUSolver2::iterationDevice(REAL dt) {
 
 
 	// 计算单元梯度 对device操作
-	GPU::calculateGradient2(this->element_device, this->elementField_device);
+	GPU::calculateGradient2(element_device, elementField_device);
 	cudaDeviceSynchronize();
-
+	GPU::Time::EvolveDevice(dt, GlobalPara::time::time_advance, element_host, elementField_host, edge_host, boundary_device, *infPara_device);
 	//// 时间推进 对device操作
 	// TODO
 	//cudaDeviceSynchronize();
+}
+
+void GPU::GPUSolver2::device_to_host() {
+	// 将device端的数据复制到host端
+	GPU::NodeSoA::cuda_memcpy(&node_host, &node_device, cudaMemcpyDeviceToHost);
+	GPU::ElementSoA::cuda_memcpy(&element_host, &element_device, cudaMemcpyDeviceToHost);
+	GPU::FieldSoA::cuda_memcpy(&elementField_host, &elementField_device, cudaMemcpyDeviceToHost);
+	GPU::EdgeSoA::cuda_memcpy(&edge_host, &edge_device, cudaMemcpyDeviceToHost);
+
+}
+
+void GPU::GPUSolver2::iterationHost(REAL dt) {
+	// 主机端的迭代
+	//GPU::calculateFluxHost(element_host, elementField_host, edge_host);
+	U2NITS::Time::EvolveHost(dt, GlobalPara::time::time_advance, element_host, elementField_host, edge_host, edge_periodic_pair);
+}
+
+void GPU::GPUSolver2::host_to_device() {
+	// 将host端的数据复制到device端
+	GPU::NodeSoA::cuda_memcpy(&node_device, &node_host, cudaMemcpyHostToDevice);
+	GPU::ElementSoA::cuda_memcpy(&element_device, &element_host, cudaMemcpyHostToDevice);
+	GPU::FieldSoA::cuda_memcpy(&elementField_device, &elementField_host, cudaMemcpyHostToDevice);
+	GPU::EdgeSoA::cuda_memcpy(&edge_device, &edge_host, cudaMemcpyHostToDevice);
 }
 
 void GPU::GPUSolver2::finalize() {
@@ -313,29 +389,6 @@ REAL GPU::GPUSolver2::calculateDt(REAL t, REAL T) {
 		t, T, GlobalPara::constant::gamma, GlobalPara::constant::Re, GlobalPara::constant::Pr, GlobalPara::time::CFL, GlobalPara::constant::R,
 		false, false, *this
 	);
-}
-
-void GPU::GPUSolver2::device_to_host() {
-	// 将device端的数据复制到host端
-	GPU::NodeSoA::cuda_memcpy(&node_host, &node_device, cudaMemcpyDeviceToHost);
-	GPU::ElementSoA::cuda_memcpy(&element_host, &element_device, cudaMemcpyDeviceToHost);
-	GPU::FieldSoA::cuda_memcpy(&elementField_host, &elementField_device, cudaMemcpyDeviceToHost);
-	GPU::EdgeSoA::cuda_memcpy(&edge_host, &edge_device, cudaMemcpyDeviceToHost);
-
-}
-
-void GPU::GPUSolver2::iterationHost(REAL dt) {
-	// 主机端的迭代
-	//GPU::calculateFluxHost(element_host, elementField_host, edge_host);
-	U2NITS::Time::EvolveHost(dt, GlobalPara::time::time_advance, element_host, elementField_host, edge_host, edge_periodic_pair);
-}
-
-void GPU::GPUSolver2::host_to_device() {
-	// 将host端的数据复制到device端
-	GPU::NodeSoA::cuda_memcpy(&node_device, &node_host, cudaMemcpyHostToDevice);
-	GPU::ElementSoA::cuda_memcpy(&element_device, &element_host, cudaMemcpyHostToDevice);
-	GPU::FieldSoA::cuda_memcpy(&elementField_device, &elementField_host, cudaMemcpyHostToDevice);
-	GPU::EdgeSoA::cuda_memcpy(&edge_device, &edge_host, cudaMemcpyHostToDevice);
 }
 
 void GPU::GPUSolver2::updateOutputNodeField() {

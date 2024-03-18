@@ -1,5 +1,5 @@
 #include "ResidualCalculator.h"
-#include "../GlobalPara.h"
+#include "../global/GlobalPara.h"
 #include "../FVM_2D.h"
 #include "../global/FilePathManager.h"
 

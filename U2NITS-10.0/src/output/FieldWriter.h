@@ -4,7 +4,7 @@
 #include <iostream>
 #include <fstream>
 #include <vector>
-#include "../GlobalPara.h"
+#include "../global/GlobalPara.h"
 #include "../Node_2D.h"
 #include "../Element_2D.h"
 #include "../gpu/datatype/NodeSoA.h"
@@ -50,8 +50,7 @@ public:
 		std::string filePath,
 		GPU::NodeSoA& nodes,
 		GPU::ElementSoA& elements,
-		GPU::FieldSoA& elementField,
-		void* pBoundaryManager);
+		GPU::FieldSoA& elementField);
 
 };
 

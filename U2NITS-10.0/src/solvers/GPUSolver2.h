@@ -26,13 +26,15 @@ namespace GPU {
 		GPU::OutputNodeFieldSoA outputNodeField;
 
 		// device数据
-		GPU::DInfPara* infPara_device;// 远场参数在GPU的副本，用于传参[RAII类型]
+		GPU::DGlobalPara* infPara_device;// 远场参数在GPU的副本，用于传参[RAII类型]
 
 
 	public:
 		// 申请资源、初始化GPUID、host复制到device
 		void initialze();
-		void iteration(REAL& t, REAL T);
+		void iterationTotalCPU(REAL& t, REAL T);
+		void iterationHalfGPU(REAL& t, REAL T);
+		void iterationGPU(REAL& t, REAL T);
 		// 更新节点场
 		void updateOutputNodeField();
 		// 更新残差

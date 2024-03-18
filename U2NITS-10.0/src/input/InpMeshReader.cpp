@@ -2,7 +2,7 @@
 #include <iostream>
 #include <fstream>
 #include "../global/FilePathManager.h"
-#include "../GlobalPara.h"
+#include "../global/GlobalPara.h"
 #include "../output/LogWriter.h"
 #include "../BoundaryManager_2D.h"
 #include "../global/StringProcessor.h"

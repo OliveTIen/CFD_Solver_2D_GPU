@@ -1,6 +1,5 @@
 #include "GlobalPara.h"
-#include "SignDefine.h"
-#include "input/AirParameterConverter.h"
+#include "../input/AirParameterConverter.h"
 
 namespace GlobalPara {
 	namespace constant {

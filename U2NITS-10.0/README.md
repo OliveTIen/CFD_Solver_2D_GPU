@@ -15,6 +15,20 @@ author: tgl
 以前能够实现光标移动，可是更改代码后发现失效了。经排查，原来是开头输出input.toml时，由于输出内容超过1页，导致屏幕滚动，
 然而目前的ConsolePrinter只支持一行滚动的
 
+2024-03-16
+1.出现bug，debug模式下无法运行，release模式下可以运行；显示栈被破坏；用堆则会陷入死循环
+后来发现是程序的问题，原来是U2ruvwp函数没有修改，二维数组用三维的函数造成越界。这说明三维程序改为二维程序时要小心
+2.ptxas fatal : Unresolved extern function. 
+原因解释：nvcc旧版本不允许__device__函数在别处定义。为了兼容旧版本，-rdc选项是默认关闭的，需要手动打开
+(https://blog.csdn.net/weixin_47744790/article/details/134275227)
+解决措施：首先，Visual Studio中右击项目属性-CUDA C/C++-Common-Generate Relocatable Device Code设置为true
+然后，链接器-输入-附加依赖项-添加cudadevrt.lib
+(https://blog.csdn.net/zhangzhe_0305/article/details/79898850)
+可是还是报错，于是在FluxGPU.cu中把Roe函数注释掉了
+即使我在CUDA Linker中添加了附加依赖项cudadevrt.lib，还是报错。于是撤销该操作。
+后来发现是因为我设置的是Release的配置。应该将Debug也设置了。
+事实上，只需要开启-rdc选项，无需添加cudadevrt.lib
+
 2024-03-14
 性能分析工具
 Visual Studio Profiler https://blog.csdn.net/sujunzy666/article/details/19963077

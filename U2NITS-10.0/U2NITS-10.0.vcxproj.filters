@@ -75,12 +75,6 @@
     <ClCompile Include="src\FVM_2D.cpp">
       <Filter>src</Filter>
     </ClCompile>
-    <ClCompile Include="src\GlobalPara.cpp">
-      <Filter>src</Filter>
-    </ClCompile>
-    <ClCompile Include="src\head.cpp">
-      <Filter>src</Filter>
-    </ClCompile>
     <ClCompile Include="src\Math.cpp">
       <Filter>src</Filter>
     </ClCompile>
@@ -105,7 +99,7 @@
     <ClCompile Include="src\global\SystemInfo.cpp">
       <Filter>src\global</Filter>
     </ClCompile>
-    <ClCompile Include="src\global\Config.cpp">
+    <ClCompile Include="src\global\JsonConfig.cpp">
       <Filter>src\global</Filter>
     </ClCompile>
     <ClCompile Include="src\output\HistWriter.cpp">
@@ -189,6 +183,12 @@
     <ClCompile Include="src\gpu\datatype\BoundarySetMap.cu">
       <Filter>src\gpu\dataType</Filter>
     </ClCompile>
+    <ClCompile Include="src\space\gradient\Gradient.cpp">
+      <Filter>src\space\gradient</Filter>
+    </ClCompile>
+    <ClCompile Include="src\global\GlobalPara.cpp">
+      <Filter>src\global</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <None Include="README.md" />
@@ -206,9 +206,6 @@
     <ClInclude Include="src\FVM_2D.h">
       <Filter>src</Filter>
     </ClInclude>
-    <ClInclude Include="src\GlobalPara.h">
-      <Filter>src</Filter>
-    </ClInclude>
     <ClInclude Include="src\head.h">
       <Filter>src</Filter>
     </ClInclude>
@@ -216,9 +213,6 @@
       <Filter>src</Filter>
     </ClInclude>
     <ClInclude Include="src\Node_2D.h">
-      <Filter>src</Filter>
-    </ClInclude>
-    <ClInclude Include="src\SignDefine.h">
       <Filter>src</Filter>
     </ClInclude>
     <ClInclude Include="src\Solver_2D.h">
@@ -242,7 +236,7 @@
     <ClInclude Include="src\global\SystemInfo.h">
       <Filter>src\global</Filter>
     </ClInclude>
-    <ClInclude Include="src\global\Config.h">
+    <ClInclude Include="src\global\JsonConfig.h">
       <Filter>src\global</Filter>
     </ClInclude>
     <ClInclude Include="src\output\HistWriter.h">
@@ -368,6 +362,18 @@
     <ClInclude Include="src\gpu\datatype\DeviceData.h">
       <Filter>src\gpu\dataType</Filter>
     </ClInclude>
+    <ClInclude Include="src\space\convection\LocalLaxFriedrichsGPU.h">
+      <Filter>src\space\convection</Filter>
+    </ClInclude>
+    <ClInclude Include="src\space\gradient\Gradient.h">
+      <Filter>src\space\gradient</Filter>
+    </ClInclude>
+    <ClInclude Include="src\math\MatrixKernel.h">
+      <Filter>src\math</Filter>
+    </ClInclude>
+    <ClInclude Include="src\global\GlobalPara.h">
+      <Filter>src\global</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <CudaCompile Include="src\gpu\datatype\FieldSoA.cu">
@@ -393,6 +399,9 @@
     </CudaCompile>
     <CudaCompile Include="src\gpu\datatype\DeviceData.cu">
       <Filter>src\gpu\dataType</Filter>
+    </CudaCompile>
+    <CudaCompile Include="src\space\convection\LocalLaxFriedrichsGPU.cu">
+      <Filter>src\space\convection</Filter>
     </CudaCompile>
   </ItemGroup>
 </Project>

@@ -118,27 +118,32 @@ void FVM_2D::setInitialCondition() {
 		str += "InitialCondition:\nUniform flow + isentropicVortex, ruvp of Uniform flow:" + StringProcessor::doubleArray_2_string(inf::ruvp, 4) + "\n";
 		LogWriter::writeLogAndCout(str, LogWriter::Info);
 		isentropicVortex_2(5, 5, 5, inf::ruvp);
-		//for (int ie = 0; ie < elements.size(); ie++) {
-		//	//均匀流+等熵涡 Isentropic vortex
-		//	double deltau, deltav, deltaT;
-		//	double x = elements[ie].x; double y = elements[ie].y;
-		//	double xc = 5; double yc = 5;
-		//	isentropicVortex(x, y, xc, yc, 1, deltau, deltav, deltaT);
-		//	double ruvp[4]{};
-		//	ruvp[1] = inf::ruvp[1] + deltau;
-		//	ruvp[2] = inf::ruvp[2] + deltav;
-		//	double rho0 = inf::ruvp[0];
-		//	double p0 = inf::ruvp[3];
-		//	double T0 = p0 / rho0 / GlobalPara::constant::gamma;//p=rho*R*T
-		//	double deltap = deltaT * rho0 / (1 - Constant::R * rho0 * T0 / pow(p0, GlobalPara::constant::gamma));
-		//	double deltarho = deltap * rho0 / pow(p0, GlobalPara::constant::gamma);
-		//	ruvp[0] = rho0 + deltarho;
-		//	ruvp[3] = p0 + deltap;
-		//	Math_2D::ruvp_2_U(ruvp, elements[ie].U, GlobalPara::constant::gamma);
-		//}
 
 	}
 		break;
+
+	case 3:
+	{
+		// 需指定inlet和outlet
+		using namespace GlobalPara::boundaryCondition::_2D;
+		for (int ie = 0; ie < elements.size(); ie++) {
+			if (elements[ie].x < 0) {
+				Math_2D::ruvp_2_U(inlet::ruvp, elements[ie].U, GlobalPara::constant::gamma);
+			}
+			else {
+				Math_2D::ruvp_2_U(outlet::ruvp, elements[ie].U, GlobalPara::constant::gamma);
+			}
+			
+			//if(elements[ie].ID==173)system()
+		}
+		std::string str;
+		str += "InitialCondition:\nShock wave tube, ruvp_inlet\t" 
+			+ StringProcessor::doubleArray_2_string(inlet::ruvp, 4) 
+			+ "\truvp_outlet\t"
+			+ StringProcessor::doubleArray_2_string(outlet::ruvp, 4)
+			+ "\n";
+		LogWriter::writeLog(str);
+	}
 
 	}
 
@@ -332,10 +337,11 @@ void FVM_2D::solve_CPU2(std::string suffix_out, std::string suffix_info) {
 	start_t = clock();
 	histWriter.writeHistFileHead();
 	p1 = ConsolePrinter::getCursorPosition();
-	ConsolePrinter::drawProgressBar(int(t / T));
+	//ConsolePrinter::drawProgressBar(int(t / T));
 
 
 	// 迭代
+	const int offset = 0;
 	for (int istep = istep_previous; istep <= maxIteration && t <= T; istep++) {
 		// --- 更新 ---
 		// 更新文件名
@@ -363,10 +369,10 @@ void FVM_2D::solve_CPU2(std::string suffix_out, std::string suffix_info) {
 		bool b_pause = false;//暂停信号，为true则终止
 		MySignal promptSignal = _NoSignal;// 提示词分类
 		// 定期输出进度
-		if (istep % GlobalPara::output::step_per_print == 1) {
+		if (istep % GlobalPara::output::step_per_print == offset) {
 			ConsolePrinter::clearDisplay(p1, ConsolePrinter::getCursorPosition());
 			ConsolePrinter::setCursorPosition(p1);
-			ConsolePrinter::drawProgressBar(int(t / T * 100 + 2));//+x是为了防止停在99%
+			ConsolePrinter::drawProgressBar(int(double(istep) / double(maxIteration) * 100.0 + 2));;//+x是为了防止停在99%
 
 			double calculateTime = (double)(clock() - start_t) / CLOCKS_PER_SEC;
 			double calculateSpeed = ((istep - istep_previous) / calculateTime);
@@ -389,7 +395,7 @@ void FVM_2D::solve_CPU2(std::string suffix_out, std::string suffix_info) {
 			break;
 		}
 		// 定期输出流场
-		if (istep % GlobalPara::output::step_per_output_field == 1) {
+		if (istep % GlobalPara::output::step_per_output_field == offset) {
 			//writeTecplotFile(tecplotFilePath, t);
 			b_writeTecplot = true;
 			nFiles++;
@@ -398,7 +404,7 @@ void FVM_2D::solve_CPU2(std::string suffix_out, std::string suffix_info) {
 
 		}
 		// 定期输出残差
-		if (istep % GlobalPara::output::step_per_output_hist == 1) {
+		if (istep % GlobalPara::output::step_per_output_hist == offset) {
 			//计算残差，结果保存在residual_vector中
 			ResidualCalculator::cal_residual(elements_old, elements, ResidualCalculator::NORM_INF, residual_vector);
 			histWriter.writeHistFileData(istep, residual_vector, residual_vector_size);

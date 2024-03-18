@@ -3,8 +3,8 @@
 #include <iostream>
 #include <vector>
 #include <io.h>
-#include "Config.h"
-#include "../GlobalPara.h"
+#include "JsonConfig.h"
+#include "../global/GlobalPara.h"
 
 FilePathManager* FilePathManager::getInstance() {
     if (!class_pointer) {
@@ -49,8 +49,8 @@ std::vector<std::string> FilePathManager::getFiles(std::string path) {
 
 void FilePathManager::getFileName_UseUserInput() {
 	std::string lastf;
-	if (Config::config.FindMember("lastfilename") != Config::config.MemberEnd()) {
-		lastf = Config::config["lastfilename"].GetString();//将config的值赋给lastf
+	if (JsonConfig::config.FindMember("lastfilename") != JsonConfig::config.MemberEnd()) {
+		lastf = JsonConfig::config["lastfilename"].GetString();//将config的值赋给lastf
 	}
 	if (1) {
 

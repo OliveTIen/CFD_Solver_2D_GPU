@@ -1,12 +1,12 @@
-#include "Config.h"
+#include "JsonConfig.h"
 #include "FilePathManager.h"
 #include <fstream>
 #include <iostream>
 #include "../output/LogWriter.h"
 
-rapidjson::Document Config::config = rapidjson::Document();
+rapidjson::Document JsonConfig::config = rapidjson::Document();
 
-void Config::writeConfig(std::string filename) {
+void JsonConfig::writeConfig(std::string filename) {
 	//变量赋给config
 	config["lastfilename"].SetString(filename.c_str(), (rapidjson::SizeType)filename.size());//filename->"lastfilename"
 
@@ -21,11 +21,11 @@ void Config::writeConfig(std::string filename) {
 		outfile << content;
 		outfile.close();
 	}
-	else std::cout << "Error: fail to open config.txt, in void Config::writeConfig()\n";
+	else std::cout << "Error: fail to open config.txt, in void JsonConfig::writeConfig()\n";
 
 }
 
-void Config::readConfig() {
+void JsonConfig::readConfig() {
 	//读取json文件，赋给config
 	std::string exePath_withSlash = FilePathManager::getInstance()->getWorkingDirectory();
 	std::ifstream inf(exePath_withSlash + ".config\\config.json");
@@ -44,7 +44,7 @@ void Config::readConfig() {
 
 }
 
-void Config::useBackupConfig() {
+void JsonConfig::useBackupConfig() {
 	//ch_json赋给config
 //由于是新生成的文件，用[NULL]指示
 	const char* ch_json = R"({

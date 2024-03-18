@@ -15,7 +15,8 @@
     <ClCompile Include="src\drivers\CDriver.cpp" />
     <ClCompile Include="src\Edge_2D.cpp" />
     <ClCompile Include="src\Element_2D.cpp" />
-    <ClCompile Include="src\global\Config.cpp" />
+    <ClCompile Include="src\global\GlobalPara.cpp" />
+    <ClCompile Include="src\global\JsonConfig.cpp" />
     <ClCompile Include="src\global\FilePathManager.cpp" />
     <ClCompile Include="src\global\StringProcessor.cpp" />
     <ClCompile Include="src\global\SystemInfo.cpp" />
@@ -31,8 +32,6 @@
     <ClCompile Include="src\input\SU2MeshReader.cpp" />
     <ClCompile Include="src\input\TomlFileManager.cpp" />
     <ClCompile Include="src\FVM_2D.cpp" />
-    <ClCompile Include="src\GlobalPara.cpp" />
-    <ClCompile Include="src\head.cpp" />
     <ClCompile Include="src\main.cpp" />
     <ClCompile Include="src\Math.cpp" />
     <ClCompile Include="src\Node_2D.cpp" />
@@ -49,6 +48,7 @@
     <ClCompile Include="src\Solver_2D.cpp" />
     <ClCompile Include="src\space\convection\LocalLaxFriedrichs.cpp" />
     <ClCompile Include="src\space\Flux.cpp" />
+    <ClCompile Include="src\space\gradient\Gradient.cpp" />
     <ClCompile Include="src\space\Limiter.cpp" />
     <ClCompile Include="src\space\Reconstructor.cpp" />
     <ClCompile Include="src\space\RiemannSolver.cpp" />
@@ -63,7 +63,8 @@
     <ClInclude Include="src\drivers\CDriver.h" />
     <ClInclude Include="src\Edge_2D.h" />
     <ClInclude Include="src\Element_2D.h" />
-    <ClInclude Include="src\global\Config.h" />
+    <ClInclude Include="src\global\GlobalPara.h" />
+    <ClInclude Include="src\global\JsonConfig.h" />
     <ClInclude Include="src\global\FilePathManager.h" />
     <ClInclude Include="src\global\StringProcessor.h" />
     <ClInclude Include="src\global\SystemInfo.h" />
@@ -83,10 +84,10 @@
     <ClInclude Include="src\input\SU2MeshReader.h" />
     <ClInclude Include="src\input\TomlFileManager.h" />
     <ClInclude Include="src\FVM_2D.h" />
-    <ClInclude Include="src\GlobalPara.h" />
     <ClInclude Include="src\head.h" />
     <ClInclude Include="src\Math.h" />
     <ClInclude Include="src\math\GPUMatrixKernel.h" />
+    <ClInclude Include="src\math\MatrixKernel.h" />
     <ClInclude Include="src\math\PhysicalConvertKernel.h" />
     <ClInclude Include="src\Node_2D.h" />
     <ClInclude Include="src\output\ConsolePrinter.h" />
@@ -96,7 +97,6 @@
     <ClInclude Include="src\output\LogWriter.h" />
     <ClInclude Include="src\output\ResidualCalculator.h" />
     <ClInclude Include="src\output\HistWriter.h" />
-    <ClInclude Include="src\SignDefine.h" />
     <ClInclude Include="src\solvers\CEulerSolver.h" />
     <ClInclude Include="src\solvers\CSolver.h" />
     <ClInclude Include="src\solvers\equation\CEquation.h" />
@@ -106,11 +106,13 @@
     <ClInclude Include="src\space\convection\Convection.h" />
     <ClInclude Include="src\space\convection\ConvectionGPU.h" />
     <ClInclude Include="src\space\convection\LocalLaxFriedrichs.h" />
+    <ClInclude Include="src\space\convection\LocalLaxFriedrichsGPU.h" />
     <ClInclude Include="src\space\convection\Roe.h" />
     <ClInclude Include="src\space\convection\RoeGPU.h" />
     <ClInclude Include="src\space\Flux.h" />
     <ClInclude Include="src\space\FluxGPU.h" />
     <ClInclude Include="src\space\gradient\CalculateGradientGPU.h" />
+    <ClInclude Include="src\space\gradient\Gradient.h" />
     <ClInclude Include="src\space\Limiter.h" />
     <ClInclude Include="src\space\Reconstructor.h" />
     <ClInclude Include="src\space\RiemannSolver.h" />
@@ -122,6 +124,7 @@
     <CudaCompile Include="src\gpu\datatype\DeviceData.cu" />
     <CudaCompile Include="src\gpu\datatype\FieldSoA.cu" />
     <CudaCompile Include="src\solvers\GPUSolver2.cu" />
+    <CudaCompile Include="src\space\convection\LocalLaxFriedrichsGPU.cu" />
     <CudaCompile Include="src\space\convection\Roe.cpp" />
     <CudaCompile Include="src\space\convection\RoeGPU.cu" />
     <CudaCompile Include="src\space\FluxGPU.cu" />
@@ -136,14 +139,14 @@
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'" Label="Configuration">
     <ConfigurationType>Application</ConfigurationType>
     <UseDebugLibraries>true</UseDebugLibraries>
-    <CharacterSet>MultiByte</CharacterSet>
+    <CharacterSet>Unicode</CharacterSet>
     <PlatformToolset>v143</PlatformToolset>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'" Label="Configuration">
     <ConfigurationType>Application</ConfigurationType>
     <UseDebugLibraries>false</UseDebugLibraries>
     <WholeProgramOptimization>true</WholeProgramOptimization>
-    <CharacterSet>MultiByte</CharacterSet>
+    <CharacterSet>Unicode</CharacterSet>
     <PlatformToolset>v143</PlatformToolset>
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.props" />
@@ -175,6 +178,7 @@
     </Link>
     <CudaCompile>
       <TargetMachinePlatform>64</TargetMachinePlatform>
+      <GenerateRelocatableDeviceCode>true</GenerateRelocatableDeviceCode>
     </CudaCompile>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
@@ -190,12 +194,17 @@
       <EnableCOMDATFolding>true</EnableCOMDATFolding>
       <OptimizeReferences>true</OptimizeReferences>
       <SubSystem>Console</SubSystem>
-      <AdditionalDependencies>cudart_static.lib;kernel32.lib;user32.lib;gdi32.lib;winspool.lib;comdlg32.lib;advapi32.lib;shell32.lib;ole32.lib;oleaut32.lib;uuid.lib;odbc32.lib;odbccp32.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>cudart_static.lib;cudadevrt.lib;kernel32.lib;user32.lib;gdi32.lib;winspool.lib;comdlg32.lib;advapi32.lib;shell32.lib;ole32.lib;oleaut32.lib;uuid.lib;odbc32.lib;odbccp32.lib;%(AdditionalDependencies)</AdditionalDependencies>
       <StackCommitSize>8000</StackCommitSize>
     </Link>
     <CudaCompile>
       <TargetMachinePlatform>64</TargetMachinePlatform>
+      <GenerateRelocatableDeviceCode>true</GenerateRelocatableDeviceCode>
     </CudaCompile>
+    <CudaLink>
+      <AdditionalOptions>-rdc=true %(AdditionalOptions)</AdditionalOptions>
+      <AdditionalDependencies>%(AdditionalDependencies)</AdditionalDependencies>
+    </CudaLink>
   </ItemDefinitionGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

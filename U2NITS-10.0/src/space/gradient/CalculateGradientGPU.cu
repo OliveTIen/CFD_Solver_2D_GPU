@@ -2,6 +2,7 @@
 #include "CalculateGradientGPU.h"
 #include "../../solvers/GPUSolver2.h"
 #include "../../math/GPUMatrixKernel.h"
+#include "../../output/LogWriter.h"
 
 void GPU::calculateGradient2(GPU::ElementSoA& element_device, GPU::FieldSoA elementField_device) {
 	int block_size = 512;// 最好是128 256 512
@@ -9,6 +10,11 @@ void GPU::calculateGradient2(GPU::ElementSoA& element_device, GPU::FieldSoA elem
 	dim3 block(block_size, 1, 1);
 	dim3 grid(grid_size, 1, 1);
 	calculateGradientKernel2 <<<grid, block >>> (element_device, elementField_device);
+	cudaError_t cuda_error = cudaGetLastError();
+	if (cuda_error != 0) {
+		std::string e = "cudaError=" + std::to_string(cuda_error) + ", " + cudaGetErrorString(cuda_error);
+		LogWriter::writeLogAndCout(e, LogWriter::Error, LogWriter::Error);
+	}
 	// cudaDeviceSynchronize();放在外面
 }
 

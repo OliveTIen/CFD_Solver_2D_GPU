@@ -1,17 +1,10 @@
-﻿#include "global/Config.h"
-#include "output/LogWriter.h"
-#include "input/TomlFileManager.h"
-#include "drivers/CDriver.h"
-#include "FVM_2D.h"
-#include "JsonFileManager.h"
-#include "output/ConsolePrinter.h"
+﻿#include "drivers/CDriver.h"
+#include "global/GlobalPara.h"
 #include "global/FilePathManager.h"
 #include "global/SystemInfo.h"
-#include "global/Config.h"
-#include "output/LogWriter.h"
 #include "input/TomlFileManager.h"
-#include "drivers/CDriver.h"
-
+#include "output/ConsolePrinter.h"
+#include "output/LogWriter.h"
 
 #include <stdlib.h>
 using namespace std;
@@ -20,29 +13,14 @@ int main() {
 	std::cout << "Using VS Profiler. Please remove '/Profile' option on release.\n";
 
 	ConsolePrinter::printHeader();
-
-	// 初始化路径
-	FilePathManager* filePathManager = FilePathManager::getInstance();
-	// 生成日志
 	LogWriter::writeLog(SystemInfo::getCurrentDateTime() + "\n");
 	// 读取input.toml输入参数，处理部分输入参数
-	TomlFileManager tomlFileManager;
-	tomlFileManager.readFileAndParseFile(filePathManager->getTomlFilePath());
-	//tomlFileManager.printParsedFile();
-	// 读网格，初始化初值，求解
-	if (GlobalPara::basic::dimension == 1) {
-		std::cout << "Error: invalid dimension type. 1D has been deleted.\n";
+	TomlFileManager::getInstance()->readFileAndParseFile(FilePathManager::getInstance()->getTomlFilePath());
+	if (GlobalPara::basic::dimension == 2) {
+		U2NITS::CDriver::run_GPU();
 	}
-	else if (GlobalPara::basic::dimension == 2) {
-		if (GlobalPara::basic::useGPU) {
-			LogWriter::writeLogAndCout("Using GPU to solve 2D PDE.\n");
-			U2NITS::CDriver::run_GPU();
-		}
-		else {
-			
-			LogWriter::writeLogAndCout("Using CPU to solve 2D PDE.\n");
-			FVM_2D::getInstance()->run();
-		}
+	else {
+		LogWriter::writeLogAndCout("Error: invalid dimension type.\n", LogWriter::Error, LogWriter::Error);
 	}
 
 

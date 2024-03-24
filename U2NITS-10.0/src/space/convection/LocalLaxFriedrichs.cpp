@@ -1,7 +1,5 @@
 #include "LocalLaxFriedrichs.h"
-
-
-#include "../../math/PhysicalConvertKernel.h"
+#include "../../math/Math.h"
 
 void U2NITS::Space::LocalLaxFriedrichs(const REAL* UL, const REAL* UR, const REAL nx, const REAL ny, const REAL length, REAL* flux, REAL gamma) {
 

@@ -4,88 +4,39 @@
 #include "../global/GlobalPara.h"
 #include "../global/FilePathManager.h"
 #include "../global/StringProcessor.h"
+#include "../global/SystemInfo.h"
 #include "../solvers/GPUSolver2.h"
+#include "../input/CInput.h"
 #include "../input/SU2MeshReader.h"
 #include "../input/InpMeshReader.h"
+#include "../input/TomlFileManager.h"
 #include "../output/ConsolePrinter.h"
 #include "../output/FieldWriter.h"
 #include "../output/HistWriter.h"
 #include "../output/ResidualCalculator.h"
 #include "../output/LogWriter.h"
 
-void U2NITS::CDriver::run_GPU() {
-	FVM_2D* pFVM2D = FVM_2D::getInstance();
-	//// 初始化
-	// 尝试读取续算文件。若读取失败或者_continue==false则从头开始
-	bool startFromZero = false;
-	if (GlobalPara::basic::_continue) {
-		int flag_readContinue = pFVM2D->readContinueFile();
-		if (flag_readContinue == -1) {
-			std::string error_msg = "Info: Fail to read previous mesh(pause_*.dat). ";
-			error_msg += "Will try to start from zero again.\n";
-			LogWriter::writeLogAndCout(error_msg, LogWriter::Info);
-			startFromZero = true;
-			// 防止后面histWriter不写文件头
-			GlobalPara::basic::_continue = false;
-		}
-	}
-	else {
-		startFromZero = true;
-	}
-	// 从头开始。读取网格、初始化
-	if (startFromZero) {
-		const std::string& type = GlobalPara::basic::meshFileType;
-		if (type == "inp") {
-			std::string dir = FilePathManager::getInstance()->getInputDirectory();
-			int flag_readMesh = InpMeshReader::readGmeshFile(dir + GlobalPara::basic::filename + ".inp");
-			if (flag_readMesh == -1) {
-				std::string error_msg = "Error: Fail to read mesh. Program will exit.\n";
-				LogWriter::writeLogAndCout(error_msg);
-				return;//退出
-			}
-			pFVM2D->setInitialCondition();
-		}
-		else if (type == "su2") {
-			std::string dir = FilePathManager::getInstance()->getInputDirectory();
-			int flag_readMesh = SU2MeshReader::readFile(dir + GlobalPara::basic::filename + ".su2", true);
-			if (flag_readMesh == -1) {
-				std::string error_msg = "Error: Fail to read mesh. Program will exit.\n";
-				LogWriter::writeLogAndCout(error_msg);
-				return;//退出
-			}
-			pFVM2D->setInitialCondition();
-		}
-		else {
-			std::string error_msg = "Invalid mesh file type: " + type + ". Program will exit.\n";
-			LogWriter::writeLogAndCout(error_msg);
-			return;
-		}
 
-	}
+void U2NITS::CDriver::run_current() {
+	CInput input;
 
-	// 日志记录边界参数
-	std::string str;
-	str += "BoundaryCondition:\n";
-	str += "inlet::ruvp\t" + StringProcessor::doubleArray_2_string(GlobalPara::boundaryCondition::_2D::inlet::ruvp, 4)
-		+ "\noutlet::ruvp\t" + StringProcessor::doubleArray_2_string(GlobalPara::boundaryCondition::_2D::outlet::ruvp, 4)
-		+ "\ninf::ruvp\t" + StringProcessor::doubleArray_2_string(GlobalPara::boundaryCondition::_2D::inf::ruvp, 4)
-		+ "\n";
-	LogWriter::writeLog(str);
+	input.readConfig();
+	input.readField();
 
+	
 	//// 求解
-	if (GlobalPara::physicsModel::equation == _EQ_euler) {
-		solve_GPU();
+	solve_current();
 
 
-	}
-	else {
-		LogWriter::writeLogAndCout("Error: Invalid equation type.\n", LogWriter::Error, LogWriter::Error);
-		exit(111111);
-	}
-
+	// 停止
+#ifdef _WIN32
+	system("pause");
+#elif defined __linux__
+	getchar();
+#endif
 }
 
-void U2NITS::CDriver::solve_GPU() {
+void U2NITS::CDriver::solve_current() {
 	/*
 	[开发中]以下为GPU代码
 	TODO:
@@ -135,7 +86,8 @@ void U2NITS::CDriver::solve_GPU() {
 		std::string continueFilePath_nan = outputPathWithSlash + "nan_" + basicFileName + str_istep_withBracket + ".dat";
 
 		if (useGPU) {
-			gpuSolver2.iterationGPU(t, T);
+			//gpuSolver2.iterationGPU(t, T);
+			gpuSolver2.iterationHalfGPU(t, T);
 		}
 		else {
 			gpuSolver2.iterationTotalCPU(t, T);
@@ -242,46 +194,26 @@ void U2NITS::CDriver::solve_GPU() {
 
 	// 释放资源
 	gpuSolver2.finalize();
+
+
 }
 
-void U2NITS::CDriver::run_GPU_2() {
+void U2NITS::CDriver::run_2() {
 	/*
-步骤：（优化前）
-读取控制参数
-读取续算文件/读取网格文件+初始化
-输出边界参数
-计时
-输出残差文件头（hist）
-初始化GPU内存
-记录屏幕光标位置
-迭代开始
-更新文件名
-输出进度
-检测发散
-输出流场
-输出残差（hist）
-检测终止
-写文件
-输出提示词
-终止
-释放资源
-
 步骤：（优化后）
-读取配置（控制参数） FileReader.readConfig()
-初始化流场：读取续算文件/读取网格文件+初始化 FileReader.readField()
-输出初始信息（程序信息、边界参数等）COutput.updateScreen()
-输出残差文件头 COutput.writeHistFileHead()
-计时器开始
-初始化资源（GPU内存）Solver.initialize()
+读取配置（控制参数） CInput.readConfig()
+初始化流场：读取续算文件/读取网格文件+初始化 CInput.readField()
+输出初始信息（程序信息、边界参数等）COutput.printScreen()
+输出残差文件头 COutput.writeHistFileHead() 该判断放到函数中去
+计时器开始 CTimer.start()
+初始化资源（GPU内存）CSolver.initialize()
 迭代开始
-更新部分数据（文件名）
-计算（流场） Solver.iterate()
-计算（残差）仅需输出时计算 Solver.updateResidual()
-更新输出信息（包括记录下一次光标位置、输出进度）COutput.updateScreen()
-输出文件（流场、残差）COutput.writeField() COutput.writeResidual()
-判断是否跳出循环（终止）this->checkStop()
-输出结束信息（提示词）COutput.updateScreen()
-释放资源 Solver.finalize()
+	计算（流场和残差） CSolver.iterate() 残差仅需输出时计算
+	更新输出信息（包括文件名、下一次光标位置、输出进度）COutput.update()调用(COutput.updateData COutput.printScreen())
+	输出文件（流场、残差）COutput.writeFile() 包括COutput.writeField() COutput.writeResidual()(调用CSolver.updateResidual() )
+	判断是否跳出循环（终止）this->checkStop() 消息队列？
+	输出结束信息（提示词）COutput.updateScreen()
+释放资源 CSolver.finalize()
 
 为什么要多线程：
 磁盘IO操作比较耗时，此时CPU空闲，可以提高效率

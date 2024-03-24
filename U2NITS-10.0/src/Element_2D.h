@@ -31,8 +31,9 @@ public:
 public:
 	//计算面积 叉乘法计算三角形面积
 	double calArea(FVM_2D*);
-	//寻找相邻单元，返回指针数组
+	//寻找相邻单元，返回指针数组，数组大小为3，元素按edge顺序排列，可能为nullptr
 	std::vector<Element_2D*> findNeighbor();
+	//寻找相邻单元，返回指针数组，剔除空指针
 	std::vector<Element_2D*> findNeighbor_withoutNullptr();
 	//计算到最近邻居的距离
 	double calDistanceFromNearestNeighbor(FVM_2D* f);

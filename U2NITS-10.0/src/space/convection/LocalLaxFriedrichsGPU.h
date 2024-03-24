@@ -1,8 +1,7 @@
 #ifndef LOCAL_LAX_FRIEDRICHS_GPU_H
 #define LOCAL_LAX_FRIEDRICHS_GPU_H
 
-#include "../../gpu/datatype/Datatype.h"
-#include "../../math/PhysicalConvertKernel.h"
+#include "../../gpu/datatype/Define.h"
 
 namespace GPU {
 	namespace Space {

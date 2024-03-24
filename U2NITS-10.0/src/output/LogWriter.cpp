@@ -2,6 +2,7 @@
 
 #include "../global/FilePathManager.h"
 #include "../global/SystemInfo.h"
+#include "../global/StringProcessor.h"
 
 std::ofstream LogWriter::m_logFile = std::ofstream();
 std::string LogWriter::m_logFilePath = std::string();
@@ -46,4 +47,15 @@ void LogWriter::writeLogAndCout(std::string content, LogLevel logLevel, LogLevel
 	if (coutLevel <= m_coutLevel) {
 		std::cout << content;
 	}
+}
+
+void LogWriter::writeBoundaryCondition(double* inlet_ruvp, double* outlet_ruvp, double* inf_ruvp, int num_ruvp) {
+	// 日志记录边界参数
+	std::string str;
+	str += "BoundaryCondition:\n";
+	str += "inlet::ruvp\t" + StringProcessor::doubleArray_2_string(inlet_ruvp, num_ruvp)
+		+ "\noutlet::ruvp\t" + StringProcessor::doubleArray_2_string(outlet_ruvp, num_ruvp)
+		+ "\ninf::ruvp\t" + StringProcessor::doubleArray_2_string(inf_ruvp, num_ruvp)
+		+ "\n";
+	writeLog(str);
 }

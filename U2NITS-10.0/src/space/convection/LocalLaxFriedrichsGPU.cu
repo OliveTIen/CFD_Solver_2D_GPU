@@ -1,4 +1,5 @@
 #include "LocalLaxFriedrichsGPU.h"
+#include "../../math/MathGPU.h"
 
 __device__ void GPU::Space::Convection::LocalLaxFriedrichs2d(const REAL* UL, const REAL* UR, const REAL nx, const REAL ny, const REAL length, REAL* flux, REAL gamma) {
 

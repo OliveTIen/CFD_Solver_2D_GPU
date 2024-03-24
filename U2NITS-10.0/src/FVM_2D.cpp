@@ -23,131 +23,85 @@ FVM_2D* FVM_2D::getInstance() {
 	return pFVM2D;
 }
 
-void FVM_2D::run() {
-	// run_CPU
-
-	//// 初始化
-	// 尝试读取续算文件。若读取失败或者_continue==false则从头开始
-	bool startFromZero = false;
-	if (GlobalPara::basic::_continue) {
-		int flag_readContinue = readContinueFile();
-		if (flag_readContinue == -1) {
-			std::string error_msg = "Warning: Fail to read previous mesh(pause_*.dat). ";
-			error_msg += "Will try to start from zero again.\n";
-			LogWriter::writeLogAndCout(error_msg, LogWriter::Error);
-			startFromZero = true;
-			// 防止后面histWriter不写文件头
-			GlobalPara::basic::_continue = false;
-		}
-	}
-	else {
-		startFromZero = true;
-	}
-	// 从头开始。读取网格、初始化
-	if (startFromZero) {
-		const std::string& type = GlobalPara::basic::meshFileType;
-		if (type == "inp") {
-			std::string dir = FilePathManager::getInstance()->getInputDirectory();
-			int flag_readMesh = InpMeshReader::readGmeshFile(dir + GlobalPara::basic::filename + ".inp");
-			if (flag_readMesh == -1) {
-				std::string error_msg = "Error: Fail to read mesh. Program will exit.\n";
-				LogWriter::writeLogAndCout(error_msg, LogWriter::Error);
-				return;//退出
-			}
-			setInitialCondition();
-		}
-		else if (type == "su2") {
-			std::string dir = FilePathManager::getInstance()->getInputDirectory();
-			int flag_readMesh = SU2MeshReader::readFile(dir + GlobalPara::basic::filename + ".su2", true);
-			if (flag_readMesh == -1) {
-				std::string error_msg = "Error: Fail to read mesh. Program will exit.\n";
-				LogWriter::writeLogAndCout(error_msg, LogWriter::Error);
-				return;//退出
-			}
-			setInitialCondition();
-		}
-		else {
-			std::string error_msg = "Invalid mesh file type: " + type + ". Program will exit.\n";
-			LogWriter::writeLogAndCout(error_msg, LogWriter::Error);
-			return;
-		}
-
-	}
-
-	// 日志记录边界参数
-	std::string str;
-	str += "BoundaryCondition:\n";
-	str += "inlet::ruvp\t" + StringProcessor::doubleArray_2_string(GlobalPara::boundaryCondition::_2D::inlet::ruvp, 4)
-		+ "\noutlet::ruvp\t" + StringProcessor::doubleArray_2_string(GlobalPara::boundaryCondition::_2D::outlet::ruvp, 4)
-		+ "\ninf::ruvp\t" + StringProcessor::doubleArray_2_string(GlobalPara::boundaryCondition::_2D::inf::ruvp, 4)
-		+ "\n";
-	LogWriter::writeLog(str);
-
-	//// 求解
-	if (GlobalPara::physicsModel::equation == _EQ_euler) {
-		solve_CPU2("_Euler.out", "_Euler.info");
-	}
-	else {
-		std::cout << "Error: Invalid equation type";
-	}
-
-}
-
-void FVM_2D::setInitialCondition() {
-	switch (GlobalPara::initialCondition::type) {
-	case 1:
-	{
-		//1.常数
-		using namespace GlobalPara::boundaryCondition::_2D;
-		for (int ie = 0; ie < elements.size(); ie++) {
-			Math_2D::ruvp_2_U(inf::ruvp, elements[ie].U, GlobalPara::constant::gamma);
-			//if(elements[ie].ID==173)system()
-		}
-		std::string str;
-		str += "InitialCondition:\nUniform flow, ruvp\t" + StringProcessor::doubleArray_2_string(inf::ruvp, 4) + "\n";
-		LogWriter::writeLog(str);
-	}
-		break;
-
-	case 2:
-	{
-		//2.均匀流和等熵涡的叠加
-
-		using namespace GlobalPara::boundaryCondition::_2D;
-		std::string str;
-		str += "InitialCondition:\nUniform flow + isentropicVortex, ruvp of Uniform flow:" + StringProcessor::doubleArray_2_string(inf::ruvp, 4) + "\n";
-		LogWriter::writeLogAndCout(str, LogWriter::Info);
-		isentropicVortex_2(5, 5, 5, inf::ruvp);
-
-	}
-		break;
-
-	case 3:
-	{
-		// 需指定inlet和outlet
-		using namespace GlobalPara::boundaryCondition::_2D;
-		for (int ie = 0; ie < elements.size(); ie++) {
-			if (elements[ie].x < 0) {
-				Math_2D::ruvp_2_U(inlet::ruvp, elements[ie].U, GlobalPara::constant::gamma);
-			}
-			else {
-				Math_2D::ruvp_2_U(outlet::ruvp, elements[ie].U, GlobalPara::constant::gamma);
-			}
-			
-			//if(elements[ie].ID==173)system()
-		}
-		std::string str;
-		str += "InitialCondition:\nShock wave tube, ruvp_inlet\t" 
-			+ StringProcessor::doubleArray_2_string(inlet::ruvp, 4) 
-			+ "\truvp_outlet\t"
-			+ StringProcessor::doubleArray_2_string(outlet::ruvp, 4)
-			+ "\n";
-		LogWriter::writeLog(str);
-	}
-
-	}
-
-}
+//void FVM_2D::setInitialCondition() {
+//	switch (GlobalPara::initialCondition::type) {
+//	case 1:
+//	{
+//		//1.常数
+//		using namespace GlobalPara::boundaryCondition::_2D;
+//		for (int ie = 0; ie < elements.size(); ie++) {
+//			Math_2D::ruvp_2_U(inf::ruvp, elements[ie].U, GlobalPara::constant::gamma);
+//			//if(elements[ie].ID==173)system()
+//		}
+//		std::string str;
+//		str += "InitialCondition = Uniform flow, ruvp\t" + StringProcessor::doubleArray_2_string(inf::ruvp, 4) + "\n";
+//		LogWriter::writeLog(str);
+//	}
+//		break;
+//
+//	case 2:
+//	{
+//		//2.均匀流和等熵涡的叠加
+//
+//		using namespace GlobalPara::boundaryCondition::_2D;
+//		std::string str;
+//		str += "InitialCondition = Uniform flow + isentropicVortex, ruvp of Uniform flow:" + StringProcessor::doubleArray_2_string(inf::ruvp, 4) + "\n";
+//		LogWriter::writeLogAndCout(str, LogWriter::Info);
+//		isentropicVortex_2(5, 5, 5, inf::ruvp);
+//	}
+//		break;
+//
+//	case 3:
+//	{
+//		using namespace GlobalPara::boundaryCondition::_2D;
+//		for (int ie = 0; ie < elements.size(); ie++) {
+//			if (elements[ie].x < 0) {
+//				Math_2D::ruvp_2_U(inlet::ruvp, elements[ie].U, GlobalPara::constant::gamma);
+//			}
+//			else {
+//				Math_2D::ruvp_2_U(outlet::ruvp, elements[ie].U, GlobalPara::constant::gamma);
+//			}
+//		}
+//		std::stringstream ss;
+//		ss << "InitialCondition = Shock Tube.\n";
+//		ss << "ruvp_inlet = " << StringProcessor::doubleArray_2_string(inlet::ruvp, 4) << ",";
+//		ss << "ruvp_outlet = " << StringProcessor::doubleArray_2_string(outlet::ruvp, 4) << "\n";
+//		LogWriter::writeLogAndCout(ss.str(), LogWriter::Info, LogWriter::Info);
+//
+//	}
+//
+//	case 1001:
+//	{
+//		// sod激波管(会自动设置boundaryCondition)
+//		// 参照论文shock_tube，见D:\tgl\Local\CFD\shock_tube_code
+//		// 事实上计算远场边界时也是用的ruvp，如果一开始use_ruvp=false
+//		// 则会用Ma等计算ruvp，参加TomlFileManager::initialize_ruvp()
+//		// 综上，use_ruvp没必要修改，因为后面也用不上
+//		std::stringstream ss;
+//		ss << "InitialCondition = SOD Shock Tube. Boundary condition is automatically set.\n";
+//		LogWriter::writeLogAndCout(ss.str(), LogWriter::Info, LogWriter::Info);
+//		real ruvpL[4]{ 1,0,0,1 };
+//		real ruvpR[4]{ 0.125,0,0,0.1 };
+//		using namespace GlobalPara::boundaryCondition::_2D;
+//		// 修改边界条件
+//		for (int i = 0; i < 4; i++) {
+//			inlet::ruvp[i] = ruvpL[i];
+//			outlet::ruvp[i] = ruvpR[i];
+//		}
+//		// 初场
+//
+//	}
+//
+//	default:
+//	{
+//		std::stringstream ss;
+//		ss << "Error: Invalid initialCondition type " << GlobalPara::initialCondition::type << ".\n";
+//		LogWriter::writeLogAndCout(ss.str(), LogWriter::Error, LogWriter::Error);
+//		exit(GlobalPara::initialCondition::type);
+//	}
+//	}
+//
+//}
 
 //void FVM_2D::solve_CPU(std::string suffix_out, std::string suffix_info) {
 //	// 输入参数没有被用到
@@ -1242,55 +1196,54 @@ Node_2D* FVM_2D::getNodeByID(int ID) {
 	return pNodeTable[ID];
 }
 
-void FVM_2D::isentropicVortex(double x, double y, double xc, double yc, double chi, double& deltau, double& deltav, double& deltaT) {
-	double xbar = x - xc;
-	double ybar = y - yc;
-	double r2 = xbar * xbar + ybar * ybar;
-	const double gamma = GlobalPara::constant::gamma;
-	const double PI = GlobalPara::constant::PI;
-	deltau = chi / 2.0 / PI * exp(0.5 * (1 - r2)) * (-ybar);
-	deltav = chi / 2.0 / PI * exp(0.5 * (1 - r2)) * xbar;
-	deltaT = -(gamma - 1) / chi / chi * 8 * gamma * PI * PI * exp(1 - r2);
-}
-
-void FVM_2D::isentropicVortex_2(double xc, double yc, double chi, const double* ruvp0) {
-	//ruvp0：均匀流参数
-	for (int ie = 0; ie < elements.size(); ie++) {
-		Element_2D& e = elements[ie];
-		double rho, u, v, p;
-		double xbar, ybar, r2, du, dv, dT;
-		const double PI = GlobalPara::constant::PI;
-		const double gamma = GlobalPara::constant::gamma;
-		xbar = e.x - xc;
-		ybar = e.y - yc;
-		r2 = xbar * xbar + ybar * ybar;
-		du = chi / 2. / PI * exp(0.5 * (1. - r2)) * (-ybar);
-		dv = chi / 2. / PI * exp(0.5 * (1. - r2)) * xbar;
-		u = ruvp0[1] + du;
-		v = ruvp0[2] + dv;
-		dT = -(gamma - 1.) * chi * chi / (8. * gamma * PI * PI) * exp(1. - r2);
-		rho = pow(ruvp0[3] + dT, 1. / (gamma - 1.));
-		p = rho * (ruvp0[3] + dT);
-		double ruvp[4]{ rho,u,v,p };
-		Math_2D::ruvp_2_U(ruvp, e.U, gamma);
-	}
-	//lambda表达式 [ capture ] ( params ) opt -> ret { body; }; http://c.biancheng.net/view/3741.html
-	//例如 auto f = [](int a) -> int { return a + 1; };
-	//auto fun_WA = [](const double* xy) {
-}
-
-
-void FVM_2D::writeFileHeader_isentropicVortex() {
-	std::ofstream outfile(FilePathManager::getInstance()->getOutputDirectory() + "error_isentropicVortex_" + GlobalPara::basic::filename + ".txt", std::ios::app);//追加模式
-	outfile << SystemInfo::getCurrentDateTime() << "\n";
-	outfile
-		<< "istep" << "\t"
-		<< "cpu_time[s]" << "\t"
-		<< "error_L1" << "\t"
-		<< "error_L2" << "\t"
-		<< "error_max"<< "\n";
-	outfile.close();
-}
+//void FVM_2D::isentropicVortex(double x, double y, double xc, double yc, double chi, double& deltau, double& deltav, double& deltaT) {
+//	double xbar = x - xc;
+//	double ybar = y - yc;
+//	double r2 = xbar * xbar + ybar * ybar;
+//	const double gamma = GlobalPara::constant::gamma;
+//	const double PI = GlobalPara::constant::PI;
+//	deltau = chi / 2.0 / PI * exp(0.5 * (1 - r2)) * (-ybar);
+//	deltav = chi / 2.0 / PI * exp(0.5 * (1 - r2)) * xbar;
+//	deltaT = -(gamma - 1) / chi / chi * 8 * gamma * PI * PI * exp(1 - r2);
+//}
+//
+//void FVM_2D::isentropicVortex_2(double xc, double yc, double chi, const double* ruvp0) {
+//	//ruvp0：均匀流参数
+//	for (int ie = 0; ie < elements.size(); ie++) {
+//		Element_2D& e = elements[ie];
+//		double rho, u, v, p;
+//		double xbar, ybar, r2, du, dv, dT;
+//		const double PI = GlobalPara::constant::PI;
+//		const double gamma = GlobalPara::constant::gamma;
+//		xbar = e.x - xc;
+//		ybar = e.y - yc;
+//		r2 = xbar * xbar + ybar * ybar;
+//		du = chi / 2. / PI * exp(0.5 * (1. - r2)) * (-ybar);
+//		dv = chi / 2. / PI * exp(0.5 * (1. - r2)) * xbar;
+//		u = ruvp0[1] + du;
+//		v = ruvp0[2] + dv;
+//		dT = -(gamma - 1.) * chi * chi / (8. * gamma * PI * PI) * exp(1. - r2);
+//		rho = pow(ruvp0[3] + dT, 1. / (gamma - 1.));
+//		p = rho * (ruvp0[3] + dT);
+//		double ruvp[4]{ rho,u,v,p };
+//		Math_2D::ruvp_2_U(ruvp, e.U, gamma);
+//	}
+//	//lambda表达式 [ capture ] ( params ) opt -> ret { body; }; http://c.biancheng.net/view/3741.html
+//	//例如 auto f = [](int a) -> int { return a + 1; };
+//	//auto fun_WA = [](const double* xy) {
+//}
+//
+//void FVM_2D::writeFileHeader_isentropicVortex() {
+//	std::ofstream outfile(FilePathManager::getInstance()->getOutputDirectory() + "error_isentropicVortex_" + GlobalPara::basic::filename + ".txt", std::ios::app);//追加模式
+//	outfile << SystemInfo::getCurrentDateTime() << "\n";
+//	outfile
+//		<< "istep" << "\t"
+//		<< "cpu_time[s]" << "\t"
+//		<< "error_L1" << "\t"
+//		<< "error_L2" << "\t"
+//		<< "error_max"<< "\n";
+//	outfile.close();
+//}
 
 bool FVM_2D::isStable(std::vector<Element_2D> old) {
 	double sum = 0;

@@ -62,13 +62,13 @@ void TomlFileManager::modifyGlobalParametersAccordingToParsedFile() {
     getValue("constant.Pr", GlobalPara::constant::Pr);
     getValue("constant.gamma", GlobalPara::constant::gamma);
 
-    getValue("boundaryCondition.2D.inf.AOA", GlobalPara::boundaryCondition::_2D::inf::AOA);
-    getValue("boundaryCondition.2D.inf.Ma", GlobalPara::boundaryCondition::_2D::inf::Ma);
-    getValue("boundaryCondition.2D.inf.p", GlobalPara::boundaryCondition::_2D::inf::ruvp[3]);
-    getValue("boundaryCondition.2D.inf.rho", GlobalPara::boundaryCondition::_2D::inf::ruvp[0]);
-    getValue("boundaryCondition.2D.inf.u", GlobalPara::boundaryCondition::_2D::inf::ruvp[1]);
-    getValue("boundaryCondition.2D.inf.use_ruvp", GlobalPara::boundaryCondition::_2D::inf::use_ruvp);
-    getValue("boundaryCondition.2D.inf.v", GlobalPara::boundaryCondition::_2D::inf::ruvp[2]);
+    getOptionalValueIfExists("boundaryCondition.2D.inf.AOA", GlobalPara::boundaryCondition::_2D::inf::AOA);
+    getOptionalValueIfExists("boundaryCondition.2D.inf.Ma", GlobalPara::boundaryCondition::_2D::inf::Ma);
+    getOptionalValueIfExists("boundaryCondition.2D.inf.p", GlobalPara::boundaryCondition::_2D::inf::ruvp[3]);
+    getOptionalValueIfExists("boundaryCondition.2D.inf.rho", GlobalPara::boundaryCondition::_2D::inf::ruvp[0]);
+    getOptionalValueIfExists("boundaryCondition.2D.inf.u", GlobalPara::boundaryCondition::_2D::inf::ruvp[1]);
+    getOptionalValueIfExists("boundaryCondition.2D.inf.use_ruvp", GlobalPara::boundaryCondition::_2D::inf::use_ruvp);
+    getOptionalValueIfExists("boundaryCondition.2D.inf.v", GlobalPara::boundaryCondition::_2D::inf::ruvp[2]);
 
     getOptionalValueIfExists("boundaryCondition.2D.inlet.AOA", GlobalPara::boundaryCondition::_2D::inlet::AOA);
     getOptionalValueIfExists("boundaryCondition.2D.inlet.Ma", GlobalPara::boundaryCondition::_2D::inlet::Ma);
@@ -110,6 +110,7 @@ void TomlFileManager::modifyGlobalParametersAccordingToParsedFile() {
     getValue("time.residual", GlobalPara::time::residual);
 
     getValue("inviscid_flux_method.flag_reconstruct", GlobalPara::space::flag_reconstruct);
+    getValue("inviscid_flux_method.flag_gradient", GlobalPara::space::flag_gradient);
     getValue("inviscid_flux_method.flux_conservation_scheme", GlobalPara::inviscid_flux_method::flux_conservation_scheme);
     getValue("inviscid_flux_method.flux_limiter", GlobalPara::inviscid_flux_method::flux_limiter);
 

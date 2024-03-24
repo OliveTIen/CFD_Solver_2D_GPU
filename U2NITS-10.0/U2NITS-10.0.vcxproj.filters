@@ -58,6 +58,12 @@
     <Filter Include="src\space\gradient">
       <UniqueIdentifier>{7a6d9b49-c9f3-445c-8bb4-d73029c88f1b}</UniqueIdentifier>
     </Filter>
+    <Filter Include="src\space\restrict">
+      <UniqueIdentifier>{d57ddb73-7870-4a4e-9a12-65fd1e757654}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="src\output\exact_solution">
+      <UniqueIdentifier>{fa4f593e-f8d3-4ae2-a0c3-17ee73aa5a02}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="src\main.cpp">
@@ -189,6 +195,24 @@
     <ClCompile Include="src\global\GlobalPara.cpp">
       <Filter>src\global</Filter>
     </ClCompile>
+    <ClCompile Include="src\solvers\OldDataConverter.cpp">
+      <Filter>src\solvers</Filter>
+    </ClCompile>
+    <ClCompile Include="src\input\CInput.cpp">
+      <Filter>src\input</Filter>
+    </ClCompile>
+    <ClCompile Include="src\space\restrict\Restrict.cpp">
+      <Filter>src\space\restrict</Filter>
+    </ClCompile>
+    <ClCompile Include="src\input\Initializer.cpp">
+      <Filter>src\input</Filter>
+    </ClCompile>
+    <ClCompile Include="src\output\ExactSolutionWriter.cpp">
+      <Filter>src\output</Filter>
+    </ClCompile>
+    <ClCompile Include="src\output\exact_solution\ShockTubeExactSolver.cpp">
+      <Filter>src\output\exact_solution</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <None Include="README.md" />
@@ -287,9 +311,6 @@
     <ClInclude Include="src\gpu\datatype\FieldSoA.h">
       <Filter>src\gpu\dataType</Filter>
     </ClInclude>
-    <ClInclude Include="src\output\Debugger.h">
-      <Filter>src\output</Filter>
-    </ClInclude>
     <ClInclude Include="src\drivers\CDriver.h">
       <Filter>src\drivers</Filter>
     </ClInclude>
@@ -329,16 +350,16 @@
     <ClInclude Include="src\space\FluxGPU.h">
       <Filter>src\space</Filter>
     </ClInclude>
-    <ClInclude Include="src\space\gradient\CalculateGradientGPU.h">
+    <ClInclude Include="src\space\gradient\GradientGPU.h">
       <Filter>src\space\gradient</Filter>
     </ClInclude>
     <ClInclude Include="src\gpu\datatype\Datatype.h">
       <Filter>src\gpu\dataType</Filter>
     </ClInclude>
-    <ClInclude Include="src\math\GPUMatrixKernel.h">
+    <ClInclude Include="src\math\MatrixKernelGPU.h">
       <Filter>src\math</Filter>
     </ClInclude>
-    <ClInclude Include="src\math\PhysicalConvertKernel.h">
+    <ClInclude Include="src\math\PhysicalKernel.h">
       <Filter>src\math</Filter>
     </ClInclude>
     <ClInclude Include="src\solvers\GPUSolver2.h">
@@ -374,6 +395,42 @@
     <ClInclude Include="src\global\GlobalPara.h">
       <Filter>src\global</Filter>
     </ClInclude>
+    <ClInclude Include="src\solvers\OldDataConverter.h">
+      <Filter>src\solvers</Filter>
+    </ClInclude>
+    <ClInclude Include="src\input\CInput.h">
+      <Filter>src\input</Filter>
+    </ClInclude>
+    <ClInclude Include="src\math\PhysicalKernelGPU.h">
+      <Filter>src\math</Filter>
+    </ClInclude>
+    <ClInclude Include="src\math\Math.h">
+      <Filter>src\math</Filter>
+    </ClInclude>
+    <ClInclude Include="src\math\MathGPU.h">
+      <Filter>src\math</Filter>
+    </ClInclude>
+    <ClInclude Include="src\math\Common.h">
+      <Filter>src\math</Filter>
+    </ClInclude>
+    <ClInclude Include="src\math\BasicAlgorithm.h">
+      <Filter>src\math</Filter>
+    </ClInclude>
+    <ClInclude Include="src\math\BasicAlgorithmGPU.h">
+      <Filter>src\math</Filter>
+    </ClInclude>
+    <ClInclude Include="src\space\restrict\Restrict.h">
+      <Filter>src\space\restrict</Filter>
+    </ClInclude>
+    <ClInclude Include="src\input\Initializer.h">
+      <Filter>src\input</Filter>
+    </ClInclude>
+    <ClInclude Include="src\output\ExactSolutionWriter.h">
+      <Filter>src\output</Filter>
+    </ClInclude>
+    <ClInclude Include="src\output\exact_solution\ShockTubeExactSolver.h">
+      <Filter>src\output\exact_solution</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <CudaCompile Include="src\gpu\datatype\FieldSoA.cu">
@@ -391,7 +448,7 @@
     <CudaCompile Include="src\space\FluxGPU.cu">
       <Filter>src\space</Filter>
     </CudaCompile>
-    <CudaCompile Include="src\space\gradient\CalculateGradientGPU.cu">
+    <CudaCompile Include="src\space\gradient\GradientGPU.cu">
       <Filter>src\space\gradient</Filter>
     </CudaCompile>
     <CudaCompile Include="src\solvers\GPUSolver2.cu">

@@ -1,102 +1,26 @@
+
 #include "GPUSolver2.h"
+#include "OldDataConverter.h"
+#include <sstream>
 #include "../FVM_2D.h"
-#include "../space/gradient/CalculateGradientGPU.h"
+#include "../space/gradient/GradientGPU.h"
 #include "../space/gradient/Gradient.h"
 #include "../space/FluxGPU.h"
-#include "../math/PhysicalConvertKernel.h"
+#include "../space/restrict/Restrict.h"
+#include "../math/Math.h"
 #include "../time/CalculateDt.h"
 #include "../time/Evolve.h"
 #include "../time/EvolveGPU.h"
 #include "../output/LogWriter.h"
 
+
 void GPU::GPUSolver2::initialze() {
 
-	// 设置GPU
-	int iDeviceCount = 0;
-	cudaError_t error = cudaGetDeviceCount(&iDeviceCount);
-	if (error != cudaSuccess || iDeviceCount <= 0) {
-		LogWriter::writeLog(cudaGetErrorString(error), LogWriter::Error);
-		exit(-1);
-	}
-	printf("Num of GPU: %d\n", iDeviceCount);
-
-	int iDev = 0;
-	error = cudaSetDevice(iDev);
-	if (error != cudaSuccess) {
-		LogWriter::writeLog(cudaGetErrorString(error), LogWriter::Error);
-		exit(-1);
-	}
-	printf("Activate GPU: %d\n", iDev);
-
-	// 申请host内存
-	FVM_2D* pFVM2D = FVM_2D::getInstance();
-	const int num_node = (int)pFVM2D->nodes.size();
-	const int num_element = (int)pFVM2D->elements.size();
-	//const int num_neighbor = 3;
-	const int num_edge = (int)pFVM2D->edges.size();
-	this->node_host.alloc(num_node);
-	this->element_host.alloc(num_element);
-	this->elementField_host.alloc(num_element);
-	this->edge_host.alloc(num_edge);
-	for (int j = 0; j < 4; j++) {
-		element_vruvp[j] = new REAL[num_element];
-		element_U_old[j] = new REAL[num_element];
-	}
-	boundary_host.alloc(pFVM2D->boundaryManager.boundaries.size());
-	outputNodeField.alloc(num_node);
-	
-
-	// 申请device内存
-	try {
-		// 双向拷贝数据
-		node_device.cuda_alloc(num_node);
-		element_device.cuda_alloc(num_element);
-		elementField_device.cuda_alloc(num_element);
-		edge_device.cuda_alloc(num_edge);
-		boundary_device.cuda_alloc(pFVM2D->boundaryManager.boundaries.size());
-
-		// 仅传入GPU的数据
-		using namespace GlobalPara::boundaryCondition::_2D;// using有作用域，不用担心混淆
-		infPara_device = new GPU::DGlobalPara(inf::ruvp, inlet::ruvp, outlet::ruvp, 4
-			, &GlobalPara::constant::R, &GlobalPara::constant::gamma,&GlobalPara::inviscid_flux_method::flux_conservation_scheme);
-	}
-	catch (const char* e) {
-		// ! 异常处理未完成
-		std::cout << e << std::endl;
-		cudaError_t error = cudaError_t::cudaErrorDeviceUninitialized;
-		exit(-1);
-	}
-	
-	// 初始化Element_2D vector中的GPUindex
-//#pragma omp parallel for
-	for (int i = 0; i < num_node; i++) {
-		pFVM2D->nodes[i].GPUID = i;
-	}
-//#pragma omp barrier
-//#pragma omp parallel for
-	for (int i = 0; i < num_element; i++) {
-		pFVM2D->elements[i].GPUID = i;
-	}
-//#pragma omp barrier
-//#pragma omp parallel for
-	for (int i = 0; i < num_edge; i++) {
-		pFVM2D->edges[i].GPUID = i;
-	}
-//#pragma omp barrier
-
-	//std::cout << "initialize_nodeHost\n";
-	// 初始化host
-	initialize_nodeHost(pFVM2D, num_node);
-	initialize_elementHost(pFVM2D, num_element);
-	initialize_edgeHost(pFVM2D, num_edge);
-	initialize_boundary(pFVM2D);
-
-	//std::cout << "cuda_memcpy\n";
-	// 复制host数据到device
-	GPU::NodeSoA::cuda_memcpy(&node_device, &node_host, cudaMemcpyHostToDevice);
-	GPU::ElementSoA::cuda_memcpy(&element_device, &element_host, cudaMemcpyHostToDevice);
-	GPU::FieldSoA::cuda_memcpy(&elementField_device, &elementField_host, cudaMemcpyHostToDevice);
-	GPU::EdgeSoA::cuda_memcpy(&edge_device, &edge_host, cudaMemcpyHostToDevice);
+	setGPUDevice(GlobalPara::basic::useGPU);// 设置GPU
+	allocate();// 申请host和device内存
+	U2NITS::OldDataConverter oldDataConverter(FVM_2D::getInstance(), this);
+	oldDataConverter.Convert_FVM2D_to_GPUHostData();
+	host_to_device();// 复制host数据到device
 
 }
 
@@ -104,8 +28,9 @@ void GPU::GPUSolver2::iterationTotalCPU(REAL& t, REAL T) {
 	update_ruvp_Uold();
 	REAL dt = calculateDt(t, T);
 	t += dt;
-	U2NITS::Space::Gradient::GradientLeastSquare(element_host, elementField_host);
+	U2NITS::Space::Gradient::Gradient(element_host, elementField_host, node_host, edge_host);
 	U2NITS::Time::EvolveHost(dt, GlobalPara::time::time_advance, element_host, elementField_host, edge_host, edge_periodic_pair);
+	U2NITS::Space::Restrict::modifyElementFieldU2d(element_host, elementField_host);
 }
 
 void GPU::GPUSolver2::iterationHalfGPU(REAL& t, REAL T) {
@@ -113,11 +38,25 @@ void GPU::GPUSolver2::iterationHalfGPU(REAL& t, REAL T) {
 	update_ruvp_Uold();
 	REAL dt = calculateDt(t, T);
 	t += dt;
+	cudaError_t cuda_error;
 
-	GPU::calculateGradient2(element_device, elementField_device);
+	GPU::calculateGradient_old(element_device, elementField_device);
 	cudaDeviceSynchronize();
+
+	cuda_error = cudaGetLastError();
+	if (cuda_error != 0) {
+		std::string e = "cudaError=" + std::to_string(cuda_error) + ", " + cudaGetErrorString(cuda_error);
+		LogWriter::writeLogAndCout(e, LogWriter::Error, LogWriter::Error);
+		// cudaErrorIllegalAddress(700)
+		// an illegal memory access was encountered
+		// 可以尝试用更小的块？
+		exit(700);
+	}
+
+
 	device_to_host();
 	U2NITS::Time::EvolveHost(dt, GlobalPara::time::time_advance, element_host, elementField_host, edge_host, edge_periodic_pair);
+	U2NITS::Space::Restrict::modifyElementFieldU2d(element_host, elementField_host);
 	host_to_device();
 
 	//iterationDevice(dt);
@@ -133,7 +72,7 @@ void GPU::GPUSolver2::iterationGPU(REAL& t, REAL T) {
 	t += dt;
 
 	cudaError_t cuda_error;
-	GPU::calculateGradient2(element_device, elementField_device);
+	GPU::calculateGradient_old(element_device, elementField_device);
 
 	cuda_error = cudaGetLastError();
 	if (cuda_error != 0) {
@@ -156,6 +95,17 @@ void GPU::GPUSolver2::iterationGPU(REAL& t, REAL T) {
 
 	GPU::Time::EvolveDevice(dt, GlobalPara::time::time_advance, element_host, elementField_host, edge_host, boundary_device, *infPara_device);
 	cudaDeviceSynchronize();
+
+	cuda_error = cudaGetLastError();
+	if (cuda_error != 0) {
+		std::string e = "cudaError=" + std::to_string(cuda_error) + ", " + cudaGetErrorString(cuda_error);
+		LogWriter::writeLogAndCout(e, LogWriter::Error, LogWriter::Error);
+		// cudaErrorIllegalAddress(700)
+		// an illegal memory access was encountered
+		// 可以尝试用更小的块？
+	}
+
+
 	device_to_host();// 传递到主机，用于输出
 	//host_to_device();// 不需要，因为已经将主机与设备同步
 
@@ -165,7 +115,7 @@ void GPU::GPUSolver2::iterationDevice(REAL dt) {
 
 
 	// 计算单元梯度 对device操作
-	GPU::calculateGradient2(element_device, elementField_device);
+	GPU::calculateGradient_old(element_device, elementField_device);
 	cudaDeviceSynchronize();
 	GPU::Time::EvolveDevice(dt, GlobalPara::time::time_advance, element_host, elementField_host, edge_host, boundary_device, *infPara_device);
 	//// 时间推进 对device操作
@@ -222,6 +172,72 @@ void GPU::GPUSolver2::finalize() {
 
 void GPU::GPUSolver2::updateResidual() {
 
+}
+
+void GPU::GPUSolver2::setGPUDevice(bool useGPU) {
+	int nDevice = 0;
+	int iDevice = 0;	
+	cudaError_t error = cudaGetDeviceCount(&nDevice);
+	if (error != cudaSuccess || nDevice <= 0) {
+		LogWriter::writeLog(cudaGetErrorString(error), LogWriter::Error);
+		exit(-1);
+	}
+	error = cudaSetDevice(iDevice);
+	if (error != cudaSuccess) {
+		LogWriter::writeLog(cudaGetErrorString(error), LogWriter::Error);
+		exit(-1);
+	}
+	std::stringstream ss;
+	ss << "Num of GPU: " << nDevice << ", " << "active GPU: " << iDevice << "\n";
+	
+	if (useGPU) {
+		LogWriter::writeLog(ss.str());
+	}
+	else {
+		LogWriter::writeLogAndCout(ss.str());
+	}
+}
+
+void GPU::GPUSolver2::allocate() {
+	// 申请host内存
+	FVM_2D* pFVM2D = FVM_2D::getInstance();
+	const int num_node = (int)pFVM2D->nodes.size();
+	const int num_element = (int)pFVM2D->elements.size();
+	const int num_edge = (int)pFVM2D->edges.size();
+	const int boundary_size = (int)pFVM2D->boundaryManager.boundaries.size();
+
+	this->node_host.alloc(num_node);
+	this->element_host.alloc(num_element);
+	this->elementField_host.alloc(num_element);
+	this->edge_host.alloc(num_edge);
+	for (int j = 0; j < 4; j++) {
+		element_vruvp[j] = new REAL[num_element];
+		element_U_old[j] = new REAL[num_element];
+	}
+	boundary_host.alloc(boundary_size);
+	outputNodeField.alloc(num_node);
+
+
+	// 申请device内存
+	try {
+		// 双向拷贝数据
+		node_device.cuda_alloc(num_node);
+		element_device.cuda_alloc(num_element);
+		elementField_device.cuda_alloc(num_element);
+		edge_device.cuda_alloc(num_edge);
+		boundary_device.cuda_alloc(boundary_size);
+
+		// 仅传入GPU的数据
+		using namespace GlobalPara::boundaryCondition::_2D;// using有作用域，不用担心混淆
+		infPara_device = new GPU::DGlobalPara(inf::ruvp, inlet::ruvp, outlet::ruvp, 4
+			, &GlobalPara::constant::R, &GlobalPara::constant::gamma, &GlobalPara::inviscid_flux_method::flux_conservation_scheme);
+	}
+	catch (const char* e) {
+		// ! 异常处理未完成
+		std::cout << e << std::endl;
+		cudaError_t error = cudaError_t::cudaErrorDeviceUninitialized;
+		exit(-1);
+	}
 }
 
 void GPU::GPUSolver2::initialize_nodeHost(void* _pFVM2D_, int num_node) {
@@ -372,6 +388,9 @@ void GPU::GPUSolver2::update_ruvp_Uold() {
 	for (int i = 0; i < this->elementField_host.num; i++) {
 		// 更新host端的U_old
 		for (int j = 0; j < 4; j++) {
+			if (isnan(U[j][i])) {
+				LogWriter::writeLogAndCout("Error: isnan.\n", LogWriter::Error, LogWriter::Error);
+			}
 			U_old[j][i] = U[j][i];
 		}
 		// 更新host端的ruvp 

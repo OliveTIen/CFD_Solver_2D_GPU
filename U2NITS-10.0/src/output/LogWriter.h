@@ -29,6 +29,8 @@ public:
 	//app 1-续写 0-覆盖 须在filename初始化后使用
 	static void writeLog(std::string content, LogLevel logLevel = Debug);
 	static void writeLogAndCout(std::string content, LogLevel logLevel = Info, LogLevel coutLevel = Info);
+
+	static void writeBoundaryCondition(double* inlet_ruvp, double* outlet_ruvp,double* inf_ruvp, int num_ruvp);
 };
 
 #endif

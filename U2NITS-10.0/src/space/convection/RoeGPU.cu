@@ -1,5 +1,5 @@
 #include "RoeGPU.h"
-#include "../../math/GPUMatrixKernel.h"
+#include "../../math/MathGPU.h"
 
 __device__ void GPU::Space::Convection::ConvectRoeCommon2d(const REAL UL[4], const REAL UR[4], const REAL faceNormal[2], const REAL faceArea, REAL faceFlux[4], DGlobalPara& para) {
 	// 采用熵修正的Roe求解器 参考UNITs Convect_Roe_Common
@@ -111,7 +111,7 @@ __device__ void GPU::Space::Convection::RoeDissapationTerm2d(REAL gamma, REAL ru
 	real eig2 = abs(unormaln + anormaln);
 	real eig3 = abs(unormaln - anormaln);
 	// 熵修正
-	const real epsilon = GPU::Matrix::EPSILON;
+	const real epsilon = U2NITS::Math::EPSILON;
 	const real& enFixK1 = KEntropyFix[0];
 	const real& enFixK2 = KEntropyFix[1];
 	const real& enFixK3 = KEntropyFix[2];

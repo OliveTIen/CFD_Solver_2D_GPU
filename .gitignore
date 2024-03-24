@@ -1,12 +1,15 @@
-# Folders - Olive Defined
+# Env and Exe Folder
 /.vs
 /x64
+
+# Project
+/TestCode
+
 /U2NITS-10.0/.config
 /U2NITS-10.0/output
 /U2NITS-10.0/release_factory
 /U2NITS-10.0/WorkingDirectory
 /U2NITS-10.0/x64
-/TestCode
 
 /U2NITs-10.1/workingDirectory
 /U2NITs-10.1/x64

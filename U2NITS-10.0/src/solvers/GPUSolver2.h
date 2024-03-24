@@ -43,6 +43,9 @@ namespace GPU {
 		void finalize();
 		
 	private:
+		void setGPUDevice(bool useGPU);
+		void allocate();
+
 		void initialize_nodeHost(void* _pFVM2D_, int num_node);
 		// 初始化element和elementField的host数据
 		void initialize_elementHost(void* _pFVM2D_, int num_element);
@@ -63,6 +66,7 @@ namespace GPU {
 		void iterationHost(REAL dt);
 		// host数据更新到device
 		void host_to_device();
+
 	};
 }
 

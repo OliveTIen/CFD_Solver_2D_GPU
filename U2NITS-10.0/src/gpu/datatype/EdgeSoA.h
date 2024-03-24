@@ -11,9 +11,9 @@ namespace GPU {
 		int* ID;
 		int* nodes[2];
 		int* setID;
-		int* periodicPair;// 周期边界的对应边界ID，默认-1
-		int* elementL;
-		int* elementR;
+		int* periodicPair;// 周期边界对应pair的ID。普通边界默认是-1
+		int* elementL;// 左单元ID。任何edge一定有左单元，因此一定不是-1
+		int* elementR;// 右单元ID。边界edge的右单元一般是-1，周期边界除外
 		REAL* length;
 		REAL* distanceOfElements;// 两侧单元中心距离
 		REAL* xy[2];// 边坐标

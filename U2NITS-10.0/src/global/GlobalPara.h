@@ -19,6 +19,9 @@ constexpr auto _SOL_Roe = 2002;
 //重构方式 3001-3099
 constexpr auto _REC_constant = 3001;//常量重构
 constexpr auto _REC_linear = 3002;  //线性重构
+// 梯度
+constexpr auto _GRA_leastSquare = 1;// 最小二乘求梯度
+constexpr auto _GRA_greenGauss = 2;// GreenGauss求梯度
 //时间推进方式 3101-3199 evolution
 constexpr auto _EVO_explicit = 3101;//显式时间推进
 constexpr auto _EVO_rk3 = 3103;//RK3
@@ -87,6 +90,7 @@ namespace GlobalPara {
 			extern double x2;
 		}
 		extern int flag_reconstruct;// 重构方法。[todo]与通量构造方法易混淆，fun3d中未找到此选项
+		extern int flag_gradient;
 	}
 	namespace time {
 		extern double CFL;

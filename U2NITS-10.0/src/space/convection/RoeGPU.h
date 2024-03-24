@@ -1,7 +1,7 @@
 #ifndef _ROE_GPU_H_
 #define _ROE_GPU_H_
 #include "../../gpu/datatype/Datatype.h"
-#include "../../math/PhysicalConvertKernel.h"
+
 
 namespace GPU {
 	namespace Space {

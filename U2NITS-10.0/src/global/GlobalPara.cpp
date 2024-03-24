@@ -29,6 +29,7 @@ namespace GlobalPara {
 			double x2 = 1.0;
 		}
 		int flag_reconstruct = _REC_constant;
+		int flag_gradient = _GRA_leastSquare;
 	}
 	namespace time {
 		double CFL = 0.6;

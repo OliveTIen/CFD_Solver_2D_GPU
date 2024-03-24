@@ -15,6 +15,13 @@ author: tgl
 以前能够实现光标移动，可是更改代码后发现失效了。经排查，原来是开头输出input.toml时，由于输出内容超过1页，导致屏幕滚动，
 然而目前的ConsolePrinter只支持一行滚动的
 
+2024-03-19
+在计算梯度的代码中，发现了LeastSquare的内存错误：nValidNeighbor提前+1。
+以前直接改成GPU程序，导致该错误没发现，因此引发cuda_error 700异常。
+看来在改为GPU程序前，一定要在CPU上测试一下
+
+仍然出现异常。检查文件读取程序，发现element的指标管理混乱
+
 2024-03-16
 1.出现bug，debug模式下无法运行，release模式下可以运行；显示栈被破坏；用堆则会陷入死循环
 后来发现是程序的问题，原来是U2ruvwp函数没有修改，二维数组用三维的函数造成越界。这说明三维程序改为二维程序时要小心
@@ -212,3 +219,73 @@ $(OutDir) = $(SolutionDir)$(Platform)\$(Configuration)\
           = D:\tgl\Local\HPC\U2NITS-10.0\x64\Debug\    # 输出目录 该目录下生成exe pdb等文件
 
 例如我将调试的工作目录修改为$(ProjectDir)WorkingDirectory\。设置后注意点“应用”
+
+关于堆内存二维数组
+
+void testHeap2DArray() {
+	const int nVar = 4;// 守恒量个数，二维为4
+	const int nX = 2;// 坐标个数，二维为2
+	const int nVN = 3;// 有效邻居个数
+
+
+
+	//real dUdX[nX][nVar]{};// 已初始化为0
+	// 法一 指向数组的指针。delete时卡住，
+	//auto dX = new real[nVN][nX];
+	//auto dU = new real[nVN][nVar];
+	// real (*dX)[2] 表示一个指向包含 2 个元素的 real 数组的指针，而 real * dX[2] 则是一个包含两个 real 指针的数组。
+	/*
+	释放时应使用delete[] dX。因为此时dX相当于一个一维数组，有nVN个元素，每个元素大小为2*sizeof(real)
+
+	*/
+
+	// 法一 动态二维数组 报错
+	//real** dX = new real * [nVN];
+	//real** dU = new real * [nVN];
+	//for (int i = 0; i < nVN; i++) {
+	//	dX[i] = new real[nX];
+	//	dU[i] = new real[nVar];
+	//}
+
+	//// 法三 栈内存，能运行，但是大小固定
+	//real dXs[nVN][nX];
+	//real dUs[nVN][nVar];
+	//auto dX = dXs;
+	//auto dU = dUs;
+
+	// 法四 全部当作一维数组
+	
+	real* dX = new real[nVN * nX];
+	real* dUdX = new real[nX * nVar];
+	real* dU = new real[nVN * nVar];
+
+	real dXtrans[nX][nVN];
+	
+
+	for (int i = 0; i < nVN; i++) {
+		for (int j = 0; j < nX; j++) {
+			for (int k = 0; k < nVar; k++) {
+				//dX[i][j] = i + j;
+				//dUdX[j][k] = j + k;
+				//dU[i][k] = i + k;
+
+				dX[i * nX + j] = i + j;
+				dUdX[j * nVar + k] = j + k;
+				dU[i * nVar + k] = i + k;
+			}
+		}
+	}
+	GPU::Matrix::printMatrix(nVN, nX, (real*)dX);
+	GPU::Matrix::printMatrix(nX, nVar, (real*)dUdX);
+	GPU::Matrix::mul_ixj_jxk(nVN, nX, nVar, (real*)dX, (real*)dUdX, (real*)dU);
+	GPU::Matrix::printMatrix(nVN, nVar, (real*)dU);
+
+	//for (int i = 0; i < nVN; i++) {
+	//	delete[] dX[i];
+	//	delete[] dU[i];
+	//}
+	delete[] dX;
+	delete[] dUdX;
+	delete[] dU;
+}
+

@@ -2,7 +2,7 @@
 #define _CALCULATE_DT_H_
 
 #include "../space/FluxGPU.h"
-#include "../math/PhysicalConvertKernel.h"
+#include "../math/Math.h"
 #include "../solvers/GPUSolver2.h"
 #include <iostream>
 

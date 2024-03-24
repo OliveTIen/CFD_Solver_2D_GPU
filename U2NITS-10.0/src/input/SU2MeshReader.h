@@ -41,6 +41,7 @@ public:
 
 public:
 	static int readFile(std::string filePath, bool convertRectToTriangle);
+	static int readFile_2(std::string filePath, bool convertRectToTriangle);
 };
 
 #endif // !SU2_MESH_READER

@@ -4,9 +4,9 @@
 namespace U2NITS {
 	class CDriver {
 	public:
-		static void run_GPU();
-		static void solve_GPU();
-		static void run_GPU_2();
+		static void run_current();
+		static void solve_current();
+		static void run_2();
 
 	private:
 		enum MySignal {

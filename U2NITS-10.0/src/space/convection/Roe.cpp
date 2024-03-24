@@ -1,7 +1,7 @@
 #include "Roe.h"
-#include "../../math/PhysicalConvertKernel.h"
-#include "../../math/GPUMatrixKernel.h"
+#include "../../math/Math.h"
 #include "../../global/GlobalPara.h"
+#include "../../output/LogWriter.h"
 #include <cmath>
 
 void U2NITS::Space::EigenValueAndVector4x4(REAL mat[4][4], REAL eigens[4], REAL R[4][4]) {
@@ -269,7 +269,6 @@ void U2NITS::Space::RoeDissapationTerm3d(
 	const REAL faceNormal[3], REAL faceArea,
 	bool bDynamicMesh, REAL dynamicMeshValue,
 	bool bEntropyFix, REAL KEntropyFix[3], REAL kp,
-
 	REAL drRoe[5]
 ) {
 	// 参照UNITs Roe_dissipation_term
@@ -323,7 +322,7 @@ void U2NITS::Space::RoeDissapationTerm3d(
 	real eig2 = abs(unormaln + anormaln);
 	real eig3 = abs(unormaln - anormaln);
 	// 熵修正
-	const real epsilon = GPU::Matrix::EPSILON;
+	const real epsilon = U2NITS::Math::EPSILON;
 	const real& enFixK1 = KEntropyFix[0];
 	const real& enFixK2 = KEntropyFix[1];
 	const real& enFixK3 = KEntropyFix[2];
@@ -386,17 +385,11 @@ void U2NITS::Space::ConvectRoeCommon2d(const REAL UL[4], const REAL UR[4], const
 	// 输出：faceFlux
 	real nx = faceNormal[0];
 	real ny = faceNormal[1];
-	//real* ruvpL;
-	//real* ruvpR;
-	//ruvpL = new real[4];
-	//ruvpR = new real[4];
-	real ruvpL[4]{};
-	real ruvpR[4]{};
-
-	// 面法向单位向量
 	real velocity_dynaMesh = 0;//动网格相关，目前不需要
 	real rcpcv = GlobalPara::constant::R;
 	// 守恒量转场变量rho u v w p
+	real ruvpL[4]{};
+	real ruvpR[4]{};
 	U2NITS::Math::U2ruvp_host(UL, ruvpL, gamma);
 	U2NITS::Math::U2ruvp_host(UR, ruvpR, gamma);
 	real rL = ruvpL[0];
@@ -407,6 +400,9 @@ void U2NITS::Space::ConvectRoeCommon2d(const REAL UL[4], const REAL UR[4], const
 	real uR = ruvpR[1];
 	real vR = ruvpR[2];
 	real pR = ruvpR[3];
+	//// 修正
+	//U2NITS::Math::restrictRhoAndP(ruvpL);
+	//U2NITS::Math::restrictRhoAndP(ruvpR);
 	// 法向速度
 	real ulnormaln = (nx * uL + ny * vL + velocity_dynaMesh);
 	real urnormaln = (nx * uR + ny * vR + velocity_dynaMesh);
@@ -445,6 +441,13 @@ void U2NITS::Space::ConvectRoeCommon2d(const REAL UL[4], const REAL UR[4], const
 	faceFlux[1] -= funscheme * drRoe[1];
 	faceFlux[2] -= funscheme * drRoe[2];
 	faceFlux[3] -= funscheme * drRoe[3];
+
+	//for (int i = 0; i < 4; i++) {
+	//	if (isnan(faceFlux[i])) {
+	//		std::cout << "Error isnan(faceFlux[i])\n";
+	//	}
+	//}
+
 	// 在debug模式下，函数结束时会出现 Runtime check failure #2 the stack around ... was corrupted 问题
 	// 但release模式下没问题
 	// 将ruvpL和ruvpR设置为堆指针后，出现死循环，检查发现停留在delete[] ruvpL上
@@ -500,7 +503,7 @@ void U2NITS::Space::RoeDissapationTerm2d(REAL gamma, REAL ruvpL[4], REAL ruvpR[4
 	real eig2 = abs(unormaln + anormaln);
 	real eig3 = abs(unormaln - anormaln);
 	// 熵修正
-	const real epsilon = GPU::Matrix::EPSILON;
+	const real epsilon = U2NITS::Math::EPSILON;
 	const real& enFixK1 = KEntropyFix[0];
 	const real& enFixK2 = KEntropyFix[1];
 	const real& enFixK3 = KEntropyFix[2];
@@ -546,6 +549,13 @@ void U2NITS::Space::RoeDissapationTerm2d(REAL gamma, REAL ruvpL[4], REAL ruvpR[4
 	drRoe[2] = 0.5 * (eig1 * dW[2] + dUroe * rm * vm + dProe * ny) * sav;
 	drRoe[3] = 0.5 * (eig1 * dW[3] + dUroe * rm * Hm + dProe * (unormaln - meshNormalVelocity)) * sav;
 
+	for (int i = 0; i < 4; i++) {
+		if (isnan(drRoe[i])) {
+			LogWriter::writeLogAndCout("Error isnan(drRoe[i])\n", LogWriter::Error, LogWriter::Error);
+			exit(-1);
+		}
+	}
+
 }
 
 
@@ -564,7 +574,7 @@ void U2NITS::Space::GetRoeMatrix3d(
 	// 为什么面法向量是4维向量而不是3维？
 	// 
 	typedef REAL real;// real是局部变量
-	const real epsilon = GPU::Matrix::EPSILON;
+	const real epsilon = U2NITS::Math::EPSILON;
 	real& area = faceArea;
 	auto& S_vector = faceVector;
 	real ga1 = gamma - 1;

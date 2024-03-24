@@ -18,7 +18,7 @@ namespace GPU {
 		int* ID;
 		int* nodes[4];
 		int* edges[4];// faces
-		int* neighbors[4];
+		int* neighbors[4];// 邻居单元，按edges顺序排列；-1表示无邻居；周期边界依然是-1
 		REAL* xy[2];
 		REAL* volume;
 		//REAL* y;

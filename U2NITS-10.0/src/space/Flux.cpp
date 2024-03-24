@@ -1,8 +1,9 @@
 #include "Flux.h"
 #include "../FVM_2D.h"
-#include "../math/PhysicalConvertKernel.h"
+#include "../math/Math.h"
 #include "convection/Convection.h"
-
+#include "../global/StringProcessor.h"
+#include "restrict/Restrict.h"
 
 
 void U2NITS::Space::Flux::calculateFluxHost(ElementSoA& element_host, FieldSoA& elementField_host, EdgeSoA& edge_host, std::map<int, int>& edge_periodic_pair) {
@@ -23,6 +24,9 @@ void U2NITS::Space::Flux::calculateFluxHost(ElementSoA& element_host, FieldSoA& 
 
     // 每条边计算无粘通量，然后根据方向分别加减给两侧单元的Flux。所有边遍历后，所有单元的Flux也就计算出来了
     for (int iedge = 0; iedge < edge_host.num_edge; iedge++) {
+
+
+
         FVM_2D* f = FVM_2D::getInstance();
         int elementL = edge_host.elementL[iedge];
         int elementR = edge_host.elementR[iedge];
@@ -34,6 +38,14 @@ void U2NITS::Space::Flux::calculateFluxHost(ElementSoA& element_host, FieldSoA& 
             bType = f->boundaryManager.boundaries[setID - 1].type;
         }
         double flux[4]{};
+
+
+        //if (iedge == 562) {
+        //    //std::cout << "ElementL=" << elementL << ", x_edge=" << x_edge << ", y_edge=" << y_edge << ", ";
+        //    std::cout << "edge=" << iedge << ", ";
+        //    //std::cout << "ruvp_L=" << StringProcessor::doubleArray_2_string(ruvp_L, 4) << std::endl;
+        //    std::cout << "(U2NITS::Space::Flux::getEdgeFlux_farField)\n";
+        //}
 
         switch (bType) {
             //对称。对欧拉方程，相当于无粘固壁
@@ -64,7 +76,7 @@ void U2NITS::Space::Flux::calculateFluxHost(ElementSoA& element_host, FieldSoA& 
             Space::Flux::getEdgeFlux_farField(element_host, elementField_host, edge_host, iedge,
                 GlobalPara::boundaryCondition::_2D::inf::ruvp, flux);
             break;
-        default:// 内部：bType=-1
+        default:// 内部：bType=-1，边界：bType取_BC_periodic_0到_BC_periodic_9，即6100-6109
             if (elementR != -1) {
                 // 周期和内部 统一处理
                 Space::Flux::getEdgeFlux_inner_and_periodic(element_host, elementField_host, edge_host, edge_periodic_pair, iedge, flux);
@@ -195,20 +207,27 @@ void U2NITS::Space::Flux::getEdgeFlux_farField(ElementSoA& element_host, FieldSo
     bool is_divergent = false;
     if (ruvp_L[3] < 0) {
         is_divergent = true;
-        std::cout << "p < 0, ";
+        //std::cout << "p < 0, ";
     }
     if (ruvp_L[0] < 0) {
         is_divergent = true;
-        std::cout << "rho < 0, ";
+        //std::cout << "rho < 0, ";
     }
     if (ruvp_L[0] > 900) {
         is_divergent = true;
-        std::cout << "rho > 900, ";
+        //std::cout << "rho > 900, ";
     }
     if (is_divergent) {
-        std::cout << "ElementLID=" << iElementL << ", x_edge=" << x_edge << ", y_edge=" << y_edge << ", ";
-        std::cout << "(GPU::Flux::getEdgeFlux_farField)\n";
+    //if (is_divergent|| idx == 562) {
+        std::cout << "ElementL=" << iElementL << ", x_edge=" << x_edge << ", y_edge=" << y_edge << ", ";
+        std::cout << "edge=" << idx << ", ";
+        std::cout << "ruvp_L=" << StringProcessor::doubleArray_2_string(ruvp_L, 4) << std::endl;
+        std::cout << "(U2NITS::Space::Flux::getEdgeFlux_farField)\n";
     }
+
+ 
+
+
     //根据远场边界条件修正ruvp_L
     Space::Flux::modify_ruvpL_farField(nx, ny, ruvp_L, ruvp_inf);
     U2NITS::Math::ruvp2U_host(ruvp_L, U_L, GlobalPara::constant::gamma);
@@ -243,10 +262,18 @@ void U2NITS::Space::Flux::modify_ruvpL_farField(const REAL nx, const REAL ny, RE
 
     //if (rho_n < 0)system("pause");
     REAL a_n2 = gamma * p_n / rho_n;
-    if (a_n2 < 0) { std::cout << "Error: a_n2 < 0\n";  system("pause"); }
+    if (a_n2 < 0) {
+        std::cout << "Error: a_n2 < 0\n";  
+        //system("pause"); 
+        //exit(-1); 
+    }
     const REAL a_n = sqrt(a_n2);
     REAL a_n_inf2 = gamma * p_n_inf / rho_n_inf;
-    if (a_n_inf2 < 0) { std::cout << "Error: a_n_inf2 < 0\n";  system("pause"); }
+    if (a_n_inf2 < 0) {
+        std::cout << "Error: a_n_inf2 < 0\n";  
+        //system("pause");
+        //exit(-1); 
+    }
     const REAL a_n_inf = sqrt(a_n_inf2);
 
     REAL v_n_tmp;
@@ -305,11 +332,10 @@ void U2NITS::Space::Flux::getEdgeFlux_inner_and_periodic(ElementSoA& element_hos
     long iElementL = edge_host.elementL[idx];
     long iElementR = edge_host.elementR[idx];
 
-    // 计算edge坐标处的U值(分别用两侧单元的分布函数计算)
+    // 计算edge坐标处的U值(分别用两侧单元的分布函数计算)，分为周期边界和内部边界两种情况
     REAL U_L[4]{};
     Flux::getUByXYandElementID(element_host, elementField_host, x_edge, y_edge, iElementL, U_L);
     REAL U_R[4]{};
-
     if (edge_host.setID[idx] != -1) {
         // 周期边界 应使用对称的edge的坐标计算U值
         //throw "Warning: periodic not implemented yet!\n";
@@ -352,6 +378,14 @@ void U2NITS::Space::Flux::getUByXYandElementID(ElementSoA& element_host, FieldSo
             REAL& Ux_elementL = elementField_host.Ux[jValue][elementID];
             REAL& Uy_elementL = elementField_host.Uy[jValue][elementID];
             U_dist[jValue] = U_elementL + Ux_elementL * (x - x_elementL) + Uy_elementL * (y - y_elementL);
+        }
+        // 若数据异常，则常量重构
+        real ruvp[4]{};
+        Math::U2ruvp_host(U_dist, ruvp, GlobalPara::constant::gamma);
+        if (Restrict::outOfRange(ruvp)) {
+            for (int jValue = 0; jValue < 4; jValue++) {
+                U_dist[jValue] = elementField_host.U[jValue][elementID];
+            }
         }
     }
 }

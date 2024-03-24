@@ -1,12 +1,14 @@
-#ifndef __MATRIX_KERNEL_H__
-#define __MATRIX_KERNEL_H__
+#ifndef __GPUMATHKERNEL_H__
+#define __GPUMATHKERNEL_H__
 
-#include "../gpu/dataType/Define.h"
+#include "Common.h"
 #include <iostream>
 
-namespace U2NITS {
+namespace GPU {
 	namespace Math {
 		namespace Matrix {
+			//constexpr real EPSILON = U2NITS::Math::EPSILON;
+			using U2NITS::Math::EPSILON;
 
 			inline void printMatrix(long i, const long j, REAL* matrix) {
 				for (long x = 0; x < i; x++) {
@@ -18,7 +20,7 @@ namespace U2NITS {
 			}
 
 			// mat: ixj, res: jxi
-			inline void transpose(int i, int j, REAL* mat, REAL* res) {
+			inline void __device__ transpose(int i, int j, REAL* mat, REAL* res) {
 				for (int x = 0; x < i; x++) {
 					for (int y = 0; y < j; y++) {
 						*(res + y * i + x) = *(mat + x * j + y);
@@ -26,7 +28,7 @@ namespace U2NITS {
 				}
 			}
 
-			inline void inv_2x2(REAL(*mat)[2]) {
+			inline void __device__ inv_2x2(REAL(*mat)[2]) {
 				REAL det, inv_det, inv_a, inv_b, inv_c, inv_d;
 				det = mat[0][0] * mat[1][1] - mat[0][1] * mat[1][0];
 				if (det >= 0 && det < EPSILON) det = EPSILON;
@@ -42,7 +44,19 @@ namespace U2NITS {
 				mat[1][1] = inv_d;
 			}
 
-			inline void inv_2x2(real* mat) {
+			inline void __device__ inv_2x2(REAL(*mat)[2], REAL(*res)[2]) {
+				REAL det, inv_det;
+				det = mat[0][0] * mat[1][1] - mat[0][1] * mat[1][0];
+				if (det >= 0 && det < EPSILON) det = EPSILON;
+				else if (det > -EPSILON)det = -EPSILON;
+				inv_det = 1.0 / det;
+				res[0][0] = mat[1][1] * inv_det;
+				res[0][1] = -mat[0][1] * inv_det;
+				res[1][0] = -mat[1][0] * inv_det;
+				res[1][1] = mat[0][0] * inv_det;
+			}
+
+			inline void __device__ inv_2x2(real* mat) {
 				REAL det, inv_det, inv_a, inv_b, inv_c, inv_d;
 				det = mat[0 * 2 + 0] * mat[1 * 2 + 1] - mat[0 * 2 + 1] * mat[1 * 2 + 0];
 				if (det >= 0 && det < EPSILON) det = EPSILON;
@@ -58,20 +72,8 @@ namespace U2NITS {
 				mat[1 * 2 + 1] = inv_d;
 			}
 
-			inline void inv_2x2(REAL(*mat)[2], REAL(*res)[2]) {
-				REAL det, inv_det;
-				det = mat[0][0] * mat[1][1] - mat[0][1] * mat[1][0];
-				if (det >= 0 && det < EPSILON) det = EPSILON;
-				else if (det > -EPSILON)det = -EPSILON;
-				inv_det = 1.0 / det;
-				res[0][0] = mat[1][1] * inv_det;
-				res[0][1] = -mat[0][1] * inv_det;
-				res[1][0] = -mat[1][0] * inv_det;
-				res[1][1] = mat[0][0] * inv_det;
-			}
-
 			// mat1: ixj, mat2: jxk, res: ixk
-			inline void mul_ixj_jxk(int i, int j, int k, REAL* mat1, REAL* mat2, REAL* res) {
+			inline void __device__ mul_ixj_jxk(int i, int j, int k, REAL* mat1, REAL* mat2, REAL* res) {
 				for (int x = 0; x < i; x++) {
 					for (int y = 0; y < k; y++) {
 						*(res + x * k + y) = 0.0;
@@ -83,7 +85,7 @@ namespace U2NITS {
 				}
 			}
 
-			inline void div_matrix_by_scalar(int nRow, int nCol, real* mat, real scalar) {
+			inline void __device__ div_matrix_by_scalar(int nRow, int nCol, real* mat, real scalar) {
 				// ¾ØÕó³ýÒÔ±êÁ¿
 				for (int i = 0; i < nRow; i++) {
 					for (int j = 0; j < nCol; j++) {
@@ -93,9 +95,8 @@ namespace U2NITS {
 			}
 
 		}
-
 	}
-
 }
 
-#endif
+
+#endif // __GPUMATHKERNEL_H__

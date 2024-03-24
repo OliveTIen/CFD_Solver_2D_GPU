@@ -1,6 +1,6 @@
 #include "FluxGPU.h"
 #include "../FVM_2D.h"
-#include "../math/PhysicalConvertKernel.h"
+#include "../math/Math.h"
 #include "convection/ConvectionGPU.h"
 
 void GPU::Space::Flux::calculateFluxDevice(ElementSoA& element_device, FieldSoA& elementField_device, EdgeSoA& edge_device, BoundarySetMap& boundary_device, DGlobalPara& infPara_device) {

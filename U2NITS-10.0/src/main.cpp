@@ -1,35 +1,15 @@
 ﻿#include "drivers/CDriver.h"
-#include "global/GlobalPara.h"
-#include "global/FilePathManager.h"
-#include "global/SystemInfo.h"
-#include "input/TomlFileManager.h"
-#include "output/ConsolePrinter.h"
-#include "output/LogWriter.h"
-
-#include <stdlib.h>
+//#include "global/GlobalPara.h"
+//#include "global/FilePathManager.h"
+//#include "global/SystemInfo.h"
+//#include "input/TomlFileManager.h"
+//#include "output/ConsolePrinter.h"
+//#include "output/LogWriter.h"
+//#include <stdlib.h>
 using namespace std;
 
 int main() {
-	std::cout << "Using VS Profiler. Please remove '/Profile' option on release.\n";
-
-	ConsolePrinter::printHeader();
-	LogWriter::writeLog(SystemInfo::getCurrentDateTime() + "\n");
-	// 读取input.toml输入参数，处理部分输入参数
-	TomlFileManager::getInstance()->readFileAndParseFile(FilePathManager::getInstance()->getTomlFilePath());
-	if (GlobalPara::basic::dimension == 2) {
-		U2NITS::CDriver::run_GPU();
-	}
-	else {
-		LogWriter::writeLogAndCout("Error: invalid dimension type.\n", LogWriter::Error, LogWriter::Error);
-	}
-
-
-	// 停止
-#ifdef _WIN32
-	system("pause");
-#elif defined __linux__
-	getchar();
-#endif
+	U2NITS::CDriver::run_current();
 	return 0;
 }
 

@@ -11,9 +11,10 @@ ElementSoA中有两种数据，一种是基本不变的数据，如ID、节点、边、邻居等，
 */
 
 namespace GPU {
-	class ElementSoA {
+	struct ElementSoA {
 	public:
 		int num_element;
+		int* _num_element_;// GPU使用
 
 		int* ID;
 		int* nodes[4];
@@ -31,6 +32,8 @@ namespace GPU {
 	public:
 		void alloc(int _num_element) {
 			num_element = _num_element;
+			_num_element_ = new int;
+			*_num_element_ = num_element;
 			ID = new int[num_element];
 			for (int i = 0; i < 4; i++) {
 				nodes[i] = new int[num_element];
@@ -47,6 +50,7 @@ namespace GPU {
 		}
 
 		void free() {
+			delete _num_element_;
 			delete[] ID;
 			for (int i = 0; i < 4; i++) {
 				delete[] nodes[i];
@@ -64,6 +68,9 @@ namespace GPU {
 
 		void cuda_alloc(int _num_element) {
 			num_element = _num_element;
+			cudaMalloc(&_num_element_, 1 * sizeof(int));
+			cudaMemcpy(_num_element_, &num_element, 1 * sizeof(int), ::cudaMemcpyHostToDevice);
+
 			cudaMalloc(&ID, num_element * sizeof(int));
 			for (int i = 0; i < 4; i++) {
 				cudaMalloc(&nodes[i], num_element * sizeof(int));
@@ -80,6 +87,7 @@ namespace GPU {
 		}
 
 		void cuda_free() {
+			cudaFree(_num_element_);
 			cudaFree(ID);
 			for (int i = 0; i < 4; i++) {
 				cudaFree(nodes[i]);

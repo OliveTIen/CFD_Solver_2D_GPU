@@ -551,7 +551,7 @@ void U2NITS::Space::RoeDissapationTerm2d(REAL gamma, REAL ruvpL[4], REAL ruvpR[4
 
 	for (int i = 0; i < 4; i++) {
 		if (isnan(drRoe[i])) {
-			LogWriter::writeLogAndCout("Error isnan(drRoe[i])\n", LogWriter::Error, LogWriter::Error);
+			LogWriter::logAndPrintError("Error isnan(drRoe[i])\n");
 			exit(-1);
 		}
 	}

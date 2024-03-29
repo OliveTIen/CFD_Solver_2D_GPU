@@ -35,7 +35,7 @@ FVM_2D* FVM_2D::getInstance() {
 //		}
 //		std::string str;
 //		str += "InitialCondition = Uniform flow, ruvp\t" + StringProcessor::doubleArray_2_string(inf::ruvp, 4) + "\n";
-//		LogWriter::writeLog(str);
+//		LogWriter::log(str);
 //	}
 //		break;
 //
@@ -46,7 +46,7 @@ FVM_2D* FVM_2D::getInstance() {
 //		using namespace GlobalPara::boundaryCondition::_2D;
 //		std::string str;
 //		str += "InitialCondition = Uniform flow + isentropicVortex, ruvp of Uniform flow:" + StringProcessor::doubleArray_2_string(inf::ruvp, 4) + "\n";
-//		LogWriter::writeLogAndCout(str, LogWriter::Info);
+//		LogWriter::logAndPrint(str, LogWriter::Info);
 //		isentropicVortex_2(5, 5, 5, inf::ruvp);
 //	}
 //		break;
@@ -66,7 +66,7 @@ FVM_2D* FVM_2D::getInstance() {
 //		ss << "InitialCondition = Shock Tube.\n";
 //		ss << "ruvp_inlet = " << StringProcessor::doubleArray_2_string(inlet::ruvp, 4) << ",";
 //		ss << "ruvp_outlet = " << StringProcessor::doubleArray_2_string(outlet::ruvp, 4) << "\n";
-//		LogWriter::writeLogAndCout(ss.str(), LogWriter::Info, LogWriter::Info);
+//		LogWriter::logAndPrint(ss.str(), LogWriter::Info, LogWriter::Info);
 //
 //	}
 //
@@ -79,7 +79,7 @@ FVM_2D* FVM_2D::getInstance() {
 //		// 综上，use_ruvp没必要修改，因为后面也用不上
 //		std::stringstream ss;
 //		ss << "InitialCondition = SOD Shock Tube. Boundary condition is automatically set.\n";
-//		LogWriter::writeLogAndCout(ss.str(), LogWriter::Info, LogWriter::Info);
+//		LogWriter::logAndPrint(ss.str(), LogWriter::Info, LogWriter::Info);
 //		real ruvpL[4]{ 1,0,0,1 };
 //		real ruvpR[4]{ 0.125,0,0,0.1 };
 //		using namespace GlobalPara::boundaryCondition::_2D;
@@ -96,7 +96,7 @@ FVM_2D* FVM_2D::getInstance() {
 //	{
 //		std::stringstream ss;
 //		ss << "Error: Invalid initialCondition type " << GlobalPara::initialCondition::type << ".\n";
-//		LogWriter::writeLogAndCout(ss.str(), LogWriter::Error, LogWriter::Error);
+//		LogWriter::logAndPrint(ss.str(), LogWriter::Error, LogWriter::Error);
 //		exit(GlobalPara::initialCondition::type);
 //	}
 //	}
@@ -239,196 +239,196 @@ FVM_2D* FVM_2D::getInstance() {
 //		}
 //		//终止
 //		if (signal_pause) {
-//			LogWriter::writeLog(solveInfo);
+//			LogWriter::log(solveInfo);
 //			break;
 //		}
 //	}
 //
 //}
 
-void FVM_2D::solve_CPU2(std::string suffix_out, std::string suffix_info) {
-	/*
-	
-	将GPU代码复制到此处后，应修改的地方包括：
-	1.将GPU::GPUSolver2 gpuSolver2; 改为 Solver_2D cpuSolver2;
-	2.删除初始化部分try
-	3.计算部分，将gpuSolver2.iteration()改为cpuSolver2.evolve(dt)
-	4.释放资源部分，删除gpuSolver2.finalize()
-	具体可参照Git记录
-
-	*/
-
-	const int residual_vector_size = 4;
-	const int istep_previous = GlobalPara::time::istep_previous;
-	const double previous_t = GlobalPara::time::t_previous;
-	const double big_value = 1e8;
-	const int maxIteration = GlobalPara::output::maxIteration;
-	const double T = GlobalPara::time::T;//目标物理时间。用于控制是否终止计算
-	int nFiles = 0;//输出文件个数，用于显示
-	int iCurrentAutosaveFile = 0;// 自动保存文件的指标，构成循环队列
-	double residual_vector[residual_vector_size]{ 1,1,1,1 };
-	double t = previous_t;//当前物理时间。由续算时的起始时间决定
-	enum MySignal {
-		_NoSignal,
-		_EscPressed,
-		_TimeReached,
-		_StableReached
-	};
-	std::vector<Element_2D> elements_old;
-	std::vector<double> u_nodes;// 节点u, size=nodes.size()。输出流场时，用作缓存。
-	std::vector<double> v_nodes;
-	std::vector<double> rho_nodes;
-	std::vector<double> p_nodes;
-	std::string solveInfo;
-	std::string outputPathWithSlash = FilePathManager::getInstance()->getOutputDirectory();
-	std::string basicFileName = GlobalPara::basic::filename;
-	clock_t start_t;
-	COORD p1;
-	Solver_2D cpuSolver2;
-	HistWriter histWriter(outputPathWithSlash + basicFileName + "_hist.dat");
-
-	// 初始化
-	start_t = clock();
-	histWriter.writeHistFileHead();
-	p1 = ConsolePrinter::getCursorPosition();
-	//ConsolePrinter::drawProgressBar(int(t / T));
-
-
-	// 迭代
-	const int offset = 0;
-	for (int istep = istep_previous; istep <= maxIteration && t <= T; istep++) {
-		// --- 更新 ---
-		// 更新文件名
-		char szBuffer[20];
-		sprintf_s(szBuffer, _countof(szBuffer), "%04d", istep);//若istep小于4位数，则补0
-		std::string str_istep_withBracket = "[" + std::string(szBuffer) + "]";
-		std::string tecplotFilePath = outputPathWithSlash + basicFileName + str_istep_withBracket + ".dat";
-		std::string continueFilePath = outputPathWithSlash + "pause_" + basicFileName + str_istep_withBracket + ".dat";
-		std::string continueFilePath_nan = outputPathWithSlash + "nan_" + basicFileName + str_istep_withBracket + ".dat";
-		// 更新旧结果
-		elements_old = this->elements;
-		// 更新时间和时间步长
-		double dt = this->caldt(t, T);
-		t += dt;
-
-		// --- 计算 ---
-		// GPU计算
-		cpuSolver2.evolve(dt);
-
-		// --- 输出 ---
-		// 输出进度表示正在计算，没有卡顿
-		std::cout << ".";
-		bool b_writeContinue = false;
-		bool b_writeTecplot = false;
-		bool b_pause = false;//暂停信号，为true则终止
-		MySignal promptSignal = _NoSignal;// 提示词分类
-		// 定期输出进度
-		if (istep % GlobalPara::output::step_per_print == offset) {
-			ConsolePrinter::clearDisplay(p1, ConsolePrinter::getCursorPosition());
-			ConsolePrinter::setCursorPosition(p1);
-			ConsolePrinter::drawProgressBar(int(double(istep) / double(maxIteration) * 100.0 + 2));;//+x是为了防止停在99%
-
-			double calculateTime = (double)(clock() - start_t) / CLOCKS_PER_SEC;
-			double calculateSpeed = ((istep - istep_previous) / calculateTime);
-			solveInfo = ConsolePrinter::assemblySolveInfo(calculateTime, istep, maxIteration, calculateSpeed, nFiles, t, T, residual_vector);
-			std::cout << solveInfo;
-		}
-		// 检查非法值 非法则立刻跳出循环
-		if (this->isNan() || residual_vector[0] > big_value) {
-			// 这里直接break，因此不需要用到后面的b_writeContinue、b_writeTecplot
-			// 况且writeContinueFile的参数不同，有nan
-			ConsolePrinter::printInfo(ConsolePrinter::InfoType::type_nan_detected);
-			//writeTecplotFile(tecplotFilePath, t);// 别删
-			// 根据单元U更新节点ruvp
-			this->calculateNodeValue(rho_nodes,u_nodes,v_nodes,p_nodes);
-			FieldWriter::writeTecplotFile(t, tecplotFilePath, "title", nodes, elements, rho_nodes, u_nodes, v_nodes, p_nodes);
-			//this->writeContinueFile(continueFilePath_nan, t, istep);// 别删
-			FieldWriter::writeContinueFile(
-				istep, t, continueFilePath_nan, nodes, elements, &(this->boundaryManager)
-			);
-			break;
-		}
-		// 定期输出流场
-		if (istep % GlobalPara::output::step_per_output_field == offset) {
-			//writeTecplotFile(tecplotFilePath, t);
-			b_writeTecplot = true;
-			nFiles++;
-			//.autosave 自动保存文件 续算文件
-			this->updateAutoSaveFile(t, istep, iCurrentAutosaveFile);
-
-		}
-		// 定期输出残差
-		if (istep % GlobalPara::output::step_per_output_hist == offset) {
-			//计算残差，结果保存在residual_vector中
-			ResidualCalculator::cal_residual(elements_old, elements, ResidualCalculator::NORM_INF, residual_vector);
-			histWriter.writeHistFileData(istep, residual_vector, residual_vector_size);
-		}
-
-		// --- 终止 ---
-		// 按esc终止
-		if (_kbhit()) {
-			if (_getch() == 27) {
-				b_writeContinue = true;
-				b_pause = true;
-				promptSignal = _EscPressed;
-			}
-		}
-		// 达到规定迭代时间，终止
-		else if (t >= T || istep >= maxIteration) {
-			b_writeContinue = true;
-			b_writeTecplot = true;
-			b_pause = true;
-			promptSignal = _TimeReached;
-		}
-		// 残差足够小，终止
-		else if (residual_vector[0] <= GlobalPara::constant::epsilon) {
-			b_writeContinue = true;
-			b_writeTecplot = true;
-			b_pause = true;
-			promptSignal = _StableReached;
-		}
-
-		// 写文件操作
-		if (b_writeContinue || b_writeTecplot) {
-			// 根据单元U更新节点ruvp
-			this->calculateNodeValue(rho_nodes, u_nodes, v_nodes, p_nodes);
-			if (b_writeContinue) {
-				//this->writeContinueFile(continueFilePath, t, istep);
-				FieldWriter::writeContinueFile(
-					istep, t, continueFilePath, nodes, elements, &(this->boundaryManager)
-				);
-			}
-			if (b_writeTecplot) {
-				//writeTecplotFile(tecplotFilePath, t);
-				FieldWriter::writeTecplotFile(t, tecplotFilePath, "title", nodes, elements, rho_nodes, u_nodes, v_nodes, p_nodes);
-			}
-		}
-
-		// 提示词 放在写文件之后，防止卡顿
-		switch (promptSignal) {
-		case _NoSignal:
-			break;
-		case _EscPressed:
-			std::cout << "[ESC]: Computation Interrupted\n";
-			break;
-		case _TimeReached:
-			std::cout << "Computation finished\n";
-			break;
-		case _StableReached:
-			std::cout << "Computation finished as the field is already stable\n";
-			break;
-		default:
-			break;
-		}
-		// 终止操作
-		if (b_pause) {
-			LogWriter::writeLog(solveInfo);
-			break;
-		}
-	}
-
-
-}
+//void FVM_2D::solve_CPU2(std::string suffix_out, std::string suffix_info) {
+//	/*
+//	
+//	将GPU代码复制到此处后，应修改的地方包括：
+//	1.将GPU::GPUSolver2 gpuSolver2; 改为 Solver_2D cpuSolver2;
+//	2.删除初始化部分try
+//	3.计算部分，将gpuSolver2.iteration()改为cpuSolver2.evolve(dt)
+//	4.释放资源部分，删除gpuSolver2.finalize()
+//	具体可参照Git记录
+//
+//	*/
+//
+//	const int residual_vector_size = 4;
+//	const int istep_previous = GlobalPara::time::istep_previous;
+//	const double previous_t = GlobalPara::time::t_previous;
+//	const double big_value = 1e8;
+//	const int maxIteration = GlobalPara::output::maxIteration;
+//	const double T = GlobalPara::time::T;//目标物理时间。用于控制是否终止计算
+//	int nFiles = 0;//输出文件个数，用于显示
+//	int iCurrentAutosaveFile = 0;// 自动保存文件的指标，构成循环队列
+//	double residual_vector[residual_vector_size]{ 1,1,1,1 };
+//	double t = previous_t;//当前物理时间。由续算时的起始时间决定
+//	enum MySignal {
+//		_NoSignal,
+//		_EscPressed,
+//		_TimeReached,
+//		_StableReached
+//	};
+//	std::vector<Element_2D> elements_old;
+//	std::vector<double> u_nodes;// 节点u, size=nodes.size()。输出流场时，用作缓存。
+//	std::vector<double> v_nodes;
+//	std::vector<double> rho_nodes;
+//	std::vector<double> p_nodes;
+//	std::string solveInfo;
+//	std::string outputPathWithSlash = FilePathManager::getInstance()->getOutputDirectory();
+//	std::string basicFileName = GlobalPara::basic::filename;
+//	clock_t start_t;
+//	COORD p1;
+//	Solver_2D cpuSolver2;
+//	HistWriter histWriter(outputPathWithSlash + basicFileName + "_hist.dat");
+//
+//	// 初始化
+//	start_t = clock();
+//	histWriter.writeHistFileHead();
+//	p1 = ConsolePrinter::getCursorPosition();
+//	//ConsolePrinter::drawProgressBar(int(t / T));
+//
+//
+//	// 迭代
+//	const int offset = 0;
+//	for (int istep = istep_previous; istep <= maxIteration && t <= T; istep++) {
+//		// --- 更新 ---
+//		// 更新文件名
+//		char szBuffer[20];
+//		sprintf_s(szBuffer, _countof(szBuffer), "%04d", istep);//若istep小于4位数，则补0
+//		std::string str_istep_withBracket = "[" + std::string(szBuffer) + "]";
+//		std::string tecplotFilePath = outputPathWithSlash + basicFileName + str_istep_withBracket + ".dat";
+//		std::string continueFilePath = outputPathWithSlash + "pause_" + basicFileName + str_istep_withBracket + ".dat";
+//		std::string continueFilePath_nan = outputPathWithSlash + "nan_" + basicFileName + str_istep_withBracket + ".dat";
+//		// 更新旧结果
+//		elements_old = this->elements;
+//		// 更新时间和时间步长
+//		double dt = this->caldt(t, T);
+//		t += dt;
+//
+//		// --- 计算 ---
+//		// GPU计算
+//		cpuSolver2.evolve(dt);
+//
+//		// --- 输出 ---
+//		// 输出进度表示正在计算，没有卡顿
+//		std::cout << ".";
+//		bool b_writeContinue = false;
+//		bool b_writeTecplot = false;
+//		bool b_pause = false;//暂停信号，为true则终止
+//		MySignal promptSignal = _NoSignal;// 提示词分类
+//		// 定期输出进度
+//		if (istep % GlobalPara::output::step_per_print == offset) {
+//			ConsolePrinter::clearDisplay(p1, ConsolePrinter::getCursorPosition());
+//			ConsolePrinter::setCursorPosition(p1);
+//			ConsolePrinter::drawProgressBar(int(double(istep) / double(maxIteration) * 100.0 + 2));;//+x是为了防止停在99%
+//
+//			double calculateTime = (double)(clock() - start_t) / CLOCKS_PER_SEC;
+//			double calculateSpeed = ((istep - istep_previous) / calculateTime);
+//			solveInfo = ConsolePrinter::assemblySolveInfo(calculateTime, istep, maxIteration, calculateSpeed, nFiles, t, T, residual_vector);
+//			std::cout << solveInfo;
+//		}
+//		// 检查非法值 非法则立刻跳出循环
+//		if (this->isNan() || residual_vector[0] > big_value) {
+//			// 这里直接break，因此不需要用到后面的b_writeContinue、b_writeTecplot
+//			// 况且writeContinueFile的参数不同，有nan
+//			ConsolePrinter::printInfo(ConsolePrinter::InfoType::type_nan_detected);
+//			//writeTecplotFile(tecplotFilePath, t);// 别删
+//			// 根据单元U更新节点ruvp
+//			this->calculateNodeValue(rho_nodes,u_nodes,v_nodes,p_nodes);
+//			FieldWriter::writeTecplotFile(t, tecplotFilePath, "title", nodes, elements, rho_nodes, u_nodes, v_nodes, p_nodes);
+//			//this->writeContinueFile(continueFilePath_nan, t, istep);// 别删
+//			FieldWriter::writeContinueFile(
+//				istep, t, continueFilePath_nan, nodes, elements, &(this->boundaryManager)
+//			);
+//			break;
+//		}
+//		// 定期输出流场
+//		if (istep % GlobalPara::output::step_per_output_field == offset) {
+//			//writeTecplotFile(tecplotFilePath, t);
+//			b_writeTecplot = true;
+//			nFiles++;
+//			//.autosave 自动保存文件 续算文件
+//			this->updateAutoSaveFile(t, istep, iCurrentAutosaveFile);
+//
+//		}
+//		// 定期输出残差
+//		if (istep % GlobalPara::output::step_per_output_hist == offset) {
+//			//计算残差，结果保存在residual_vector中
+//			ResidualCalculator::cal_residual(elements_old, elements, ResidualCalculator::NORM_INF, residual_vector);
+//			histWriter.writeHistFileData(istep, residual_vector, residual_vector_size);
+//		}
+//
+//		// --- 终止 ---
+//		// 按esc终止
+//		if (_kbhit()) {
+//			if (_getch() == 27) {
+//				b_writeContinue = true;
+//				b_pause = true;
+//				promptSignal = _EscPressed;
+//			}
+//		}
+//		// 达到规定迭代时间，终止
+//		else if (t >= T || istep >= maxIteration) {
+//			b_writeContinue = true;
+//			b_writeTecplot = true;
+//			b_pause = true;
+//			promptSignal = _TimeReached;
+//		}
+//		// 残差足够小，终止
+//		else if (residual_vector[0] <= GlobalPara::constant::epsilon) {
+//			b_writeContinue = true;
+//			b_writeTecplot = true;
+//			b_pause = true;
+//			promptSignal = _StableReached;
+//		}
+//
+//		// 写文件操作
+//		if (b_writeContinue || b_writeTecplot) {
+//			// 根据单元U更新节点ruvp
+//			this->calculateNodeValue(rho_nodes, u_nodes, v_nodes, p_nodes);
+//			if (b_writeContinue) {
+//				//this->writeContinueFile(continueFilePath, t, istep);
+//				FieldWriter::writeContinueFile(
+//					istep, t, continueFilePath, nodes, elements, &(this->boundaryManager)
+//				);
+//			}
+//			if (b_writeTecplot) {
+//				//writeTecplotFile(tecplotFilePath, t);
+//				FieldWriter::writeTecplotFile(t, tecplotFilePath, "title", nodes, elements, rho_nodes, u_nodes, v_nodes, p_nodes);
+//			}
+//		}
+//
+//		// 提示词 放在写文件之后，防止卡顿
+//		switch (promptSignal) {
+//		case _NoSignal:
+//			break;
+//		case _EscPressed:
+//			std::cout << "[ESC]: Computation Interrupted\n";
+//			break;
+//		case _TimeReached:
+//			std::cout << "Computation finished\n";
+//			break;
+//		case _StableReached:
+//			std::cout << "Computation finished as the field is already stable\n";
+//			break;
+//		default:
+//			break;
+//		}
+//		// 终止操作
+//		if (b_pause) {
+//			LogWriter::log(solveInfo);
+//			break;
+//		}
+//	}
+//
+//
+//}
 
 //void FVM_2D::run_GPU() {
 //	//// 初始化
@@ -439,7 +439,7 @@ void FVM_2D::solve_CPU2(std::string suffix_out, std::string suffix_info) {
 //		if (flag_readContinue == -1) {
 //			std::string error_msg = "Info: Fail to read previous mesh(pause_*.dat). ";
 //			error_msg += "Will try to start from zero again.\n";
-//			LogWriter::writeLogAndCout(error_msg, LogWriter::Info);
+//			LogWriter::logAndPrint(error_msg, LogWriter::Info);
 //			startFromZero = true;
 //			// 防止后面histWriter不写文件头
 //			GlobalPara::basic::_continue = false;
@@ -456,7 +456,7 @@ void FVM_2D::solve_CPU2(std::string suffix_out, std::string suffix_info) {
 //			int flag_readMesh = InpMeshReader::readGmeshFile(dir + GlobalPara::basic::filename + ".inp");
 //			if (flag_readMesh == -1) {
 //				std::string error_msg = "Error: Fail to read mesh. Program will exit.\n";
-//				LogWriter::writeLogAndCout(error_msg);
+//				LogWriter::logAndPrint(error_msg);
 //				return;//退出
 //			}
 //			setInitialCondition();
@@ -466,14 +466,14 @@ void FVM_2D::solve_CPU2(std::string suffix_out, std::string suffix_info) {
 //			int flag_readMesh = SU2MeshReader::readFile(dir + GlobalPara::basic::filename + ".su2", true);
 //			if (flag_readMesh == -1) {
 //				std::string error_msg = "Error: Fail to read mesh. Program will exit.\n";
-//				LogWriter::writeLogAndCout(error_msg);
+//				LogWriter::logAndPrint(error_msg);
 //				return;//退出
 //			}
 //			setInitialCondition();
 //		}
 //		else {
 //			std::string error_msg = "Invalid mesh file type: " + type + ". Program will exit.\n";
-//			LogWriter::writeLogAndCout(error_msg);
+//			LogWriter::logAndPrint(error_msg);
 //			return;
 //		}
 //
@@ -486,7 +486,7 @@ void FVM_2D::solve_CPU2(std::string suffix_out, std::string suffix_info) {
 //		+ "\noutlet::ruvp\t" + StringProcessor::doubleArray_2_string(GlobalPara::boundaryCondition::_2D::outlet::ruvp, 4)
 //		+ "\ninf::ruvp\t" + StringProcessor::doubleArray_2_string(GlobalPara::boundaryCondition::_2D::inf::ruvp, 4)
 //		+ "\n";
-//	LogWriter::writeLog(str);
+//	LogWriter::log(str);
 //
 //	//// 求解
 //	if (GlobalPara::physicsModel::equation == _EQ_euler) {
@@ -533,7 +533,7 @@ void FVM_2D::solve_CPU2(std::string suffix_out, std::string suffix_info) {
 //	// 初始化
 //	start_t = clock();
 //	histWriter.writeHistFileHead();
-//	gpuSolver2.initialze();
+//	gpuSolver2.initialize();
 //	p1 = ConsolePrinter::getCursorPosition();
 //	ConsolePrinter::drawProgressBar(int(t / T));
 //
@@ -683,7 +683,7 @@ void FVM_2D::solve_CPU2(std::string suffix_out, std::string suffix_info) {
 //		}
 //		// 终止操作
 //		if (b_pause) {
-//			LogWriter::writeLog(solveInfo);
+//			LogWriter::log(solveInfo);
 //			break;
 //		}
 //	}
@@ -823,168 +823,6 @@ void FVM_2D::writeContinueFile(std::string f_name, double t, int istep) {
 
 }
 
-int FVM_2D::readContinueFile() {
-	std::string m_path = FilePathManager::getInstance()->getOutputDirectory();
-	std::vector<std::string> files = FilePathManager::getInstance()->getFiles(m_path);//files为字符串向量，存储了路径下所有文件名
-	int index_maxNstep = -1;
-	//搜寻是否有pause_filename[xxx].dat文件，若有，则找xxx最大的
-	int maxNstep = 0;
-	int tmp_index = 0;//用于指示"[", "]"
-	std::string tmp_str;
-	for (int i = 0; i < files.size(); i++) {
-		//搜寻以pause_filename开头的文件名
-		std::string str_match = "pause_" + GlobalPara::basic::filename;
-		if (files[i].substr(0, int(str_match.size())) == str_match) {
-			//剔除"pause_filename["
-			int pre_length = int(str_match.size() + 1);//"pause_filename["的长度
-			std::string str = files[i].substr(pre_length);
-			//剔除"].dat"
-			int post_length = 5;//"].dat"的长度
-			for (int i = 0; i < post_length; i++) {
-				str.pop_back();
-			}
-			//将xxx存入num
-			int num = std::stoi(str);
-			if (num > maxNstep) {
-				index_maxNstep = i;
-				maxNstep = num;
-			}
-		}
-	}
-	//若无，则返回-1
-	if (index_maxNstep == -1)return -1;
-	std::ifstream infile(m_path + files[index_maxNstep]);
-	if (!infile) {
-		return -1;
-	}
-
-	std::cout << "Continue from: "<< files[index_maxNstep] << std::endl;
-
-	int state = -1;//1-Node, 2-Element
-	int maxnodeID = 1;
-	int maxedgeID = 1;
-	int maxelementID = 1;
-	int iline_set = 0;//临时变量，用于记录读取set时经过了多少行
-	std::vector<std::vector<int>> edges_of_all_sets;//临时变量，存储各set的edgeID
-	const int bufferLength = 600;//!!!小心长度不够
-	char buffer[bufferLength];
-	std::string tLine;
-	std::vector<std::string> tWords;
-	std::vector<std::vector<std::string>> tWordsMatrix;
-	std::vector<int> edge_ID_long;
-	int nNullRow = 0;
-	bool loop = 1;
-	while (loop) {
-		//get words and set state
-		infile.getline(buffer, bufferLength);
-		if (infile.eof())loop=0;
-		tLine = buffer;
-		tWords = StringProcessor::splitString(tLine);
-		if (nNullRow >= 10)loop = 0;
-		if (tWords.size() == 0) {
-			nNullRow++;
-			continue;
-		}//空行，强迫开始下一次循环，防止tWords[0]内存错误
-		else {
-			if (tWords[0] == "t")state = 0;
-			if (tWords[0] == "nodes:")state = 1;
-			if (tWords[0] == "edges:")state = 2;
-			if (tWords[0] == "elements:")state = 3;
-			if (tWords[0] == "boundaries:")state = 4;
-		}
-
-		//translate
-		if (state == 0 && tWords[0].substr(0, 1) != "t") {//t_solve, istep_solve
-			GlobalPara::time::t_previous = std::stod(tWords[0]);
-			GlobalPara::time::istep_previous = (int)std::stod(tWords[1]);
-		}
-		else if (state == 1 && tWords[0].substr(0, 1) != "n") {//nodes: ID, x, y
-			Node_2D node;
-			node.ID = (int)std::stod(tWords[0]);
-			node.x = std::stod(tWords[1]);
-			node.y = std::stod(tWords[2]);
-			nodes.push_back(node);
-			maxnodeID = (std::max)(maxnodeID, node.ID);
-		}
-		else if (state == 3 && tWords[0].substr(0, 1) != "e") {//elements: ID, nodes, U
-			Element_2D ele;
-			ele.ID = (int)std::stod(tWords[0]);
-			ele.nodes[0] = (int)std::stod(tWords[1]);
-			ele.nodes[1] = (int)std::stod(tWords[2]);
-			ele.nodes[2] = (int)std::stod(tWords[3]);
-			ele.U[0] = std::stod(tWords[4]);
-			ele.U[1] = std::stod(tWords[5]);
-			ele.U[2] = std::stod(tWords[6]);
-			ele.U[3] = std::stod(tWords[7]);
-			elements.push_back(ele);
-			maxelementID = (std::max)(maxelementID, ele.ID);
-		}
-		else if (state == 4 && tWords[0].substr(0, 1) != "b") {//boundaries: ID, name, edgeIDs
-			iline_set++;
-			if (!isdigit(tWords[1][0])) {
-				/*
-				"1 inf" 
-				1.vBoundarySets新增条目、该条目的部分初始化
-				2.edges_of_all_sets新增条目
-				*/
-				//set的ID,name初始化
-				VirtualBoundarySet_2D vb;
-				vb.ID = (int)std::stod(tWords[0]);
-				vb.name = tWords[1];
-				boundaryManager.boundaries.push_back(vb);
-				//edges_of_all_sets新增条目
-				edges_of_all_sets.push_back(std::vector<int>());
-			}
-			else {
-				// 1.edges_of_all_sets的初始化
-				// 引用最后一个BoundarySet
-				std::vector<int>& edges_of_current_set = edges_of_all_sets[edges_of_all_sets.size() - 1];
-				std::vector<int> intVector = StringProcessor::stringVector_2_intVector(tWords);
-				VectorProcessor::appendToVector(edges_of_current_set, intVector);
-			}
-		}
-	}
-
-	infile.close();
-
-	iniPNodeTable(maxnodeID);
-	iniEdges();
-	iniPEdgeTable();
-	iniPElementTable(maxelementID);
-	iniElement_xy_pEdges();
-	iniNode_neighborElements();
-	iniEdges_lengths();
-
-
-	// 初始化boundaryManager.boundaries的pEdges，但不初始化pEdge所指的edge的setID等信息，该部分工作留给后面函数
-	// 前置条件：需要初始化pEdgeTable
-	if (this->pEdgeTable.size() == 0) {
-		LogWriter::writeLogAndCout("Error: uninitialized pEdgeTable. (BoundaryManager_2D::iniBoundarySetPEdges)\n");
-		throw "uninitialized pEdgeTable";
-	}
-	else {
-		//初始化boundaryManager.boundaries的每个set的pEdges
-		for (int iset = 0; iset < edges_of_all_sets.size(); iset++) {
-			std::vector<int>& edgeIDs = edges_of_all_sets[iset];//第iset条set的edgeIDs
-			for (int iw = 0; iw < edgeIDs.size(); iw++) {//第iset条set的第iw个edge
-				//在f->pEdgeTable中，根据edgeID查询pEdge，完成初始化
-				int edge_ID = edgeIDs[iw];
-				Edge_2D* pE = this->pEdgeTable[edge_ID];
-				this->boundaryManager.boundaries[iset].pEdges.push_back(pE);
-			}
-		}
-	}
-
-	// 设置edges中的setID，设置boundaryManager.boundaries的type
-	// 前置条件：有edges向量，有boundaries向量，且boundaries有name、pEdges、ID
-	{
-		int ret = getInstance()->boundaryManager.iniBoundaryEdgeSetID_and_iniBoundaryType(getInstance());
-		if (ret != 0)return ret;
-	}
-
-	return 0;
-}
-
 void FVM_2D::updateAutoSaveFile(double t, int istep, int& iCurrentAutosaveFile) {
 	//最多保存global::autosaveFileNum个autosave文件，再多则覆写之前的
 	writeContinueFile(FilePathManager::getInstance()->getOutputDirectory() + "autosave" + std::to_string(iCurrentAutosaveFile) + "_" + GlobalPara::basic::filename + ".dat", t, istep);
@@ -1067,6 +905,10 @@ void FVM_2D::calculateNodeValue_GPU(void* pSolver) {
 }
 */
 void FVM_2D::iniPNodeTable(int maxnodeID) {
+	if (nodes.size() == 0) {
+		LogWriter::logError("null nodes exception, @iniPNodeTable\n");
+		exit(-1);
+	}
 	pNodeTable.resize(maxnodeID + 1);
 	for (int in = 0; in < nodes.size(); in++) {
 		pNodeTable[nodes[in].ID] = &(nodes[in]);
@@ -1074,6 +916,10 @@ void FVM_2D::iniPNodeTable(int maxnodeID) {
 }
 
 void FVM_2D::iniEdges() {
+	if (elements.size() == 0) {
+		LogWriter::logError("null elements exception, @iniEdges\n");
+		exit(-1);
+	}
 	for (int ie = 0; ie < elements.size(); ie++) {
 		int n0, n1, n2;
 		n0 = elements[ie].nodes[0];
@@ -1086,6 +932,10 @@ void FVM_2D::iniEdges() {
 }
 
 void FVM_2D::iniPEdgeTable() {
+	if (edges.size() == 0) {
+		LogWriter::logError("null edges exception, @iniPEdgeTable\n");
+		exit(-1);
+	}
 	pEdgeTable.resize(edges.size() + 1);
 	for (int i = 0; i < edges.size(); i++) {
 		pEdgeTable[edges[i].ID] = &(edges[i]);
@@ -1114,6 +964,7 @@ Edge_2D* FVM_2D::getEdgeByNodeIDs(int n0, int n1) {
 }
 
 void FVM_2D::iniEdges_registerSingle(int n0, int n1, Element_2D* pE) {
+	// 依赖于elements, edges,
 	Edge_2D* pEdge = getEdgeByNodeIDs(n0, n1);
 	if (pEdge == nullptr) {
 		Edge_2D tmp_edge;
@@ -1133,6 +984,10 @@ void FVM_2D::iniEdges_registerSingle(int n0, int n1, Element_2D* pE) {
 }
 
 void FVM_2D::iniPElementTable(int maxelementID) {
+	if (elements.size() == 0) {
+		LogWriter::logError("null elements exception, @iniPElementTable\n");
+		exit(-1);
+	}
 	pElementTable.resize(maxelementID + 1);
 	for (int ie = 0; ie < elements.size(); ie++) {
 		pElementTable[elements[ie].ID] = &(elements[ie]);
@@ -1150,7 +1005,10 @@ void FVM_2D::iniElement_xy_pEdges() {
 	隐患：
 	  三角形边界，pEdges只有3个。对于四边形，pEdges的node需要重新确定
 	*/
-
+	if (elements.size() == 0) {
+		LogWriter::logError("null elements exception, @iniElement_xy_pEdges\n");
+		exit(-1);
+	}
 	for (int ie = 0; ie < elements.size(); ie++) {
 		//已经calxy，以后不必担心。但是必须要先读取node再读取element
 
@@ -1177,7 +1035,7 @@ void FVM_2D::iniElement_xy_pEdges() {
 
 void FVM_2D::iniEdges_lengths() {
 	if (hasInitElementXY == false) {
-		LogWriter::writeLogAndCout("Error: hasInitElementXY == false, in FVM_2D::iniEdges_lengths()\n");
+		LogWriter::logAndPrintError("hasInitElementXY == false, in FVM_2D::iniEdges_lengths()\n");
 	}
 	for (int i = 0; i < edges.size(); i++) {
 		edges[i].length = (float)edges[i].getLength();
@@ -1189,8 +1047,8 @@ void FVM_2D::iniEdges_lengths() {
 Node_2D* FVM_2D::getNodeByID(int ID) {
 	// 防止越界
 	if (ID < 0 || ID >= pNodeTable.size()) {
-		std::string error_msg = "Error: ID out of range in FVM_2D::getNodeByID(), ID=" + std::to_string(ID) + "\n";
-		LogWriter::writeLogAndCout(error_msg);
+		std::string error_msg = "ID out of range in FVM_2D::getNodeByID(), ID=" + std::to_string(ID) + "\n";
+		LogWriter::logAndPrintError(error_msg);
 		throw error_msg;
 	}
 	return pNodeTable[ID];
@@ -1269,7 +1127,7 @@ bool FVM_2D::isNan() {
 			const double& x = elements[ie].x;
 			const double& y = elements[ie].y;
 			str = 
-				"Warning: rho ==\"NaN\", in element (x=" + std::to_string(x) + ", y=" + std::to_string(y) 
+				"rho ==\"NaN\", in element (x=" + std::to_string(x) + ", y=" + std::to_string(y) 
 				+ ", U[0,1,2,3]=" + std::to_string(elements[ie].U[0]) + ", " + std::to_string(elements[ie].U[1])
 				+ ", " + std::to_string(elements[ie].U[2]) + ", " + std::to_string(elements[ie].U[3]) + "\n";
 			//break;
@@ -1278,11 +1136,11 @@ bool FVM_2D::isNan() {
 			const double& x = elements[ie].x;
 			const double& y = elements[ie].y;
 			str =
-				"Warning: rho < 0, in element (x=" + std::to_string(x) + ", y=" + std::to_string(y)
+				"rho < 0, in element (x=" + std::to_string(x) + ", y=" + std::to_string(y)
 				+ ", U[0,1,2,3]=" + std::to_string(elements[ie].U[0]) + ", " + std::to_string(elements[ie].U[1])
 				+ ", " + std::to_string(elements[ie].U[2]) + ", " + std::to_string(elements[ie].U[3]) + "\n";
 		}
-		LogWriter::writeLogAndCout(str);
+		LogWriter::logAndPrint(str,LogWriter::Warning);
 	}
 	return is_nan;
 }

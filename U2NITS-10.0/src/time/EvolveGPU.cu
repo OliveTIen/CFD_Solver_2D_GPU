@@ -1,5 +1,6 @@
 #include "EvolveGPU.h"
 #include "../global/GlobalPara.h"
+#include "../gpu/GPUGlobalFunction.h"
 #include "../space/FluxGPU.h"
 #include "../space/Flux.h"
 #include "../output/LogWriter.h"
@@ -9,7 +10,7 @@ void GPU::Time::EvolveDevice(REAL dt, int flag_timeAdvance, ElementSoA& element_
         EvolveExplicitDevice(dt, element_device, elementField_device, edge_device, boundary, para);
     }
     else {
-        LogWriter::writeLogAndCout("Error: invalid evolve method.\n", LogWriter::Error, LogWriter::Error);
+        LogWriter::logAndPrintError("Error: invalid evolve method.\n");
         exit(1);
     }
 }
@@ -18,12 +19,7 @@ void GPU::Time::EvolveExplicitDevice(REAL dt, ElementSoA& element_device, FieldS
     // 数值通量
     GPU::Space::Flux::calculateFluxDevice(element_device, elementField_device, edge_device, boundary, para);
     cudaDeviceSynchronize();
-
-    cudaError_t cuda_error = cudaGetLastError();
-    if (cuda_error != 0) {
-        std::string e = "cudaError=" + std::to_string(cuda_error) + ", " + cudaGetErrorString(cuda_error);
-        LogWriter::writeLogAndCout(e, LogWriter::Error, LogWriter::Error);
-    }
+    catchCudaErrorAndExit();
 
     // 时间积分
     TimeIntegration(dt, element_device, elementField_device);

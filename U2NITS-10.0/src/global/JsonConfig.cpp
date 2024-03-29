@@ -36,7 +36,7 @@ void JsonConfig::readConfig() {
 	}
 	else {
 		//读取失败，则使用默认。注意，此时不必WriteConfig，因为Config要在获取文件名之后Write
-		LogWriter::writeLog("Prompt: fail to open config.json, use backup config. (GlobalStatic::readConfig)\n");
+		LogWriter::log("Prompt: fail to open config.json, use backup config. (GlobalStatic::readConfig)\n");
 		useBackupConfig();
 	}
 	//config的值 等后面需要的时候再读取

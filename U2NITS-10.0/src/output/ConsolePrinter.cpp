@@ -2,19 +2,32 @@
 #include <iostream>
 #include "../global/StringProcessor.h"
 #include <sstream>
+#include "LogWriter.h"
 
-void ConsolePrinter::printHeader() {
-	//
-	std::cout << R"(  _______________________________________________ )" << "\n";
-	std::cout << R"( |  _   _   ____    _   _   ___   _____   ____   |)" << "\n";//生成工具：https://tools.kalvinbg.cn/txt/ascii
-	std::cout << R"( | | | | | |___ \  | \ | | |_ _| |_   _| / ___|  |)" << "\n";
-	std::cout << R"( | | | | |   __) | |  \| |  | |    | |   \___ \  |)" << "\n";
-	std::cout << R"( | | |_| |  / __/  | |\  |  | |    | |    ___) | |)" << "\n";
-	std::cout << R"( |  \___/  |_____| |_| \_| |___|   |_|   |____/  |)" << "\n";
-	std::cout << R"( |_______________________________________________|)" << "\n";
-	std::cout << "Finite Volume Method Solver (version 10.0), created by"
-		<< " tgl\n";
-	std::cout << "------------------------------------------------------------\n";
+void ConsolePrinter::printHeader(HeaderStyle h) {
+	switch (h) {
+	case HeaderStyle::normal:
+
+		std::cout << R"(  _______________________________________________ )" << "\n";
+		std::cout << R"( |  _   _   ____    _   _   ___   _____   ____   |)" << "\n";//生成工具：https://tools.kalvinbg.cn/txt/ascii
+		std::cout << R"( | | | | | |___ \  | \ | | |_ _| |_   _| / ___|  |)" << "\n";
+		std::cout << R"( | | | | |   __) | |  \| |  | |    | |   \___ \  |)" << "\n";
+		std::cout << R"( | | |_| |  / __/  | |\  |  | |    | |    ___) | |)" << "\n";
+		std::cout << R"( |  \___/  |_____| |_| \_| |___|   |_|   |____/  |)" << "\n";
+		std::cout << R"( |_______________________________________________|)" << "\n";
+		std::cout << "Finite Volume Method Solver (version 10.0), created by"
+			<< " LASD\n";
+		std::cout << "------------------------------------------------------------\n";
+
+		break;
+	case HeaderStyle::simple:
+		std::cout << "U2NITS, by LASD\n";
+		std::cout << "------------------------------------------------------------\n";
+		break;
+
+	}
+
+
 
 
 }
@@ -81,6 +94,29 @@ COORD ConsolePrinter::getCursorPosition() {
 
 void ConsolePrinter::restoreCursorPosition() {
 	m_cursorPosition = getCursorPosition();
+}
+
+void ConsolePrinter::restoreClearStartPosition() {
+	restoreCursorPosition();
+}
+
+void ConsolePrinter::setClearStartPosition() {
+	restoreCursorPosition();
+}
+
+void ConsolePrinter::update() {
+	auto& p1 = m_cursorPosition;
+	ConsolePrinter::clearDisplay(p1, ConsolePrinter::getCursorPosition());
+	ConsolePrinter::setCursorPosition(p1);
+}
+
+void ConsolePrinter::clear() {
+	update();
+}
+
+void ConsolePrinter::printWelcome_2() {
+	LogWriter::logAndPrint("Using VS Profiler. Please remove '/Profile' option on release.\n", LogWriter::Warning);
+	ConsolePrinter::printHeader(ConsolePrinter::HeaderStyle::simple);
 }
 
 void ConsolePrinter::MoveToLastCursorPosition() {

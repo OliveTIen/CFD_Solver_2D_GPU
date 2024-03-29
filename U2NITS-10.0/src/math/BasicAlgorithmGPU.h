@@ -23,6 +23,12 @@ namespace GPU {
 		__device__ inline real abs(real a) {
 			return (a > 0) ? a : (-a);
 		}
+
+		__device__ inline real distance2D(real x1, real y1, real x2, real y2) {
+			real dx = x2 - x1;
+			real dy = y2 - y1;
+			return sqrt(dx * dx + dy * dy);
+		}
 	}
 }
 

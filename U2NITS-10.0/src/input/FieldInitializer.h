@@ -1,8 +1,8 @@
-#ifndef INITIALIZER_H
-#define INITIALIZER_H
+#ifndef FIELD_INITIALIZER_H
+#define FIELD_INITIALIZER_H
 
 #include <string>
-class Initializer {
+class FieldInitializer {
 public:
 	static void setInitialAndBoundaryCondition();
 

@@ -39,7 +39,7 @@ void Solver_2D::evolve(double dt) {
         evolve_RK3(dt);
     }
     else {
-        LogWriter::writeLogAndCout("Error: invalid input \"time.time_advance\". Will exit.", LogWriter::Error);
+        LogWriter::logAndPrintError("Invalid input \"time.time_advance\". Will exit.");
     }
 }
 
@@ -722,11 +722,11 @@ void Solver_2D::RiemannSolve(const double* UL, const double* UR, const double nx
     int returnCode = RiemannSolver::solve(UL, UR, nx, ny, length, flux,
         GlobalPara::inviscid_flux_method::flux_conservation_scheme);
     if (returnCode == RiemannSolver::ReturnStatus::invalid_solver_type) {
-        LogWriter::writeLogAndCout("Error: invalid RiemannSolver type.\n Will exit.\n");
+        LogWriter::logAndPrintError("invalid RiemannSolver type.\n Will exit.\n");
         exit(returnCode);
     }
     else if (returnCode == RiemannSolver::ReturnStatus::compute_error) {
-        LogWriter::writeLogAndCout("Error: compute error in RiemannSolver.\n Will exit.\n");
+        LogWriter::logAndPrintError("compute error in RiemannSolver.\n Will exit.\n");
         exit(returnCode);
     }
 }

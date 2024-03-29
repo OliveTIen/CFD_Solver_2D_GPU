@@ -4,16 +4,10 @@ author: tgl
 
 ---
 
-# 日志
-## 代办
-3. 尝试课件的算例？？？可是它是非结构网格不可压，不知道是否需要另外写求解器
-4. 尝试添加粘性(N-S)处理复杂边界
-## 问题
-1. 原来的项目中，输入square_per时出现内存问题
-## 已解决
-### ConsoleWindow问题
-以前能够实现光标移动，可是更改代码后发现失效了。经排查，原来是开头输出input.toml时，由于输出内容超过1页，导致屏幕滚动，
-然而目前的ConsolePrinter只支持一行滚动的
+内容太多，需要面向对象以整理代码。如果要将CUDA与OO结合，需要包装类进行过渡
+
+2024-03-25
+续算时，输出物理时间有误。可能是因为未读取
 
 2024-03-19
 在计算梯度的代码中，发现了LeastSquare的内存错误：nValidNeighbor提前+1。
@@ -289,3 +283,28 @@ void testHeap2DArray() {
 	delete[] dU;
 }
 
+关于枚举
+在添加emitSignal()函数后，发现无法暂停，原来是SignalPack sp = emitSignalPack(istep, maxIteration, t, T, gpuSolver2.residualVector[0]);
+这一语句中，sp.pauseSignal并没有被赋值为_timeReached。
+最开始以为是enum类型的特性。最后发现是因为函数内部定义了一个局部变量PauseSignal，而成员变量没有被赋值。是盲目copy代码的锅。
+enum的特性指的是如果要用int赋给它，需要强制类型转换，其它没区别。
+
+GPU报错 2024-04-01
+输入` compute-sanitizer --launch-timeout=0 --tool=memcheck ./U2NITS-10.0.exe > opt.txt 2>&1`
+生成的opt.txt中，
+ Invalid __global__ read of size 4 bytes
+原来是核函数kernel中读取了host的内存edge_device.num_edge。措施：添加成员int* _num_edge_，用cudaMemcpy申请内存
+还是不行。我怀疑是不能用host定义的结构体
+
+看来GPU部分要重来。
+搜索CUDA封装，发现MUDA是CUDA的不错的封装，但是不是我想要的
+https://zhuanlan.zhihu.com/p/659664377
+它过于封装，看不见memcpy，以至于无法了解底层。可以用来应急(如果效率至上，能抓到老鼠都是好猫)
+还是不行，报错。即使用C++20，还是报错：
+1>D:\tgl\Local\HPC\U2NITS-10.0\TestCode\src\include\muda\muda\launch\kernel.h(92,1): fatal  error C1001: 内部编译器错误。
+
+查看OpenCFD-SCU发现，其CUDA都是存储的全局变量
+
+cuder也是一种封装
+
+在TestCode中新建了CTestGPUSoA，用于测试CUDA编程，成功。看来核函数传参时只能传具体数据的指针，不能传ElementSOA的引用。引用也是指针，而global不允许传host指针。

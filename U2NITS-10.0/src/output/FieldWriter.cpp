@@ -5,6 +5,8 @@
 #include "../gpu/datatype/FieldSoA.h"
 #include "../FVM_2D.h"
 
+int FieldWriter::numTecplotFileWritten = 0;
+
 void FieldWriter::writeTecplotFile(double t_current, std::string filePath, std::string title, const std::vector<Node_2D>& nodes, const std::vector<Element_2D>& elements, const std::vector<double>& rho_nodes, const std::vector<double>& u_nodes, const std::vector<double>& v_nodes, const std::vector<double>& p_nodes) {
 	// 这里读写时用的是旧ID，因此需要旧的nodes和elements
 
@@ -50,6 +52,7 @@ void FieldWriter::writeTecplotFile(double t_current, std::string filePath, std::
 
 	outfile.close();
 
+	numTecplotFileWritten++;
 }
 
 void FieldWriter::writeTecplotFile_GPU(double t_current, std::string filePath, std::string title, GPU::NodeSoA& nodes, GPU::ElementSoA& elements, GPU::OutputNodeFieldSoA& output_node_field) {
@@ -113,6 +116,7 @@ void FieldWriter::writeTecplotFile_GPU(double t_current, std::string filePath, s
 	}
 
 	outfile.close();
+	numTecplotFileWritten++;
 }
 
 void FieldWriter::writeContinueFile(
@@ -242,6 +246,10 @@ void FieldWriter::writeContinueFile_GPU(int i_step, double t_current, std::strin
 	}
 	outfile.close();
 
+}
+
+int FieldWriter::getNumTecplotFileWritten() {
+	return numTecplotFileWritten; 
 }
 
 

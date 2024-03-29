@@ -10,7 +10,8 @@ namespace U2NITS {
 			void Gradient(GPU::ElementSoA& element_host, GPU::FieldSoA& elementField_host, GPU::NodeSoA& node_host, GPU::EdgeSoA& edge_host);
 			void GradientLeastSquare_old(GPU::ElementSoA& element_host, GPU::FieldSoA& elementField_host);
 			void GradientLeastSquare_2(GPU::ElementSoA& element_host, GPU::FieldSoA& elementField_host, GPU::NodeSoA& node_host);
-			void GradientGreenGauss(GPU::ElementSoA& element_host, GPU::FieldSoA& elementField_host, GPU::EdgeSoA& edge_host);
+			void GradientGreenGauss_1(GPU::ElementSoA& element_host, GPU::FieldSoA& elementField_host, GPU::EdgeSoA& edge_host);
+			void GradientGreenGauss_2(GPU::ElementSoA& element_host, GPU::FieldSoA& elementField_host, GPU::EdgeSoA& edge_host);
 
 			//void LimiterBarth(GPU::ElementSoA& element_host, GPU::FieldSoA elementField_host);
 		}

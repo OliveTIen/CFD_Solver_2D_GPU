@@ -2,6 +2,7 @@
 #include "../FVM_2D.h"
 #include "../math/Math.h"
 #include "convection/ConvectionGPU.h"
+#include "../output/LogWriter.h"
 
 void GPU::Space::Flux::calculateFluxDevice(ElementSoA& element_device, FieldSoA& elementField_device, EdgeSoA& edge_device, BoundarySetMap& boundary_device, DGlobalPara& infPara_device) {
 	// TODO: Implement this function.
@@ -29,7 +30,7 @@ __global__ void GPU::Space::Flux::resetElementFluxKernel(FieldSoA& elementField_
     const int tid = threadIdx.x;
     const int id = bid * blockDim.x + tid;
     const int& i = id;
-    if (i >= elementField_device.num || i < 0) return;
+    if (i >= *(elementField_device._num_) || i < 0) return;
 
     // 给单元数值通量赋值
     for (int jValue = 0; jValue < 4; jValue++) {
@@ -40,7 +41,8 @@ __global__ void GPU::Space::Flux::resetElementFluxKernel(FieldSoA& elementField_
 }
 
 void GPU::Space::Flux::calculateFlux(ElementSoA& element_device, FieldSoA& elementField_device, EdgeSoA& edge_device, BoundarySetMap& boundary_device, DGlobalPara& infPara_device) {
-
+    LogWriter::logAndPrintError("Not completed. @GPU::Space::Flux::calculateFlux\n");
+    exit(-1);// 未完成 getEdgeFlux_inner_and_periodic
     int block_size = 512;
     int grid_size = (edge_device.num_edge + block_size - 1) / block_size;
     dim3 block(block_size, 1, 1);
@@ -60,7 +62,7 @@ __global__ void GPU::Space::Flux::calculateFluxKernel(ElementSoA& element, Field
     const int tid = threadIdx.x;
     const int id = bid * blockDim.x + tid;
     const int& iedge = id;
-    if (iedge >= edge.num_edge || iedge < 0) return;
+    if (iedge >= *(edge._num_edge_) || iedge < 0) return;
 
     // 每条边计算无粘数值通量
 

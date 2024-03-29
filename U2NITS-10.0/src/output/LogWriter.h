@@ -23,14 +23,20 @@ private:
 	static LogLevel m_logLevel;// 参考输出级别
 	static LogLevel m_coutLevel;
 	static std::string enumToString(LogLevel level);
+	static std::string enumToStringWithBracket(LogLevel level);
 
 public:
 	//static void setLogPath(std::string fullFilePath) { m_fullFilePath = fullFilePath; }
 	//app 1-续写 0-覆盖 须在filename初始化后使用
-	static void writeLog(std::string content, LogLevel logLevel = Debug);
-	static void writeLogAndCout(std::string content, LogLevel logLevel = Info, LogLevel coutLevel = Info);
+	static void log(std::string content, LogLevel logLevel = Info);
+	static void print(std::string content, LogLevel coutLevel = Info);
+	static void logAndPrint(std::string content, LogLevel logLevel = Info, LogLevel coutLevel = Info);
+	static void logError(std::string content);
+	static void printError(std::string content);
+	static void logAndPrintError(std::string content);
 
 	static void writeBoundaryCondition(double* inlet_ruvp, double* outlet_ruvp,double* inf_ruvp, int num_ruvp);
+	static void logAndPrintSignalInfo(int signal);
 };
 
 #endif

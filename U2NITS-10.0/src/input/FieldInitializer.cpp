@@ -1,11 +1,11 @@
-#include "Initializer.h"
+#include "FieldInitializer.h"
 #include "../global/GlobalPara.h"
 #include "../global/StringProcessor.h"
 #include "../gpu/datatype/Define.h"
 #include "../FVM_2D.h"
 #include "../output/LogWriter.h"
 
-void Initializer::setInitialAndBoundaryCondition() {
+void FieldInitializer::setInitialAndBoundaryCondition() {
 
 	auto& elements = FVM_2D::getInstance()->elements;
 	switch (GlobalPara::initialCondition::type) {
@@ -42,8 +42,6 @@ void Initializer::setInitialAndBoundaryCondition() {
 		// 则会用Ma等计算ruvp，参加TomlFileManager::initialize_ruvp()
 		// 综上，use_ruvp没必要修改，因为后面也用不上
 		// 精确解参照Matlab代码
-		printCondition("SOD Shock Tube");
-		std::cout << "Boundary condition is automatically set.\n";
 		using namespace GlobalPara::boundaryCondition::_2D;
 		// 修改边界条件
 		real ruvpL[4]{ 1,0,0,1 };
@@ -53,13 +51,13 @@ void Initializer::setInitialAndBoundaryCondition() {
 			outlet::ruvp[i] = ruvpR[i];
 		}
 		// 初场
+		printCondition("SOD Shock Tube");
+		std::cout << "Boundary condition is automatically set.\n";
 		setInitialShockTube();
 		break;
 	}
 	case 1002:
 	{
-		printCondition("Lax Shock Tube");
-		std::cout << "Boundary condition is automatically set.\n";
 		using namespace GlobalPara::boundaryCondition::_2D;
 		// 修改边界条件
 		real ruvpL[4]{ 0.445,0.698,0,3.528 };
@@ -69,6 +67,8 @@ void Initializer::setInitialAndBoundaryCondition() {
 			outlet::ruvp[i] = ruvpR[i];
 		}
 		// 初场
+		printCondition("Lax Shock Tube");
+		std::cout << "Boundary condition is automatically set.\n";
 		setInitialShockTube();
 		break;
 	}
@@ -82,27 +82,27 @@ void Initializer::setInitialAndBoundaryCondition() {
 	{
 		std::stringstream ss;
 		ss << "Error: Invalid initialCondition type " << GlobalPara::initialCondition::type << ".\n";
-		LogWriter::writeLogAndCout(ss.str(), LogWriter::Error, LogWriter::Error);
+		LogWriter::logAndPrintError(ss.str());
 		exit(GlobalPara::initialCondition::type);
 	}
 	}
 }
 
-void Initializer::printCondition(std::string initialConditionName) {
+void FieldInitializer::printCondition(std::string initialConditionName) {
 	using namespace GlobalPara::boundaryCondition::_2D;
 	std::stringstream ss;
 	ss << "InitialCondition = "<< initialConditionName <<"\n";
-	LogWriter::writeLogAndCout(ss.str(), LogWriter::Info, LogWriter::Info);
+	LogWriter::logAndPrint(ss.str());
 	ss.str("");// 清空
 	ss << "ruvp_inf = " << StringProcessor::doubleArray_2_string(inf::ruvp, 4) << ",";
 	ss << "ruvp_inlet = " << StringProcessor::doubleArray_2_string(inlet::ruvp, 4) << ",";
 	ss << "ruvp_outlet = " << StringProcessor::doubleArray_2_string(outlet::ruvp, 4) << "\n";
-	LogWriter::writeLog(ss.str(), LogWriter::Info);
+	LogWriter::log(ss.str());
 
 
 }
 
-void Initializer::setInitialUniform() {
+void FieldInitializer::setInitialUniform() {
 	auto& elements = FVM_2D::getInstance()->elements;
 	using namespace GlobalPara::boundaryCondition::_2D;
 	for (int ie = 0; ie < elements.size(); ie++) {
@@ -110,7 +110,7 @@ void Initializer::setInitialUniform() {
 	}
 }
 
-void Initializer::setInitialIsentropicVortex(double xc, double yc, double chi, const double* ruvp0) {
+void FieldInitializer::setInitialIsentropicVortex(double xc, double yc, double chi, const double* ruvp0) {
 	//ruvp0：均匀流参数
 	auto& elements = FVM_2D::getInstance()->elements;
 	for (int ie = 0; ie < elements.size(); ie++) {
@@ -137,7 +137,7 @@ void Initializer::setInitialIsentropicVortex(double xc, double yc, double chi, c
 	//auto fun_WA = [](const double* xy) {
 }
 
-void Initializer::setInitialShockTube() {
+void FieldInitializer::setInitialShockTube() {
 	auto& elements = FVM_2D::getInstance()->elements;
 	using namespace GlobalPara::boundaryCondition::_2D;
 	for (int ie = 0; ie < elements.size(); ie++) {

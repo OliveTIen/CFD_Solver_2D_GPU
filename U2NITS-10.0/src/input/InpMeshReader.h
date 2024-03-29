@@ -7,6 +7,8 @@ class InpMeshReader {
 public:
 	// 读取inp网格数据，初始化网格变量
 	static int readGmeshFile(std::string filepath);
+	// [todo]
+	static int readGmeshFile_2(std::string filepath);
 	// [已废弃]
 	static int readSU2File(std::string suffix);
 

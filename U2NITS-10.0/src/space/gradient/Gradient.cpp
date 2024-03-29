@@ -6,16 +6,16 @@
 void U2NITS::Space::Gradient::Gradient(GPU::ElementSoA& element_host, GPU::FieldSoA& elementField_host, GPU::NodeSoA& node_host, GPU::EdgeSoA& edge_host) {
 	switch (GlobalPara::space::flag_gradient) {
 	case _GRA_leastSquare:
-		//LogWriter::writeLogAndCout("GradientLeastSquare_2\n");
+		//LogWriter::logAndPrint("GradientLeastSquare_2\n");
 		GradientLeastSquare_2(element_host, elementField_host, node_host);
 		break;
 	case _GRA_greenGauss:
-		//LogWriter::writeLogAndCout("GradientGreenGauss\n");
-		GradientGreenGauss(element_host, elementField_host, edge_host);
+		//LogWriter::logAndPrint("GradientGreenGauss\n");
+		GradientGreenGauss_2(element_host, elementField_host, edge_host);
 		break;
 
 	default:
-		LogWriter::writeLogAndCout("Error: invalid graident type.\n", LogWriter::Error, LogWriter::Error);
+		LogWriter::logAndPrintError("invalid graident type.\n");
 		exit(-1);
 		break;
 	}
@@ -158,7 +158,7 @@ void U2NITS::Space::Gradient::GradientLeastSquare_2(GPU::ElementSoA& element_hos
 			}
 		}
 		if (numOfValidNeighbor <= 0) {
-			LogWriter::writeLogAndCout("Error: invalid numOfValidNeighbor.\n", LogWriter::Error, LogWriter::Error);
+			LogWriter::logAndPrint("Error: invalid numOfValidNeighbor.\n", LogWriter::Error, LogWriter::Error);
 			exit(-1);
 		}
 		// 申请堆数组
@@ -235,44 +235,52 @@ void U2NITS::Space::Gradient::GradientLeastSquare_2(GPU::ElementSoA& element_hos
 	}
 }
 
-void U2NITS::Space::Gradient::GradientGreenGauss(GPU::ElementSoA& element_host, GPU::FieldSoA& elementField_host, GPU::EdgeSoA& edge_host) {
-	// 格林高斯梯度
-	// https://zhuanlan.zhihu.com/p/370586072
+void U2NITS::Space::Gradient::GradientGreenGauss_1(GPU::ElementSoA& element_host, GPU::FieldSoA& elementField_host, GPU::EdgeSoA& edge_host) {
 	/*
-	求面积矢量
+	* 旧版格林高斯梯度，边界元有问题
+	* https://zhuanlan.zhihu.com/p/370586072
+	* 将面矢量加到单元时，应注意面是朝里还是朝外。
+	* 注意计算通量时排除了周期边界，会有隐患
+	* 对于边界，其通量应等于phiC(参见01-01-CFD理论)
+	* 对于非法边(三角形单元的第4条边)，edgeID=-1, outElementID=-1, 
 	*/
 	// 求梯度的子迭代步数
 	int subIterationGradient = 3;
 	int num_edge = edge_host.num_edge;
 
 	for (int iElement = 0; iElement < element_host.num_element; iElement++) {
-		// 求当前单元ID、当前单元体积、edgeID、外单元ID
+		// 求当前单元ID、当前单元体积、edgeID、edge朝向正负、外单元ID
 		int currentElementID = element_host.ID[iElement];// 建议不要直接用iElement，虽然目前iElement==i(element_host.ID[i]=element_i.GPUID=i)，但有隐患
 		real volumeC = element_host.volume[currentElementID];// 体积
 		int edgeID[4]{};
+		int edgeSign[4]{};// 1表示边朝外，-1表示边朝内
+		int edgeType[4]{ -1,-1,-1,-1 };
 		for (int i = 0; i < 4; i++) {
-			// element_host.edges由Edge_2D.GPUID初始化，默认是-1
+			
 			edgeID[i] = element_host.edges[i][iElement];
-			if (edgeID[i] < -1 || edgeID[i] >= num_edge) {
+			// 非法值，赋为-1，防止数组访问越界。后面遇到-1会跳过
+			if (edgeID[i] <= -1 || edgeID[i] >= num_edge) {
 				edgeID[i] = -1;// 对于三角形单元，其第4条边的ID值是不确定的。超出范围则赋为-1
-				还是要从源头解决;
+			}
+			else if (edge_host.setID[edgeID[i]] != -1) {
+				edgeType[i] = edge_host.setID[edgeID[i]];// 存储edge类型，-1表示内部边
+				edgeID[i] = -1;// 非内部边，默认排除。用于排除边界edge
 			}
 		}
 		int outElementID[4]{ -1,-1,-1,-1 };//外单元ID 注意周期边界ID!=-1
 		for (int i = 0; i < 4; i++) {
 			int currentEdgeID = edgeID[i];
 			if (currentEdgeID == -1) {
-				continue;// 已验证，默认是-1，表示不存在边，例如三角形单元不存在第4条边
+				continue;// 默认是-1。若edgeID是-1，则outElementID一定是-1
 			}
-			if (edge_host.setID[currentEdgeID] != -1) {
-				continue;// 非内部边，默认排除。用于排除周期边界
-			}
-			// 对于内部边，无法确定是elementL还是elementR
+			// 确定外单元ID和朝向。对于内部边，无法确定是elementL还是elementR
 			if (currentElementID != edge_host.elementR[currentEdgeID]) {
 				outElementID[i] = edge_host.elementR[currentEdgeID];
+				edgeSign[i] = 1;// currentElement=elementL，朝外
 			}
 			else {
 				outElementID[i] = edge_host.elementL[currentEdgeID];
+				edgeSign[i] = -1;// currentElement=elementR，朝内
 			}
 		}
 		// 求面积矢量(几何量)
@@ -282,7 +290,7 @@ void U2NITS::Space::Gradient::GradientGreenGauss(GPU::ElementSoA& element_host, 
 		for (int i = 0; i < 4; i++) {
 			int currentEdgeID = edgeID[i];
 			if (currentEdgeID == -1) {
-				continue;// 已验证，默认是-1
+				continue;
 			}
 			edgeNormal[0][i] = edge_host.normal[0][currentEdgeID];
 			edgeNormal[1][i] = edge_host.normal[1][currentEdgeID];
@@ -296,11 +304,11 @@ void U2NITS::Space::Gradient::GradientGreenGauss(GPU::ElementSoA& element_host, 
 		real rf_rC_all[4][2]{};
 		real rf_rF_all[4][2]{};
 		for (int i = 0; i < 4; i++) {
-			if (outElementID[i] == -1 || edgeID[i] == -1) {
-				continue;
-			}
 			int currentEdgeID = edgeID[i];
 			int currentOutElementID = outElementID[i];
+			if (currentEdgeID == -1) {
+				continue;
+			}
 
 			// 面和单元坐标
 			real fx = edge_host.xy[0][currentEdgeID];// face x
@@ -325,17 +333,17 @@ void U2NITS::Space::Gradient::GradientGreenGauss(GPU::ElementSoA& element_host, 
 			rf_rF_all[i][1] = rf_rF[1];
 		}
 
-
+		// 计算每条边的向量通量phif·Sf，然后求和，除以体积，得到单元C的梯度
 		const int nVar = 4;
 		for (int jVar = 0; jVar < nVar; jVar++) {
-			// 计算每条边的向量通量phif·Sf，然后求和，除以体积，得到单元C的梯度
+			// 求和。若面朝内，该面通量取相反数
 			real sum_phifSf[2]{};
 			for (int i = 0; i < 4; i++) {
-				if (outElementID[i] == -1 || edgeID[i] == -1) {
-					continue;
-				}
 				int currentEdgeID = edgeID[i];
 				int currentOutElementID = outElementID[i];
+				if (currentEdgeID == -1) {
+					continue;
+				}
 
 				// 获取单元值和单元梯度值
 				real phiC = elementField_host.U[jVar][currentElementID];
@@ -353,9 +361,223 @@ void U2NITS::Space::Gradient::GradientGreenGauss(GPU::ElementSoA& element_host, 
 				real gC1 = 1.0 - gC;
 				real phif = gC * phiC + gC1 * phiF;
 				real Sf[2]{ edgeSVector[0][i],edgeSVector[1][i] };
-				sum_phifSf[0] += phif * Sf[0];
-				sum_phifSf[1] += phif * Sf[1];
+				sum_phifSf[0] += phif * Sf[0] * edgeSign[i];// 乘以符号，以应对面朝内的情形
+				sum_phifSf[1] += phif * Sf[1] * edgeSign[i];
 			}
+
+			real nabla_phiC_new[2]{// 梯度
+				1 / volumeC * sum_phifSf[0],
+				1 / volumeC * sum_phifSf[1]
+			};
+			// 更新单元梯度值
+			elementField_host.Ux[jVar][currentElementID] = nabla_phiC_new[0];
+			elementField_host.Uy[jVar][currentElementID] = nabla_phiC_new[1];
+			// 如果要迭代，需要等所有单元更新完毕，因此迭代循环要放在iElement循环外
+		}
+	}
+}
+
+void U2NITS::Space::Gradient::GradientGreenGauss_2(GPU::ElementSoA& element_host, GPU::FieldSoA& elementField_host, GPU::EdgeSoA& edge_host) {
+	/*
+	2024-03-28
+
+	* 格林高斯梯度
+	* https://zhuanlan.zhihu.com/p/370586072
+	* 将面矢量加到单元时，应注意面是朝里还是朝外。
+	* 注意计算通量时排除了周期边界，会有隐患
+	* 对于边界，其通量应等于phiC(参见01-01-CFD理论)
+	* 对于非法边(三角形单元的第4条边)，edgeID=-1, outElementID=-1,
+	*/
+// 求梯度的子迭代步数
+	int subIterationGradient = 3;
+	int num_edge = edge_host.num_edge;
+
+	for (int iElement = 0; iElement < element_host.num_element; iElement++) {
+		// 求当前单元ID、当前单元体积、edgeID、edge朝向正负、外单元ID
+		int currentElementID = element_host.ID[iElement];// 建议不要直接用iElement，虽然目前iElement==i(element_host.ID[i]=element_i.GPUID=i)，但有隐患
+		real volumeC = element_host.volume[currentElementID];// 体积
+		// 初始化edgeID 超出数组范围的非法值赋为-1
+		int edgeID[4]{ -1,-1,-1,-1 };// 第iElement个element的第i条边的ID
+		for (int i = 0; i < 4; i++) {
+			edgeID[i] = element_host.edges[i][iElement];
+			if (edgeID[i] <= -1 || edgeID[i] >= num_edge) {
+				edgeID[i] = -1;
+			}
+		}
+		// 初始化edgeType
+		int edgeType[4]{ -1,-1,-1,-1 };
+		for (int i = 0; i < 4; i++) {
+			int edgeIDi = edgeID[i];
+			if (edgeIDi == -1) {
+				continue;
+			}
+
+			edgeType[i] = edge_host.setID[edgeIDi];
+		}
+		// 初始化edgeSign和outElementID
+		int edgeSign[4]{ 0,0,0,0 };// 1表示边朝外，-1表示边朝内
+		int outElementID[4]{ -1,-1,-1,-1 };//外单元ID 内部边和周期边
+		for (int i = 0; i < 4; i++) {
+			int edgeIDi = edgeID[i];
+			if (edgeIDi == -1) {
+				continue;
+			}
+
+			if (currentElementID != edge_host.elementR[edgeIDi]) {
+				edgeSign[i] = 1;// currentElement=elementL，朝外
+				outElementID[i] = edge_host.elementR[edgeIDi];
+			}
+			else {
+				edgeSign[i] = -1;// currentElement=elementR，朝内
+				outElementID[i] = edge_host.elementL[edgeIDi];
+			}
+		}
+		// 求面积矢量edgeSVector(几何量)
+		real edgeNormal[2][4]{};
+		real edgeArea[4]{};
+		real edgeSVector[2][4]{};// 面积矢量
+		for (int i = 0; i < 4; i++) {
+			int edgeIDi = edgeID[i];
+			if (edgeIDi == -1) {
+				continue;
+			}
+
+			edgeNormal[0][i] = edge_host.normal[0][edgeIDi];
+			edgeNormal[1][i] = edge_host.normal[1][edgeIDi];
+			edgeArea[i] = edge_host.length[edgeIDi];
+			edgeSVector[0][i] = edgeNormal[0][i] * edgeArea[i];
+			edgeSVector[1][i] = edgeNormal[1][i] * edgeArea[i];
+		}
+
+		// 求几何权重因子gc、矢径(几何量)
+		real gC_all[4]{};
+		real rf_rC_all[4][2]{};
+		real rf_rF_all[4][2]{};
+		for (int i = 0; i < 4; i++) {
+			int edgeIDi = edgeID[i];
+			if (edgeIDi == -1) {
+				continue;
+			}
+
+			int currentOutElementID = outElementID[i];
+			if (currentOutElementID != -1){
+				// 内部边和周期边
+				if (edgeType[i] == -1) {
+					// 内部边
+
+					// 面和单元坐标
+					real fx = edge_host.xy[0][edgeIDi];// face x
+					real fy = edge_host.xy[1][edgeIDi];
+					real Cx = element_host.xy[0][currentElementID];// cell x
+					real Cy = element_host.xy[1][currentElementID];
+					real Fx = element_host.xy[0][currentOutElementID];
+					real Fy = element_host.xy[1][currentOutElementID];
+					// 几何权重因子gC = |rF-rf|/|rF-rC|，存储于gC_all数组中
+					using namespace U2NITS;
+					real dFf = Math::distance2D(Fx, Fy, fx, fy);
+					real dFC = Math::distance2D(Fx, Fy, Cx, Cy);
+					if (dFC < Math::EPSILON)dFC = Math::EPSILON;
+					gC_all[i] = dFf / dFC;
+					// 矢径 rf-rC rf-rF，在迭代时会用到
+					rf_rC_all[i][0] = fx - Cx;// rf-rC
+					rf_rC_all[i][1] = fy - Cy;
+					rf_rF_all[i][0] = fx - Fx;// rf-rF
+					rf_rF_all[i][1] = fy - Fy;
+				}
+				else {
+					// 周期边
+					// 面和单元坐标
+					real fx = edge_host.xy[0][edgeIDi];
+					real fy = edge_host.xy[1][edgeIDi];
+					real Cx = element_host.xy[0][currentElementID];// cell x
+					real Cy = element_host.xy[1][currentElementID];
+					// 周期边的outElement坐标需要平移
+					int pairIDi = edge_host.periodicPair[edgeIDi];
+					real fx_pair = edge_host.xy[0][pairIDi];
+					real fy_pair = edge_host.xy[1][pairIDi];
+					real shiftx = fx - fx_pair;// 从pair指向当前位置的矢径
+					real shifty = fy - fy_pair;
+					real Fx = element_host.xy[0][currentOutElementID];
+					real Fy = element_host.xy[1][currentOutElementID];
+					Fx += shiftx;// 用该矢径平移单元
+					Fy += shifty;
+
+					// 后面和内部边是一样的
+					// 几何权重因子gC = |rF-rf|/|rF-rC|，存储于gC_all数组中
+					using namespace U2NITS;
+					real dFf = Math::distance2D(Fx, Fy, fx, fy);
+					real dFC = Math::distance2D(Fx, Fy, Cx, Cy);
+					if (dFC < Math::EPSILON)dFC = Math::EPSILON;
+					gC_all[i] = dFf / dFC;
+					// 矢径 rf-rC rf-rF，在迭代时会用到
+					rf_rC_all[i][0] = fx - Cx;// rf-rC
+					rf_rC_all[i][1] = fy - Cy;
+					rf_rF_all[i][0] = fx - Fx;// rf-rF
+					rf_rF_all[i][1] = fy - Fy;
+				}
+
+			}
+			else {
+				// 边界边(周期边界除外)
+				// F单元实际不存在，假设F单元和C单元关于f面中心对称
+				real fx = edge_host.xy[0][edgeIDi];// face x
+				real fy = edge_host.xy[1][edgeIDi];
+				real Cx = element_host.xy[0][currentElementID];// cell x
+				real Cy = element_host.xy[1][currentElementID];
+
+				using namespace U2NITS;
+				real gC = 0.5;// 几何权重因子gc
+				real rf_rC[2]{ fx - Cx,fy - Cy };// rf-rC
+				real rf_rF[2]{ -(fx - Cx),-(fy - Cy)};// rf-rF
+
+				gC_all[i] = gC;
+				rf_rC_all[i][0] = rf_rC[0];
+				rf_rC_all[i][1] = rf_rC[1];
+				rf_rF_all[i][0] = rf_rF[0];
+				rf_rF_all[i][1] = rf_rF[1];
+			}
+
+		}
+
+
+
+		// 计算每条边的向量通量phif·Sf，然后求和，除以体积，得到单元C的梯度
+		const int nVar = 4;
+		for (int jVar = 0; jVar < nVar; jVar++) {
+			// 求和。若面朝内，该面通量取相反数
+			real sum_phifSf[2]{};
+			for (int i = 0; i < 4; i++) {
+				int currentEdgeID = edgeID[i];
+				if (currentEdgeID == -1) {
+					continue;
+				}
+				int currentOutElementID = outElementID[i];
+
+				if (currentOutElementID != -1) {
+					// 内部边和周期边
+
+					// 获取单元值和单元梯度值
+					real phiC = elementField_host.U[jVar][currentElementID];
+					real phiF = elementField_host.U[jVar][currentOutElementID];
+					// 求界面值(近似)
+					real gC = gC_all[i];
+					real gC1 = 1.0 - gC;
+					real phif = gC * phiC + gC1 * phiF;
+					real Sf[2]{ edgeSVector[0][i],edgeSVector[1][i] };
+					sum_phifSf[0] += phif * Sf[0] * edgeSign[i];// 乘以符号，以应对面朝内的情形
+					sum_phifSf[1] += phif * Sf[1] * edgeSign[i];
+				}
+				else {
+					// 边界边(周期边除外)
+					real phiC = elementField_host.U[jVar][currentElementID];
+					real phif = phiC;
+					real Sf[2]{ edgeSVector[0][i],edgeSVector[1][i] };
+					sum_phifSf[0] += phif * Sf[0] * edgeSign[i];// 乘以符号，以应对面朝内的情形
+					sum_phifSf[1] += phif * Sf[1] * edgeSign[i];
+				}
+
+			}
+
 			real nabla_phiC_new[2]{// 梯度
 				1 / volumeC * sum_phifSf[0],
 				1 / volumeC * sum_phifSf[1]

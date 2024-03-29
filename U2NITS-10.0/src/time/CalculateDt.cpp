@@ -47,7 +47,7 @@ REAL GPU::calculateDt(REAL t, REAL T, REAL gamma, REAL Re, REAL prl, REAL CFL, R
 		// 若出现异常值，则终止
 		if (rr < 0 || pp < 0) {
 			std::cout << "Error: rr or pp < 0" << std::endl;
-			system("pause");
+			//system("pause");
 			exit(-1);
 
 			throw "Error: rr or pp < 0";

@@ -15,6 +15,8 @@
 */
 
 class FieldWriter {
+private:
+	static int numTecplotFileWritten;
 
 public:
 	FieldWriter() {};
@@ -51,7 +53,8 @@ public:
 		GPU::NodeSoA& nodes,
 		GPU::ElementSoA& elements,
 		GPU::FieldSoA& elementField);
-
+	// 已输出的文件数量
+	static int getNumTecplotFileWritten();
 };
 
 #endif

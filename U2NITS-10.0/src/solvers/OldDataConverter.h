@@ -19,14 +19,14 @@ namespace U2NITS {
 			m_pFVM2D = pF;
 			m_pGPUSolver2 = pG;
 		}
-		void Convert_FVM2D_to_GPUHostData();
+		void Convert_FVM2D_to_HostData();
 
 	private:
 		void InitializeOldGPUIndex(int num_node, int num_element, int num_edge);
 		void ConvertNode(int num_node);
 		void ConvertElement(int num_element);
 		void ConvertEdge(int num_edge);
-		void ConvertBoundary();
+		void ConvertBoundary(int num_boundary);
 	};
 }
 

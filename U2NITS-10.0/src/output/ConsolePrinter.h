@@ -12,11 +12,24 @@ public:
 	enum InfoType {
 		type_nan_detected
 	};
+	enum HeaderStyle {
+		normal,
+		simple
+	};
+
+	enum InfoStyle {
+
+	};
 
 public:
 	ConsolePrinter() { restoreCursorPosition(); }
 	// 存储当前控制台光标位置。x轴朝右，y轴朝下
 	void restoreCursorPosition();
+	void restoreClearStartPosition();
+	void setClearStartPosition();
+	void update();
+	void clear();
+	void printWelcome_2();
 	void MoveToLastCursorPosition();
 	void EraseToLastCursorPosition();
 
@@ -26,8 +39,8 @@ public:
 	// 窗口缓冲区大小
 	static COORD getScreenBufferSize();
 	// 打印初始界面
-	static void printHeader();
-	// 原神，启动！
+	static void printHeader(HeaderStyle h);
+	// ...
 	static void printGenshinStart();
 	// 绘制进度条。0<=percent<=100
 	static void drawProgressBar(double percent);
@@ -37,6 +50,7 @@ public:
 	static std::string assemblySolveInfo(double calTime, int calStep, int maxIteration, double calSpeed, double nFile, double t, double T, const double* residual_vector);
 	// 打印求解信息
 	static void printInfo(InfoType type);
+
 };
 
 

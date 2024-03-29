@@ -24,7 +24,7 @@ void TomlFileManager::readFileAndParseFile(std::string fullFilePath) {
         initialize_ruvp();
     }
     catch (cpptoml::parse_exception par) {
-        LogWriter::writeLogAndCout("Parse Toml file failed. Will exit. \n");
+        LogWriter::logAndPrintError("Parse Toml file failed. Will exit. \n");
         std::cout << par.what() << std::endl;
         exit(1919810);
     }
@@ -34,7 +34,7 @@ void TomlFileManager::readFileAndParseFile(std::string fullFilePath) {
         std::cout << "Warning: Get optional value failed, and they'll be ignored. Look into log for details.\n";
     }
     if (has_getValueFailed) {
-        LogWriter::writeLogAndCout("Error in reading input parameter. Will exit. \n", LogWriter::Error, LogWriter::Error);
+        LogWriter::logAndPrintError("Error in reading input parameter. Will exit. \n");
         std::cout << "Please check the file \"input.toml\": " << "\n";
         std::cout << "1.Spelling mistake.\n";
         std::cout << "2.For boolean values, you should write \"true\" or \"false\", rather than \"1\" or \"0\".\n";
@@ -119,7 +119,7 @@ void TomlFileManager::modifyGlobalParametersAccordingToParsedFile() {
     //    std::cout << "1.Spelling mistake.\n";
     //    std::cout << "2.For boolean values, you should write \"true\" or \"false\", rather than \"1\" or \"0\".\n";
     //    std::cout << "(Code: " << __FILE__ << ")" << "\n";
-    //    LogWriter::writeLogAndCout("Error in reading input parameter. Will exit. \n");
+    //    LogWriter::logAndPrint("Error in reading input parameter. Will exit. \n");
     //    exit(114514);
     //}
 }
@@ -148,6 +148,6 @@ void TomlFileManager::initialize_ruvp() {
 }
 
 void TomlFileManager::logErrorMessage(ErrorMessage errorMessage) {
-    LogWriter::writeLog(errorMessage.getMessage() + "\n");
+    LogWriter::log(errorMessage.getMessage() + "\n");
 }
 

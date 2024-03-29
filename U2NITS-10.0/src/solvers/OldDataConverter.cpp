@@ -1,9 +1,10 @@
 #include "OldDataConverter.h"
 
-void U2NITS::OldDataConverter::Convert_FVM2D_to_GPUHostData() {
+void U2NITS::OldDataConverter::Convert_FVM2D_to_HostData() {
 	const int num_node = (int)m_pFVM2D->nodes.size();
 	const int num_element = (int)m_pFVM2D->elements.size();
 	const int num_edge = (int)m_pFVM2D->edges.size();
+	const int num_boundary = (int)m_pFVM2D->boundaryManager.boundaries.size();
 
 	// 初始化Element_2D vector中的GPUindex
 	InitializeOldGPUIndex(num_node, num_element, num_edge);
@@ -12,7 +13,7 @@ void U2NITS::OldDataConverter::Convert_FVM2D_to_GPUHostData() {
 	ConvertNode(num_node);
 	ConvertElement(num_element);
 	ConvertEdge(num_edge);
-	ConvertBoundary();
+	ConvertBoundary(num_boundary);
 
 
 }
@@ -71,6 +72,8 @@ void U2NITS::OldDataConverter::ConvertElement(int num_element) {
 			element_host.nodes[j][i] = pFVM2D->getNodeByID(element_i.nodes[j])->GPUID;
 			element_host.edges[j][i] = element_i.pEdges[j]->GPUID;
 		}
+		element_host.nodes[3][i] = -1;// 对三角形单元，其第4个顶点和边不存在，ID取-1
+		element_host.edges[3][i] = -1;
 		for (int j = 0; j < nValue; j++) {
 			elementField_host.U[j][i] = element_i.U[j];
 			elementField_host.Ux[j][i] = element_i.Ux[j];
@@ -132,7 +135,7 @@ void U2NITS::OldDataConverter::ConvertEdge(int num_edge) {
 
 }
 
-void U2NITS::OldDataConverter::ConvertBoundary() {
+void U2NITS::OldDataConverter::ConvertBoundary(int num_boundary) {
 	/*
 	初始化周期edge的elementR
 	初始化周期edge的edge_pair
@@ -171,7 +174,7 @@ void U2NITS::OldDataConverter::ConvertBoundary() {
 	}
 
 	// 初始化边界ID类型映射表
-	for (int i = 0; i < boundaryManager.boundaries.size(); i++) {
+	for (int i = 0; i < num_boundary; i++) {
 		boundary_host.type[i] = boundaryManager.boundaries[i].type;
 	}
 }

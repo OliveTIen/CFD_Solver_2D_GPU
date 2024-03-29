@@ -65,7 +65,7 @@ int SU2MeshReader::readFile(std::string filePath, bool convertRectToTriangle) {
 
 			}
 			else {
-				LogWriter::writeLogAndCout("Error: SU2 mesh dimension is not 2D\n", LogWriter::Error);
+				LogWriter::logAndPrintError("SU2 mesh dimension is not 2D\n");
 				exit(-1);
 			}
 		}
@@ -148,6 +148,10 @@ int SU2MeshReader::readFile(std::string filePath, bool convertRectToTriangle) {
 
 
 	pFVM2D->iniEdges();
+
+	// 以上是readMesh
+
+
 	std::cout << "Initiate pNodeTable, pElementTable, pEdgeTable" << std::endl;
 	pFVM2D->iniPNodeTable(maxnodeID);
 	pFVM2D->iniPElementTable(maxelementID);
@@ -211,12 +215,26 @@ int SU2MeshReader::readFile(std::string filePath, bool convertRectToTriangle) {
 	// 检查周期边界正确性
 	pFVM2D->boundaryManager.checkPeriodPairs();
 
-	//LogWriter::writeLog("elements.size="+std::to_string())
+	//LogWriter::log("elements.size="+std::to_string())
 
 	return E_NO_ERROR;
 }
 
 int SU2MeshReader::readFile_2(std::string filePath, bool convertRectToTriangle) {
+	//LogWriter::logAndPrint("readFile_2\n");
+	int maxnodeID = 1;
+	int maxelementID = 1;
+	std::vector<SimpleBoundary>tmp_boudaries;
+
+	int ret = readMesh(filePath, convertRectToTriangle, maxnodeID, maxelementID, tmp_boudaries);
+	if (ret == ERROR_READ_FILE)return ret;
+	process(maxnodeID, maxelementID, tmp_boudaries);
+
+	return 0;
+}
+
+int SU2MeshReader::readMesh(std::string filePath, bool convertRectToTriangle, int& maxnodeID, int& maxelementID, std::vector<SimpleBoundary>& tmp_boudaries) {
+
 	std::cout << "Read \".su2\" mesh file\n";
 	FVM_2D* pFVM2D = FVM_2D::getInstance();
 	std::ifstream infile(filePath);
@@ -224,15 +242,12 @@ int SU2MeshReader::readFile_2(std::string filePath, bool convertRectToTriangle) 
 		return ERROR_READ_FILE;
 	}
 	State state = state_START;//1-Node, 2-Element
-	int maxnodeID = 1;
-	int maxelementID = 1;
 	const int bufferLength = 300;
 	char buffer[bufferLength];
 	std::string tLine;
 	std::vector<std::string> tWords;
 	std::vector<VirtualEdge_2D> vBoundaryEdges;//临时变量。存储边界元节点ID
 	vBoundaryEdges.push_back(VirtualEdge_2D());//填充1个null元素，以保证行号表示ID
-	std::vector<SimpleBoundary>tmp_boudaries;
 	while (infile.getline(buffer, bufferLength)) {
 
 		tLine = buffer;
@@ -263,7 +278,7 @@ int SU2MeshReader::readFile_2(std::string filePath, bool convertRectToTriangle) 
 
 			}
 			else {
-				LogWriter::writeLogAndCout("Error: SU2 mesh dimension is not 2D\n", LogWriter::Error);
+				LogWriter::logAndPrintError("SU2 mesh dimension is not 2D\n");
 				exit(-1);
 			}
 		}
@@ -346,9 +361,16 @@ int SU2MeshReader::readFile_2(std::string filePath, bool convertRectToTriangle) 
 
 
 	pFVM2D->iniEdges();
+
+	return 0;
+}
+
+void SU2MeshReader::process(int maxNodeID, int maxElementID, std::vector<SimpleBoundary>& tmp_boudaries) {
+	FVM_2D* pFVM2D = FVM_2D::getInstance();
+
 	std::cout << "Initiate pNodeTable, pElementTable, pEdgeTable" << std::endl;
-	pFVM2D->iniPNodeTable(maxnodeID);
-	pFVM2D->iniPElementTable(maxelementID);
+	pFVM2D->iniPNodeTable(maxNodeID);
+	pFVM2D->iniPElementTable(maxElementID);
 	pFVM2D->iniPEdgeTable();
 	pFVM2D->iniNode_neighborElements();//前置条件 elements, elements.nodes, pNodeTable
 
@@ -409,11 +431,6 @@ int SU2MeshReader::readFile_2(std::string filePath, bool convertRectToTriangle) 
 	// 检查周期边界正确性
 	pFVM2D->boundaryManager.checkPeriodPairs();
 
-	//LogWriter::writeLog("elements.size="+std::to_string())
+	//LogWriter::log("elements.size="+std::to_string())
 
-	return E_NO_ERROR;
-
-
-
-	return E_NO_ERROR;
 }

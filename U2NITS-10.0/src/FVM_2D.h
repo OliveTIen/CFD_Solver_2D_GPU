@@ -28,12 +28,8 @@ public:
 	//static FVM_2D* getInstance();
 	static FVM_2D* getInstance();
 	
-	// 读取output文件夹中的续算文件(pause_*.dat)(绝对路径)，初始化网格变量，更新t_solve和istep_solve
-	int readContinueFile();
-	//// 初始化流场。续算不要使用该函数，否则会重新开始
-	//void setInitialCondition();
 	// 求解
-	void solve_CPU2(std::string suffix_out, std::string suffix_info);
+	//void solve_CPU2(std::string suffix_out, std::string suffix_info);
 	// 计算dt。根据CFL数计算各单元局部dt，取最小值。如果t+dt超出设定T，则限制dt
 	double caldt(double t, double T);
 	// 检查非法值

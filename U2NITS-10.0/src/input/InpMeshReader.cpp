@@ -25,7 +25,7 @@ int InpMeshReader::readGmeshFile(std::string filepath) {
 	std::cout << "read mesh file\n";
 	std::ifstream infile(filepath);
 	if (!infile) {
-		LogWriter::writeLogAndCout("Warning: fail to read mesh(*.inp). (InpMeshReader::readGmeshFile) \n");
+		LogWriter::logAndPrint("fail to read mesh(*.inp). (InpMeshReader::readGmeshFile) \n", LogWriter::Warning);
 		return -1;
 	}
 	int state = 0;//1-Node, 2-Element
@@ -138,13 +138,13 @@ int InpMeshReader::readGmeshFile(std::string filepath) {
 	建立elements数组，初始化element的ID、nodeIDs
 	*/
 
-	pFVM2D->iniPNodeTable(maxnodeID);// 需要先建立nodes数组，知道每个node的ID。已完成
-	pFVM2D->iniPElementTable(maxelementID);// 需要先建立elements数组，知道每个element的ID。已完成
-	pFVM2D->iniEdges();// 建立edges数组。需要知道每个element的nodeIDs。已完成
+	pFVM2D->iniEdges();// 建立edges数组。需要知道每个element的nodeIDs。依赖于elements
 
-	pFVM2D->iniPEdgeTable();// 建立pEdges数组。需要先建立edges数组，知道每个edge的ID。依赖于iniEdges
+	pFVM2D->iniPNodeTable(maxnodeID);// 需要先建立nodes数组，知道每个node的ID。依赖于nodes
+	pFVM2D->iniPElementTable(maxelementID);// 需要先建立elements数组，知道每个element的ID。依赖于elements
+	pFVM2D->iniPEdgeTable();// 建立pEdges数组。需要先建立edges数组，知道每个edge的ID。依赖于edges，需要放在iniEdges()后面
 	
-	pFVM2D->iniElement_xy_pEdges();// 需要
+	pFVM2D->iniElement_xy_pEdges();
 	pFVM2D->iniNode_neighborElements();
 	pFVM2D->iniEdges_lengths();
 	
@@ -192,6 +192,11 @@ int InpMeshReader::readGmeshFile(std::string filepath) {
 
 }
 
+int InpMeshReader::readGmeshFile_2(std::string filepath) {
+	LogWriter::logAndPrintError("Not implemented yet.\n");
+	return -1;
+}
+
 int InpMeshReader::readSU2File(std::string suffix) {
 	std::cout << "read mesh file" << "\n";
 	int error_code = SU2::readFile(suffix);
@@ -201,7 +206,7 @@ int InpMeshReader::readSU2File(std::string suffix) {
 		std::cout << "invalid first word.\n";
 		break;
 	case SU2::E_open_file_error:
-		LogWriter::writeLogAndCout("Warning: fail to read mesh(*.su2). (InpMeshReader::readSU2File) \n");
+		LogWriter::logAndPrint("Warning: fail to read mesh(*.su2). (InpMeshReader::readSU2File) \n");
 		break;
 	case SU2::E_meet_number_in_the_start:
 		std::cout << "meet number in the start. please check su2 file.\n";

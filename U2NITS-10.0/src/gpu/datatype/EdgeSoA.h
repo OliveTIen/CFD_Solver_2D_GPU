@@ -5,9 +5,10 @@
 
 namespace GPU {
 	// structure of array
-	class EdgeSoA {
+	struct EdgeSoA {
 	public:
-		int num_edge = 0;
+		int num_edge = 0;// 仅可CPU读取
+		int* _num_edge_;// 通过申请内存得到的，可以GPU读取。不参与cuda_memcpy()，因为初始化时已确定值
 		int* ID;
 		int* nodes[2];
 		int* setID;
@@ -23,6 +24,9 @@ namespace GPU {
 		// 申请内存 初始化放在后面，因为后面被覆盖，初始化没有意义
 		void alloc(int num) {
 			num_edge = num;
+			_num_edge_ = new int;
+			*_num_edge_ = num_edge;
+
 			ID = new int[num];
 			nodes[0] = new int[num];
 			nodes[1] = new int[num];
@@ -39,6 +43,7 @@ namespace GPU {
 		}
 
 		void free() {
+			delete _num_edge_;
 			delete[] ID;
 			delete[] nodes[0];
 			delete[] nodes[1];
@@ -57,6 +62,9 @@ namespace GPU {
 		// cuda 申请内存
 		void cuda_alloc(int num) {
 			num_edge = num;
+			cudaMalloc((void**)&_num_edge_, sizeof(int));
+			cudaMemcpy(_num_edge_, &num_edge, sizeof(int), ::cudaMemcpyHostToDevice);
+
 			cudaMalloc((void**)&ID, num * sizeof(int));
 			cudaMalloc((void**)&nodes[0], num * sizeof(int));
 			cudaMalloc((void**)&nodes[1], num * sizeof(int));
@@ -73,6 +81,7 @@ namespace GPU {
 		}
 
 		void cuda_free() {
+			cudaFree(_num_edge_);
 			cudaFree(ID);
 			cudaFree(nodes[0]);
 			cudaFree(nodes[1]);

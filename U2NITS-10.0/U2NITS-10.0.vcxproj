@@ -29,7 +29,8 @@
     <ClCompile Include="src\input\AirParameterConverter.cpp" />
     <ClCompile Include="src\input\CInput.cpp" />
     <ClCompile Include="src\input\ContinueFileReader.cpp" />
-    <ClCompile Include="src\input\Initializer.cpp" />
+    <ClCompile Include="src\input\FieldInitializer.cpp" />
+    <ClCompile Include="src\input\GeometryReader.cpp" />
     <ClCompile Include="src\input\InpMeshReader.cpp" />
     <ClCompile Include="src\input\SU2MeshReader.cpp" />
     <ClCompile Include="src\input\TomlFileManager.cpp" />
@@ -54,6 +55,7 @@
     <ClCompile Include="src\space\convection\LocalLaxFriedrichs.cpp" />
     <ClCompile Include="src\space\Flux.cpp" />
     <ClCompile Include="src\space\gradient\Gradient.cpp" />
+    <ClCompile Include="src\space\gradient\GreenGauss.cpp" />
     <ClCompile Include="src\space\Limiter.cpp" />
     <ClCompile Include="src\space\Reconstructor.cpp" />
     <ClCompile Include="src\space\restrict\Restrict.cpp" />
@@ -69,6 +71,7 @@
     <ClInclude Include="src\drivers\CDriver.h" />
     <ClInclude Include="src\Edge_2D.h" />
     <ClInclude Include="src\Element_2D.h" />
+    <ClInclude Include="src\global\CTimer.h" />
     <ClInclude Include="src\global\GlobalPara.h" />
     <ClInclude Include="src\global\JsonConfig.h" />
     <ClInclude Include="src\global\FilePathManager.h" />
@@ -83,11 +86,13 @@
     <ClInclude Include="src\gpu\datatype\FieldSoA.h" />
     <ClInclude Include="src\gpu\datatype\ElementSoA.h" />
     <ClInclude Include="src\gpu\datatype\NodeSoA.h" />
+    <ClInclude Include="src\gpu\GPUGlobalFunction.h" />
     <ClInclude Include="src\include\AMatrix\AMatrix.h" />
     <ClInclude Include="src\input\AirParameterConverter.h" />
     <ClInclude Include="src\input\CInput.h" />
     <ClInclude Include="src\input\ContinueFileReader.h" />
-    <ClInclude Include="src\input\Initializer.h" />
+    <ClInclude Include="src\input\FieldInitializer.h" />
+    <ClInclude Include="src\input\GeometryReader.h" />
     <ClInclude Include="src\input\InpMeshReader.h" />
     <ClInclude Include="src\input\SU2MeshReader.h" />
     <ClInclude Include="src\input\TomlFileManager.h" />
@@ -129,6 +134,7 @@
     <ClInclude Include="src\space\FluxGPU.h" />
     <ClInclude Include="src\space\gradient\GradientGPU.h" />
     <ClInclude Include="src\space\gradient\Gradient.h" />
+    <ClInclude Include="src\space\gradient\GreenGauss.h" />
     <ClInclude Include="src\space\Limiter.h" />
     <ClInclude Include="src\space\Reconstructor.h" />
     <ClInclude Include="src\space\restrict\Restrict.h" />
@@ -140,6 +146,7 @@
   <ItemGroup>
     <CudaCompile Include="src\gpu\datatype\DeviceData.cu" />
     <CudaCompile Include="src\gpu\datatype\FieldSoA.cu" />
+    <CudaCompile Include="src\gpu\GPUGlobalFunction.cu" />
     <CudaCompile Include="src\solvers\GPUSolver2.cu" />
     <CudaCompile Include="src\space\convection\LocalLaxFriedrichsGPU.cu" />
     <CudaCompile Include="src\space\convection\Roe.cpp" />

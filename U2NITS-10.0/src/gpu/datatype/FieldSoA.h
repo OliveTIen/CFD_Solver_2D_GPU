@@ -8,9 +8,10 @@ namespace GPU {
 	/// 场变量 适合node和element
 	/// 
 	/// </summary>
-	class FieldSoA {
+	struct FieldSoA {
 	public:
 		int num;
+		int* _num_;// GPU使用
 
 		REAL* U[4];
 		REAL* Ux[4];
@@ -20,6 +21,9 @@ namespace GPU {
 	public:
 		void alloc(int _num) {
 			num = _num;
+			_num_ = new int;
+			*_num_ = num;
+
 			for (int i = 0; i < 4; i++) {
 				U[i] = new REAL[num];
 				Ux[i] = new REAL[num];
@@ -29,6 +33,8 @@ namespace GPU {
 		}
 
 		void free() {
+			delete _num_;
+
 			for (int i = 0; i < 4; i++) {
 				delete[] U[i];
 				delete[] Ux[i];
@@ -39,6 +45,10 @@ namespace GPU {
 
 		void cuda_alloc(int _num) {
 			num = _num;
+			cudaMalloc(&_num_, 1 * sizeof(int));
+			cudaMemcpy(_num_, &num, 1 * sizeof(int), ::cudaMemcpyHostToDevice);
+
+
 			for (int i = 0; i < 4; i++) {
 				cudaMalloc(&U[i], num * sizeof(REAL));
 				cudaMalloc(&Ux[i], num * sizeof(REAL));
@@ -48,6 +58,8 @@ namespace GPU {
 		}
 
 		void cuda_free() {
+			cudaFree(_num_);
+
 			for (int i = 0; i < 4; i++) {
 				cudaFree(U[i]);
 				cudaFree(Ux[i]);

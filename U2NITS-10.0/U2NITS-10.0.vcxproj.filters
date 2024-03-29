@@ -204,7 +204,7 @@
     <ClCompile Include="src\space\restrict\Restrict.cpp">
       <Filter>src\space\restrict</Filter>
     </ClCompile>
-    <ClCompile Include="src\input\Initializer.cpp">
+    <ClCompile Include="src\input\FieldInitializer.cpp">
       <Filter>src\input</Filter>
     </ClCompile>
     <ClCompile Include="src\output\ExactSolutionWriter.cpp">
@@ -212,6 +212,12 @@
     </ClCompile>
     <ClCompile Include="src\output\exact_solution\ShockTubeExactSolver.cpp">
       <Filter>src\output\exact_solution</Filter>
+    </ClCompile>
+    <ClCompile Include="src\space\gradient\GreenGauss.cpp">
+      <Filter>src\space\gradient</Filter>
+    </ClCompile>
+    <ClCompile Include="src\input\GeometryReader.cpp">
+      <Filter>src\input</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -422,7 +428,7 @@
     <ClInclude Include="src\space\restrict\Restrict.h">
       <Filter>src\space\restrict</Filter>
     </ClInclude>
-    <ClInclude Include="src\input\Initializer.h">
+    <ClInclude Include="src\input\FieldInitializer.h">
       <Filter>src\input</Filter>
     </ClInclude>
     <ClInclude Include="src\output\ExactSolutionWriter.h">
@@ -430,6 +436,18 @@
     </ClInclude>
     <ClInclude Include="src\output\exact_solution\ShockTubeExactSolver.h">
       <Filter>src\output\exact_solution</Filter>
+    </ClInclude>
+    <ClInclude Include="src\space\gradient\GreenGauss.h">
+      <Filter>src\space\gradient</Filter>
+    </ClInclude>
+    <ClInclude Include="src\input\GeometryReader.h">
+      <Filter>src\input</Filter>
+    </ClInclude>
+    <ClInclude Include="src\global\CTimer.h">
+      <Filter>src\global</Filter>
+    </ClInclude>
+    <ClInclude Include="src\gpu\GPUGlobalFunction.h">
+      <Filter>src\gpu</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
@@ -459,6 +477,9 @@
     </CudaCompile>
     <CudaCompile Include="src\space\convection\LocalLaxFriedrichsGPU.cu">
       <Filter>src\space\convection</Filter>
+    </CudaCompile>
+    <CudaCompile Include="src\gpu\GPUGlobalFunction.cu">
+      <Filter>src\gpu</Filter>
     </CudaCompile>
   </ItemGroup>
 </Project>

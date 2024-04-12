@@ -1,6 +1,7 @@
 #ifndef DEVICE_DATA_H
 #define DEVICE_DATA_H
 #include "Define.h"
+#include "../../global/Constexpr.h"
 /*
 有些数据只需要从CPU拷贝到GPU，而不需要拷回来，例如远场参数
 该类用CPU的一个指针初始化，需要返回时用
@@ -71,6 +72,89 @@ namespace GPU {
 		}
 	public:
 
+	};
+
+
+	// struct device parameter; 如果没有指针，只是传入，无需传出，就不需要申请cuda内存
+	struct SDevicePara {
+
+		/* struct type define */
+		struct Constant {
+			double const R = 287.06;// 气体常数
+			double const PI = 3.1415926535897;
+			double T0 = 288.16;// 海平面温度参考值
+			double p0 = 101325.0;// 海平面压力参考值
+			double c0 = 340.28;// 海平面声速参考值
+			double gamma = 1.4;
+			double epsilon = 1e-7;
+			double Re = 1.0e8;
+			double Pr = 0.73;
+			double mu = 17.9e-6;// 空气动力粘性系数
+
+			void initialize(double _T0, double _p0, double _c0, double _gamma, double _epsilon, double _Re, double _Pr, double _mu) {
+				T0 = _T0;
+				p0 = _p0;
+				c0 = _c0;
+				gamma = _gamma;
+				epsilon = _epsilon;
+				Re = _Re;
+				Pr = _Pr;
+				mu = _mu;
+			}
+		};
+		struct Space {
+			int flag_reconstruct = _REC_constant;
+			int flag_gradient = _GRA_leastSquare;
+
+			void initialize(int _flag_reconstruct, int _flag_gradient) {
+				flag_reconstruct = _flag_reconstruct;
+				flag_gradient = _flag_gradient;
+			}
+		};
+
+		struct BoundaryCondition_2D_simple {
+			real ruvp_inf[4];
+			real ruvp_inlet[4];
+			real ruvp_outlet[4];
+
+			void initialize(real* inf, real* inlet, real* outlet) {
+				for (int i = 0; i < 4; i++) {
+					ruvp_inf[i] = inf[i];
+					ruvp_inlet[i] = inlet[i];
+					ruvp_outlet[i] = outlet[i];
+				}
+			}
+		};
+
+		struct InviscidFluxMethod {
+			int flux_conservation_scheme = _SOL_Roe;// 黎曼求解器
+			int flux_limiter = _LIM_minmod;
+
+			void initialize(int _flux_conservation_scheme, int _flux_limiter) {
+				flux_conservation_scheme = _flux_conservation_scheme;
+				flux_limiter = _flux_limiter;
+			}
+		};
+
+
+		/* members */
+		Constant constant;
+		Space space;
+		BoundaryCondition_2D_simple boundaryCondition_2D;
+		InviscidFluxMethod inviscidFluxMethod;
+
+		/* functions */
+		void initialize(
+			double _T0, double _p0, double _c0, double _gamma, double _epsilon, double _Re, double _Pr, double _mu,
+			int _flag_reconstruct, int _flag_gradient,
+			real* inf, real* inlet, real* outlet,
+			int _flux_conservation_scheme, int _flux_limiter
+		) {
+			constant.initialize(_T0, _p0, _c0, _gamma, _epsilon, _Re, _Pr, _mu);
+			space.initialize(_flag_reconstruct, _flag_gradient);
+			boundaryCondition_2D.initialize(inf, inlet, outlet);
+			inviscidFluxMethod.initialize(_flux_conservation_scheme, _flux_limiter);
+		}
 	};
 
 }

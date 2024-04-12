@@ -3,8 +3,8 @@
 #include "../../output/LogWriter.h"
 #include "../../global/GlobalPara.h"
 
-void U2NITS::Space::Gradient::Gradient(GPU::ElementSoA& element_host, GPU::FieldSoA& elementField_host, GPU::NodeSoA& node_host, GPU::EdgeSoA& edge_host) {
-	switch (GlobalPara::space::flag_gradient) {
+void U2NITS::Space::Gradient::Gradient(GPU::ElementSoA& element_host, GPU::NodeSoA& node_host, GPU::EdgeSoA& edge_host, GPU::FieldSoA& elementField_host) {
+	switch (GlobalPara::inviscid_flux_method::flag_gradient) {
 	case _GRA_leastSquare:
 		//LogWriter::logAndPrint("GradientLeastSquare_2\n");
 		GradientLeastSquare_2(element_host, elementField_host, node_host);
@@ -384,7 +384,7 @@ void U2NITS::Space::Gradient::GradientGreenGauss_2(GPU::ElementSoA& element_host
 	* 格林高斯梯度
 	* https://zhuanlan.zhihu.com/p/370586072
 	* 将面矢量加到单元时，应注意面是朝里还是朝外。
-	* 注意计算通量时排除了周期边界，会有隐患
+	* 
 	* 对于边界，其通量应等于phiC(参见01-01-CFD理论)
 	* 对于非法边(三角形单元的第4条边)，edgeID=-1, outElementID=-1,
 	*/

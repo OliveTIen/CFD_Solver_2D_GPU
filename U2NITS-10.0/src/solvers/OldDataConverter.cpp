@@ -67,7 +67,7 @@ void U2NITS::OldDataConverter::ConvertElement(int num_element) {
 		element_host.ID[i] = element_i.GPUID;
 		element_host.xy[0][i] = element_i.x;
 		element_host.xy[1][i] = element_i.y;
-		element_host.volume[i] = element_i.calArea(pFVM2D);
+		element_host.volume[i] = element_i.area;// 20240405新增：在组装edge时计算面积，并调整节点顺序为逆时针
 		for (int j = 0; j < nodePerElement; j++) {
 			element_host.nodes[j][i] = pFVM2D->getNodeByID(element_i.nodes[j])->GPUID;
 			element_host.edges[j][i] = element_i.pEdges[j]->GPUID;

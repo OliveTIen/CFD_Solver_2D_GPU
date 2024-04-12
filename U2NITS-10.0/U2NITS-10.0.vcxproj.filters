@@ -64,6 +64,9 @@
     <Filter Include="src\output\exact_solution">
       <UniqueIdentifier>{fa4f593e-f8d3-4ae2-a0c3-17ee73aa5a02}</UniqueIdentifier>
     </Filter>
+    <Filter Include="src\space\reconstruct">
+      <UniqueIdentifier>{d81613de-4606-4074-bcf4-1216ca09c29c}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="src\main.cpp">
@@ -449,6 +452,18 @@
     <ClInclude Include="src\gpu\GPUGlobalFunction.h">
       <Filter>src\gpu</Filter>
     </ClInclude>
+    <ClInclude Include="src\global\Constexpr.h">
+      <Filter>src\global</Filter>
+    </ClInclude>
+    <ClInclude Include="src\global\SGlobalPara.h">
+      <Filter>src\global</Filter>
+    </ClInclude>
+    <ClInclude Include="src\space\restrict\RestrictGPU.h">
+      <Filter>src\space\restrict</Filter>
+    </ClInclude>
+    <ClInclude Include="src\space\reconstruct\MUSCL.h">
+      <Filter>src\space\reconstruct</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <CudaCompile Include="src\gpu\datatype\FieldSoA.cu">
@@ -480,6 +495,9 @@
     </CudaCompile>
     <CudaCompile Include="src\gpu\GPUGlobalFunction.cu">
       <Filter>src\gpu</Filter>
+    </CudaCompile>
+    <CudaCompile Include="src\space\restrict\RestrictGPU.cu">
+      <Filter>src\space\restrict</Filter>
     </CudaCompile>
   </ItemGroup>
 </Project>

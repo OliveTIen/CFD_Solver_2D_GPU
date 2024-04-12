@@ -37,6 +37,18 @@ double Element_2D::calArea(FVM_2D* f) {
         yn[i] = f->getNodeByID(nodes[i])->y;
     }
     return 0.5 * abs(xn[0] * (yn[1] - yn[2]) + xn[1] * (yn[2] - yn[0]) + xn[2] * (yn[0] - yn[1]));
+
+    //// 但事实上总有单元其节点顺序是逆时针，这是不可避免的
+    //double area = 0.5 * (xn[0] * (yn[1] - yn[2]) + xn[1] * (yn[2] - yn[0]) + xn[2] * (yn[0] - yn[1]));
+    //if (area <= 0) {
+    //    // 要求节点顺序必须是逆时针，否则计算通量时会出错
+    //    std::stringstream ss;
+    //    ss << "Element area <= 0. Please check if the node order is counterclockwise.\n ";
+    //    ss << "At element ID=" << ID << ", GPUID=" << GPUID << ", (x,y)=(" << x << "," << y << ")";
+    //    LogWriter::logAndPrintError(ss.str());
+    //    exit(-1);
+    //}
+    //return area;
 }
 
 
@@ -213,14 +225,14 @@ void Element_2D::restructor_in_updateSlope_Barth(FVM_2D* f) {
 
 void Element_2D::get_U(double xpoint, double ypoint, double* _U) {
     //常量重构
-    if (GlobalPara::space::flag_reconstruct == _REC_constant) {
+    if (GlobalPara::inviscid_flux_method::flag_reconstruct == _REC_constant) {
         for (int j = 0; j < 4; j++) {
             _U[j] = U[j];//此处U为成员变量
         }
     }
     //线性重构
     //根据梯度Ux、Uy计算点(xpoint,ypoint)处_U值
-    else if (GlobalPara::space::flag_reconstruct == _REC_linear) {
+    else if (GlobalPara::inviscid_flux_method::flag_reconstruct == _REC_linear) {
         for (int j = 0; j < 4; j++) {
             _U[j] = U[j] + Ux[j] * (xpoint - x) + Uy[j] * (ypoint - y);
         }

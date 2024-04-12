@@ -1,7 +1,7 @@
 #include "RoeGPU.h"
 #include "../../math/MathGPU.h"
 
-__device__ void GPU::Space::Convection::ConvectRoeCommon2d(const REAL UL[4], const REAL UR[4], const REAL faceNormal[2], const REAL faceArea, REAL faceFlux[4], DGlobalPara& para) {
+__device__ void GPU::Space::Convection::ConvectRoeCommon2d(const REAL UL[4], const REAL UR[4], const REAL faceNormal[2], const REAL faceArea, REAL faceFlux[4], SDevicePara para) {
 	// 采用熵修正的Roe求解器 参考UNITs Convect_Roe_Common
 	// 被RiemannSolver调用
 	// 输出：faceFlux
@@ -12,8 +12,8 @@ __device__ void GPU::Space::Convection::ConvectRoeCommon2d(const REAL UL[4], con
 
 	// 面法向单位向量
 	real velocity_dynaMesh = 0;//动网格相关，目前不需要
-	real rcpcv = *(para.constant_R->ptr);
-	real gamma = *(para.constant_gamma->ptr);
+	real rcpcv = para.constant.R;
+	real gamma = para.constant.gamma;
 	// 守恒量转场变量rho u v w p
 	GPU::Math::U2ruvp(UL, ruvpL, gamma);
 	GPU::Math::U2ruvp(UR, ruvpR, gamma);

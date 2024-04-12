@@ -2,6 +2,7 @@
 #include "../global/GlobalPara.h"
 #include "../FVM_2D.h"
 #include "../global/FilePathManager.h"
+#include "../math/Math.h"
 
 void ResidualCalculator::cal_error_isentropicVortex(double xmin, double ymin, double xmax, double ymax, 
 	double chi, const double t_current, const int istep, const double cpu_time, const double* ruvp0) {
@@ -55,7 +56,7 @@ void ResidualCalculator::cal_error_isentropicVortex(double xmin, double ymin, do
 		double vol = e.calArea(FVM_2D::getInstance());
 		error_norm1 += error * vol;//1-范数误差
 		error_norm2 += error2 * vol;//2-范数误差
-		error_max = max(error_max, error);
+		error_max = U2NITS::Math::max(error_max, error);
 		sumvol += vol;
 	}
 	error_norm1 /= sumvol;//  err_bar = sum(err_i * vol_i)/sum(vol_i) = sum(err_i * weight_i) 误差对体积的加权平均 
@@ -178,6 +179,47 @@ void ResidualCalculator::cal_residual_GPU(REAL* elements_U_old[4], GPU::FieldSoA
 	residual[1] = residual_U[1];
 	residual[2] = residual_U[2];
 	residual[3] = residual_U[3];
+
+}
+
+void ResidualCalculator::get_residual_functionF(const GPU::FieldSoA& elementField, double* residual, int NORM_TYPE) {
+	/*
+	20240411
+	直接将右端项作为残差
+	*/
+	const integer numElements = elementField.num;
+
+	for (int i = 0; i < 4; i++) {
+		real norm = 0;
+		switch (NORM_TYPE) {
+		case NORM_1:// 绝对值之和
+			for (integer j = 0; j < numElements; j++) {
+				real flux = U2NITS::Math::abs(elementField.Flux[i][j]);
+				norm += flux;
+			}
+
+			break;
+		case NORM_2:// 平方之和再开方
+			for (integer j = 0; j < numElements; j++) {
+				real flux = U2NITS::Math::abs(elementField.Flux[i][j]);
+				norm += flux * flux;
+			}
+			norm = sqrt(norm);
+
+			break;
+		case NORM_INF:// 最大值
+			for (integer j = 0; j < numElements; j++) {
+				real flux = U2NITS::Math::abs(elementField.Flux[i][j]);
+				norm = U2NITS::Math::max(norm, flux);
+			}
+
+			break;
+		default:
+			break;
+		}
+		residual[i] = norm;
+	}
+
 
 }
 

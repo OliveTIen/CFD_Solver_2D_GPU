@@ -10,6 +10,7 @@ namespace GPU {
 		bool hostMemoryAllocated = false;
 		bool deviceReady = false;// 设备存在且已就绪
 		bool deviceMemoryAllocated = false;
+
 	public:
 		// host/device双向数据
 		GPU::NodeSoA node_host;
@@ -33,31 +34,29 @@ namespace GPU {
 
 		// device数据
 		GPU::DGlobalPara* infPara_device;// 远场参数在GPU的副本，用于传参[RAII类型]
-
+		SDevicePara sDevicePara;
 
 	public:
 		// 申请资源、初始化GPUID、host复制到device
 		void initialize();
-		void initializeHost();// 申请内存，用FVM_2D旧数据初始化
-		void initializeDevice();// 需放在initializeHost之后，因为涉及到host_to_device
-		void iterationTotalCPU(REAL& t, REAL T);
-		void iterationHalfGPU(REAL& t, REAL T);
-		void iterationGPU(REAL& t, REAL T);
+		// 迭代
+		void iteration(real& t, real T);
 		// 更新节点场
 		void updateOutputNodeField();
 		// 更新残差
 		void updateResidual();
-		
+		// 获取残差
+		void getResidual();
+		// [未使用]
 		void allocateMemory(const int num_node, const int num_element, const int num_edge, const int num_boundary);
-		void allocateHostMemory(const int num_node, const int num_element, const int num_edge, const int num_boundary);
-		void allocateDeviceMemory(const int num_node, const int num_element, const int num_edge, const int num_boundary);// 需要在setGPUDevice之后
 		// 释放资源
 		void freeMemory();
-		void freeHostMemory();
-		void freeDeviceMemory();
+
 	private:
 		void setGPUDevice();
 
+		void initializeHost();// 申请内存，用FVM_2D旧数据初始化
+		void initializeDevice();// 需放在initializeHost之后，因为涉及到host_to_device
 		void initialize_nodeHost(void* _pFVM2D_, int num_node);
 		// 初始化element和elementField的host数据
 		void initialize_elementHost(void* _pFVM2D_, int num_element);
@@ -66,10 +65,12 @@ namespace GPU {
 		// 初始化边界条件 将周期边界变为内部边界
 		void initialize_boundary(void* _pFVM2D_);
 
+		void iterationHost(REAL& t, REAL T);
+		void iterationHost_2_addRK3(REAL& t, REAL T);
+		void iterationHalfGPU(REAL& t, REAL T);
+		void iterationGPU(REAL& t, REAL T);
 		// 仅host端的更新 用U更新ruvp U_old
 		void update_ruvp_Uold();
-		// 计算时间步长
-		REAL calculateDt(REAL t, REAL T);
 		// GPU iteration， 包含几个GPU kernel
 		void iterationDevice(REAL dt);
 		// device数据更新到host
@@ -78,6 +79,11 @@ namespace GPU {
 		void iterationHost(REAL dt);
 		// host数据更新到device
 		void host_to_device();
+
+		void allocateHostMemory(const int num_node, const int num_element, const int num_edge, const int num_boundary);
+		void allocateDeviceMemory(const int num_node, const int num_element, const int num_edge, const int num_boundary);// 需要在setGPUDevice之后
+		void freeHostMemory();
+		void freeDeviceMemory();
 
 	};
 }

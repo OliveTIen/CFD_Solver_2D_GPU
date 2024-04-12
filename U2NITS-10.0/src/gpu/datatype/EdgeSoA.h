@@ -99,6 +99,10 @@ namespace GPU {
 		}
 
 		static void cuda_memcpy(EdgeSoA* dist, const EdgeSoA* src, cudaMemcpyKind kind);
+
+		bool has(integer iEdge) {
+			return (iEdge >= 0 && iEdge < num_edge);
+		}
 	};
 
 }

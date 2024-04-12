@@ -4,9 +4,10 @@
 #include "convection/Convection.h"
 #include "../global/StringProcessor.h"
 #include "restrict/Restrict.h"
+#include "../output/LogWriter.h"
 
 
-void U2NITS::Space::Flux::calculateFluxHost(ElementSoA& element_host, FieldSoA& elementField_host, EdgeSoA& edge_host, std::map<int, int>& edge_periodic_pair) {
+void U2NITS::Space::Flux::calculateFluxHost(ElementSoA& element_host, EdgeSoA& edge_host, FieldSoA& elementField_host /*, std::map<int, int>& edge_periodic_pair*/ ) {
     /*
     参考：void Solver_2D::calFlux()
     TODO:
@@ -79,7 +80,7 @@ void U2NITS::Space::Flux::calculateFluxHost(ElementSoA& element_host, FieldSoA& 
         default:// 内部：bType=-1，边界：bType取_BC_periodic_0到_BC_periodic_9，即6100-6109
             if (elementR != -1) {
                 // 周期和内部 统一处理
-                Space::Flux::getEdgeFlux_inner_and_periodic(element_host, elementField_host, edge_host, edge_periodic_pair, iedge, flux);
+                Space::Flux::getEdgeFlux_inner_and_periodic(element_host, elementField_host, edge_host, iedge, flux);
             }
         }
 
@@ -117,20 +118,20 @@ REAL U2NITS::Space::Flux::calculateLambdaFlux(REAL edgeU[4], REAL edgeN[2], REAL
 
 }
 
-void U2NITS::Space::Flux::getEdgeFlux_wallNonViscous(ElementSoA& element_host, FieldSoA& elementField_host, EdgeSoA& edge_host, long idx, double* flux) {
+void U2NITS::Space::Flux::getEdgeFlux_wallNonViscous(ElementSoA& element, FieldSoA& elementField, EdgeSoA& edge, long idx, double* flux) {
     // 函数中idx相当于iedge
     // 该函数分别计算边的左右两侧U的极限，然后求解flux
 
-    REAL nx = edge_host.normal[0][idx];// normal已初始化
-    REAL ny = edge_host.normal[1][idx];
-    REAL x_edge = edge_host.xy[0][idx];
-    REAL y_edge = edge_host.xy[1][idx];
-    REAL length = edge_host.length[idx];
-    long iElementL = edge_host.elementL[idx];
+    REAL nx = edge.normal[0][idx];// normal已初始化
+    REAL ny = edge.normal[1][idx];
+    REAL x_edge = edge.xy[0][idx];
+    REAL y_edge = edge.xy[1][idx];
+    REAL length = edge.length[idx];
+    long iElementL = edge.elementL[idx];
 
     // 计算U_L，即edge U的左极限
     REAL U_L[4]{};
-    Flux::getUByXYandElementID(element_host, elementField_host, x_edge, y_edge, iElementL, U_L);
+    Flux::getUByXYandElementID(element, elementField, x_edge, y_edge, iElementL, U_L);
 
     // 计算U_R 用对称性
     REAL U_R[4]{};
@@ -148,19 +149,19 @@ void U2NITS::Space::Flux::getEdgeFlux_wallNonViscous(ElementSoA& element_host, F
         GlobalPara::inviscid_flux_method::flux_conservation_scheme);
 }
 
-void U2NITS::Space::Flux::getEdgeFlux_wall_adiabat(ElementSoA& element_host, FieldSoA& elementField_host, EdgeSoA& edge_host, long idx, double* flux) {
+void U2NITS::Space::Flux::getEdgeFlux_wall_adiabat(ElementSoA& element, FieldSoA& elementField, EdgeSoA& edge, long idx, double* flux) {
     // 固壁边界。函数中idx相当于iedge
 
-    REAL nx = edge_host.normal[0][idx];// normal已初始化
-    REAL ny = edge_host.normal[1][idx];
-    REAL x_edge = edge_host.xy[0][idx];
-    REAL y_edge = edge_host.xy[1][idx];
-    REAL length = edge_host.length[idx];
-    long iElementL = edge_host.elementL[idx];
+    REAL nx = edge.normal[0][idx];// normal已初始化
+    REAL ny = edge.normal[1][idx];
+    REAL x_edge = edge.xy[0][idx];
+    REAL y_edge = edge.xy[1][idx];
+    REAL length = edge.length[idx];
+    long iElementL = edge.elementL[idx];
 
     // 计算U_L，即edge U的左极限
     REAL U_L[4]{};
-    Flux::getUByXYandElementID(element_host, elementField_host, x_edge, y_edge, iElementL, U_L);
+    Flux::getUByXYandElementID(element, elementField, x_edge, y_edge, iElementL, U_L);
 
     // 计算U_R 用对称性
     REAL U_R[4]{};
@@ -187,52 +188,131 @@ void U2NITS::Space::Flux::getEdgeFlux_wall_adiabat(ElementSoA& element_host, Fie
         GlobalPara::inviscid_flux_method::flux_conservation_scheme);
 }
 
-void U2NITS::Space::Flux::getEdgeFlux_farField(ElementSoA& element_host, FieldSoA& elementField_host, EdgeSoA& edge_host, long idx, REAL* ruvp_inf, REAL* flux) {
-    // 函数功能：根据远场边界条件计算边界数值通量 已完成
+void U2NITS::Space::Flux::getEdgeFlux_farField(ElementSoA& element, FieldSoA& elementField, EdgeSoA& edge, long idx, REAL* ruvp_inf, REAL* flux) {
+    
+    constexpr bool useNew = true;
+    if (useNew) {
+        getEdgeFlux_farField_2(element, elementField, edge, idx, ruvp_inf, flux);
+        return;
+    }
 
-    REAL nx = edge_host.normal[0][idx];// normal已初始化
-    REAL ny = edge_host.normal[1][idx];
-    REAL x_edge = edge_host.xy[0][idx];
-    REAL y_edge = edge_host.xy[1][idx];
-    REAL length = edge_host.length[idx];
-    long iElementL = edge_host.elementL[idx];
+    
+    // 以下是旧版代码
+    REAL nx = edge.normal[0][idx];// normal已初始化
+    REAL ny = edge.normal[1][idx];
+    REAL x_edge = edge.xy[0][idx];
+    REAL y_edge = edge.xy[1][idx];
+    REAL length = edge.length[idx];
+    long iElementL = edge.elementL[idx];
 
     // 计算U_L，即edge U的左极限
     REAL U_L[4]{};
-    Flux::getUByXYandElementID(element_host, elementField_host, x_edge, y_edge, iElementL, U_L);
+    Flux::getUByXYandElementID(element, elementField, x_edge, y_edge, iElementL, U_L);
     // 计算ruvp_L
     REAL ruvp_L[4]{};
     U2NITS::Math::U2ruvp_host(U_L, ruvp_L, GlobalPara::constant::gamma);
     // 检查是否发散
-    bool is_divergent = false;
-    if (ruvp_L[3] < 0) {
-        is_divergent = true;
-        //std::cout << "p < 0, ";
+    if (Restrict::outOfRange(ruvp_L)) {
+        std::stringstream ss;
+        ss << "ElementL=" << iElementL << ", x_edge=" << x_edge << ", y_edge=" << y_edge << ", ";
+        ss << "edge=" << idx << ", ";
+        ss << "ruvp_L=" << StringProcessor::doubleArray_2_string(ruvp_L, 4) << std::endl;
+        ss << "(U2NITS::Space::Flux::getEdgeFlux_farField)\n";
+        LogWriter::logAndPrintError(ss.str());
     }
-    if (ruvp_L[0] < 0) {
-        is_divergent = true;
-        //std::cout << "rho < 0, ";
-    }
-    if (ruvp_L[0] > 900) {
-        is_divergent = true;
-        //std::cout << "rho > 900, ";
-    }
-    if (is_divergent) {
-    //if (is_divergent|| idx == 562) {
-        std::cout << "ElementL=" << iElementL << ", x_edge=" << x_edge << ", y_edge=" << y_edge << ", ";
-        std::cout << "edge=" << idx << ", ";
-        std::cout << "ruvp_L=" << StringProcessor::doubleArray_2_string(ruvp_L, 4) << std::endl;
-        std::cout << "(U2NITS::Space::Flux::getEdgeFlux_farField)\n";
-    }
-
- 
-
 
     //根据远场边界条件修正ruvp_L
     Space::Flux::modify_ruvpL_farField(nx, ny, ruvp_L, ruvp_inf);
     U2NITS::Math::ruvp2U_host(ruvp_L, U_L, GlobalPara::constant::gamma);
     // 计算flux
     RiemannSolve(U_L, U_L, nx, ny, length, flux,
+        GlobalPara::inviscid_flux_method::flux_conservation_scheme);
+}
+
+void U2NITS::Space::Flux::getEdgeFlux_farField_2(ElementSoA& element_host, FieldSoA& elementField_host, EdgeSoA& edge_host, long iEdge, REAL* ruvp_inf, REAL* flux) {
+    /*
+    2024-04-12 原来的远场边界有问题，无论是激波管还是翼型，远场边界都表现类似固壁边界，即速度为0，仿佛被堵住
+
+    由于激波管在初始化时，内外状态均相同，因此计算得到的Uboundary也跟内状态相同，因此flux=0
+
+    */
+
+    if (!edge_host.has(iEdge)) {
+        LogWriter::logAndPrintError("iEdge" + std::to_string(iEdge) + " out of range.\n");
+        exit(-1);
+    }
+    // 远场参数
+    real nx = edge_host.normal[0][iEdge];
+    real ny = edge_host.normal[1][iEdge];
+    real gamma = GlobalPara::constant::gamma;
+    real rho_inf = ruvp_inf[0];
+    real u_inf = ruvp_inf[1];
+    real v_inf = ruvp_inf[2];
+    real p_inf = ruvp_inf[3];
+    real un_inf = u_inf * nx + v_inf * ny;
+    real a2 = gamma * p_inf / rho_inf;
+    real Ma2 = (u_inf * u_inf + v_inf * v_inf) / a2;
+    real Man2 = (un_inf * un_inf) / a2;
+    // 内单元参数
+    real UL[4];
+    integer element_inner = edge_host.elementL[iEdge];
+    for (int i = 0; i < 4; i++) {
+        UL[i] = elementField_host.U[i][element_inner];
+    }
+    // 求边界U
+    real Uboundary[4]{};
+    bool isGlobalSuperSonic = (Ma2 > 1);
+    bool isNormalSuperSonic = (Man2 > 1);
+    bool isInlet = (un_inf < 0);
+    if (isNormalSuperSonic) {
+        if (isInlet) {
+            Math::ruvp2U_host(ruvp_inf, Uboundary, gamma);
+        }
+        else {
+            for (int i = 0; i < 4; i++) {
+                Uboundary[i] = UL[i];
+            }
+        }
+    }
+    else {
+        real ruvpL[4]{};
+        Math::U2ruvp_host(UL, ruvpL, gamma);
+        real rhoa = rho_inf;
+        real ua = u_inf;
+        real va = v_inf;
+        real pa = p_inf;
+        real rhod = ruvpL[0];
+        real ud = ruvpL[1];
+        real vd = ruvpL[2];
+        real pd = ruvpL[3];
+        real rho0 = rhod;// 参考 CFDPA P264 reference state
+        real c02 = gamma * pd / rhod;
+        real c0 = sqrt(c02);
+        real rho0c0 = rho0 * c0;
+
+        if (isInlet) {
+            real pb = 0.5 * (pa + pd - rho0c0 *
+                (nx*(ua-ud)+ny*(va-vd)) );
+            real pa_pb = pa - pb;
+            real rhob = rhoa + (-pa_pb) / c02;
+            real ub = ua - nx * pa_pb / rho0c0;
+            real vb = va - ny * pa_pb / rho0c0;
+            real ruvp_b[4]{ rhob,ub,vb,pb };
+            Math::ruvp2U_host(ruvp_b, Uboundary, gamma);
+        }
+        else {
+            real pb = pa;
+            real pd_pb = pd - pb;
+            real rhob = rhod + (-pd_pb) / c02;
+            real ub = ud + nx * pd_pb / rho0c0;
+            real vb = vd + ny * (pd_pb) / rho0c0;
+            real ruvp_b[4]{ rhob,ub,vb,pb };
+            Math::ruvp2U_host(ruvp_b, Uboundary, gamma);
+        }
+    }
+    // 计算flux
+    real length = edge_host.length[iEdge];
+    RiemannSolve(UL, Uboundary, nx, ny, length, flux,
         GlobalPara::inviscid_flux_method::flux_conservation_scheme);
 }
 
@@ -320,63 +400,72 @@ void U2NITS::Space::Flux::modify_ruvpL_farField(const REAL nx, const REAL ny, RE
     ruvp[3] = p_n_tmp;
 }
 
-void U2NITS::Space::Flux::getEdgeFlux_inner_and_periodic(ElementSoA& element_host, FieldSoA& elementField_host, EdgeSoA& edge_host, std::map<int, int>& edge_periodic_pair, long idx, REAL* flux) {
+void U2NITS::Space::Flux::getEdgeFlux_inner_and_periodic(ElementSoA& element, FieldSoA& elementField, EdgeSoA& edge, long idx, REAL* flux) {
 
 
     //计算边中点坐标、坐标变换矩阵、坐标逆变换矩阵、边法线方向
-    REAL nx = edge_host.normal[0][idx];// normal已初始化
-    REAL ny = edge_host.normal[1][idx];
-    REAL x_edge = edge_host.xy[0][idx];
-    REAL y_edge = edge_host.xy[1][idx];
-    REAL length = edge_host.length[idx];
-    long iElementL = edge_host.elementL[idx];
-    long iElementR = edge_host.elementR[idx];
+    REAL nx = edge.normal[0][idx];// normal已初始化
+    REAL ny = edge.normal[1][idx];
+    REAL x_edge = edge.xy[0][idx];
+    REAL y_edge = edge.xy[1][idx];
+    REAL length = edge.length[idx];
+    long iElementL = edge.elementL[idx];
+    long iElementR = edge.elementR[idx];
 
     // 计算edge坐标处的U值(分别用两侧单元的分布函数计算)，分为周期边界和内部边界两种情况
     REAL U_L[4]{};
-    Flux::getUByXYandElementID(element_host, elementField_host, x_edge, y_edge, iElementL, U_L);
+    Flux::getUByXYandElementID(element, elementField, x_edge, y_edge, iElementL, U_L);
     REAL U_R[4]{};
-    if (edge_host.setID[idx] != -1) {
+    if (edge.setID[idx] != -1) {
         // 周期边界 应使用对称的edge的坐标计算U值
-        //throw "Warning: periodic not implemented yet!\n";
-        int ID = edge_host.ID[idx];
-        auto cIter = edge_periodic_pair.find(ID);
-        if (cIter == edge_periodic_pair.end()) {
-            throw "Error: pair not found!\n";
+        int ID = edge.ID[idx];
+
+        //// 法一 用map
+        //auto cIter = edge_periodic_pair.find(ID);
+        //if (cIter == edge_periodic_pair.end()) {
+        //    LogWriter::logAndPrintError("periodicPairNotFoundException, @GPU::Space::Flux::getEdgeFlux_inner_and_periodic\n");
+        //    exit(-1);
+        //}
+        //int ID_pair = cIter->second;
+
+        // 法二 用edge存储
+        int ID_pair = edge.periodicPair[ID];
+        if (ID_pair < 0 || ID_pair >= edge.num_edge) {
+            LogWriter::logAndPrintError("periodicPairNotFoundException, @GPU::Space::Flux::getEdgeFlux_inner_and_periodic\n");
+            exit(-1);
         }
-        else {
-            int ID_pair = cIter->second;
-            REAL x_edge_pair = edge_host.xy[0][ID_pair];
-            REAL y_edge_pair = edge_host.xy[1][ID_pair];
-            Flux::getUByXYandElementID(element_host, elementField_host, x_edge_pair, y_edge_pair, iElementR, U_R);
-        }
+
+        REAL x_edge_pair = edge.xy[0][ID_pair];
+        REAL y_edge_pair = edge.xy[1][ID_pair];
+        Flux::getUByXYandElementID(element, elementField, x_edge_pair, y_edge_pair, iElementR, U_R);
     }
     else {
         // 内部边界
-        Flux::getUByXYandElementID(element_host, elementField_host, x_edge, y_edge, iElementR, U_R);
+        Flux::getUByXYandElementID(element, elementField, x_edge, y_edge, iElementR, U_R);
     }
+
 
     // 计算flux
     RiemannSolve(U_L, U_R, nx, ny, length, flux,
         GlobalPara::inviscid_flux_method::flux_conservation_scheme);
 }
 
-void U2NITS::Space::Flux::getUByXYandElementID(ElementSoA& element_host, FieldSoA& elementField_host, REAL x, REAL y, int elementID, REAL* U_dist) {
+void U2NITS::Space::Flux::getUByXYandElementID(ElementSoA& element, FieldSoA& elementField, REAL x, REAL y, int elementID, REAL* U_dist) {
     // 该函数依据单元的重构函数，计算某坐标处的U值
-    REAL x_elementL = element_host.xy[0][elementID];
-    REAL y_elementL = element_host.xy[1][elementID];
+    REAL x_elementL = element.xy[0][elementID];
+    REAL y_elementL = element.xy[1][elementID];
     // 常量重构
-    if (GlobalPara::space::flag_reconstruct == _REC_constant) {
+    if (GlobalPara::inviscid_flux_method::flag_reconstruct == _REC_constant) {
         for (int jValue = 0; jValue < 4; jValue++) {
-            U_dist[jValue] = elementField_host.U[jValue][elementID];
+            U_dist[jValue] = elementField.U[jValue][elementID];
         }
     }
     // 线性重构 根据梯度Ux、Uy计算点(xpoint,ypoint)处_U值
-    else if (GlobalPara::space::flag_reconstruct == _REC_linear) {
+    else if (GlobalPara::inviscid_flux_method::flag_reconstruct == _REC_linear) {
         for (int jValue = 0; jValue < 4; jValue++) {
-            REAL& U_elementL = elementField_host.U[jValue][elementID];
-            REAL& Ux_elementL = elementField_host.Ux[jValue][elementID];
-            REAL& Uy_elementL = elementField_host.Uy[jValue][elementID];
+            REAL& U_elementL = elementField.U[jValue][elementID];
+            REAL& Ux_elementL = elementField.Ux[jValue][elementID];
+            REAL& Uy_elementL = elementField.Uy[jValue][elementID];
             U_dist[jValue] = U_elementL + Ux_elementL * (x - x_elementL) + Uy_elementL * (y - y_elementL);
         }
         // 若数据异常，则常量重构
@@ -384,16 +473,19 @@ void U2NITS::Space::Flux::getUByXYandElementID(ElementSoA& element_host, FieldSo
         Math::U2ruvp_host(U_dist, ruvp, GlobalPara::constant::gamma);
         if (Restrict::outOfRange(ruvp)) {
             for (int jValue = 0; jValue < 4; jValue++) {
-                U_dist[jValue] = elementField_host.U[jValue][elementID];
+                U_dist[jValue] = elementField.U[jValue][elementID];
             }
         }
+    }
+    else {
+        LogWriter::logAndPrintError("implemented. @getUByXYandElementID.\n");
     }
 }
 
 void U2NITS::Space::Flux::RiemannSolve(const REAL* UL, const REAL* UR, const REAL nx, const REAL ny, const REAL length, REAL* flux, const int scheme) {
     real faceNormal[2]{ nx,ny };
     real gamma = GlobalPara::constant::gamma;
-    switch (scheme) {
+    switch (scheme) {// GlobalPara::inviscid_flux_method::flux_conservation_scheme
     case _SOL_LocalLaxFriedrichs:
         U2NITS::Space::LocalLaxFriedrichs(UL, UR, nx, ny, length, flux, gamma);
         break;

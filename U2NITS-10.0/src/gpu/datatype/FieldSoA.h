@@ -32,6 +32,17 @@ namespace GPU {
 			}
 		}
 
+		void copyfrom(const FieldSoA& src) {
+			for (int i = 0; i < 4; i++) {
+				for (int j = 0; j < num; j++) {
+					U[i][j] = src.U[i][j];
+					Ux[i][j] = src.Ux[i][j];
+					Uy[i][j] = src.Uy[i][j];
+					Flux[i][j] = src.Flux[i][j];
+				}
+			}
+		}
+
 		void free() {
 			delete _num_;
 

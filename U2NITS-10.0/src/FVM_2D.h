@@ -58,7 +58,7 @@ public:
 
 	// 初始化pNodeTable。根据nodes将ID作为行号，存入指针
 	void iniPNodeTable(int maxnodeID);
-	// 初始化edges的ID, nodes, pElement_L, pElement_R。根据elements，注册edges，并对edges初始化
+	// 初始化edges的ID, nodes, pElement_L, pElement_R，并计算单元面积，存进单元area。须在读取单元和节点后立刻调用
 	void iniEdges();
 	// 被上述函数调用。操作edges，添加或完善edge信息。添加：ID,nodes,Element_L，完善：Element_R
 	void iniEdges_registerSingle(int n0, int n1, Element_2D* pE);

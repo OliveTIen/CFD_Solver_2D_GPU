@@ -138,10 +138,10 @@ int InpMeshReader::readGmeshFile(std::string filepath) {
 	建立elements数组，初始化element的ID、nodeIDs
 	*/
 
-	pFVM2D->iniEdges();// 建立edges数组。需要知道每个element的nodeIDs。依赖于elements
 
 	pFVM2D->iniPNodeTable(maxnodeID);// 需要先建立nodes数组，知道每个node的ID。依赖于nodes
 	pFVM2D->iniPElementTable(maxelementID);// 需要先建立elements数组，知道每个element的ID。依赖于elements
+	pFVM2D->iniEdges();// 组装edges
 	pFVM2D->iniPEdgeTable();// 建立pEdges数组。需要先建立edges数组，知道每个edge的ID。依赖于edges，需要放在iniEdges()后面
 	
 	pFVM2D->iniElement_xy_pEdges();
@@ -183,10 +183,7 @@ int InpMeshReader::readGmeshFile(std::string filepath) {
 
 	// 设置edges中的setID，设置boundaryManager.boundaries的type
 	// 前置条件：有edges向量，有boundaries向量，且boundaries有name
-	{
-		int ret = pFVM2D->boundaryManager.iniBoundaryEdgeSetID_and_iniBoundaryType(pFVM2D);
-		if (ret != 0)return ret;
-	}
+	pFVM2D->boundaryManager.iniBoundaryEdgeSetID_and_iniBoundaryType(pFVM2D);
 
 	return 0;
 

@@ -176,20 +176,18 @@ void ConsolePrinter::clearDisplay(COORD p1, COORD p2){
 
 
 }
-std::string ConsolePrinter::assemblySolveInfo(double calTime, int calStep, int maxIteration, double calSpeed, double nFile, double t, double T, const double* residual_vector) {
+void ConsolePrinter::assemblySolveInfo(double calTime, int calStep, int maxIteration, double calSpeed, double nFile, double t, double T, const double* residual_vector) {
 	std::stringstream info;
-	int remainTime = (maxIteration - calStep) / calSpeed;// s
 	info << "\n"
 		<< "  Calculate time: \t" << StringProcessor::timeFormat((int)calTime) 
-		<< "\t(Remain: " << StringProcessor::timeFormat((int)remainTime) << " s)\n"
+		<< "\t(Remain: " << StringProcessor::timeFormat(int((maxIteration - calStep) / calSpeed)) << " s)\n"
 		<< "  Calculate step: \t" << calStep << " \t/" << maxIteration << "\n"
 		<< "  Calculate speed: \t" << calSpeed << "\t step/s\n"
 		<< "  Output file num: \t" << nFile << "\n"
 		<< "  Residual rho: \t" << std::scientific << residual_vector[0] << "\n" << std::defaultfloat
 		<< "  Physical time: \t" << t << " s\t/" << T << " s\n"
 		<< "Press ESC to end Computation\n";
-	std::string str = info.str();
-	return str;
+	m_solveInfo = info.str();
 }
 void ConsolePrinter::printInfo(InfoType type) {
 	switch (type) {

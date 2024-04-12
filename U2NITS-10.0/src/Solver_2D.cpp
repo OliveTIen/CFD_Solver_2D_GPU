@@ -75,9 +75,9 @@ void Solver_2D::evolve_RK3(double dt) {
     }
     
     //计算面积并存储，防止反复计算
-    std::vector<double>omegas; omegas.resize(f->elements.size());
+    std::vector<double>areas; areas.resize(f->elements.size());
     for (int ie = 0; ie < f->elements.size(); ie++) {
-        omegas[ie] = f->elements[ie].calArea(f);
+        areas[ie] = f->elements[ie].calArea(f);
     }
 
     
@@ -87,7 +87,7 @@ void Solver_2D::evolve_RK3(double dt) {
     //1.2.求k1
     for (int ie = 0; ie < f->elements.size(); ie++) {
         for (int j = 0; j < 4; j++) {
-            k1[ie].U[j] = -1.0 * f->elements[ie].Flux[j] / omegas[ie];//注意负号
+            k1[ie].U[j] = -1.0 * f->elements[ie].Flux[j] / areas[ie];//注意负号
         }
     }
     //2.k2=f(t_n+dt/2,y_n+dt/2*k1)
@@ -102,7 +102,7 @@ void Solver_2D::evolve_RK3(double dt) {
     //2.3.求k2
     for (int ie = 0; ie < f->elements.size(); ie++) {
         for (int j = 0; j < 4; j++) {
-            k2[ie].U[j] = -1.0 * f->elements[ie].Flux[j] / omegas[ie];//注意负号
+            k2[ie].U[j] = -1.0 * f->elements[ie].Flux[j] / areas[ie];//注意负号
         }
     }
     //3.k3=f(t_n+dt,y_n-dt*k1+2*dt*k2)
@@ -117,7 +117,7 @@ void Solver_2D::evolve_RK3(double dt) {
     //3.3.求k3
     for (int ie = 0; ie < f->elements.size(); ie++) {
         for (int j = 0; j < 4; j++) {
-            k3[ie].U[j] = -1.0 * f->elements[ie].Flux[j] / omegas[ie];//注意负号
+            k3[ie].U[j] = -1.0 * f->elements[ie].Flux[j] / areas[ie];//注意负号
         }
     }
     //4.y_n+1=y_n+dt/6.0*(k1+4*k2+k3)
@@ -166,7 +166,7 @@ void Solver_2D::calFlux() {
         for (int j = 0; j < 4; j++) {
             f->elements[ie].Flux[j] = 0;//单元数值通量Flux清零，为后面加减做准备
             f->elements[ie].deltaeig = 0;//每一轮deltaeig清零
-            if (GlobalPara::space::flag_reconstruct == _REC_constant
+            if (GlobalPara::inviscid_flux_method::flag_reconstruct == _REC_constant
                 && GlobalPara::physicsModel::equation == _EQ_euler) {
                 // 如果是常量重构+Euler，则无需计算梯度
             }

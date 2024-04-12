@@ -19,7 +19,7 @@ int SU2MeshReader::readFile(std::string filePath, bool convertRectToTriangle) {
 	SU2文件读取规范 https://zhuanlan.zhihu.com/p/641146110
 	*/
 
-	std::cout << "Read \".su2\" mesh file\n";
+	LogWriter::logAndPrint("Mesh file: " + filePath);
 	FVM_2D* pFVM2D = FVM_2D::getInstance();
 	std::ifstream infile(filePath);
 	if (!infile) {
@@ -53,7 +53,7 @@ int SU2MeshReader::readFile(std::string filePath, bool convertRectToTriangle) {
 		}
 		else if (tWords[0] == "NELEM") {
 			state = state_NELEM;
-			std::cout << "Read SU2 elements\n";
+			//std::cout << "Read SU2 elements\n";
 		}
 		else if (tWords[0] == "NMARK") {
 			state = state_NMARK;
@@ -147,18 +147,18 @@ int SU2MeshReader::readFile(std::string filePath, bool convertRectToTriangle) {
 	infile.close();
 
 
-	pFVM2D->iniEdges();
 
 	// 以上是readMesh
 
 
-	std::cout << "Initiate pNodeTable, pElementTable, pEdgeTable" << std::endl;
+	std::cout << "Initiate pNodeTable, pElementTable, pEdgeTable" << std::endl;// 对于unstru300网格，该部分用了2min，非常耗时
 	pFVM2D->iniPNodeTable(maxnodeID);
 	pFVM2D->iniPElementTable(maxelementID);
+	pFVM2D->iniEdges();
 	pFVM2D->iniPEdgeTable();
 	pFVM2D->iniNode_neighborElements();//前置条件 elements, elements.nodes, pNodeTable
 
-	std::cout << "Calculate Element xy, edge length" << std::endl;
+	std::cout << "Calculate Element xy, edge length" << std::endl;// 该部分用了1min
 	pFVM2D->iniElement_xy_pEdges();
 	pFVM2D->iniEdges_lengths();
 
@@ -235,7 +235,7 @@ int SU2MeshReader::readFile_2(std::string filePath, bool convertRectToTriangle) 
 
 int SU2MeshReader::readMesh(std::string filePath, bool convertRectToTriangle, int& maxnodeID, int& maxelementID, std::vector<SimpleBoundary>& tmp_boudaries) {
 
-	std::cout << "Read \".su2\" mesh file\n";
+	LogWriter::logAndPrint("Mesh file: " + filePath + "\n");
 	FVM_2D* pFVM2D = FVM_2D::getInstance();
 	std::ifstream infile(filePath);
 	if (!infile) {
@@ -266,7 +266,7 @@ int SU2MeshReader::readMesh(std::string filePath, bool convertRectToTriangle, in
 		}
 		else if (tWords[0] == "NELEM") {
 			state = state_NELEM;
-			std::cout << "Read SU2 elements\n";
+			//std::cout << "Read SU2 elements\n";
 		}
 		else if (tWords[0] == "NMARK") {
 			state = state_NMARK;
@@ -359,26 +359,25 @@ int SU2MeshReader::readMesh(std::string filePath, bool convertRectToTriangle, in
 	}
 	infile.close();
 
-
-	pFVM2D->iniEdges();
-
 	return 0;
 }
 
 void SU2MeshReader::process(int maxNodeID, int maxElementID, std::vector<SimpleBoundary>& tmp_boudaries) {
 	FVM_2D* pFVM2D = FVM_2D::getInstance();
 
-	std::cout << "Initiate pNodeTable, pElementTable, pEdgeTable" << std::endl;
+	LogWriter::logAndPrint("Initiate pNodeTable, pElementTable, pEdgeTable. ");
+	std::cout << pFVM2D->elements.size() << " elements, " << pFVM2D->nodes.size() << " nodes.\n";
 	pFVM2D->iniPNodeTable(maxNodeID);
 	pFVM2D->iniPElementTable(maxElementID);
+	pFVM2D->iniEdges();
 	pFVM2D->iniPEdgeTable();
 	pFVM2D->iniNode_neighborElements();//前置条件 elements, elements.nodes, pNodeTable
 
-	std::cout << "Calculate Element xy, edge length" << std::endl;
+	LogWriter::logAndPrint("Calculate Element xy, edge length\n");
 	pFVM2D->iniElement_xy_pEdges();
 	pFVM2D->iniEdges_lengths();
 
-	std::cout << "Initialize boundary condition\n";
+	LogWriter::logAndPrint("Initialize boundary condition\n");
 	// 初始化boundaryManager.boundaries的pEdges、type
 	// 初始化edge的setID
 	// 初始化周期边界关系，由boundaryManager.periodPairs维护

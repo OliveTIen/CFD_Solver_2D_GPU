@@ -916,11 +916,43 @@ void FVM_2D::iniPNodeTable(int maxnodeID) {
 }
 
 void FVM_2D::iniEdges() {
+	// 确保单元、节点信息已读取。这是组装edge的前提条件
 	if (elements.size() == 0) {
-		LogWriter::logError("null elements exception, @iniEdges\n");
+		LogWriter::logError("null elements exception, @FVM_2D::iniEdges\n");
 		exit(-1);
 	}
+	if (nodes.size() == 0) {
+		LogWriter::logError("null nodes exception, @FVM_2D::iniEdges\n");
+		exit(-1);
+	}
+	if (pNodeTable.size() == 0) {
+		LogWriter::logError("null pNodeTable exception, @FVM_2D::iniEdges\n");
+		exit(-1);
+	}
+	// 叉乘计算单元面积，确保节点顺序是逆时针。
 	for (int ie = 0; ie < elements.size(); ie++) {
+		// 叉乘计算单元面积，若面积为负，应交换某两个节点顺序，使得节点顺序是逆时针
+		Element_2D& element_i = elements[ie];
+		double xn[3]{}, yn[3]{};
+		for (int i = 0; i < 3; i++) {
+			xn[i] = this->getNodeByID(element_i.nodes[i])->x;
+			yn[i] = this->getNodeByID(element_i.nodes[i])->y;
+		}
+		double area = 0.5 * (xn[0] * (yn[1] - yn[2]) + xn[1] * (yn[2] - yn[0]) + xn[2] * (yn[0] - yn[1]));
+		if (area < 0) {
+			element_i.area = -area;
+			int n1 = element_i.nodes[1];
+			int n2 = element_i.nodes[2];
+			element_i.nodes[1] = n2;
+			element_i.nodes[2] = n1;
+		}
+		else {
+			element_i.area = area;
+		}
+	}
+	// 组装edge
+	for (int ie = 0; ie < elements.size(); ie++) {
+
 		int n0, n1, n2;
 		n0 = elements[ie].nodes[0];
 		n1 = elements[ie].nodes[1];

@@ -2,6 +2,7 @@
 #define _CONTINUEFILEREADER_H_
 
 #include <string>
+#include <vector>
 
 /// <summary>
 ///  由于FVM_2D::readContinueFile()函数包含对指针表初始化等操作，很复杂，
@@ -12,8 +13,12 @@ class ContinueFileReader {
 
 public:
 	static int readContinueFile_1();
-	// [todo]不经过FVM_2D
+	// 添加Ux Uy 目前用不到
 	static int readContinueFile_2();
+
+private:
+	static void read_1() {};// 未完成
+	static void process(int maxNodeID, int maxElementID, std::vector<std::vector<int>>& edges_of_all_sets);
 
 };
 

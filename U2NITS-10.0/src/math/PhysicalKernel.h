@@ -27,7 +27,7 @@ namespace U2NITS {
 		}
 
 		// 三维 守恒量转场变量
-		inline void U2ruvwp_host(const REAL U[5], REAL ruvwp[5], REAL gamma) {
+		inline void U2ruvwp_host_3d(const REAL U[5], REAL ruvwp[5], REAL gamma) {
 
 			/*
 			// [别删]原始版本，用于理解和推导，不要删了给自己添麻烦
@@ -56,6 +56,19 @@ namespace U2NITS {
 			ruvwp[4] = (U[4] / U[0] - 0.5 * V2) * U[0] * (gamma - 1);
 		}
 
+		// 某方向上的马赫数
+		inline real getMach(const real U[4], real nx, real ny, real gamma) {
+			real ruvp[4]{};
+			U2ruvp_host(U, ruvp, gamma);
+			real rho = ruvp[0];
+			real u = ruvp[1];
+			real v = ruvp[2];
+			real p = ruvp[3];
+			real un = u * nx + v * ny;
+			real a2 = gamma * p / rho;
+			real Ma2 = (u * u + v * v) / a2;
+			return sqrt(Ma2);
+		}
 	}
 }
 

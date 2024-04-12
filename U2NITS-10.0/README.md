@@ -308,3 +308,6 @@ https://zhuanlan.zhihu.com/p/659664377
 cuder也是一种封装
 
 在TestCode中新建了CTestGPUSoA，用于测试CUDA编程，成功。看来核函数传参时只能传具体数据的指针，不能传ElementSOA的引用。引用也是指针，而global不允许传host指针。
+
+cudaError701 too many resources requested for launch
+

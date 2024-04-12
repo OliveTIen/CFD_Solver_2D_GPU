@@ -11,7 +11,7 @@ void U2NITS::CDriver::run_current() {
 [开发中]以下为GPU代码
 
 */
-
+	
 	CInput input;
 	COutput out;
 	GPU::GPUSolver2 solver;
@@ -20,49 +20,35 @@ void U2NITS::CDriver::run_current() {
 	input.readConfig();
 	input.readField_old();
 
-	solver.initializeHost();// 申请内存，用FVM_2D旧数据初始化
-	if (GlobalPara::basic::useGPU) {
-		solver.initializeDevice();
-	}
-
-	const int istep_previous = GlobalPara::time::istep_previous;
-	const int maxIteration = GlobalPara::output::maxIteration;
+	solver.initialize();
+	// 部分控制参数的引用。需要在readConfig后使用，否则未初始化
+	const int istep_previous = GlobalPara::time::istep_previous;// 已计算步
+	const int maxIteration = GlobalPara::output::maxIteration;// 目标步
 	double t = GlobalPara::time::t_previous;// 当前物理时间
-	const double T = GlobalPara::time::T;//目标物理时间。用于控制是否终止计算
-	out.hist.setFilePath(out.getDir() + GlobalPara::basic::filename + "_hist.dat");
-
-
+	const double T = GlobalPara::time::max_physical_time;
 
 	// 迭代
+	out.hist.setFilePath(out.getDir() + GlobalPara::basic::filename + "_hist.dat");
 	out.timer.start();// 计时
 	out.console.setClearStartPosition();
-	for (int istep = istep_previous; istep <= maxIteration && t <= T; istep++) {
+	for (int istep = istep_previous; ; istep++) {// 循环终止条件见signal
 		// 更新文件名
 		out.updateFileName(istep);
-
-		if (GlobalPara::basic::useGPU) {
-			// solver.iterationGPU(t, T);
-			solver.iterationHalfGPU(t, T);
-		}
-		else {
-			solver.iterationTotalCPU(t, T);
-		}
+		solver.iteration(t, T);
 		std::cout << ".";// 输出“.”表示正在计算，没有卡顿
 
 		SignalPack sp = emitSignalPack(istep, maxIteration, t, T, solver.residualVector[0]);
 
 		// 打印操作
 		if (sp.b_print) {
+			solver.getResidual();
 			out.console.clear();
-			out.console.drawProgressBar(int(double(istep) / double(maxIteration) * 100.0 + 2));//+x是为了防止停在99%
+			out.console.drawProgressBar(int(double(istep) / double(maxIteration) * 100.0));
 
 			double calculateTime = out.timer.getIime();
 			double calculateSpeed = ((istep - istep_previous) / calculateTime);
-			std::string solveInfo = out.console.assemblySolveInfo(calculateTime, istep, maxIteration, calculateSpeed, out.field.getNumTecplotFileWritten(), t, T, solver.residualVector);
-			out.log.print(solveInfo);
-			if (sp.pauseSignal != _NoSignal) {
-				out.log.log(solveInfo);
-			}
+			out.console.assemblySolveInfo(calculateTime, istep, maxIteration, calculateSpeed, out.field.getNumTecplotFileWritten(), t, T, solver.residualVector);
+			out.console.print(out.console.getSolveInfo());
 		}
 		// 写文件操作
 		if (sp.b_writeContinue || sp.b_writeTecplot) {
@@ -82,22 +68,20 @@ void U2NITS::CDriver::run_current() {
 			}
 		}
 		if (sp.b_writeHist) {
-			//计算残差，结果保存在residual_vector中
-			solver.updateResidual();
+			// 获取残差，结果保存在residual_vector中
+			solver.getResidual();
 			out.hist.writeHistFile_2(istep, solver.residualVector, solver.residualVectorSize);
 		}
 		// 终止操作
 		if (sp.pauseSignal != _NoSignal) {
+			out.log.log(out.console.getSolveInfo());
 			out.log.logAndPrintSignalInfo(sp.pauseSignal);// 提示词 放在写文件之后，防止卡顿
 			break;// 不可放进单独函数中，因为要终止循环
 		}
 	}
 
 	// 释放资源
-	solver.freeHostMemory();
-	if (GlobalPara::basic::useGPU) {
-		solver.freeDeviceMemory();
-	}
+	solver.freeMemory();
 
 	// 停止
 #ifdef _WIN32
@@ -145,6 +129,7 @@ U2NITS::CDriver::SignalPack U2NITS::CDriver::emitSignalPack(int istep, int maxIt
 	}
 	if (istep % GlobalPara::output::step_per_output_field == offset) {// 定期输出流场
 		s.b_writeTecplot = true;
+		s.b_print = true;
 	}
 	if (istep % GlobalPara::output::step_per_output_hist == offset) {// 定期输出残差
 		s.b_writeHist = true;
@@ -159,9 +144,10 @@ U2NITS::CDriver::SignalPack U2NITS::CDriver::emitSignalPack(int istep, int maxIt
 		if (_getch() == 27) {
 			s.b_writeContinue = true;
 			s.pauseSignal = _EscPressed;
+			std::cout << "Stopping...\n";
 		}
 	}
-	else if (t >= T || istep >= maxIteration) {// 达到规定迭代时间或迭代步数，终止
+	else if (t > T || istep >= maxIteration) {// 达到规定迭代时间或迭代步数，终止
 		s.b_writeContinue = true;
 		s.b_writeTecplot = true;
 		s.pauseSignal = _TimeReached;

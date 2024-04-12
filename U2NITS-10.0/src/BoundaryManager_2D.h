@@ -69,7 +69,7 @@ public:
 
 	VirtualBoundarySet_2D* findSetByID(int ID);
 	//根据BoundarySet的name得到type；给边界edge打上setID标签
-	int iniBoundaryEdgeSetID_and_iniBoundaryType(FVM_2D* f);
+	void iniBoundaryEdgeSetID_and_iniBoundaryType(FVM_2D* f);
 	//初始化远场边界的ruvp
 	void ini_infBoundary_ruvp();
 	//[debug]远场边界单元守恒量强制赋值 0-Ma,AOA 101-[debug]设置特定值

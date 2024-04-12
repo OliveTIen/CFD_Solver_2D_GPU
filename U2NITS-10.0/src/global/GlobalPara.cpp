@@ -20,21 +20,16 @@ namespace GlobalPara {
 		bool _continue = 1;
 		std::string filename = "default_project";
 		std::string meshFileType = "inp";
-		bool useGPU = false;
-	}
-	namespace space {
-		namespace _1D {
-			int nElement = 300;
-			double x1 = 0.0;
-			double x2 = 1.0;
-		}
-		int flag_reconstruct = _REC_constant;
-		int flag_gradient = _GRA_leastSquare;
+		int useGPU = 0;
+		bool isDebugMode = false;
 	}
 	namespace time {
+		bool is_steady = 0;
+		bool is_explicit = 1;
+
 		double CFL = 0.6;
-		double T = 0.01;
-		double residual = 1e-7;
+		double CFL_steady = 0.95;
+		double max_physical_time = 20;
 		int time_advance = _EVO_explicit;
 
 		// 以下数据从ContinueFile中读取，不是Toml
@@ -47,19 +42,19 @@ namespace GlobalPara {
 	namespace boundaryCondition {
 		namespace _2D {
 			namespace inlet {
-				bool use_ruvp = 0;//1-使用ruvp，0-使用Ma和AOA
+				int input_mode = 0;
 				double Ma;
 				double AOA;
 				double ruvp[4];
 			}
 			namespace outlet {
-				bool use_ruvp = 0;
+				int input_mode = 0;
 				double Ma;
 				double AOA;
 				double ruvp[4];
 			}
 			namespace inf {
-				bool use_ruvp = 0;
+				int input_mode = 0;
 				double Ma = 0.8;
 				double AOA = 1.25;//迎角
 				double ruvp[4];
@@ -79,8 +74,10 @@ namespace GlobalPara {
 	}
 	namespace inviscid_flux_method {
 		int flux_conservation_scheme = _SOL_Roe;// 黎曼求解器
-		//int flux_construction_lhs;
 		int flux_limiter = _LIM_minmod;
+		int flag_reconstruct = _REC_constant;
+		int flag_gradient = _GRA_leastSquare;
+
 	}
 }
 

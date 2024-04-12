@@ -5,7 +5,7 @@
 #include "../space/Flux.h"
 #include "../output/LogWriter.h"
 
-void GPU::Time::EvolveDevice(REAL dt, int flag_timeAdvance, ElementSoA& element_device, FieldSoA& elementField_device, EdgeSoA& edge_device, BoundarySetMap& boundary, DGlobalPara& para) {
+void GPU::Time::EvolveDevice(REAL dt, int flag_timeAdvance, ElementSoA& element_device, FieldSoA& elementField_device, EdgeSoA& edge_device, BoundarySetMap& boundary, SDevicePara& para) {
     if (flag_timeAdvance == _EVO_explicit) {
         EvolveExplicitDevice(dt, element_device, elementField_device, edge_device, boundary, para);
     }
@@ -15,7 +15,7 @@ void GPU::Time::EvolveDevice(REAL dt, int flag_timeAdvance, ElementSoA& element_
     }
 }
 
-void GPU::Time::EvolveExplicitDevice(REAL dt, ElementSoA& element_device, FieldSoA& elementField_device, EdgeSoA& edge_device, BoundarySetMap& boundary, DGlobalPara& para) {
+void GPU::Time::EvolveExplicitDevice(REAL dt, ElementSoA& element_device, FieldSoA& elementField_device, EdgeSoA& edge_device, BoundarySetMap& boundary, SDevicePara& para) {
     // 数值通量
     GPU::Space::Flux::calculateFluxDevice(element_device, elementField_device, edge_device, boundary, para);
     cudaDeviceSynchronize();

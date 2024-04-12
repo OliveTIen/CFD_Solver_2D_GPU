@@ -31,7 +31,7 @@ std::string LogWriter::enumToString(LogLevel level) {
 }
 
 std::string LogWriter::enumToStringWithBracket(LogLevel level) {
-	return "[" + enumToString(level) + "]";
+	return "[" + SystemInfo::getCurrentTime() + " " + enumToString(level) + "]";
 }
 
 void LogWriter::log(std::string content, LogLevel logLevel) {
@@ -72,6 +72,18 @@ void LogWriter::printError(std::string content) {
 
 void LogWriter::logAndPrintError(std::string content) {
 	logAndPrint(content, LogWriter::Error, LogWriter::Error);
+}
+
+void LogWriter::logWarning(std::string content) {
+	log(content, LogWriter::Warning);
+}
+
+void LogWriter::printWarning(std::string content) {
+	print(content, LogWriter::Warning);
+}
+
+void LogWriter::logAndPrintWarning(std::string content) {
+	logAndPrint(content, LogWriter::Warning, LogWriter::Warning);
 }
 
 void LogWriter::writeBoundaryCondition(double* inlet_ruvp, double* outlet_ruvp, double* inf_ruvp, int num_ruvp) {

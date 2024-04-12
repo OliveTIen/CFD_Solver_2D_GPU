@@ -140,7 +140,7 @@ void GPU::Space::Gradient::Gradient_2(GPU::ElementSoA& element_device, GPU::Fiel
 	int block_size = 512;// ×îºÃÊÇ128 256 512
 	int grid_size = (element_device.num_element + block_size - 1) / block_size;
 
-	switch (GlobalPara::space::flag_gradient) {
+	switch (GlobalPara::inviscid_flux_method::flag_gradient) {
 	case _GRA_leastSquare:
 		LogWriter::logAndPrintError("Unimplemented gradient type.\n");
 		exit(-1);

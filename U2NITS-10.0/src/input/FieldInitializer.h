@@ -6,6 +6,7 @@ class FieldInitializer {
 public:
 	static void setInitialAndBoundaryCondition();
 
+
 private:
 	static void printCondition(std::string initialConditionName);
 	static void setInitialUniform();

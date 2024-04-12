@@ -34,6 +34,9 @@ public:
 	static void logError(std::string content);
 	static void printError(std::string content);
 	static void logAndPrintError(std::string content);
+	static void logWarning(std::string content);
+	static void printWarning(std::string content);
+	static void logAndPrintWarning(std::string content);
 
 	static void writeBoundaryCondition(double* inlet_ruvp, double* outlet_ruvp,double* inf_ruvp, int num_ruvp);
 	static void logAndPrintSignalInfo(int signal);

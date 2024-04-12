@@ -6,8 +6,8 @@
 
 namespace GPU {
 	namespace Time {
-		void EvolveDevice(REAL dt, int flag_timeAdvance, ElementSoA& element_device, FieldSoA& elementField_device, EdgeSoA& edge_device, BoundarySetMap& boundary, DGlobalPara& para);
-		void EvolveExplicitDevice(REAL dt, ElementSoA& element_device, FieldSoA& elementField_device, EdgeSoA& edge_device, BoundarySetMap& boundary, DGlobalPara& para);
+		void EvolveDevice(REAL dt, int flag_timeAdvance, ElementSoA& element_device, FieldSoA& elementField_device, EdgeSoA& edge_device, BoundarySetMap& boundary, SDevicePara& para);
+		void EvolveExplicitDevice(REAL dt, ElementSoA& element_device, FieldSoA& elementField_device, EdgeSoA& edge_device, BoundarySetMap& boundary, SDevicePara& para);
 		
 		void TimeIntegration(REAL dt, ElementSoA& element_device, FieldSoA& elementField_device);
 		__global__ void TimeIntegrationKernel(DReal& dt, ElementSoA& element, FieldSoA& elementField);

@@ -10,4 +10,20 @@ void GPU::catchCudaErrorAndExit() {
 		LogWriter::logAndPrint(e, LogWriter::Error, LogWriter::Error);
 		exit(cuda_error);
 	}
+
+
+
+	//GPU::ErrorCode::ErrorCode errorCode = GPU::ErrorCode::noError;
+	//cudaMemcpyFromSymbol(&errorCode, &GPU::globalErrorCode, sizeof(GPU::ErrorCode::ErrorCode), 0, cudaMemcpyDeviceToHost);
+	//if (errorCode != GPU::ErrorCode::noError) {
+	//	printf("ErrorCode: %d\n ErrorMessage: ", errorCode);
+	//	printf(globalErrorMessage);
+	//}
 }
+
+//void GPU::getGlobalErrorMessage(char* str, int size) {
+//
+//}
+//
+//__device__ GPU::ErrorCode::ErrorCode GPU::globalErrorCode = GPU::ErrorCode::noError;
+//__device__ char GPU::globalErrorMessage[errorMessageLength];

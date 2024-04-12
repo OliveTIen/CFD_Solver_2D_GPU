@@ -17,6 +17,7 @@ public:
 	//数据信息
 	double x = 0;//单元中心坐标。使用前务必calxy!
 	double y = 0;//单元中心坐标
+	double area = 0.0;
 	double U[4] = { 1,0,0,1.1e5 / 0.4 };//守恒量ρ,ρu,ρv,ρE
 	double Ux[4] = { 0,0,0,0 };//
 	double Uy[4] = { 0,0,0,0 };//

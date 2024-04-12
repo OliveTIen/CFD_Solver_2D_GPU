@@ -1,5 +1,6 @@
 # Env and Exe Folder
 /.vs
+/.idea
 /x64
 
 # Project

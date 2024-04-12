@@ -14,7 +14,7 @@
 
 void U2NITS::CInput::readConfig() {
 	LogWriter::log(SystemInfo::getCurrentDateTime() + "\n");
-	TomlFileManager::getInstance()->readFileAndParseFile(FilePathManager::getInstance()->getTomlFilePath());
+	TomlFileManager::getInstance()->readTomlFile(FilePathManager::getInstance()->getTomlFilePath());
 
 
 	if (GlobalPara::basic::dimension != 2) {
@@ -24,6 +24,22 @@ void U2NITS::CInput::readConfig() {
 	if (GlobalPara::physicsModel::equation != _EQ_euler) {
 		LogWriter::logAndPrintError("Invalid equation type.\n");
 		exit(_EQ_euler);
+	}
+	if (GlobalPara::basic::useGPU == 0) {
+		LogWriter::logAndPrint("use CPU.\n");
+	}
+	else if(GlobalPara::basic::useGPU == 1){
+		LogWriter::logAndPrint("use GPU.\n");
+	}
+	else if (GlobalPara::basic::useGPU == 2) {
+		LogWriter::logAndPrint("use half GPU.\n");
+	}
+	else if (GlobalPara::basic::useGPU == 3) {
+		LogWriter::logAndPrint("enter development mode.\n",LogWriter::Warning,LogWriter::Warning);
+	}
+	else {
+		LogWriter::logAndPrintError("invalid useGPU value.\n");
+		exit(1);
 	}
 }
 
@@ -77,7 +93,7 @@ void U2NITS::CInput::readField_old() {
 	LogWriter::writeBoundaryCondition(inlet::ruvp, outlet::ruvp, inf::ruvp, 4);
 }
 
-void U2NITS::CInput::readField_2() {
+void U2NITS::CInput::readField_2_unused() {
 	bool startFromZero = false;
 	if (GlobalPara::basic::_continue) {
 		int flag_readContinue = ContinueFileReader::readContinueFile_2();

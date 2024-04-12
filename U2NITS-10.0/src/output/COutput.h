@@ -20,6 +20,7 @@ namespace U2NITS {
 		std::string tecplotFilePath;
 		std::string continueFilePath;
 		std::string continueFilePath_nan;
+		
 		ConsolePrinter console;
 		LogWriter log;
 		HistWriter hist;

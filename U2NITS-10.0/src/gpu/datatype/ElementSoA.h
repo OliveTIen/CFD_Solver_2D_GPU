@@ -13,13 +13,13 @@ ElementSoA中有两种数据，一种是基本不变的数据，如ID、节点、边、邻居等，
 namespace GPU {
 	struct ElementSoA {
 	public:
-		int num_element;
-		int* _num_element_;// GPU使用
+		integer num_element = 0;
+		integer* _num_element_;// GPU使用
 
-		int* ID;
-		int* nodes[4];
-		int* edges[4];// faces
-		int* neighbors[4];// 邻居单元，按edges顺序排列；-1表示无邻居；周期边界依然是-1
+		integer* ID;
+		integer* nodes[4];
+		integer* edges[4];// faces
+		integer* neighbors[4];// 邻居单元，按edges顺序排列；-1表示无邻居；周期边界依然是-1
 		REAL* xy[2];
 		REAL* volume;
 		//REAL* y;
@@ -30,15 +30,15 @@ namespace GPU {
 		//REAL* Flux[4];
 		
 	public:
-		void alloc(int _num_element) {
+		void alloc(integer _num_element) {
 			num_element = _num_element;
-			_num_element_ = new int;
+			_num_element_ = new integer;
 			*_num_element_ = num_element;
-			ID = new int[num_element];
-			for (int i = 0; i < 4; i++) {
-				nodes[i] = new int[num_element];
-				edges[i] = new int[num_element];
-				neighbors[i] = new int[num_element];
+			ID = new integer[num_element];
+			for (integer i = 0; i < 4; i++) {
+				nodes[i] = new integer[num_element];
+				edges[i] = new integer[num_element];
+				neighbors[i] = new integer[num_element];
 				//U[i] = new REAL[num_element];
 				//Ux[i] = new REAL[num_element];
 				//Uy[i] = new REAL[num_element];
@@ -52,7 +52,7 @@ namespace GPU {
 		void free() {
 			delete _num_element_;
 			delete[] ID;
-			for (int i = 0; i < 4; i++) {
+			for (integer i = 0; i < 4; i++) {
 				delete[] nodes[i];
 				delete[] edges[i];
 				delete[] neighbors[i];
@@ -66,16 +66,16 @@ namespace GPU {
 			delete[] volume;
 		}
 
-		void cuda_alloc(int _num_element) {
+		void cuda_alloc(integer _num_element) {
 			num_element = _num_element;
-			cudaMalloc(&_num_element_, 1 * sizeof(int));
-			cudaMemcpy(_num_element_, &num_element, 1 * sizeof(int), ::cudaMemcpyHostToDevice);
+			cudaMalloc(&_num_element_, 1 * sizeof(integer));
+			cudaMemcpy(_num_element_, &num_element, 1 * sizeof(integer), ::cudaMemcpyHostToDevice);
 
-			cudaMalloc(&ID, num_element * sizeof(int));
-			for (int i = 0; i < 4; i++) {
-				cudaMalloc(&nodes[i], num_element * sizeof(int));
-				cudaMalloc(&edges[i], num_element * sizeof(int));
-				cudaMalloc(&neighbors[i], num_element * sizeof(int));
+			cudaMalloc(&ID, num_element * sizeof(integer));
+			for (integer i = 0; i < 4; i++) {
+				cudaMalloc(&nodes[i], num_element * sizeof(integer));
+				cudaMalloc(&edges[i], num_element * sizeof(integer));
+				cudaMalloc(&neighbors[i], num_element * sizeof(integer));
 				//cudaMalloc(&U[i], num_element * sizeof(REAL));
 				//cudaMalloc(&Ux[i], num_element * sizeof(REAL));
 				//cudaMalloc(&Uy[i], num_element * sizeof(REAL));
@@ -89,7 +89,7 @@ namespace GPU {
 		void cuda_free() {
 			cudaFree(_num_element_);
 			cudaFree(ID);
-			for (int i = 0; i < 4; i++) {
+			for (integer i = 0; i < 4; i++) {
 				cudaFree(nodes[i]);
 				cudaFree(edges[i]);
 				cudaFree(neighbors[i]);
@@ -105,6 +105,9 @@ namespace GPU {
 
 		static void cuda_memcpy(ElementSoA* dist, const ElementSoA* src, cudaMemcpyKind kind);
 
+		bool has(integer iElement) {
+			return (iElement >= 0 && iElement < num_element);
+		}
 	};
 }
 
@@ -112,9 +115,9 @@ namespace GPU {
 
 public:
 	//结构信息
-	int ID = -1;
-	int node_num = 3;//单元类型
-	int nodes[4]{-1,-1,-1,-1};//node ID 之所以用ID而不是指针，是因为读取文件是直接读的ElementID-NodeID-NodeID-NodeID
+	integer ID = -1;
+	integer node_num = 3;//单元类型
+	integer nodes[4]{-1,-1,-1,-1};//node ID 之所以用ID而不是指针，是因为读取文件是直接读的ElementID-NodeID-NodeID-NodeID
 	Edge_2D* pEdges[4]{};//已经在读取文件时初始化，放心用
 	//数据信息
 	double x = 0;//单元中心坐标。使用前务必calxy!
@@ -128,7 +131,7 @@ public:
 
 	//static Eigen::MatrixXi si_ti;//顶点的参数坐标
 	//static Eigen::MatrixXd GaussPointMatrix;//顶点的参数坐标
-	int GPUID = -1;
+	integer GPUID = -1;
 
 */
 

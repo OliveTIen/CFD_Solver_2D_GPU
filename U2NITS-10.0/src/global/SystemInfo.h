@@ -7,6 +7,8 @@ public:
 	static std::string getCurrentDateTime();
 	// 去除非法字符":"等，适合用作文件名
 	static std::string getCurrentDateTime_suitableForFileName();
+
+	static std::string getCurrentTime();
 };
 
 #endif

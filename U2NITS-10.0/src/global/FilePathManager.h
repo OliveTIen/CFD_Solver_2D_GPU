@@ -34,8 +34,8 @@ public:
 	std::string getWorkingDirectory(){ return m_workingDirectory; }
 	std::string getInputDirectory() { return m_inputDirectory; }
 	std::string getOutputDirectory() { return m_outputDirectory; }
-	std::string getTomlFilePath() { return m_tomlFilePath; }
-	std::string getJsonFilePath() { return m_jsonFilePath; }
+	std::string getTomlFilePath();
+	std::string getJsonFilePath();
 	// 列举文件名称，path需加反斜杠[todo]该函数仅仅列出了目录下文件，没有列出子目录
 	std::vector<std::string> getFiles(std::string path);
 	void getFileName_UseUserInput();

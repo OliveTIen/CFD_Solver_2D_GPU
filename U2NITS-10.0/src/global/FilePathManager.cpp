@@ -21,9 +21,19 @@ void FilePathManager::initialzeVariables() {
 	createFolderIfDoesntExist(m_outputFolderName);
 
 	m_initializeWorkingDirectory();
-	m_inputDirectory = m_workingDirectory + m_inputFolderName + "\\";
-	m_outputDirectory = m_workingDirectory + m_outputFolderName + "\\";
-	
+	if (m_inputFolderName != "") {
+		m_inputDirectory = m_workingDirectory + m_inputFolderName + "\\";
+	}
+	else {
+		m_inputDirectory = m_workingDirectory;
+	}
+	if (m_outputFolderName != "") {
+		m_outputDirectory = m_workingDirectory + m_outputFolderName + "\\";
+	}
+	else {
+		m_outputDirectory = m_workingDirectory;
+	}
+
 	m_tomlFilePath = m_inputDirectory + m_TomlFileName;
 	m_jsonFilePath = m_inputDirectory + m_JsonFileName;
 
@@ -31,6 +41,27 @@ void FilePathManager::initialzeVariables() {
 	if_initialized = true;
 }
 
+
+std::string FilePathManager::getTomlFilePath() {
+	// 工作目录下检测文件/目录是否存在 成功返回0，失败返回-1
+	if (_access(m_tomlFilePath.c_str(), 0) == -1) {// 失败
+		std::cout << "Current working directory: " << m_workingDirectory << "\n";
+		std::cout << "Cannot find toml file. Please input the file path: \n";
+		std::cin >> m_tomlFilePath;
+	}
+
+	return m_tomlFilePath; 
+}
+
+std::string FilePathManager::getJsonFilePath() {
+	if (_access(m_jsonFilePath.c_str(), 0) == -1) {// 失败
+		std::cout << "Current working directory: " << m_workingDirectory << "\n";
+		std::cout << "Cannot find json file. Please input the file path: \n";
+		std::cin >> m_jsonFilePath;
+	}
+
+	return m_jsonFilePath; 
+}
 
 std::vector<std::string> FilePathManager::getFiles(std::string path) {
 	path += "*";

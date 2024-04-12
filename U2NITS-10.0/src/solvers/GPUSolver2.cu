@@ -18,8 +18,10 @@
 
 void GPU::GPUSolver2::initialize() {
 
-	initializeHost();
-	initializeDevice();
+	initializeHost();// 申请内存，用FVM_2D旧数据初始化
+	if (GlobalPara::basic::useGPU) {
+		initializeDevice();
+	}
 
 }
 
@@ -53,26 +55,54 @@ void GPU::GPUSolver2::initializeDevice() {
 	const int num_edge = (int)pFVM2D->edges.size();
 	const int num_boundary = (int)pFVM2D->boundaryManager.boundaries.size();
 
-	LogWriter::logAndPrint("Use GPU.\n");
 	setGPUDevice();// 设置GPU
 	allocateDeviceMemory(num_node, num_element, num_edge, num_boundary);
 	host_to_device();// 复制host数据到device
 
 }
 
-void GPU::GPUSolver2::iterationTotalCPU(REAL& t, REAL T) {
+void GPU::GPUSolver2::iteration(real& t, real T) {
+	int useGPU = GlobalPara::basic::useGPU;
+	if (useGPU == 0) {
+		iterationHost(t, T);
+	}
+	else if (useGPU == 1) {
+		iterationGPU(t, T);
+	}
+	else if (useGPU == 2) {
+		iterationHalfGPU(t, T);
+	}
+	else if (useGPU == 3) {
+		iterationHost_2_addRK3(t, T);
+	}
+	else {
+		exit(-1);
+	}
+}
+
+void GPU::GPUSolver2::iterationHost(REAL& t, REAL T) {
 	update_ruvp_Uold();
-	REAL dt = calculateDt(t, T);
+
+	real dt = U2NITS::Time::calculateGlobalDt(t, T, GlobalPara::constant::gamma, GlobalPara::constant::Re, GlobalPara::constant::Pr, GlobalPara::time::CFL, GlobalPara::constant::R,
+		element_host, edge_host, element_vruvp);
+
 	t += dt;
-	U2NITS::Space::Gradient::Gradient(element_host, elementField_host, node_host, edge_host);
+	U2NITS::Space::Gradient::Gradient(element_host, node_host, edge_host, elementField_host);
 	U2NITS::Time::EvolveHost(dt, GlobalPara::time::time_advance, element_host, elementField_host, edge_host, edge_periodic_pair);
+	U2NITS::Space::Restrict::modifyElementFieldU2d(element_host, elementField_host);
+}
+
+void GPU::GPUSolver2::iterationHost_2_addRK3(REAL& t, REAL T) {
+	update_ruvp_Uold();
+	U2NITS::Time::EvolveHost_2_addRK3(t, T, element_host, elementField_host, edge_host, node_host, element_vruvp);
 	U2NITS::Space::Restrict::modifyElementFieldU2d(element_host, elementField_host);
 }
 
 void GPU::GPUSolver2::iterationHalfGPU(REAL& t, REAL T) {
 	// 更新时间t
 	update_ruvp_Uold();
-	REAL dt = calculateDt(t, T);
+	real dt = U2NITS::Time::calculateGlobalDt(t, T, GlobalPara::constant::gamma, GlobalPara::constant::Re, GlobalPara::constant::Pr, GlobalPara::time::CFL, GlobalPara::constant::R,
+		element_host, edge_host, element_vruvp);
 	t += dt;
 
 	GPU::Space::Gradient::Gradient_2(element_device, elementField_device, edge_device);
@@ -89,7 +119,8 @@ void GPU::GPUSolver2::iterationHalfGPU(REAL& t, REAL T) {
 void GPU::GPUSolver2::iterationGPU(REAL& t, REAL T) {
 	// 更新时间t @host
 	update_ruvp_Uold();
-	REAL dt = calculateDt(t, T);
+	real dt = U2NITS::Time::calculateGlobalDt(t, T, GlobalPara::constant::gamma, GlobalPara::constant::Re, GlobalPara::constant::Pr, GlobalPara::time::CFL, GlobalPara::constant::R,
+		element_host, edge_host, element_vruvp);
 	t += dt;
 
 	// device
@@ -98,7 +129,9 @@ void GPU::GPUSolver2::iterationGPU(REAL& t, REAL T) {
 	cudaDeviceSynchronize();
 	catchCudaErrorAndExit();
 
-	GPU::Time::EvolveDevice(dt, GlobalPara::time::time_advance, element_host, elementField_host, edge_host, boundary_device, *infPara_device);
+	LogWriter::logAndPrintError("Unimplemented.GPU::Time::EvolveDevice @ GPUSolver2::iterationGPU\n");
+	exit(-11);
+	GPU::Time::EvolveDevice(dt, GlobalPara::time::time_advance, element_device, elementField_device, edge_device, boundary_device, sDevicePara);
 	catchCudaErrorAndExit();
 	cudaDeviceSynchronize();
 	catchCudaErrorAndExit();
@@ -115,7 +148,7 @@ void GPU::GPUSolver2::iterationDevice(REAL dt) {
 	GPU::Space::Gradient::Gradient_2(element_device, elementField_device, edge_device);
 	//GPU::calculateGradient_old(element_device, elementField_device);
 	cudaDeviceSynchronize();
-	GPU::Time::EvolveDevice(dt, GlobalPara::time::time_advance, element_host, elementField_host, edge_host, boundary_device, *infPara_device);
+	GPU::Time::EvolveDevice(dt, GlobalPara::time::time_advance, element_device, elementField_device, edge_device, boundary_device, sDevicePara);
 	//// 时间推进 对device操作
 	// TODO
 	//cudaDeviceSynchronize();
@@ -146,7 +179,9 @@ void GPU::GPUSolver2::host_to_device() {
 
 void GPU::GPUSolver2::freeMemory() {
 	freeHostMemory();
-	freeDeviceMemory();
+	if (GlobalPara::basic::useGPU) {
+		freeDeviceMemory();
+	}
 }
 
 void GPU::GPUSolver2::freeHostMemory() {
@@ -190,6 +225,10 @@ void GPU::GPUSolver2::freeDeviceMemory() {
 
 void GPU::GPUSolver2::updateResidual() {
 	ResidualCalculator::cal_residual_GPU(element_U_old, elementField_host, ResidualCalculator::NORM_INF, residualVector);
+}
+
+void GPU::GPUSolver2::getResidual() {
+	ResidualCalculator::get_residual_functionF(elementField_host, residualVector, ResidualCalculator::NORM_INF);
 }
 
 void GPU::GPUSolver2::setGPUDevice() {
@@ -254,6 +293,13 @@ void GPU::GPUSolver2::allocateDeviceMemory(const int num_node, const int num_ele
 		using namespace GlobalPara::boundaryCondition::_2D;// using有作用域，不用担心混淆
 		infPara_device = new GPU::DGlobalPara(inf::ruvp, inlet::ruvp, outlet::ruvp, 4
 			, &GlobalPara::constant::R, &GlobalPara::constant::gamma, &GlobalPara::inviscid_flux_method::flux_conservation_scheme);
+		sDevicePara.initialize(
+			GlobalPara::constant::T0, GlobalPara::constant::p0, GlobalPara::constant::c0, GlobalPara::constant::gamma, GlobalPara::constant::epsilon, GlobalPara::constant::Re, GlobalPara::constant::Pr, GlobalPara::constant::mu,
+			GlobalPara::inviscid_flux_method::flag_reconstruct, GlobalPara::inviscid_flux_method::flag_gradient,
+			GlobalPara::boundaryCondition::_2D::inf::ruvp, GlobalPara::boundaryCondition::_2D::inlet::ruvp, GlobalPara::boundaryCondition::_2D::outlet::ruvp,
+			GlobalPara::inviscid_flux_method::flux_conservation_scheme, GlobalPara::inviscid_flux_method::flux_limiter
+		);
+		
 		// 更新状态
 		deviceMemoryAllocated = true;
 	}
@@ -399,7 +445,9 @@ void GPU::GPUSolver2::initialize_boundary(void* _pFVM2D_) {
 }
 
 void GPU::GPUSolver2::update_ruvp_Uold() {
-
+	/*
+	用U更新element_vruvp.element_vruvp用于计算时间步长Dt以及输出流场
+	*/
 	REAL gamma = GlobalPara::constant::gamma;
 	/*
 	注：经过测试，发现auto指针对ij指标的访问是可行的
@@ -425,14 +473,6 @@ void GPU::GPUSolver2::update_ruvp_Uold() {
 		ruvp[2][i] = U[2][i] / U[0][i];
 		ruvp[3][i] = ruvp[0][i] * (gamma - 1) * (U[3][i] / U[0][i] - (ruvp[1][i] * ruvp[1][i] + ruvp[2][i] * ruvp[2][i]) * 0.5);
 	}
-}
-
-REAL GPU::GPUSolver2::calculateDt(REAL t, REAL T) {
-	// 目前默认是无粘的，因此ifViscous和ifConstViscous都为false
-	return GPU::calculateDt(
-		t, T, GlobalPara::constant::gamma, GlobalPara::constant::Re, GlobalPara::constant::Pr, GlobalPara::time::CFL, GlobalPara::constant::R,
-		false, false, *this
-	);
 }
 
 void GPU::GPUSolver2::updateOutputNodeField() {

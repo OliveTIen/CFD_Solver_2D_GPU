@@ -14,7 +14,8 @@
 // using与typedef差不多，但赋值的方式更符合直觉；此外using可以给模板起别名
 
 // 实数类型
-typedef double REAL;
-using real = REAL;
+using REAL = double;
+using real = double;
+using integer = int;
 
 #endif // !GPU_DATATYPE_H

@@ -21,17 +21,6 @@ private:
 public:
 	FieldWriter() {};
 
-	// 适合FVM_2D自带的数据结构
-	static void writeTecplotFile(
-		double t_current,
-		std::string filePath,
-		std::string title,
-		const std::vector<Node_2D>& nodes, 
-		const std::vector<Element_2D>& elements,
-		const std::vector<double>& rho_nodes,
-		const std::vector<double>& u_nodes,
-		const std::vector<double>& v_nodes,
-		const std::vector<double>& p_nodes		);
 	static void writeTecplotFile_GPU(
 		double t_current,
 		std::string filePath,
@@ -39,13 +28,7 @@ public:
 		GPU::NodeSoA& nodes,
 		GPU::ElementSoA& elements,
 		GPU::OutputNodeFieldSoA& output_node_field	);
-	static void writeContinueFile(
-		int i_step,
-		double t_current,
-		std::string filePath,
-		const std::vector<Node_2D>& nodes,
-		const std::vector<Element_2D>& elements,
-		void* pBoundaryManager);
+
 	static void writeContinueFile_GPU(
 		int i_step,
 		double t_current,
@@ -53,6 +36,15 @@ public:
 		GPU::NodeSoA& nodes,
 		GPU::ElementSoA& elements,
 		GPU::FieldSoA& elementField);
+	// 添加了Ux Uy
+	static void writeContinueFile_2(
+		int i_step,
+		double t_current,
+		std::string filePath,
+		GPU::NodeSoA& nodes,
+		GPU::ElementSoA& elements,
+		GPU::FieldSoA& elementField);
+
 	// 已输出的文件数量
 	static int getNumTecplotFileWritten();
 };

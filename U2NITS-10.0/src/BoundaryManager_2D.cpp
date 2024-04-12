@@ -47,7 +47,7 @@ int BoundaryManager_2D::getBoundaryTypeByName(std::string boundaryName) {
 	// 应考虑字符串匹配/关键词检测算法。例如前缀树（Trie）可以应用于自动补全等
 	// 边界名称转边界类型 内部是-1
 	int bType = -1;
-	if (boundaryName == "wall" || boundaryName == "obstacle" || boundaryName == "airfoil") {
+	if (boundaryName == "wall" || boundaryName == "obstacle" || boundaryName == "airfoil" || boundaryName == "foil") {
 		//if (GlobalPara::physicsModel::equation == _EQ_euler)bType = _BC_wall_nonViscous;
 		//else bType = _BC_wall_adiabat;
 
@@ -63,6 +63,8 @@ int BoundaryManager_2D::getBoundaryTypeByName(std::string boundaryName) {
 		bType = _BC_periodic_0 + x;//_BC_periodic_x = _BC_periodic_0 + x
 	}
 	else {
+		LogWriter::logError("Error: unknown boundary type.");
+		
 		throw "Error: unknown boundary type.";
 	}
 	return bType;
@@ -76,15 +78,13 @@ VirtualBoundarySet_2D* BoundaryManager_2D::findSetByID(int ID) {
 	return &(boundaries[ID - 1]);
 }
 
-int BoundaryManager_2D::iniBoundaryEdgeSetID_and_iniBoundaryType(FVM_2D* f) {
+void BoundaryManager_2D::iniBoundaryEdgeSetID_and_iniBoundaryType(FVM_2D* f) {
 	//函数目的：根据BoundarySet的name得到type；给边界edge打上setID标签
 	
 	//检查f->edges是否已初始化
 	if (f->edges.size() == 0) {
-		std::string str = "Warning: f->edges.size() == 0, in \"BoundaryManager_2D::iniEdgeBoundaryCondition(FVM_2D* f)\"\n";
-		LogWriter::log(str);
-		std::cout<< str;
-		return -1;
+		LogWriter::logError("f->edges.size() == 0, @BoundaryManager_2D::iniBoundaryEdgeSetID_and_iniBoundaryType\n");
+		exit(-1);
 	}
 
 	//打标签
@@ -121,8 +121,6 @@ int BoundaryManager_2D::iniBoundaryEdgeSetID_and_iniBoundaryType(FVM_2D* f) {
 
 	//检查周期边界的正确性和完整性
 	checkPeriodPairs();
-
-	return 0;
 }
 
 void BoundaryManager_2D::ini_infBoundary_ruvp() {

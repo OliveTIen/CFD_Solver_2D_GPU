@@ -11,68 +11,29 @@ void FieldInitializer::setInitialAndBoundaryCondition() {
 	switch (GlobalPara::initialCondition::type) {
 	case 1:
 	{
-		//1.常数
+		// 常数
 		printCondition("Uniform flow");
 		setInitialUniform();
 		break;
 	}
-	
-
 	case 2:
 	{
-		//2.均匀流和等熵涡的叠加
+		// 均匀流和等熵涡的叠加
 		printCondition("Uniform flow + isentropicVortex");
 		using namespace GlobalPara::boundaryCondition::_2D;
 		setInitialIsentropicVortex(5, 5, 5, inf::ruvp);
 		break;
 	}
-
 	case 3:
 	{
+		// 参照论文shock_tube（https://zhuanlan.zhihu.com/p/154508317），见D:\tgl\Local\CFD\shock_tube_code
+
+		// 初场
 		printCondition("Shock Tube");
 		setInitialShockTube();
 		break;
 	}
-
-	case 1001:
-	{
-		// sod激波管(会自动设置boundaryCondition)
-		// 参照论文shock_tube（https://zhuanlan.zhihu.com/p/154508317），见D:\tgl\Local\CFD\shock_tube_code
-		// 事实上计算远场边界时也是用的ruvp，如果一开始use_ruvp=false
-		// 则会用Ma等计算ruvp，参加TomlFileManager::initialize_ruvp()
-		// 综上，use_ruvp没必要修改，因为后面也用不上
-		// 精确解参照Matlab代码
-		using namespace GlobalPara::boundaryCondition::_2D;
-		// 修改边界条件
-		real ruvpL[4]{ 1,0,0,1 };
-		real ruvpR[4]{ 0.125,0,0,0.1 };
-		for (int i = 0; i < 4; i++) {
-			inlet::ruvp[i] = ruvpL[i];
-			outlet::ruvp[i] = ruvpR[i];
-		}
-		// 初场
-		printCondition("SOD Shock Tube");
-		std::cout << "Boundary condition is automatically set.\n";
-		setInitialShockTube();
-		break;
-	}
-	case 1002:
-	{
-		using namespace GlobalPara::boundaryCondition::_2D;
-		// 修改边界条件
-		real ruvpL[4]{ 0.445,0.698,0,3.528 };
-		real ruvpR[4]{ 0.5,0,0,0.571 };
-		for (int i = 0; i < 4; i++) {
-			inlet::ruvp[i] = ruvpL[i];
-			outlet::ruvp[i] = ruvpR[i];
-		}
-		// 初场
-		printCondition("Lax Shock Tube");
-		std::cout << "Boundary condition is automatically set.\n";
-		setInitialShockTube();
-		break;
-	}
-	case 1003:
+	case 4:
 	{
 		printCondition("Double Mach Reflection");
 		// 双马赫反射初始值参照 https://zhuanlan.zhihu.com/p/630069961
@@ -87,6 +48,7 @@ void FieldInitializer::setInitialAndBoundaryCondition() {
 	}
 	}
 }
+
 
 void FieldInitializer::printCondition(std::string initialConditionName) {
 	using namespace GlobalPara::boundaryCondition::_2D;

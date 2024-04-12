@@ -3,10 +3,12 @@
 #define CONSOLE_OUTPUT_H
 #include <windows.h>
 #include <string>
+#include <iostream>
 
 class ConsolePrinter {
 private:
 	COORD m_cursorPosition;
+	std::string m_solveInfo;
 
 public:
 	enum InfoType {
@@ -16,10 +18,8 @@ public:
 		normal,
 		simple
 	};
-
-	enum InfoStyle {
-
-	};
+	enum InfoStyle {};
+	
 
 public:
 	ConsolePrinter() { restoreCursorPosition(); }
@@ -32,6 +32,8 @@ public:
 	void printWelcome_2();
 	void MoveToLastCursorPosition();
 	void EraseToLastCursorPosition();
+
+	void print(std::string str) { std::cout << str; }
 
 public:
 	static COORD getCursorPosition();
@@ -47,7 +49,8 @@ public:
 	// 清除p1, p2之间的控制台内容，光标不变
 	static void clearDisplay(COORD p1, COORD p2);
 	// 组装求解信息
-	static std::string assemblySolveInfo(double calTime, int calStep, int maxIteration, double calSpeed, double nFile, double t, double T, const double* residual_vector);
+	void assemblySolveInfo(double calTime, int calStep, int maxIteration, double calSpeed, double nFile, double t, double T, const double* residual_vector);
+	std::string getSolveInfo() { return m_solveInfo; }
 	// 打印求解信息
 	static void printInfo(InfoType type);
 

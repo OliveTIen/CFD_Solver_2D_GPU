@@ -200,9 +200,9 @@ void U2NITS::Space::ConvectRoeCommon3d(const REAL UL[5], const REAL UR[5], const
 	real rcpcv = GlobalPara::constant::R;
 	// 守恒量转场变量rho u v w p
 	real ruvwpL[5]{};
-	U2NITS::Math::U2ruvwp_host(UL, ruvwpL, gamma);
+	U2NITS::Math::U2ruvwp_host_3d(UL, ruvwpL, gamma);
 	real ruvwpR[5]{};
-	U2NITS::Math::U2ruvwp_host(UR, ruvwpR, gamma);
+	U2NITS::Math::U2ruvwp_host_3d(UR, ruvwpR, gamma);
 	real rL = ruvwpL[0];
 	real uL = ruvwpL[1];
 	real vL = ruvwpL[2];
@@ -551,7 +551,7 @@ void U2NITS::Space::RoeDissapationTerm2d(REAL gamma, REAL ruvpL[4], REAL ruvpR[4
 
 	for (int i = 0; i < 4; i++) {
 		if (isnan(drRoe[i])) {
-			LogWriter::logAndPrintError("Error isnan(drRoe[i])\n");
+			LogWriter::logAndPrintError("Error isnan(drRoe[i]) @U2NITS::Space::RoeDissapationTerm2d\n");
 			exit(-1);
 		}
 	}

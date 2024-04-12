@@ -71,10 +71,12 @@
     <ClInclude Include="src\drivers\CDriver.h" />
     <ClInclude Include="src\Edge_2D.h" />
     <ClInclude Include="src\Element_2D.h" />
+    <ClInclude Include="src\global\Constexpr.h" />
     <ClInclude Include="src\global\CTimer.h" />
     <ClInclude Include="src\global\GlobalPara.h" />
     <ClInclude Include="src\global\JsonConfig.h" />
     <ClInclude Include="src\global\FilePathManager.h" />
+    <ClInclude Include="src\global\SGlobalPara.h" />
     <ClInclude Include="src\global\StringProcessor.h" />
     <ClInclude Include="src\global\SystemInfo.h" />
     <ClInclude Include="src\global\VectorProcessor.h" />
@@ -137,7 +139,9 @@
     <ClInclude Include="src\space\gradient\GreenGauss.h" />
     <ClInclude Include="src\space\Limiter.h" />
     <ClInclude Include="src\space\Reconstructor.h" />
+    <ClInclude Include="src\space\reconstruct\MUSCL.h" />
     <ClInclude Include="src\space\restrict\Restrict.h" />
+    <ClInclude Include="src\space\restrict\RestrictGPU.h" />
     <ClInclude Include="src\space\RiemannSolver.h" />
     <ClInclude Include="src\time\CalculateDt.h" />
     <ClInclude Include="src\time\Evolve.h" />
@@ -153,6 +157,7 @@
     <CudaCompile Include="src\space\convection\RoeGPU.cu" />
     <CudaCompile Include="src\space\FluxGPU.cu" />
     <CudaCompile Include="src\space\gradient\GradientGPU.cu" />
+    <CudaCompile Include="src\space\restrict\RestrictGPU.cu" />
     <CudaCompile Include="src\time\EvolveGPU.cu" />
   </ItemGroup>
   <PropertyGroup Label="Globals">

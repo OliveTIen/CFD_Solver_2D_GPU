@@ -1,13 +1,16 @@
 #include "FluxGPU.h"
 #include "../FVM_2D.h"
-#include "../math/Math.h"
+#include "../gpu/GPUGlobalFunction.h"
+#include "../math/MathGPU.h"
 #include "convection/ConvectionGPU.h"
 #include "../output/LogWriter.h"
+#include "restrict/RestrictGPU.h"
 
-void GPU::Space::Flux::calculateFluxDevice(ElementSoA& element_device, FieldSoA& elementField_device, EdgeSoA& edge_device, BoundarySetMap& boundary_device, DGlobalPara& infPara_device) {
+void GPU::Space::Flux::calculateFluxDevice(ElementSoA& element_device, FieldSoA& elementField_device, EdgeSoA& edge_device, BoundarySetMap& boundary_device, SDevicePara& infPara_device) {
 	// TODO: Implement this function.
     resetElementFlux(elementField_device);
     cudaDeviceSynchronize();
+    catchCudaErrorAndExit();
     calculateFlux(element_device, elementField_device, edge_device, boundary_device, infPara_device);
 
 
@@ -22,7 +25,7 @@ void GPU::Space::Flux::resetElementFlux(FieldSoA& elementField_device) {
     resetElementFluxKernel <<<grid, block>>> (elementField_device);
 }
 
-__global__ void GPU::Space::Flux::resetElementFluxKernel(FieldSoA& elementField_device) {
+__global__ void GPU::Space::Flux::resetElementFluxKernel(FieldSoA elementField_device) {
     // --- 核函数 --- 
 
     // 获取id，判断是否有效
@@ -30,19 +33,19 @@ __global__ void GPU::Space::Flux::resetElementFluxKernel(FieldSoA& elementField_
     const int tid = threadIdx.x;
     const int id = bid * blockDim.x + tid;
     const int& i = id;
-    if (i >= *(elementField_device._num_) || i < 0) return;
+    if (i >= elementField_device.num || i < 0) return;
 
     // 给单元数值通量赋值
     for (int jValue = 0; jValue < 4; jValue++) {
-        elementField_device.Flux[jValue][i] = 0;//单元数值通量Flux清零，为后面加减做准备
+        elementField_device.Flux[jValue][i] = 0;//单元数值通量Flux清零，为后面加减做准备 Invalid __global__ write of size 8 bytes
         // f->elements[ie].deltaeig = 0;//每一轮deltaeig清零 针对Roe格式 目前不需要
         // 梯度已经计算，因此不需要再次计算
     }
 }
 
-void GPU::Space::Flux::calculateFlux(ElementSoA& element_device, FieldSoA& elementField_device, EdgeSoA& edge_device, BoundarySetMap& boundary_device, DGlobalPara& infPara_device) {
-    LogWriter::logAndPrintError("Not completed. @GPU::Space::Flux::calculateFlux\n");
-    exit(-1);// 未完成 getEdgeFlux_inner_and_periodic
+void GPU::Space::Flux::calculateFlux(ElementSoA& element_device, FieldSoA& elementField_device, EdgeSoA& edge_device, BoundarySetMap& boundary_device, SDevicePara& infPara_device) {
+    //LogWriter::logAndPrintError("Not completed. @GPU::Space::Flux::calculateFlux\n");
+    //exit(-1);// 未完成 getEdgeFlux_inner_and_periodic
     int block_size = 512;
     int grid_size = (edge_device.num_edge + block_size - 1) / block_size;
     dim3 block(block_size, 1, 1);
@@ -50,7 +53,7 @@ void GPU::Space::Flux::calculateFlux(ElementSoA& element_device, FieldSoA& eleme
     calculateFluxKernel <<<grid, block >>> (element_device, elementField_device, edge_device, boundary_device, infPara_device);
 }
 
-__global__ void GPU::Space::Flux::calculateFluxKernel(ElementSoA& element, FieldSoA& elementField, EdgeSoA& edge, BoundarySetMap& boundary_device, DGlobalPara& para) {
+__global__ void GPU::Space::Flux::calculateFluxKernel(ElementSoA element, FieldSoA elementField, EdgeSoA edge, BoundarySetMap boundary_device, SDevicePara para) {
     // TODO: Implement this kernel.
     // 未完成
 
@@ -62,7 +65,7 @@ __global__ void GPU::Space::Flux::calculateFluxKernel(ElementSoA& element, Field
     const int tid = threadIdx.x;
     const int id = bid * blockDim.x + tid;
     const int& iedge = id;
-    if (iedge >= *(edge._num_edge_) || iedge < 0) return;
+    if (iedge >= edge.num_edge || iedge < 0) return;
 
     // 每条边计算无粘数值通量
 
@@ -111,7 +114,7 @@ __global__ void GPU::Space::Flux::calculateFluxKernel(ElementSoA& element, Field
         }
     }
 
-    // 更新单元数值通量
+    // 更新单元数值通量 由于是多线程运行，求和时会发生数据竞争
     for (int j = 0; j < 4; j++) {
         elementField.Flux[j][elementL] += flux[j];
         // 内部边界
@@ -122,7 +125,7 @@ __global__ void GPU::Space::Flux::calculateFluxKernel(ElementSoA& element, Field
     }
 }
 
-__device__ void GPU::Space::Flux::getEdgeFlux_wallNonViscous(ElementSoA& element, FieldSoA& elementField, EdgeSoA& edge, long idx, REAL* flux, DGlobalPara& para) {
+__device__ void GPU::Space::Flux::getEdgeFlux_wallNonViscous(ElementSoA& element, FieldSoA& elementField, EdgeSoA& edge, long idx, REAL* flux, SDevicePara para) {
     //未完待续;
     // 函数中idx相当于iedge
     // 该函数分别计算边的左右两侧U的极限，然后求解flux
@@ -136,7 +139,7 @@ __device__ void GPU::Space::Flux::getEdgeFlux_wallNonViscous(ElementSoA& element
 
     // 计算U_L，即edge U的左极限
     REAL U_L[4]{};
-    Flux::getUByXYandElementID(element, elementField, x_edge, y_edge, iElementL, U_L);
+    Flux::getUByXYandElementID(element, elementField, x_edge, y_edge, iElementL, U_L, para);
 
     // 计算U_R 用对称性
     REAL U_R[4]{};
@@ -152,23 +155,249 @@ __device__ void GPU::Space::Flux::getEdgeFlux_wallNonViscous(ElementSoA& element
     // 计算flux
     RiemannSolve(U_L, U_R, nx, ny, length, flux, para);
 }
-__device__ void GPU::Space::Flux::getEdgeFlux_wall_adiabat(ElementSoA& element_device, FieldSoA& elementField_device, EdgeSoA& edge_device, long idx, REAL* flux, DGlobalPara& infPara_device){
+__device__ void GPU::Space::Flux::getEdgeFlux_wall_adiabat(ElementSoA& element, FieldSoA& elementField, EdgeSoA& edge, long idx, REAL* flux, SDevicePara para){
+    // 固壁边界。函数中idx相当于iedge
 
-}
-__device__ void GPU::Space::Flux::getEdgeFlux_farField(ElementSoA& element_device, FieldSoA& elementField_device, EdgeSoA& edge_device, long idx, REAL* flux, DGlobalPara& infPara_device){
+    REAL nx = edge.normal[0][idx];// normal已初始化
+    REAL ny = edge.normal[1][idx];
+    REAL x_edge = edge.xy[0][idx];
+    REAL y_edge = edge.xy[1][idx];
+    REAL length = edge.length[idx];
+    long iElementL = edge.elementL[idx];
 
+    // 计算U_L，即edge U的左极限
+    REAL U_L[4]{};
+    Flux::getUByXYandElementID(element, elementField, x_edge, y_edge, iElementL, U_L, para);
+
+    // 计算U_R 用对称性
+    REAL U_R[4]{};
+    REAL uL = U_L[1] / U_L[0];
+    REAL vL = U_L[2] / U_L[0];
+    // 法向坐标系下 UnL = uL * nx + vL * ny，VnL = -uL * ny + vL * nx
+    // UnR = - UnL，VnR = -VnL
+    // 原坐标系下 uR = unR*nx-vnR*ny， vR=unR*ny+vnR*nx
+    // 因此 uR = -uL 还不如直接取反
+
+    // 按UNITS中BC_WALL.f90的算法，速度取反，可是结果仍然不变
+    // 不对 结果云图中没有体现粘性
+    //REAL uR = uL - 2 * (uL * nx + vL * ny) * nx;
+    //REAL vR = vL - 2 * (uL * nx + vL * ny) * ny;
+    REAL uR = -uL;
+    REAL vR = -vL;
+    U_R[0] = U_L[0];
+    U_R[1] = U_R[0] * uR;
+    U_R[2] = U_R[0] * vR;
+    U_R[3] = U_L[3];
+
+    // 计算flux
+    RiemannSolve(U_L, U_R, nx, ny, length, flux, para);
 }
-__device__ void GPU::Space::Flux::modify_ruvpL_farField(const REAL nx, const REAL ny, REAL* ruvp, DGlobalPara& infPara_device){}
-__device__ void GPU::Space::Flux::getEdgeFlux_inner_and_periodic(ElementSoA& element_device, FieldSoA& elementField_device, EdgeSoA& edge_device, long idx, REAL* flux, DGlobalPara& infPara_device){}
-__device__ void GPU::Space::Flux::getUByXYandElementID(ElementSoA& element_device, FieldSoA& elementField_device, REAL x, REAL y, int elementID, REAL* U) {}
+__device__ void GPU::Space::Flux::getEdgeFlux_farField(ElementSoA& element, FieldSoA& elementField, EdgeSoA& edge, long idx, REAL* flux, SDevicePara para){
+    // 函数功能：根据远场边界条件计算边界数值通量 已完成
+
+    REAL nx = edge.normal[0][idx];// normal已初始化
+    REAL ny = edge.normal[1][idx];
+    REAL x_edge = edge.xy[0][idx];
+    REAL y_edge = edge.xy[1][idx];
+    REAL length = edge.length[idx];
+    long iElementL = edge.elementL[idx];
+
+    // 计算U_L，即edge U的左极限
+    REAL U_L[4]{};
+    Flux::getUByXYandElementID(element, elementField, x_edge, y_edge, iElementL, U_L, para);
+    // 计算ruvp_L
+    REAL ruvp_L[4]{};
+    GPU::Math::U2ruvp(U_L, ruvp_L, para.constant.gamma);
+    // 检查是否发散
+    bool is_divergent = false;
+    if (ruvp_L[3] < 0) {
+        is_divergent = true;
+        //std::cout << "p < 0, ";
+    }
+    if (ruvp_L[0] < 0) {
+        is_divergent = true;
+        //std::cout << "rho < 0, ";
+    }
+    if (ruvp_L[0] > 900) {
+        is_divergent = true;
+        //std::cout << "rho > 900, ";
+    }
+    if (is_divergent) {
+        
+    }
+
+
+    //根据远场边界条件修正ruvp_L
+    Space::Flux::modify_ruvpL_farField(nx, ny, ruvp_L, para);
+    GPU::Math::ruvp2U(ruvp_L, U_L, para.constant.gamma);
+    // 计算flux
+    RiemannSolve(U_L, U_L, nx, ny, length, flux, para);
+}
+__device__ void GPU::Space::Flux::modify_ruvpL_farField(const REAL nx, const REAL ny, REAL* ruvp, SDevicePara para){
+    // 该函数根据远场边界条件修正ruvp_L
+
+    //边界元的Element_R为null，因此nxny一定朝外
+    const REAL rho = ruvp[0];
+    const REAL u = ruvp[1];
+    const REAL v = ruvp[2];
+    const REAL p = ruvp[3];
+    const REAL rho_inf = para.boundaryCondition_2D.ruvp_inf[0];
+    const REAL u_inf = para.boundaryCondition_2D.ruvp_inf[1];
+    const REAL v_inf = para.boundaryCondition_2D.ruvp_inf[2];
+    const REAL p_inf = para.boundaryCondition_2D.ruvp_inf[3];
+    const REAL gamma = para.constant.gamma;
+
+    //坐标变换
+    const REAL rho_n = rho;
+    const REAL u_n = u * nx + v * ny;//u cost + v sint
+    const REAL v_n = -u * ny + v * nx;//此处有修改。法线向外为正 - u sint + v cost
+    const REAL p_n = p;
+    const REAL rho_n_inf = rho_inf;
+    const REAL p_n_inf = p_inf;
+    const REAL u_n_inf = u_inf * nx + v_inf * ny;
+    const REAL v_n_inf = -u_inf * ny + v_inf * nx;//此处有修改
+
+    //if (rho_n < 0)system("pause");
+    REAL a_n2 = gamma * p_n / rho_n;
+    if (a_n2 < 0) {
+        printf("Error: a_n2 < 0 @GPU::Space::Flux::modify_ruvpL_farField\n");
+        return;
+        //system("pause"); 
+        //exit(-1); 
+    }
+    const REAL a_n = sqrt(a_n2);
+    REAL a_n_inf2 = gamma * p_n_inf / rho_n_inf;
+    if (a_n_inf2 < 0) {
+        printf("Error: a_n_inf2 < 0 @GPU::Space::Flux::modify_ruvpL_farField\n");
+        return;
+        //system("pause");
+        //exit(-1); 
+    }
+    const REAL a_n_inf = sqrt(a_n_inf2);
+
+    REAL v_n_tmp;
+    REAL u_n_tmp;
+    REAL rho_n_tmp;
+    REAL p_n_tmp;
+
+    if (u_n_inf * u_n_inf < a_n_inf * a_n_inf) {//|Vn_inf|<|a_inf|，亚音速
+        REAL tmp_a = (gamma - 1.0) / 4.0 * (u_n - u_n_inf) + 0.5 * (a_n + a_n_inf);// 1/2 *( (ga-1)/2 * (u-uinf) + (a+ainf) )
+        REAL tmp_a2 = tmp_a * tmp_a;
+        if (u_n_inf <= 0.0) {//亚音速入口，提3个边界条件
+            REAL tmp_s_inf = p_n_inf / pow(rho_n_inf, gamma);//根据边界rho和p求出熵
+            rho_n_tmp = pow(tmp_a2 / tmp_s_inf / gamma, 1.0 / (gamma - 1.0));//边界
+            u_n_tmp = 0.5 * (u_n + u_n_inf + 2.0 * a_n / (gamma - 1.0) - 2.0 * a_n_inf / (gamma - 1.0));
+            v_n_tmp = v_n_inf;//边界
+            p_n_tmp = tmp_a2 * rho_n_tmp / gamma;//边界
+        }
+        else {//亚音速出口，提1个边界条件 u_n_tmp
+            REAL tmp_s = p_n / pow(rho_n, gamma);//内 //pow(x,y):若x<0且y非整数，或者x=0且y<=0，将出现结果错误
+            rho_n_tmp = pow(tmp_a2 / tmp_s / gamma, 1.0 / (gamma - 1.0));
+            u_n_tmp = 0.5 * (u_n + u_n_inf + 2.0 * a_n / (gamma - 1.0) - 2.0 * a_n_inf / (gamma - 1.0));//边 //法向按公式计算u_n_i_m_η后，与u_n平均
+            v_n_tmp = v_n;//内点
+            p_n_tmp = tmp_a2 * rho_n_tmp / gamma;
+        }
+    }
+    else {
+        if (u_n_inf <= 0.0) {//超音速入口，提4个边界条件
+            rho_n_tmp = rho_n_inf;
+            u_n_tmp = u_n_inf;
+            v_n_tmp = v_n_inf;
+            p_n_tmp = p_n_inf;
+        }
+        else {//超音速出口，无需边界条件，所有关系由内点补充
+            rho_n_tmp = rho_n;
+            u_n_tmp = u_n;
+            v_n_tmp = v_n;
+            p_n_tmp = p_n;
+        }
+    }
+
+    ruvp[0] = rho_n_tmp;
+    ruvp[1] = u_n_tmp * nx - v_n_tmp * ny;//逆变换。这里用了自己的变换方式
+    ruvp[2] = u_n_tmp * ny + v_n_tmp * nx;
+    ruvp[3] = p_n_tmp;
+}
+__device__ void GPU::Space::Flux::getEdgeFlux_inner_and_periodic(ElementSoA& element, FieldSoA& elementField, EdgeSoA& edge, long idx, REAL* flux, SDevicePara para){
+    //计算边中点坐标、坐标变换矩阵、坐标逆变换矩阵、边法线方向
+    REAL nx = edge.normal[0][idx];// normal已初始化
+    REAL ny = edge.normal[1][idx];
+    REAL x_edge = edge.xy[0][idx];
+    REAL y_edge = edge.xy[1][idx];
+    REAL length = edge.length[idx];
+    long iElementL = edge.elementL[idx];
+    long iElementR = edge.elementR[idx];
+    
+
+    // 计算edge坐标处的U值(分别用两侧单元的分布函数计算)，分为周期边界和内部边界两种情况
+    REAL U_L[4]{};
+    Flux::getUByXYandElementID(element, elementField, x_edge, y_edge, iElementL, U_L, para);
+    REAL U_R[4]{};
+    if (edge.setID[idx] != -1) {
+        // 周期边界 应使用对称的edge的坐标计算U值
+        //throw "Warning: periodic not implemented yet!\n";
+        int ID = edge.ID[idx];
+        int ID_pair = edge.periodicPair[ID];
+        if (ID_pair<0 || ID_pair>=edge.num_edge) {
+            printf("periodicPairNotFoundException, @GPU::Space::Flux::getEdgeFlux_inner_and_periodic\n");
+            return;
+            // 代办：异常处理。准备在GPUGlobalFunction中存一个全局变量ErrorCode，但是报错重定义
+            // GPU::globalErrorCode = GPU::ErrorCode::periodicPairNotFound;
+        }
+
+
+        REAL x_edge_pair = edge.xy[0][ID_pair];
+        REAL y_edge_pair = edge.xy[1][ID_pair];
+        Flux::getUByXYandElementID(element, elementField, x_edge_pair, y_edge_pair, iElementR, U_R, para);
+
+    }
+    else {
+        // 内部边界
+        Flux::getUByXYandElementID(element, elementField, x_edge, y_edge, iElementR, U_R, para);
+    }
+
+    // 计算flux
+    RiemannSolve(U_L, U_R, nx, ny, length, flux, para);
+}
+__device__ void GPU::Space::Flux::getUByXYandElementID(ElementSoA& element, FieldSoA& elementField, REAL x, REAL y, int elementID, REAL* U_dist, SDevicePara para) {
+    // 该函数依据单元的重构函数，计算某坐标处的U值
+    REAL x_elementL = element.xy[0][elementID];
+    REAL y_elementL = element.xy[1][elementID];
+    // 常量重构
+    if (para.space.flag_reconstruct == _REC_constant) {
+        for (int jValue = 0; jValue < 4; jValue++) {
+            U_dist[jValue] = elementField.U[jValue][elementID];
+        }
+    }
+    // 线性重构 根据梯度Ux、Uy计算点(xpoint,ypoint)处_U值
+    else if (para.space.flag_reconstruct == _REC_linear) {
+        for (int jValue = 0; jValue < 4; jValue++) {
+            REAL& U_elementL = elementField.U[jValue][elementID];
+            REAL& Ux_elementL = elementField.Ux[jValue][elementID];
+            REAL& Uy_elementL = elementField.Uy[jValue][elementID];
+            U_dist[jValue] = U_elementL + Ux_elementL * (x - x_elementL) + Uy_elementL * (y - y_elementL);
+        }
+        // 若数据异常，则常量重构
+        real ruvp[4]{};
+        GPU::Math::U2ruvp(U_dist, ruvp, para.constant.gamma);
+        if (Space::Restrict::outOfRange(ruvp)) {
+            for (int jValue = 0; jValue < 4; jValue++) {
+                U_dist[jValue] = elementField.U[jValue][elementID];
+            }
+        }
+    }
+    else {
+        printf("Error: invalid reconstruct type.\n");
+    }
+}
 
 __device__ void GPU::Space::Flux::RiemannSolve(const REAL* UL, const REAL* UR, const REAL nx, const REAL ny,
-    const REAL length, REAL* flux, DGlobalPara& para) {
+    const REAL length, REAL* flux, SDevicePara para) {
     real faceNormal[2]{ nx,ny };
 
-    switch (*(para.scheme->ptr)) {
+    switch (para.inviscidFluxMethod.flux_conservation_scheme) {
     case _SOL_LocalLaxFriedrichs:
-        GPU::Space::Convection::LocalLaxFriedrichs2d(UL, UR, nx, ny, length, flux, *(para.constant_gamma->ptr));
+        GPU::Space::Convection::LocalLaxFriedrichs2d(UL, UR, nx, ny, length, flux, para.constant.gamma);
         break;
     case _SOL_Roe:
         GPU::Space::Convection::ConvectRoeCommon2d(UL, UR, faceNormal, length, flux, para);

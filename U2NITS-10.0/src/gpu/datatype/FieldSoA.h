@@ -1,7 +1,8 @@
 #ifndef _FIELD_SOA_H_
 #define _FIELD_SOA_H_
 
-#include "Define.h"
+#include "DefineType.h"
+#include "../Env.h"
 
 namespace GPU {
 	/// <summary>
@@ -11,24 +12,21 @@ namespace GPU {
 	struct FieldSoA {
 	public:
 		int num;
-		int* _num_;// GPU π”√
 
-		REAL* U[4];
-		REAL* Ux[4];
-		REAL* Uy[4];
-		REAL* Flux[4];
+		real* U[4];
+		real* Ux[4];
+		real* Uy[4];
+		real* Flux[4];
 
 	public:
 		void alloc(int _num) {
 			num = _num;
-			_num_ = new int;
-			*_num_ = num;
 
 			for (int i = 0; i < 4; i++) {
-				U[i] = new REAL[num];
-				Ux[i] = new REAL[num];
-				Uy[i] = new REAL[num];
-				Flux[i] = new REAL[num];
+				U[i] = new real[num];
+				Ux[i] = new real[num];
+				Uy[i] = new real[num];
+				Flux[i] = new real[num];
 			}
 		}
 
@@ -44,7 +42,6 @@ namespace GPU {
 		}
 
 		void free() {
-			delete _num_;
 
 			for (int i = 0; i < 4; i++) {
 				delete[] U[i];
@@ -56,20 +53,17 @@ namespace GPU {
 
 		void cuda_alloc(int _num) {
 			num = _num;
-			cudaMalloc(&_num_, 1 * sizeof(int));
-			cudaMemcpy(_num_, &num, 1 * sizeof(int), ::cudaMemcpyHostToDevice);
 
 
 			for (int i = 0; i < 4; i++) {
-				cudaMalloc(&U[i], num * sizeof(REAL));
-				cudaMalloc(&Ux[i], num * sizeof(REAL));
-				cudaMalloc(&Uy[i], num * sizeof(REAL));
-				cudaMalloc(&Flux[i], num * sizeof(REAL));
+				cudaMalloc(&U[i], num * sizeof(real));
+				cudaMalloc(&Ux[i], num * sizeof(real));
+				cudaMalloc(&Uy[i], num * sizeof(real));
+				cudaMalloc(&Flux[i], num * sizeof(real));
 			}
 		}
 
 		void cuda_free() {
-			cudaFree(_num_);
 
 			for (int i = 0; i < 4; i++) {
 				cudaFree(U[i]);
@@ -86,13 +80,13 @@ namespace GPU {
 	class EdgeFieldSoA {
 	public:
 		int num_edge;
-		REAL* numeralFlux[4];
+		real* numeralFlux[4];
 
 	public:
 		void alloc(int _num_edge) {
 			num_edge = _num_edge;
 			for (int i = 0; i < 4; i++) {
-				numeralFlux[i] = new REAL[num_edge];
+				numeralFlux[i] = new real[num_edge];
 			}
 		}
 		void free() {
@@ -103,7 +97,7 @@ namespace GPU {
 		void cuda_alloc(int _num_edge) {
 			num_edge = _num_edge;
 			for (int i = 0; i < 4; i++) {
-				cudaMalloc(&numeralFlux[i], num_edge * sizeof(REAL));
+				cudaMalloc(&numeralFlux[i], num_edge * sizeof(real));
 			}
 		}
 		void cuda_free() {
@@ -119,13 +113,13 @@ namespace GPU {
 	public:
 		int num_node;
 
-		REAL* ruvp[4];
+		real* ruvp[4];
 
 	public:
 		void alloc(int _num_node) {
 			num_node = _num_node;
 			for (int i = 0; i < 4; i++) {
-				ruvp[i] = new REAL[num_node];
+				ruvp[i] = new real[num_node];
 			}
 		}
 		void free() {
@@ -136,7 +130,7 @@ namespace GPU {
 		void cuda_alloc(int _num_node) {
 			num_node = _num_node;
 			for (int i = 0; i < 4; i++) {
-				cudaMalloc(&ruvp[i], num_node * sizeof(REAL));
+				cudaMalloc(&ruvp[i], num_node * sizeof(real));
 			}
 		}
 		void cuda_free() {

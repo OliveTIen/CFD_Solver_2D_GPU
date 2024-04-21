@@ -18,16 +18,18 @@ namespace GPU {
 
 			__global__ void resetElementFluxKernel(FieldSoA elementField_device);
 			__global__ void calculateFluxKernel(ElementSoA element_device, FieldSoA elementField_device, EdgeSoA edge_device, BoundarySetMap boundary_device, SDevicePara para);
-			__device__ void getEdgeFlux_wallNonViscous(ElementSoA& element_device, FieldSoA& elementField_device, EdgeSoA& edge_device, long idx, REAL* flux, SDevicePara para);
-			__device__ void getEdgeFlux_wall_adiabat(ElementSoA& element_device, FieldSoA& elementField_device, EdgeSoA& edge_device, long idx, REAL* flux, SDevicePara para);
-			__device__ void getEdgeFlux_farField(ElementSoA& element_device, FieldSoA& elementField_device, EdgeSoA& edge_device, long idx, REAL* flux, SDevicePara para);
-			__device__ void modify_ruvpL_farField(const REAL nx, const REAL ny, REAL* ruvp, SDevicePara para);
-			__device__ void getEdgeFlux_inner_and_periodic(ElementSoA& element_device, FieldSoA& elementField_device, EdgeSoA& edge_device, long idx, REAL* flux, SDevicePara para);
-			__device__ void getUByXYandElementID(ElementSoA& element_device, FieldSoA& elementField_device, REAL x, REAL y, int elementID, REAL* U, SDevicePara para);
+			__device__ void getEdgeFlux_wallNonViscous_kernel(ElementSoA& element_device, FieldSoA& elementField_device, EdgeSoA& edge_device, long idx, REAL* flux, SDevicePara para);
+			__device__ void getEdgeFlux_wall_adiabat_kernel(ElementSoA& element_device, FieldSoA& elementField_device, EdgeSoA& edge_device, long idx, REAL* flux, SDevicePara para);
+			__device__ void getEdgeFlux_farField_kernel(ElementSoA& element_device, FieldSoA& elementField_device, EdgeSoA& edge_device, long idx, REAL* flux, SDevicePara para);
+			__device__ void modify_ruvpL_farField_kernel(const REAL nx, const REAL ny, REAL* ruvp, SDevicePara para);
+			__device__ void getEdgeFlux_inner_and_periodic_kernel(ElementSoA& element_device, FieldSoA& elementField_device, EdgeSoA& edge_device, long idx, REAL* flux, SDevicePara para);
+			__device__ void getUByXYandElementID_kernel(ElementSoA& element_device, FieldSoA& elementField_device, REAL x, REAL y, int elementID, REAL* U, SDevicePara para);
 
-			__device__ void RiemannSolve(
+			__device__ void RiemannSolve_kernel(
 				const REAL* UL, const REAL* UR, const REAL nx, const REAL ny,
 				const REAL length, REAL* flux, SDevicePara para);
+
+			void calculateFluxDevice_2(ElementSoA& element_device, FieldSoA& elementField_device, EdgeSoA& edge_device, BoundarySetMap& boundary_device, SDevicePara& para);
 		}
 	}
 }

@@ -69,6 +69,11 @@ namespace U2NITS {
 			real Ma2 = (u * u + v * v) / a2;
 			return sqrt(Ma2);
 		}
+
+		//inline real getPressureCoeffient() {
+		//	// Cpp(I, J, K) = 2.0_8 * (PP(I, J, K) - PPF)   !!Ñ¹Á¦ÏµÊý
+
+		//}
 	}
 }
 

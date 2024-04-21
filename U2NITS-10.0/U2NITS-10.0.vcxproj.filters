@@ -67,6 +67,9 @@
     <Filter Include="src\space\reconstruct">
       <UniqueIdentifier>{d81613de-4606-4074-bcf4-1216ca09c29c}</UniqueIdentifier>
     </Filter>
+    <Filter Include="src\boundary_condition">
+      <UniqueIdentifier>{c3e3cce1-a60f-4af4-ab3f-13c7f409f2f5}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="src\main.cpp">
@@ -222,6 +225,18 @@
     <ClCompile Include="src\input\GeometryReader.cpp">
       <Filter>src\input</Filter>
     </ClCompile>
+    <ClCompile Include="src\global\CExit.cpp">
+      <Filter>src\global</Filter>
+    </ClCompile>
+    <ClCompile Include="src\boundary_condition\CBoundaryDoubleShockReflect.cpp">
+      <Filter>src\boundary_condition</Filter>
+    </ClCompile>
+    <ClCompile Include="src\boundary_condition\BoundaryManager.cpp">
+      <Filter>src\boundary_condition</Filter>
+    </ClCompile>
+    <ClCompile Include="src\time\CIteration.cpp">
+      <Filter>src\time</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <None Include="README.md" />
@@ -301,9 +316,6 @@
     </ClInclude>
     <ClInclude Include="src\global\VectorProcessor.h">
       <Filter>src\global</Filter>
-    </ClInclude>
-    <ClInclude Include="src\gpu\DataType\Define.h">
-      <Filter>src\gpu\dataType</Filter>
     </ClInclude>
     <ClInclude Include="src\gpu\datatype\EdgeSoA.h">
       <Filter>src\gpu\dataType</Filter>
@@ -464,6 +476,27 @@
     <ClInclude Include="src\space\reconstruct\MUSCL.h">
       <Filter>src\space\reconstruct</Filter>
     </ClInclude>
+    <ClInclude Include="src\global\CExit.h">
+      <Filter>src\global</Filter>
+    </ClInclude>
+    <ClInclude Include="src\boundary_condition\CBoundaryDoubleShockReflect.h">
+      <Filter>src\boundary_condition</Filter>
+    </ClInclude>
+    <ClInclude Include="src\boundary_condition\BoundaryManager.h">
+      <Filter>src\boundary_condition</Filter>
+    </ClInclude>
+    <ClInclude Include="src\time\CIteration.h">
+      <Filter>src\time</Filter>
+    </ClInclude>
+    <ClInclude Include="src\gpu\datatype\DefineType.h">
+      <Filter>src\gpu\dataType</Filter>
+    </ClInclude>
+    <ClInclude Include="src\gpu\Env.h">
+      <Filter>src\gpu</Filter>
+    </ClInclude>
+    <ClInclude Include="src\time\CalculateDtGPU.h">
+      <Filter>src\time</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <CudaCompile Include="src\gpu\datatype\FieldSoA.cu">
@@ -484,7 +517,7 @@
     <CudaCompile Include="src\space\gradient\GradientGPU.cu">
       <Filter>src\space\gradient</Filter>
     </CudaCompile>
-    <CudaCompile Include="src\solvers\GPUSolver2.cu">
+    <CudaCompile Include="src\solvers\GPUSolver2.cpp">
       <Filter>src\solvers</Filter>
     </CudaCompile>
     <CudaCompile Include="src\gpu\datatype\DeviceData.cu">
@@ -498,6 +531,9 @@
     </CudaCompile>
     <CudaCompile Include="src\space\restrict\RestrictGPU.cu">
       <Filter>src\space\restrict</Filter>
+    </CudaCompile>
+    <CudaCompile Include="src\time\CalculateDtGPU.cu">
+      <Filter>src\time</Filter>
     </CudaCompile>
   </ItemGroup>
 </Project>

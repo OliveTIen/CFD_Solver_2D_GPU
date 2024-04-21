@@ -8,8 +8,11 @@ namespace GPU {
 	class GPUSolver2 {
 	private:
 		bool hostMemoryAllocated = false;
-		bool deviceReady = false;// 设备存在且已就绪
+		bool hasSetGPUDevice = false;// 设备存在且已就绪
 		bool deviceMemoryAllocated = false;
+		bool iterationStarted = false;
+		bool hostDataInitialized = false;
+		bool deviceDataInitialized = false;
 
 	public:
 		// host/device双向数据
@@ -37,8 +40,10 @@ namespace GPU {
 		SDevicePara sDevicePara;
 
 	public:
-		// 申请资源、初始化GPUID、host复制到device
-		void initialize();
+		// 申请内存。应在读取field file后使用，因为要确定有多少单元、需要多大内存
+		void allocateMemory();
+		// 用FVM_2D初始化数据
+		void initializeData_byOldData();
 		// 迭代
 		void iteration(real& t, real T);
 		// 更新节点场
@@ -47,16 +52,21 @@ namespace GPU {
 		void updateResidual();
 		// 获取残差
 		void getResidual();
-		// [未使用]
-		void allocateMemory(const int num_node, const int num_element, const int num_edge, const int num_boundary);
 		// 释放资源
 		void freeMemory();
 
+		bool isIterationStarted() { return iterationStarted; }
+
+		// device数据更新到host
+		void device_to_host();
+		// host数据更新到device
+		void host_to_device();
 	private:
 		void setGPUDevice();
-
-		void initializeHost();// 申请内存，用FVM_2D旧数据初始化
-		void initializeDevice();// 需放在initializeHost之后，因为涉及到host_to_device
+		// 用FVM_2D旧数据初始化hostData
+		void initializeHostData_byOldData();
+		// 用hostData初始化deviceData
+		void initializeDeviceData_byHostData();
 		void initialize_nodeHost(void* _pFVM2D_, int num_node);
 		// 初始化element和elementField的host数据
 		void initialize_elementHost(void* _pFVM2D_, int num_element);
@@ -65,21 +75,8 @@ namespace GPU {
 		// 初始化边界条件 将周期边界变为内部边界
 		void initialize_boundary(void* _pFVM2D_);
 
-		void iterationHost(REAL& t, REAL T);
-		void iterationHost_2_addRK3(REAL& t, REAL T);
-		void iterationHalfGPU(REAL& t, REAL T);
-		void iterationGPU(REAL& t, REAL T);
-		// 仅host端的更新 用U更新ruvp U_old
-		void update_ruvp_Uold();
-		// GPU iteration， 包含几个GPU kernel
-		void iterationDevice(REAL dt);
-		// device数据更新到host
-		void device_to_host();
-		// 仅host iteration
-		void iterationHost(REAL dt);
-		// host数据更新到device
-		void host_to_device();
 
+		void allocateMemory(const int num_node, const int num_element, const int num_edge, const int num_boundary);
 		void allocateHostMemory(const int num_node, const int num_element, const int num_edge, const int num_boundary);
 		void allocateDeviceMemory(const int num_node, const int num_element, const int num_edge, const int num_boundary);// 需要在setGPUDevice之后
 		void freeHostMemory();

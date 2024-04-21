@@ -3,6 +3,7 @@
 #include "../global/StringProcessor.h"
 #include <sstream>
 #include "LogWriter.h"
+#include <iomanip>
 
 void ConsolePrinter::printHeader(HeaderStyle h) {
 	switch (h) {
@@ -67,19 +68,28 @@ void ConsolePrinter::printGenshinStart() {
 
 }
 
-void ConsolePrinter::drawProgressBar(double percent) {
+void ConsolePrinter::m_drawProgressBar(double percent, int barLength) {
 	std::cout << "Progress:";
-	if (percent > 100)percent = 100;
+	if (percent > 1)percent = 1;
 	if (percent < 0)percent = 0;
-	int nTotal = 45;//总长度，单位char
-	const int nBlock = int(nTotal * percent / 100.0);//块个数
+	const int nBlock = int(barLength * percent);//块个数
 	for (int i = 0; i < nBlock; i++) {
 		std::cout << "█";
 	}
-	for (int i = 0; i < nTotal - nBlock; i++) {
+	for (int i = 0; i < barLength - nBlock; i++) {
 		std::cout << " ";
 	}
-	std::cout << "| " << percent << "%";
+	// https://en.cppreference.com/w/cpp/io/manip/setprecision
+	const auto default_precision{ std::cout.precision() };
+	std::cout << std::setprecision(2);
+	std::cout << std::fixed;
+	std::cout << "| " << percent * 100.0 << "%";
+	std::cout << std::defaultfloat;
+	std::cout << std::setprecision(default_precision);
+}
+
+void ConsolePrinter::drawProgressBar(double value, double maxValue, int barLength) {
+	m_drawProgressBar(value / maxValue, barLength);
 }
 
 
@@ -114,7 +124,7 @@ void ConsolePrinter::clear() {
 	update();
 }
 
-void ConsolePrinter::printWelcome_2() {
+void ConsolePrinter::printWelcomeInterface() {
 	LogWriter::logAndPrint("Using VS Profiler. Please remove '/Profile' option on release.\n", LogWriter::Warning);
 	ConsolePrinter::printHeader(ConsolePrinter::HeaderStyle::simple);
 }
@@ -188,6 +198,22 @@ void ConsolePrinter::assemblySolveInfo(double calTime, int calStep, int maxItera
 		<< "  Physical time: \t" << t << " s\t/" << T << " s\n"
 		<< "Press ESC to end Computation\n";
 	m_solveInfo = info.str();
+}
+std::string ConsolePrinter::setSolveInfo(int startStep, int currentStep, int endStep, int numOfFile, double usedTime, double physicalTime, double maxPhysicalTime, const double* residual_vector) {
+	double speed = (currentStep - startStep) / usedTime;
+	double remainTime = (endStep - currentStep) / speed;
+	std::stringstream info;
+	info << "\n"
+		<< "  Time used: \t" << StringProcessor::timeFormat((int)usedTime)
+		<< "\t(Remain: " << StringProcessor::timeFormat((int)remainTime) << " s)\n"
+		<< "  Calculate step: \t" << currentStep << " \t/" << endStep << "\n"
+		<< "  Calculate speed: \t" << speed << "\t step/s\n"
+		<< "  Output file num: \t" << numOfFile << "\n"
+		<< "  Residual rho: \t" << std::scientific << residual_vector[0] << "\n" << std::defaultfloat
+		<< "  Physical time: \t" << physicalTime << " s\t/" << maxPhysicalTime << " s\n"
+		<< "Press ESC to end Computation\n";
+	m_solveInfo = info.str();
+	return m_solveInfo;
 }
 void ConsolePrinter::printInfo(InfoType type) {
 	switch (type) {

@@ -12,9 +12,12 @@
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="src\BoundaryManager_2D.cpp" />
+    <ClCompile Include="src\boundary_condition\BoundaryManager.cpp" />
+    <ClCompile Include="src\boundary_condition\CBoundaryDoubleShockReflect.cpp" />
     <ClCompile Include="src\drivers\CDriver.cpp" />
     <ClCompile Include="src\Edge_2D.cpp" />
     <ClCompile Include="src\Element_2D.cpp" />
+    <ClCompile Include="src\global\CExit.cpp" />
     <ClCompile Include="src\global\GlobalPara.cpp" />
     <ClCompile Include="src\global\JsonConfig.cpp" />
     <ClCompile Include="src\global\FilePathManager.cpp" />
@@ -61,6 +64,7 @@
     <ClCompile Include="src\space\restrict\Restrict.cpp" />
     <ClCompile Include="src\space\RiemannSolver.cpp" />
     <ClCompile Include="src\time\CalculateDt.cpp" />
+    <ClCompile Include="src\time\CIteration.cpp" />
     <ClCompile Include="src\time\Evolve.cpp" />
   </ItemGroup>
   <ItemGroup>
@@ -68,9 +72,12 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="src\BoundaryManager_2D.h" />
+    <ClInclude Include="src\boundary_condition\BoundaryManager.h" />
+    <ClInclude Include="src\boundary_condition\CBoundaryDoubleShockReflect.h" />
     <ClInclude Include="src\drivers\CDriver.h" />
     <ClInclude Include="src\Edge_2D.h" />
     <ClInclude Include="src\Element_2D.h" />
+    <ClInclude Include="src\global\CExit.h" />
     <ClInclude Include="src\global\Constexpr.h" />
     <ClInclude Include="src\global\CTimer.h" />
     <ClInclude Include="src\global\GlobalPara.h" />
@@ -82,12 +89,13 @@
     <ClInclude Include="src\global\VectorProcessor.h" />
     <ClInclude Include="src\gpu\datatype\BoundarySetMap.h" />
     <ClInclude Include="src\gpu\datatype\Datatype.h" />
-    <ClInclude Include="src\gpu\DataType\Define.h" />
+    <ClInclude Include="src\gpu\datatype\DefineType.h" />
     <ClInclude Include="src\gpu\datatype\DeviceData.h" />
     <ClInclude Include="src\gpu\datatype\EdgeSoA.h" />
     <ClInclude Include="src\gpu\datatype\FieldSoA.h" />
     <ClInclude Include="src\gpu\datatype\ElementSoA.h" />
     <ClInclude Include="src\gpu\datatype\NodeSoA.h" />
+    <ClInclude Include="src\gpu\Env.h" />
     <ClInclude Include="src\gpu\GPUGlobalFunction.h" />
     <ClInclude Include="src\include\AMatrix\AMatrix.h" />
     <ClInclude Include="src\input\AirParameterConverter.h" />
@@ -144,6 +152,8 @@
     <ClInclude Include="src\space\restrict\RestrictGPU.h" />
     <ClInclude Include="src\space\RiemannSolver.h" />
     <ClInclude Include="src\time\CalculateDt.h" />
+    <ClInclude Include="src\time\CalculateDtGPU.h" />
+    <ClInclude Include="src\time\CIteration.h" />
     <ClInclude Include="src\time\Evolve.h" />
     <ClInclude Include="src\time\EvolveGPU.h" />
   </ItemGroup>
@@ -151,13 +161,14 @@
     <CudaCompile Include="src\gpu\datatype\DeviceData.cu" />
     <CudaCompile Include="src\gpu\datatype\FieldSoA.cu" />
     <CudaCompile Include="src\gpu\GPUGlobalFunction.cu" />
-    <CudaCompile Include="src\solvers\GPUSolver2.cu" />
+    <CudaCompile Include="src\solvers\GPUSolver2.cpp" />
     <CudaCompile Include="src\space\convection\LocalLaxFriedrichsGPU.cu" />
     <CudaCompile Include="src\space\convection\Roe.cpp" />
     <CudaCompile Include="src\space\convection\RoeGPU.cu" />
     <CudaCompile Include="src\space\FluxGPU.cu" />
     <CudaCompile Include="src\space\gradient\GradientGPU.cu" />
     <CudaCompile Include="src\space\restrict\RestrictGPU.cu" />
+    <CudaCompile Include="src\time\CalculateDtGPU.cu" />
     <CudaCompile Include="src\time\EvolveGPU.cu" />
   </ItemGroup>
   <PropertyGroup Label="Globals">

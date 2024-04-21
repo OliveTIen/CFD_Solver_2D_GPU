@@ -6,19 +6,7 @@
 #include "../../global/GlobalPara.h"
 #include "../../gpu/GPUGlobalFunction.h"
 
-void GPU::calculateGradient_old(GPU::ElementSoA& element_device, GPU::FieldSoA& elementField_device) {
-	int block_size = 512;// 最好是128 256 512
-	// num element = 10216
-	int grid_size = (element_device.num_element + block_size - 1) / block_size;
-	dim3 block(block_size, 1, 1);
-	dim3 grid(grid_size, 1, 1);
-	calculateGradientKernel_old <<<grid, block >>> (element_device, elementField_device);
-
-	catchCudaErrorAndExit();
-	// cudaDeviceSynchronize();放在外面
-}
-
-__global__ void GPU::calculateGradientKernel_old(GPU::ElementSoA& element_device, GPU::FieldSoA& elementField_device) {
+__global__ void calculateGradientKernel_old(GPU::ElementSoA element_device, GPU::FieldSoA elementField_device) {
 	// --- 计算单元梯度核函数 已完成 --- 
 	// 输入：单元坐标、单元U、单元邻居坐标、单元邻居U
 	// 输出：单元梯度
@@ -26,7 +14,7 @@ __global__ void GPU::calculateGradientKernel_old(GPU::ElementSoA& element_device
 	const int tid = threadIdx.x;
 	const int id = bid * blockDim.x + tid;
 	const int& i = id;
-	if (i >= *(element_device._num_element_) || i < 0) return;
+	if (i >= element_device.num_element || i < 0) return;
 
 	// 提取有效邻居
 	int nValidNeighbor = 0;
@@ -136,48 +124,21 @@ __global__ void GPU::calculateGradientKernel_old(GPU::ElementSoA& element_device
 	// 只需检查是否有±1e10量级的数
 }
 
-void GPU::Space::Gradient::Gradient_2(GPU::ElementSoA& element_device, GPU::FieldSoA& elementField_device, GPU::EdgeSoA& edge_device) {
-	int block_size = 512;// 最好是128 256 512
-	int grid_size = (element_device.num_element + block_size - 1) / block_size;
-
-	switch (GlobalPara::inviscid_flux_method::flag_gradient) {
-	case _GRA_leastSquare:
-		LogWriter::logAndPrintError("Unimplemented gradient type.\n");
-		exit(-1);
-		break;
-	case _GRA_greenGauss:
-		GradientGreenGauss(block_size, grid_size, element_device, elementField_device, edge_device);
-		break;
-
-	default:
-		LogWriter::logAndPrintError("invalid graident type.\n");
-		exit(-1);
-		break;
-	}
-}
-
-void GPU::Space::Gradient::GradientLeastSquare(int block_size, int grid_size, GPU::ElementSoA& element_device, GPU::FieldSoA& elementField_device, GPU::NodeSoA& node_device) {
-	dim3 block(block_size, 1, 1);
-	dim3 grid(grid_size, 1, 1);
-	GradientLeastSquareKernel <<<grid, block >>> (element_device, elementField_device, node_device);
-	catchCudaErrorAndExit();
-
-}
-
-__global__  void GPU::Space::Gradient::GradientLeastSquareKernel(GPU::ElementSoA element_host, GPU::FieldSoA elementField_host, GPU::NodeSoA node_host) {
+__global__ void GradientLeastSquareKernel(GPU::ElementSoA element_device, GPU::FieldSoA elementField_device, GPU::NodeSoA node_device) {
+	using namespace GPU;
 	const int bid = blockIdx.x;
 	const int tid = threadIdx.x;
 	const int iElement = bid * blockDim.x + tid;
 
-	if (iElement >= *(element_host._num_element_) || iElement < 0) return;
+	if (iElement >= element_device.num_element || iElement < 0) return;
 	
 	// 提取有效邻居
 	int numOfValidNeighbor = 0;
 	int validNeighbors[3]{ -1,-1,-1 };// 有效邻居的ID
 	const int neighborArraySize = 3;// 三角形单元，最多3个邻居
 	for (int j = 0; j < neighborArraySize; j++) {
-		if (element_host.neighbors[j][iElement] != -1) {
-			validNeighbors[numOfValidNeighbor] = element_host.neighbors[j][iElement];
+		if (element_device.neighbors[j][iElement] != -1) {
+			validNeighbors[numOfValidNeighbor] = element_device.neighbors[j][iElement];
 			numOfValidNeighbor += 1;
 		}
 	}
@@ -199,10 +160,10 @@ __global__  void GPU::Space::Gradient::GradientLeastSquareKernel(GPU::ElementSoA
 	// 初始化dX、dU
 	for (int iVN = 0; iVN < nVN; iVN++) {
 		int index = validNeighbors[iVN];// 邻居的ID
-		dX[iVN * nX + 0] = element_host.xy[0][index] - element_host.xy[0][iElement];
-		dX[iVN * nX + 1] = element_host.xy[1][index] - element_host.xy[1][iElement];
+		dX[iVN * nX + 0] = element_device.xy[0][index] - element_device.xy[0][iElement];
+		dX[iVN * nX + 1] = element_device.xy[1][index] - element_device.xy[1][iElement];
 		for (int iVar = 0; iVar < nVar; iVar++) {
-			dU[iVN * nVar + iVar] = elementField_host.U[iVar][index] - elementField_host.U[iVar][iElement];
+			dU[iVN * nVar + iVar] = elementField_device.U[iVar][index] - elementField_device.U[iVar][iElement];
 		}
 	}
 	// 最小二乘法计算dUdX，x=(A'A)^{-1}A'b，dUdX = inv(dXtrans * dX) * dXtrans * dU
@@ -227,9 +188,9 @@ __global__  void GPU::Space::Gradient::GradientLeastSquareKernel(GPU::ElementSoA
 	// 计算dX_node
 	for (int iNode = 0; iNode < nNode; iNode++) {
 		for (int iVar = 0; iVar < nVar; iVar++) {
-			int nodeID = element_host.nodes[iNode][iElement];
-			dX_node[iNode][0] = node_host.xy[0][nodeID] - element_host.xy[0][iElement];
-			dX_node[iNode][1] = node_host.xy[1][nodeID] - element_host.xy[1][iElement];
+			int nodeID = element_device.nodes[iNode][iElement];
+			dX_node[iNode][0] = node_device.xy[0][nodeID] - element_device.xy[0][iElement];
+			dX_node[iNode][1] = node_device.xy[1][nodeID] - element_device.xy[1][iElement];
 		}
 	}
 	// 计算dU_node[nNode,nVar] =  dX_node[nNode,nX] * dUdX[nX,nVar]，然后计算ratio
@@ -239,15 +200,15 @@ __global__  void GPU::Space::Gradient::GradientLeastSquareKernel(GPU::ElementSoA
 		for (int iVar = 0; iVar < nVar; iVar++) {
 			using namespace GPU::Math;
 			if (dU[iNode * nVar + iVar] == 0)continue;// 除零
-			ratio = max(ratio, abs(dU_node[iNode][iVar] / dU[iNode * nVar + iVar]));
+			ratio = GPU::Math::max(ratio, Math::abs(dU_node[iNode][iVar] / dU[iNode * nVar + iVar]));
 		}
 	}
 	// ratio一定大于等于1.0，因此可以直接除以ratio
 	GPU::Math::Matrix::div_matrix_by_scalar(nX, nVar, dUdX, ratio);
 	// 将dUdX存进单元
 	for (int jVar = 0; jVar < nVar; jVar++) {
-		elementField_host.Ux[jVar][iElement] = dUdX[0 * nVar + jVar];
-		elementField_host.Uy[jVar][iElement] = dUdX[1 * nVar + jVar];
+		elementField_device.Ux[jVar][iElement] = dUdX[0 * nVar + jVar];
+		elementField_device.Uy[jVar][iElement] = dUdX[1 * nVar + jVar];
 	}
 
 	delete[] dX;
@@ -259,19 +220,12 @@ __global__  void GPU::Space::Gradient::GradientLeastSquareKernel(GPU::ElementSoA
 
 }
 
-void GPU::Space::Gradient::GradientGreenGauss(int block_size, int grid_size, GPU::ElementSoA& element_device, GPU::FieldSoA& elementField_device, GPU::EdgeSoA& edge_device) {
-	dim3 block(block_size, 1, 1);
-	dim3 grid(grid_size, 1, 1);
-	GradientGreenGaussKernel <<<grid, block>>> (element_device, elementField_device, edge_device);
-	catchCudaErrorAndExit();
-}
-
-__global__ void GPU::Space::Gradient::GradientGreenGaussKernel(GPU::ElementSoA element, GPU::FieldSoA elementField, GPU::EdgeSoA edge) {
+__global__ void GradientGreenGaussKernel(GPU::ElementSoA element, GPU::FieldSoA elementField, GPU::EdgeSoA edge) {
 	/*
 	不能传element引用，因为引用本质是指针，而指针存储的是host地址，在device中找不到。也不能传值，因为会调用class默认构造函数，构造函数是host的，device无法调用
 	改为struct后，由于struct没有默认构造和析构函数，可以传值
 	*/
-
+	using namespace GPU;
 
 	const int iElement = blockIdx.x * blockDim.x + threadIdx.x;
 	if (iElement >= element.num_element || iElement < 0) return;
@@ -469,4 +423,51 @@ __global__ void GPU::Space::Gradient::GradientGreenGaussKernel(GPU::ElementSoA e
 		elementField.Uy[jVar][currentElementID] = nabla_phiC_new[1];
 		// 如果要迭代，需要等所有单元更新完毕，因此迭代循环要放在iElement循环外
 	}
+}
+
+void GPU::calculateGradient_old(GPU::ElementSoA& element_device, GPU::FieldSoA& elementField_device) {
+	int block_size = 512;// 最好是128 256 512
+	// num element = 10216
+	int grid_size = (element_device.num_element + block_size - 1) / block_size;
+	dim3 block(block_size, 1, 1);
+	dim3 grid(grid_size, 1, 1);
+	calculateGradientKernel_old <<<grid, block >>> (element_device, elementField_device);
+
+	catchCudaErrorAndExit();
+	// cudaDeviceSynchronize();放在外面
+}
+
+void GPU::Space::Gradient::Gradient_2(GPU::ElementSoA& element_device, GPU::FieldSoA& elementField_device, GPU::EdgeSoA& edge_device) {
+	int block_size = 512;// 最好是128 256 512
+	int grid_size = (element_device.num_element + block_size - 1) / block_size;
+
+	switch (GlobalPara::inviscid_flux_method::flag_gradient) {
+	case _GRA_leastSquare:
+		LogWriter::logAndPrintError("Unimplemented gradient type.\n");
+		exit(-1);
+		break;
+	case _GRA_greenGauss:
+		GradientGreenGauss(block_size, grid_size, element_device, elementField_device, edge_device);
+		break;
+
+	default:
+		LogWriter::logAndPrintError("invalid graident type.\n");
+		exit(-1);
+		break;
+	}
+}
+
+void GPU::Space::Gradient::GradientLeastSquare(int block_size, int grid_size, GPU::ElementSoA& element_device, GPU::FieldSoA& elementField_device, GPU::NodeSoA& node_device) {
+	dim3 block(block_size, 1, 1);
+	dim3 grid(grid_size, 1, 1);
+	GradientLeastSquareKernel <<<grid, block >>> (element_device, elementField_device, node_device);
+	catchCudaErrorAndExit();
+
+}
+
+void GPU::Space::Gradient::GradientGreenGauss(int block_size, int grid_size, GPU::ElementSoA& element_device, GPU::FieldSoA& elementField_device, GPU::EdgeSoA& edge_device) {
+	dim3 block(block_size, 1, 1);
+	dim3 grid(grid_size, 1, 1);
+	GradientGreenGaussKernel <<<grid, block>>> (element_device, elementField_device, edge_device);
+	catchCudaErrorAndExit();
 }

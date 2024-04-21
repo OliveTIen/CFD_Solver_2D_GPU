@@ -1,6 +1,6 @@
 #ifndef DEVICE_DATA_H
 #define DEVICE_DATA_H
-#include "Define.h"
+#include "DefineType.h"
 #include "../../global/Constexpr.h"
 /*
 有些数据只需要从CPU拷贝到GPU，而不需要拷回来，例如远场参数

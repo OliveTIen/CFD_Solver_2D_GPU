@@ -3,6 +3,7 @@
 #include "../../global/GlobalPara.h"
 #include "../../output/LogWriter.h"
 #include <cmath>
+#include "../../global/CExit.h"
 
 void U2NITS::Space::EigenValueAndVector4x4(REAL mat[4][4], REAL eigens[4], REAL R[4][4]) {
 	// 计算4x4矩阵的特征值和特征向量
@@ -448,12 +449,6 @@ void U2NITS::Space::ConvectRoeCommon2d(const REAL UL[4], const REAL UR[4], const
 	//	}
 	//}
 
-	// 在debug模式下，函数结束时会出现 Runtime check failure #2 the stack around ... was corrupted 问题
-	// 但release模式下没问题
-	// 将ruvpL和ruvpR设置为堆指针后，出现死循环，检查发现停留在delete[] ruvpL上
-	// 后缀无论是cu还是cpp都一样
-	// 而且“复制详细信息”时显示open clipboard failed
-	// 已解决：原来是U2ruvwp_host函数没有修改
 }
 
 void U2NITS::Space::RoeDissapationTerm2d(REAL gamma, REAL ruvpL[4], REAL ruvpR[4], const REAL faceNormal[2], REAL faceArea, bool bEntropyFix, REAL KEntropyFix[3], REAL pShockWaveSensor, REAL drRoe[4]) {
@@ -552,7 +547,7 @@ void U2NITS::Space::RoeDissapationTerm2d(REAL gamma, REAL ruvpL[4], REAL ruvpR[4
 	for (int i = 0; i < 4; i++) {
 		if (isnan(drRoe[i])) {
 			LogWriter::logAndPrintError("Error isnan(drRoe[i]) @U2NITS::Space::RoeDissapationTerm2d\n");
-			exit(-1);
+			CExit::saveAndExit(-1);
 		}
 	}
 

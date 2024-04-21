@@ -1,39 +1,48 @@
 
 #ifndef _BOUNDARY_SET_MAP_H_
 #define _BOUNDARY_SET_MAP_H_
-#include "Define.h"
+#include "DefineType.h"
+#include "../Env.h"
 namespace GPU {
 	struct BoundarySetMap {
 	public:
-		int size = 0;
-		int* _size_;// GPU使用
+		integer size = 0;
 
-		int* type{};
+		integer* type = nullptr;
+
+		// 以下两个待完成。存储各个边界有哪些edge。便于遍历边界边，进而积分气动力
+		//integer* numOfEdge = nullptr;
+		//integer** edge = nullptr;
+
+		// 主要是如果要用指针，传参比较麻烦，既要传num of boundary set，又要传每个set的edge的数量。但是
+		// 我不想立刻申请edge数量的内存，想等到复制时再传。
+		// 目前的妥协方式是先用BoundaryManager_2D
 	public:
-		void alloc(int _size) {
+		void alloc(integer _size) {
 			size = _size;
-			_size_ = new int;
-			*_size_ = size;
 
-			type = new int[size];
+			type = new integer[size];
+			//numOfEdge = new integer[size];
+			//for (integer i = 0; i < size; i++) {
+			//	numOfEdge[i]=new integer
+			//}
 		}
 		void free() {
-			delete _size_;
 
 			delete[] type;
+			//delete[] numOfEdge;
 		}
-		void cuda_alloc(int _size) {
+		void cuda_alloc(integer _size) {
 			size = _size;
-			cudaMalloc(&_size_, 1 * sizeof(int));
-			cudaMemcpy(_size_, &size, 1 * sizeof(int), ::cudaMemcpyHostToDevice);
 
-			cudaMalloc(&type, size * sizeof(int));
+			cudaMalloc(&type, size * sizeof(integer));
+			//cudaMalloc(&numOfEdge, size * sizeof(integer));
 		}
 
 		void cuda_free() {
-			cudaFree(_size_);
 
 			cudaFree(type);
+			//cudaFree(numOfEdge);
 		}
 
 		static void cuda_memcpy(BoundarySetMap* dist, const BoundarySetMap* src, cudaMemcpyKind kind);

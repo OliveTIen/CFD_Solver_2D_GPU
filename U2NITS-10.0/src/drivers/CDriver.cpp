@@ -1,29 +1,30 @@
 #include "CDriver.h"
 #include "../FVM_2D.h"
-#include "../solvers/GPUSolver2.h"
-#include "../input/CInput.h"
-#include "../output/COutput.h"
+#include "../math/Common.h"
+#include "../global/CExit.h"
+
+U2NITS::CDriver* U2NITS::CDriver::pCDriver = nullptr;
+
+U2NITS::CDriver* U2NITS::CDriver::getInstance() {
+	if (pCDriver == nullptr) {
+		pCDriver = new CDriver;
+	}
+	return pCDriver;
+}
 
 
-void U2NITS::CDriver::run_current() {
 
-/*
-[开发中]以下为GPU代码
+void U2NITS::CDriver::run() {
 
-*/
-	
-	CInput input;
-	COutput out;
-	GPU::GPUSolver2 solver;
-
-	out.console.printWelcome_2();
+	out.console.printWelcomeInterface();
 	input.readConfig();
-	input.readField_old();
-
-	solver.initialize();
+	input.readField_1();
+	solver.allocateMemory();
+	solver.initializeData_byOldData();
 	// 部分控制参数的引用。需要在readConfig后使用，否则未初始化
-	const int istep_previous = GlobalPara::time::istep_previous;// 已计算步
+	const int istep_start = GlobalPara::time::istep_previous;// 已计算步
 	const int maxIteration = GlobalPara::output::maxIteration;// 目标步
+	int istep = istep_start;
 	double t = GlobalPara::time::t_previous;// 当前物理时间
 	const double T = GlobalPara::time::max_physical_time;
 
@@ -31,7 +32,8 @@ void U2NITS::CDriver::run_current() {
 	out.hist.setFilePath(out.getDir() + GlobalPara::basic::filename + "_hist.dat");
 	out.timer.start();// 计时
 	out.console.setClearStartPosition();
-	for (int istep = istep_previous; ; istep++) {// 循环终止条件见signal
+	while (true) {// 循环终止条件见signal
+		istep++;
 		// 更新文件名
 		out.updateFileName(istep);
 		solver.iteration(t, T);
@@ -43,11 +45,8 @@ void U2NITS::CDriver::run_current() {
 		if (sp.b_print) {
 			solver.getResidual();
 			out.console.clear();
-			out.console.drawProgressBar(int(double(istep) / double(maxIteration) * 100.0));
-
-			double calculateTime = out.timer.getIime();
-			double calculateSpeed = ((istep - istep_previous) / calculateTime);
-			out.console.assemblySolveInfo(calculateTime, istep, maxIteration, calculateSpeed, out.field.getNumTecplotFileWritten(), t, T, solver.residualVector);
+			out.console.drawProgressBar((double)istep, (double)maxIteration, 45);
+			out.console.setSolveInfo(istep_start, istep, maxIteration, out.field.getNumTecplotFileWritten(), out.timer.getIime(), t, T, solver.residualVector);
 			out.console.print(out.console.getSolveInfo());
 		}
 		// 写文件操作
@@ -58,13 +57,13 @@ void U2NITS::CDriver::run_current() {
 				out.continueFilePath = out.continueFilePath_nan;
 			}
 			if (sp.b_writeContinue) {
-				out.field.writeContinueFile_GPU(
+				out.field.writeContinueFile_1(
 					istep, t, out.continueFilePath,
-					solver.node_host, solver.element_host, solver.elementField_host
+					solver.node_host, solver.element_host, solver.elementField_host.U
 				);
 			}
 			if (sp.b_writeTecplot) {
-				out.field.writeTecplotFile_GPU(t, out.tecplotFilePath, "title", solver.node_host, solver.element_host, solver.outputNodeField);
+				out.field.writeTecplotFile_1(t, out.tecplotFilePath, "title", solver.node_host, solver.element_host, solver.outputNodeField);
 			}
 		}
 		if (sp.b_writeHist) {
@@ -78,26 +77,19 @@ void U2NITS::CDriver::run_current() {
 			out.log.logAndPrintSignalInfo(sp.pauseSignal);// 提示词 放在写文件之后，防止卡顿
 			break;// 不可放进单独函数中，因为要终止循环
 		}
+		updateOldData(istep, t);
 	}
 
 	// 释放资源
 	solver.freeMemory();
 
 	// 停止
-#ifdef _WIN32
-	system("pause");
-#elif defined __linux__
-	getchar();
-#endif
+	CExit::pressAnyKeyToExit();
 
 	/*
 步骤：（优化后）
-读取配置（控制参数） CInput.readConfig()
-初始化流场：读取续算文件/读取网格文件+初始化 CInput.readField()
-输出初始信息（程序信息、边界参数等）COutput.printScreen()
-输出残差文件头 COutput.writeHistFileHead() 该判断放到函数中去
-计时器开始 CTimer.start()
-初始化资源（GPU内存）CSolver.initialize()
+
+
 迭代开始
 	计算（流场和残差） CSolver.iterate() 残差仅需输出时计算
 	更新输出信息（包括文件名、下一次光标位置、输出进度）COutput.update()调用(COutput.updateData COutput.printScreen())
@@ -106,15 +98,27 @@ void U2NITS::CDriver::run_current() {
 	输出结束信息（提示词）COutput.updateScreen()
 释放资源 CSolver.finalize()
 
-为什么要多线程：
-磁盘IO操作比较耗时，此时CPU空闲，可以提高效率
-一次IO操作耗时相当于2~3次迭代；网格量增加时，IO和计算时间都会增加
-掌握多线程知识
-用消息传递的方式输出信息
-
 	*/
 
 }
+
+void U2NITS::CDriver::saveAndExit(int _Code) {
+	getInstance()->m_saveAndExit(_Code);
+}
+
+void U2NITS::CDriver::m_saveAndExit(int _Code) {
+	if (!solver.isIterationStarted()) {// 迭代未开始，不用输出文件
+		exit(_Code);
+	}
+
+	out.updateFileName(m_last_istep);
+	out.field.writeContinueFile_1(
+		m_last_istep, m_last_t, out.continueFilePath,
+		solver.node_host, solver.element_host, solver.element_U_old
+	);
+	exit(_Code);
+}
+
 
 U2NITS::CDriver::SignalPack U2NITS::CDriver::emitSignalPack(int istep, int maxIteration, real t, real T, real residualRho) {
 	SignalPack s;
@@ -152,7 +156,7 @@ U2NITS::CDriver::SignalPack U2NITS::CDriver::emitSignalPack(int istep, int maxIt
 		s.b_writeTecplot = true;
 		s.pauseSignal = _TimeReached;
 	}
-	else if (residualRho <= GlobalPara::constant::epsilon) {// 残差足够小，终止
+	else if (residualRho <= U2NITS::Math::EPSILON) {// 残差足够小，终止
 		s.b_writeContinue = true;
 		s.b_writeTecplot = true;
 		s.pauseSignal = _StableReached;
@@ -164,3 +168,4 @@ U2NITS::CDriver::SignalPack U2NITS::CDriver::emitSignalPack(int istep, int maxIt
 void U2NITS::CDriver::onSignalPack(const SignalPack& sp) {
 
 }
+

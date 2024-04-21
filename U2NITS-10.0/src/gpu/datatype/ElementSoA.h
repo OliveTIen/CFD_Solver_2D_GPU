@@ -1,7 +1,8 @@
 #ifndef _ELEMENT_SOA_H_
 #define _ELEMENT_SOA_H_
 
-#include "Define.h"
+#include "DefineType.h"
+#include "../Env.h"
 /*
 ElementSoA中有两种数据，一种是基本不变的数据，如ID、节点、边、邻居等，
 另一种是变化的数据，如U、Ux、Uy、Flux等。
@@ -14,7 +15,6 @@ namespace GPU {
 	struct ElementSoA {
 	public:
 		integer num_element = 0;
-		integer* _num_element_;// GPU使用
 
 		integer* ID;
 		integer* nodes[4];
@@ -32,8 +32,6 @@ namespace GPU {
 	public:
 		void alloc(integer _num_element) {
 			num_element = _num_element;
-			_num_element_ = new integer;
-			*_num_element_ = num_element;
 			ID = new integer[num_element];
 			for (integer i = 0; i < 4; i++) {
 				nodes[i] = new integer[num_element];
@@ -50,7 +48,6 @@ namespace GPU {
 		}
 
 		void free() {
-			delete _num_element_;
 			delete[] ID;
 			for (integer i = 0; i < 4; i++) {
 				delete[] nodes[i];
@@ -68,8 +65,6 @@ namespace GPU {
 
 		void cuda_alloc(integer _num_element) {
 			num_element = _num_element;
-			cudaMalloc(&_num_element_, 1 * sizeof(integer));
-			cudaMemcpy(_num_element_, &num_element, 1 * sizeof(integer), ::cudaMemcpyHostToDevice);
 
 			cudaMalloc(&ID, num_element * sizeof(integer));
 			for (integer i = 0; i < 4; i++) {
@@ -87,7 +82,6 @@ namespace GPU {
 		}
 
 		void cuda_free() {
-			cudaFree(_num_element_);
 			cudaFree(ID);
 			for (integer i = 0; i < 4; i++) {
 				cudaFree(nodes[i]);

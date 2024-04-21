@@ -6,7 +6,6 @@
 #include <iostream>
 
 namespace U2NITS {
-
 	namespace Time {
 		real calculateGlobalDt(
 			real t, real T, real gamma, real Re, real Pr, real CFL, real Rcpcv, 

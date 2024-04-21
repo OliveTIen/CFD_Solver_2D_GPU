@@ -10,6 +10,8 @@
 #include "../output/LogWriter.h"
 #include "../output/ConsolePrinter.h"
 #include "ContinueFileReader.h"
+#include "../global/CExit.h"
+#include "../global/StringProcessor.h"
 
 
 void U2NITS::CInput::readConfig() {
@@ -19,11 +21,11 @@ void U2NITS::CInput::readConfig() {
 
 	if (GlobalPara::basic::dimension != 2) {
 		LogWriter::logAndPrintError("invalid dimension type.\n");
-		exit(2);
+		CExit::saveAndExit(2);
 	}
 	if (GlobalPara::physicsModel::equation != _EQ_euler) {
 		LogWriter::logAndPrintError("Invalid equation type.\n");
-		exit(_EQ_euler);
+		CExit::saveAndExit(_EQ_euler);
 	}
 	if (GlobalPara::basic::useGPU == 0) {
 		LogWriter::logAndPrint("use CPU.\n");
@@ -39,11 +41,11 @@ void U2NITS::CInput::readConfig() {
 	}
 	else {
 		LogWriter::logAndPrintError("invalid useGPU value.\n");
-		exit(1);
+		CExit::saveAndExit(1);
 	}
 }
 
-void U2NITS::CInput::readField_old() {
+void U2NITS::CInput::readField_1() {
 
 	//// 初始化
 	// 尝试读取续算文件。若读取失败或者_continue==false则从头开始
@@ -89,11 +91,26 @@ void U2NITS::CInput::readField_old() {
 	}
 
 	// 日志记录边界参数
+	auto writeBoundaryCondition = [] (double* inlet_ruvp, double* outlet_ruvp, double* inf_ruvp, const int num_ruvp)->void{
+		std::string str;
+		str += "BoundaryCondition:\n";
+		str += "inlet::ruvp\t" + StringProcessor::doubleArray_2_string(inlet_ruvp, num_ruvp)
+			+ "\noutlet::ruvp\t" + StringProcessor::doubleArray_2_string(outlet_ruvp, num_ruvp)
+			+ "\ninf::ruvp\t" + StringProcessor::doubleArray_2_string(inf_ruvp, num_ruvp)
+			+ "\n";
+		LogWriter::log(str);
+	};
 	using namespace GlobalPara::boundaryCondition::_2D;
-	LogWriter::writeBoundaryCondition(inlet::ruvp, outlet::ruvp, inf::ruvp, 4);
+	writeBoundaryCondition(inlet::ruvp, outlet::ruvp, inf::ruvp, 4);
 }
 
 void U2NITS::CInput::readField_2_unused() {
+	/*
+	读取网格文件，
+	法一：读到单元数量那一行后，就可以开辟solver中单元的内存空间。缺点是你无法保证这个数字是否正确
+	法二：先用std::vector一个一个push。完成后，开辟solver数据的内存并初始化，然后删除临时的std::vector
+	*/
+
 	bool startFromZero = false;
 	if (GlobalPara::basic::_continue) {
 		int flag_readContinue = ContinueFileReader::readContinueFile_2();
@@ -123,12 +140,9 @@ void U2NITS::CInput::readField_2_unused() {
 		}
 		if (flag_readMesh != 0) {
 			LogWriter::logAndPrintError("Fail to read mesh. Program will exit.\n");
-			exit(-3);//退出
+			CExit::saveAndExit(-3);//退出
 		}
 		FieldInitializer::setInitialAndBoundaryCondition();
 
 	}
-	// 日志记录边界参数
-	using namespace GlobalPara::boundaryCondition::_2D;
-	LogWriter::writeBoundaryCondition(inlet::ruvp, outlet::ruvp, inf::ruvp, 4);
 }

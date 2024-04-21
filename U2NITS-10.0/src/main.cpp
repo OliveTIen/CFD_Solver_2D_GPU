@@ -1,15 +1,8 @@
 ﻿#include "drivers/CDriver.h"
-//#include "global/GlobalPara.h"
-//#include "global/FilePathManager.h"
-//#include "global/SystemInfo.h"
-//#include "input/TomlFileManager.h"
-//#include "output/ConsolePrinter.h"
-//#include "output/LogWriter.h"
-//#include <stdlib.h>
 using namespace std;
 
 int main() {
-	U2NITS::CDriver::run_current();
+	U2NITS::CDriver::getInstance()->run();
 	return 0;
 }
 

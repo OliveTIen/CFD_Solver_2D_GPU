@@ -177,4 +177,7 @@ void U2NITS::OldDataConverter::ConvertBoundary(int num_boundary) {
 	for (int i = 0; i < num_boundary; i++) {
 		boundary_host.type[i] = boundaryManager.boundaries[i].type;
 	}
+
+	// 初始化wall边界的单元GPUID。积分表面气动力时需要遍历某边界的单元
+
 }

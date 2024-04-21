@@ -40,8 +40,6 @@ public:
 	};
 
 public:
-	// 原
-	static int readFile(std::string filePath, bool convertRectToTriangle);
 	// readFile的拆分版，拆成两个子函数
 	static int readFile_2(std::string filePath, bool convertRectToTriangle);
 	static int readMesh(std::string filePath, bool convertRectToTriangle, int& maxNodeID, int& maxElementID, std::vector<SimpleBoundary>& tmp_boudaries);

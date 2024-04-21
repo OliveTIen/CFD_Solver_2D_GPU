@@ -38,7 +38,6 @@ public:
 	static void printWarning(std::string content);
 	static void logAndPrintWarning(std::string content);
 
-	static void writeBoundaryCondition(double* inlet_ruvp, double* outlet_ruvp,double* inf_ruvp, int num_ruvp);
 	static void logAndPrintSignalInfo(int signal);
 };
 

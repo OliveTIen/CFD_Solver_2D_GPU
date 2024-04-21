@@ -5,6 +5,7 @@
 #include "../global/StringProcessor.h"
 #include "restrict/Restrict.h"
 #include "../output/LogWriter.h"
+#include "../boundary_condition/CBoundaryDoubleShockReflect.h"
 
 
 void U2NITS::Space::Flux::calculateFluxHost(ElementSoA& element_host, EdgeSoA& edge_host, FieldSoA& elementField_host /*, std::map<int, int>& edge_periodic_pair*/ ) {
@@ -25,8 +26,6 @@ void U2NITS::Space::Flux::calculateFluxHost(ElementSoA& element_host, EdgeSoA& e
 
     // 每条边计算无粘通量，然后根据方向分别加减给两侧单元的Flux。所有边遍历后，所有单元的Flux也就计算出来了
     for (int iedge = 0; iedge < edge_host.num_edge; iedge++) {
-
-
 
         FVM_2D* f = FVM_2D::getInstance();
         int elementL = edge_host.elementL[iedge];
@@ -49,38 +48,42 @@ void U2NITS::Space::Flux::calculateFluxHost(ElementSoA& element_host, EdgeSoA& e
         //}
 
         switch (bType) {
-            //对称。对欧拉方程，相当于无粘固壁
         case _BC_symmetry:
-            Space::Flux::getEdgeFlux_wallNonViscous(element_host, elementField_host, edge_host, iedge, flux);
+            // 对称。对欧拉方程，相当于无粘固壁
+            getEdgeFlux_wallNonViscous(element_host, elementField_host, edge_host, iedge, flux);
             break;
-            //无粘固壁
         case _BC_wall_nonViscous:
-            Space::Flux::getEdgeFlux_wallNonViscous(element_host, elementField_host, edge_host, iedge, flux);
+            // 无粘固壁
+            getEdgeFlux_wallNonViscous(element_host, elementField_host, edge_host, iedge, flux);
             break;
-            //无滑移绝热
         case _BC_wall_adiabat:
-            // TODO: 实现无滑移绝热边界条件的计算
-            Space::Flux::getEdgeFlux_wall_adiabat(element_host, elementField_host, edge_host, iedge, flux);
+            // 无滑移绝热
+            getEdgeFlux_wall_adiabat(element_host, elementField_host, edge_host, iedge, flux);
             break;
-            //入口
         case _BC_inlet:
-            Space::Flux::getEdgeFlux_farField(element_host, elementField_host, edge_host, iedge,
+            // 入口
+            getEdgeFlux_farField_3(element_host, elementField_host, edge_host, iedge,
                 GlobalPara::boundaryCondition::_2D::inlet::ruvp, flux);
             break;
-            //出口
         case _BC_outlet:
-            Space::Flux::getEdgeFlux_farField(element_host, elementField_host, edge_host, iedge,
+            // 出口
+            getEdgeFlux_farField_3(element_host, elementField_host, edge_host, iedge,
                 GlobalPara::boundaryCondition::_2D::outlet::ruvp, flux);
             break;
-            //远场
         case _BC_inf:
-            Space::Flux::getEdgeFlux_farField(element_host, elementField_host, edge_host, iedge,
+            // 远场
+            getEdgeFlux_farField_3(element_host, elementField_host, edge_host, iedge,
                 GlobalPara::boundaryCondition::_2D::inf::ruvp, flux);
+            break;
+        case _BC_doubleShockReflect:
+            // 双马赫反射
+            getEdgeFlux_farField_doubleShockReflect(element_host, elementField_host, edge_host, iedge, flux);
+
             break;
         default:// 内部：bType=-1，边界：bType取_BC_periodic_0到_BC_periodic_9，即6100-6109
             if (elementR != -1) {
                 // 周期和内部 统一处理
-                Space::Flux::getEdgeFlux_inner_and_periodic(element_host, elementField_host, edge_host, iedge, flux);
+                getEdgeFlux_inner_and_periodic(element_host, elementField_host, edge_host, iedge, flux);
             }
         }
 
@@ -192,7 +195,7 @@ void U2NITS::Space::Flux::getEdgeFlux_farField(ElementSoA& element, FieldSoA& el
     
     constexpr bool useNew = true;
     if (useNew) {
-        getEdgeFlux_farField_2(element, elementField, edge, idx, ruvp_inf, flux);
+        getEdgeFlux_farField_3(element, elementField, edge, idx, ruvp_inf, flux);
         return;
     }
 
@@ -217,7 +220,7 @@ void U2NITS::Space::Flux::getEdgeFlux_farField(ElementSoA& element, FieldSoA& el
         ss << "ElementL=" << iElementL << ", x_edge=" << x_edge << ", y_edge=" << y_edge << ", ";
         ss << "edge=" << idx << ", ";
         ss << "ruvp_L=" << StringProcessor::doubleArray_2_string(ruvp_L, 4) << std::endl;
-        ss << "(U2NITS::Space::Flux::getEdgeFlux_farField)\n";
+        ss << "(U2NITS::Space::Flux::getEdgeFlux_farField_kernel)\n";
         LogWriter::logAndPrintError(ss.str());
     }
 
@@ -231,17 +234,16 @@ void U2NITS::Space::Flux::getEdgeFlux_farField(ElementSoA& element, FieldSoA& el
 
 void U2NITS::Space::Flux::getEdgeFlux_farField_2(ElementSoA& element_host, FieldSoA& elementField_host, EdgeSoA& edge_host, long iEdge, REAL* ruvp_inf, REAL* flux) {
     /*
-    2024-04-12 原来的远场边界有问题，无论是激波管还是翼型，远场边界都表现类似固壁边界，即速度为0，仿佛被堵住
-
-    由于激波管在初始化时，内外状态均相同，因此计算得到的Uboundary也跟内状态相同，因此flux=0
-
+    20240412 原来的远场边界有问题
+    20240415 判据有问题，不能用远场作为判据。请参见UNITs: BC/BC_far.f90: subroutine BC_farbound
+    新建函数farField_3进行修改
     */
 
     if (!edge_host.has(iEdge)) {
         LogWriter::logAndPrintError("iEdge" + std::to_string(iEdge) + " out of range.\n");
         exit(-1);
     }
-    // 远场参数
+    // 远场参数 inf
     real nx = edge_host.normal[0][iEdge];
     real ny = edge_host.normal[1][iEdge];
     real gamma = GlobalPara::constant::gamma;
@@ -250,70 +252,187 @@ void U2NITS::Space::Flux::getEdgeFlux_farField_2(ElementSoA& element_host, Field
     real v_inf = ruvp_inf[2];
     real p_inf = ruvp_inf[3];
     real un_inf = u_inf * nx + v_inf * ny;
-    real a2 = gamma * p_inf / rho_inf;
-    real Ma2 = (u_inf * u_inf + v_inf * v_inf) / a2;
-    real Man2 = (un_inf * un_inf) / a2;
-    // 内单元参数
-    real UL[4];
+    real a2_inf = gamma * p_inf / rho_inf;
+    real Ma2_inf = (u_inf * u_inf + v_inf * v_inf) / a2_inf;
+    real Man2_inf = (un_inf * un_inf) / a2_inf;
+
+    // 内单元参数 domain 变量脚标d表示domain
+    real U_d[4]{};
     integer element_inner = edge_host.elementL[iEdge];
     for (int i = 0; i < 4; i++) {
-        UL[i] = elementField_host.U[i][element_inner];
+        U_d[i] = elementField_host.U[i][element_inner];
     }
-    // 求边界U
-    real Uboundary[4]{};
-    bool isGlobalSuperSonic = (Ma2 > 1);
-    bool isNormalSuperSonic = (Man2 > 1);
-    bool isInlet = (un_inf < 0);
-    if (isNormalSuperSonic) {
+    real ruvp_d[4]{};
+    Math::U2ruvp_host(U_d, ruvp_d, gamma);
+    real rho_d = ruvp_d[0];
+    real u_d = ruvp_d[1];
+    real v_d = ruvp_d[2];
+    real p_d = ruvp_d[3];
+    real un_d = u_d * nx + v_d * ny;
+    real a2_d = gamma * p_d / rho_d;
+    real Ma2_d = (u_d * u_d + v_d * v_d) / a2_d;
+    real Man2_d = (un_d * un_d) / a2_d;
+
+    // 边界参数 boundary 待求
+    bool isFarfieldSuperSonic = (Ma2_inf > 1);// 列出以下参数是为了测试哪个更适合作为判据
+    bool isFarfieldNormalSuperSonic = (Man2_inf > 1);
+    bool isDomainSuperSonic = (Ma2_d > 1);
+    bool isDomainNormalSuperSonic = (Man2_d > 1);
+    bool isFarfieldInlet = (un_inf < 0);
+    bool isDomainInlet = (un_d < 0);
+    bool isSuperSonic = isDomainNormalSuperSonic;
+    bool isInlet = isDomainInlet;
+    real U_b[4]{};// U at boundary edge
+    if (isSuperSonic) {
         if (isInlet) {
-            Math::ruvp2U_host(ruvp_inf, Uboundary, gamma);
+            Math::ruvp2U_host(ruvp_inf, U_b, gamma);
         }
         else {
             for (int i = 0; i < 4; i++) {
-                Uboundary[i] = UL[i];
+                U_b[i] = U_d[i];
             }
         }
     }
     else {
-        real ruvpL[4]{};
-        Math::U2ruvp_host(UL, ruvpL, gamma);
-        real rhoa = rho_inf;
-        real ua = u_inf;
-        real va = v_inf;
-        real pa = p_inf;
-        real rhod = ruvpL[0];
-        real ud = ruvpL[1];
-        real vd = ruvpL[2];
-        real pd = ruvpL[3];
-        real rho0 = rhod;// 参考 CFDPA P264 reference state
-        real c02 = gamma * pd / rhod;
+        // 参考 CFDPA P264 reference state
+        real rho_a = rho_inf;// 脚标改为a，和书中保持一致，便于校对
+        real u_a = u_inf;
+        real v_a = v_inf;
+        real p_a = p_inf;
+
+        real rho0 = rho_d;
+        real c02 = gamma * p_d / rho_d;
         real c0 = sqrt(c02);
         real rho0c0 = rho0 * c0;
 
         if (isInlet) {
-            real pb = 0.5 * (pa + pd - rho0c0 *
-                (nx*(ua-ud)+ny*(va-vd)) );
-            real pa_pb = pa - pb;
-            real rhob = rhoa + (-pa_pb) / c02;
-            real ub = ua - nx * pa_pb / rho0c0;
-            real vb = va - ny * pa_pb / rho0c0;
-            real ruvp_b[4]{ rhob,ub,vb,pb };
-            Math::ruvp2U_host(ruvp_b, Uboundary, gamma);
+            real p_b = 0.5 * (p_a + p_d - rho0c0 *
+                (nx*(u_a-u_d)+ny*(v_a-v_d)) );
+            real pa_pb = p_a - p_b;
+            real rho_b = rho_a + (-pa_pb) / c02;
+            real u_b = u_a - nx * pa_pb / rho0c0;
+            real v_b = v_a - ny * pa_pb / rho0c0;
+            real ruvp_b[4]{ rho_b,u_b,v_b,p_b };
+            Math::ruvp2U_host(ruvp_b, U_b, gamma);
         }
         else {
-            real pb = pa;
-            real pd_pb = pd - pb;
-            real rhob = rhod + (-pd_pb) / c02;
-            real ub = ud + nx * pd_pb / rho0c0;
-            real vb = vd + ny * (pd_pb) / rho0c0;
-            real ruvp_b[4]{ rhob,ub,vb,pb };
-            Math::ruvp2U_host(ruvp_b, Uboundary, gamma);
+            real p_b = p_a;
+            real pd_pb = p_d - p_b;
+            real rho_b = rho_d + (-pd_pb) / c02;
+            real u_b = u_d + nx * pd_pb / rho0c0;
+            real v_b = v_d + ny * (pd_pb) / rho0c0;
+            real ruvp_b[4]{ rho_b,u_b,v_b,p_b };
+            Math::ruvp2U_host(ruvp_b, U_b, gamma);
         }
     }
     // 计算flux
     real length = edge_host.length[iEdge];
-    RiemannSolve(UL, Uboundary, nx, ny, length, flux,
+    RiemannSolve(U_d, U_b, nx, ny, length, flux,
         GlobalPara::inviscid_flux_method::flux_conservation_scheme);
+}
+
+void U2NITS::Space::Flux::getEdgeFlux_farField_3(ElementSoA& element_host, FieldSoA& elementField_host, EdgeSoA& edge_host, integer iEdge, REAL* ruvp_inf, REAL* flux) {
+    /*
+    参照UNITs和李启兵课件
+    以亚声速入口为例，先由内点外推边界点的估计值，
+    再建立边界点数值解与估计值的特征相容关系
+    解出边界声速，进而得到压力数值解
+    */
+
+    if (!edge_host.has(iEdge)) {
+        LogWriter::logAndPrintError("iEdge" + std::to_string(iEdge) + " out of range.\n");
+        exit(-1);
+    }
+    // 远场值
+    real nx = edge_host.normal[0][iEdge];
+    real ny = edge_host.normal[1][iEdge];
+    real gamma = GlobalPara::constant::gamma;
+    real ga1 = gamma - 1;
+    real rho_f = ruvp_inf[0];
+    real u_f = ruvp_inf[1];
+    real v_f = ruvp_inf[2];
+    real p_f = ruvp_inf[3];
+    
+    // 内点值，或边界参数估计值 此处用单元中心值作为估计值
+    real U_e[4]{};
+    integer element_inner = edge_host.elementL[iEdge];
+    for (int i = 0; i < 4; i++) {
+        U_e[i] = elementField_host.U[i][element_inner];
+    }
+    real ruvp_e[4]{};
+    Math::U2ruvp_host(U_e, ruvp_e, gamma);
+    real rho_e = ruvp_e[0];
+    real u_e = ruvp_e[1];
+    real v_e = ruvp_e[2];
+    real p_e = ruvp_e[3];
+
+    // 特征相容关系
+    real a2_f = gamma * p_f / rho_f;
+    real af = sqrt(a2_f);// 远场声速
+    real Ma2_f = (u_f * u_f + v_f * v_f) / a2_f;// 远场马赫数平方
+    real ae = sqrt(gamma * p_e / rho_e);// 内点声速
+    real qnf = u_f * nx + v_f * ny;// 远场法向速度
+    real qne = u_e * nx + v_e * ny;// 内点法向速度
+    real rf = qnf - 2.0 * af / ga1;// 第一波特征 R2 = u0n - 2*a0n/(gamma-1)
+    real re = qne + 2.0 * ae / ga1;// 第二波特征 u0n - 2*a0n/(gamma-1)
+    real qn = 0.5 * (re + rf);
+    real as = ga1 * (re - rf) / 4.0;
+    real dnt = 0;// 壁面运动速度
+
+    // 判据 q<=-as，超音速入口；-as<q<0，亚音速入口；0<=q<as，亚音速出口；as<=q，超音速出口
+    real rho0 = 1, u0 = 0, v0 = 0, p0 = 1;
+    if (qn <= -as) {
+        // 超音速入口
+        rho0 = rho_f;
+        u0 = u_f;
+        v0 = v_f;
+        p0 = p_f;
+    }
+    else if (qn < 0) {
+        // -as < qn < 0 注意C++中不能连续写小于号
+        // 亚音速入口 参照UNITs。
+        real son = p_f / pow(rho_f, gamma);// 熵
+        real qtx = u_f - qnf * nx;
+        real qty = v_f - qnf * ny;
+
+        rho0 = pow((as * as / son / gamma), 1.0 / ga1);// 根据S=p/rho^gamma得rho=(p/S)^(1/gamma)=(a2/gamma/S)^(1/gamma)
+        u0 = qtx + qn * nx;
+        v0 = qty + qn * ny;
+        p0 = as * as * rho0 / gamma;// p=rho*R*t=rho/gamma*gamma*R*t=rho/gamma*a2
+    }
+    else if (qn < as) {
+        // 0 <= qn < as
+        // 亚音速出口 
+        real son = p_e / pow(rho_e, gamma);
+        real qtx = u_e - qne * nx;
+        real qty = v_e - qne * ny;
+
+        // 后面跟亚音速入口相同
+        rho0 = pow((as * as / son / gamma), 1.0 / ga1);
+        u0 = qtx + qn * nx;
+        v0 = qty + qn * ny;
+        p0 = as * as * rho0 / gamma;
+    }
+    else {
+        // as <= q
+        // 超音速出口
+        rho0 = rho_e;
+        u0 = u_e;
+        v0 = v_e;
+        p0 = p_e;
+    }
+    real ruvp0[4]{ rho0,u0,v0,p0 };
+    // 计算flux
+    real U0[4]{};
+    Math::ruvp2U_host(ruvp0, U0, gamma);
+    if (Restrict::outOfRange(ruvp0)) {
+        LogWriter::logAndPrintError("Out of range @U2NITS::Space::Flux::getEdgeFlux_farField_3 \n");
+    }
+
+    real length = edge_host.length[iEdge];
+    RiemannSolve(U_e, U0, nx, ny, length, flux,
+        GlobalPara::inviscid_flux_method::flux_conservation_scheme);
+
 }
 
 void U2NITS::Space::Flux::modify_ruvpL_farField(const REAL nx, const REAL ny, REAL* ruvp, const REAL* ruvp_inf) {
@@ -340,19 +459,17 @@ void U2NITS::Space::Flux::modify_ruvpL_farField(const REAL nx, const REAL ny, RE
     const REAL u_n_inf = u_inf * nx + v_inf * ny;
     const REAL v_n_inf = -u_inf * ny + v_inf * nx;//此处有修改
 
-    //if (rho_n < 0)system("pause");
+    
     REAL a_n2 = gamma * p_n / rho_n;
     if (a_n2 < 0) {
         std::cout << "Error: a_n2 < 0\n";  
-        //system("pause"); 
-        //exit(-1); 
+        
     }
     const REAL a_n = sqrt(a_n2);
     REAL a_n_inf2 = gamma * p_n_inf / rho_n_inf;
     if (a_n_inf2 < 0) {
         std::cout << "Error: a_n_inf2 < 0\n";  
-        //system("pause");
-        //exit(-1); 
+        
     }
     const REAL a_n_inf = sqrt(a_n_inf2);
 
@@ -431,7 +548,7 @@ void U2NITS::Space::Flux::getEdgeFlux_inner_and_periodic(ElementSoA& element, Fi
         // 法二 用edge存储
         int ID_pair = edge.periodicPair[ID];
         if (ID_pair < 0 || ID_pair >= edge.num_edge) {
-            LogWriter::logAndPrintError("periodicPairNotFoundException, @GPU::Space::Flux::getEdgeFlux_inner_and_periodic\n");
+            LogWriter::logAndPrintError("periodicPairNotFoundException, @GPU::Space::Flux::getEdgeFlux_inner_and_periodic_kernel\n");
             exit(-1);
         }
 
@@ -478,7 +595,25 @@ void U2NITS::Space::Flux::getUByXYandElementID(ElementSoA& element, FieldSoA& el
         }
     }
     else {
-        LogWriter::logAndPrintError("implemented. @getUByXYandElementID.\n");
+        LogWriter::logAndPrintError("implemented. @getUByXYandElementID_kernel.\n");
+    }
+}
+
+void U2NITS::Space::Flux::getEdgeFlux_farField_doubleShockReflect(ElementSoA& element_host, FieldSoA& elementField_host, EdgeSoA& edge_host, integer iEdge, REAL* flux) {
+    /*
+    计算边界元是位于上游还是下游，并分别用入口和出口的参数作为远场边界参数
+    */
+    real edgex = edge_host.xy[0][iEdge];
+    real edgey = edge_host.xy[1][iEdge];
+    CBoundaryDoubleShockReflect* pCDS = CBoundaryDoubleShockReflect::getInstance();
+    bool isUpStream = pCDS->isUpStreamOfShock_atBoundary(edgex, edgey, pCDS->get_t_plus_dt());
+    if (isUpStream) {
+        Space::Flux::getEdgeFlux_farField_3(element_host, elementField_host, edge_host, iEdge,
+            GlobalPara::boundaryCondition::_2D::inlet::ruvp, flux);
+    }
+    else {
+        Space::Flux::getEdgeFlux_farField_3(element_host, elementField_host, edge_host, iEdge,
+            GlobalPara::boundaryCondition::_2D::outlet::ruvp, flux);
     }
 }
 

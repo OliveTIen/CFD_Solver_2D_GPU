@@ -5,6 +5,7 @@
 #include "AirParameterConverter.h"
 #include "../math/PhysicalKernel.h"
 #include "../global/StringProcessor.h"
+#include "../global/CExit.h"
 
 // 类指针
 TomlFileManager* TomlFileManager::classPointer = nullptr;
@@ -30,40 +31,10 @@ void TomlFileManager::readTomlFile(std::string fullFilePath) {
         std::stringstream ss;
         ss << "parse_exception: " << par.what() << " @TomlFileManager::readTomlFile\n";
         LogWriter::logAndPrintError(ss.str());
-        exit(114514);
+        CExit::saveAndExit(114514);
     }
 
-    if (has_getValueFailed) {
-        std::stringstream ss;
-        ss << "read_error_exception @TomlFileManager::readTomlFile. ";
-        ss << "Please check \"input.toml\" for: " << "\n";
-        ss << "1.Spelling mistake.\n";
-        ss << "2.Invalid value type.\n";
-        ss << " @TomlFileManager::readTomlFile \n";
-        LogWriter::logAndPrintError(ss.str());
-    }
-
-    bool isDebugMode = GlobalPara::basic::isDebugMode;
-    if (isDebugMode) {
-        std::cout << "Final ruvp: \n";
-        std::cout << "  inf: \t" << StringProcessor::doubleArray_2_string(GlobalPara::boundaryCondition::_2D::inf::ruvp, 4);
-        std::cout << "\n  inlet: \t" << StringProcessor::doubleArray_2_string(GlobalPara::boundaryCondition::_2D::inlet::ruvp, 4);
-        std::cout << "\n  outlet: \t" << StringProcessor::doubleArray_2_string(GlobalPara::boundaryCondition::_2D::outlet::ruvp, 4);
-
-        if (has_getValueFailed) {
-            std::cout << "has_getValueFailed. Will exit.\n";
-        }
-        printTree();
-    }
-
-    if (isDebugMode) {
-        system("pause");
-        exit(-1);
-    }
-
-    if (has_getValueFailed) {
-        exit(114514);
-    }
+    ifFailedThenExit();
 
 }
 
@@ -80,31 +51,7 @@ void TomlFileManager::treeToGlobalParameter() {
     getValue("constant.Re", GlobalPara::constant::Re);
     getValue("constant.Pr", GlobalPara::constant::Pr);
     getValue("constant.gamma", GlobalPara::constant::gamma);
-
-    // 旧 和 handleConflictingInputs();配套使用
-    //getValueIfExists("boundaryCondition.2D.inf.input_mode", GlobalPara::boundaryCondition::_2D::inf::input_mode);
-    //getValueIfExists("boundaryCondition.2D.inf.rho", GlobalPara::boundaryCondition::_2D::inf::ruvp[0]);
-    //getValueIfExists("boundaryCondition.2D.inf.u", GlobalPara::boundaryCondition::_2D::inf::ruvp[1]);
-    //getValueIfExists("boundaryCondition.2D.inf.v", GlobalPara::boundaryCondition::_2D::inf::ruvp[2]);
-    //getValueIfExists("boundaryCondition.2D.inf.p", GlobalPara::boundaryCondition::_2D::inf::ruvp[3]);
-    //getValueIfExists("boundaryCondition.2D.inf.Ma", GlobalPara::boundaryCondition::_2D::inf::Ma);
-    //getValueIfExists("boundaryCondition.2D.inf.AOA", GlobalPara::boundaryCondition::_2D::inf::AOA);
-
-    //getValueIfExists("boundaryCondition.2D.inlet.input_mode", GlobalPara::boundaryCondition::_2D::inlet::input_mode);
-    //getValueIfExists("boundaryCondition.2D.inlet.rho", GlobalPara::boundaryCondition::_2D::inlet::ruvp[0]);
-    //getValueIfExists("boundaryCondition.2D.inlet.u", GlobalPara::boundaryCondition::_2D::inlet::ruvp[1]);
-    //getValueIfExists("boundaryCondition.2D.inlet.v", GlobalPara::boundaryCondition::_2D::inlet::ruvp[2]);
-    //getValueIfExists("boundaryCondition.2D.inlet.p", GlobalPara::boundaryCondition::_2D::inlet::ruvp[3]);
-    //getValueIfExists("boundaryCondition.2D.inlet.Ma", GlobalPara::boundaryCondition::_2D::inlet::Ma);
-    //getValueIfExists("boundaryCondition.2D.inlet.AOA", GlobalPara::boundaryCondition::_2D::inlet::AOA);
-
-    //getValueIfExists("boundaryCondition.2D.outlet.input_mode", GlobalPara::boundaryCondition::_2D::outlet::input_mode);
-    //getValueIfExists("boundaryCondition.2D.outlet.rho", GlobalPara::boundaryCondition::_2D::outlet::ruvp[0]);
-    //getValueIfExists("boundaryCondition.2D.outlet.u", GlobalPara::boundaryCondition::_2D::outlet::ruvp[1]);
-    //getValueIfExists("boundaryCondition.2D.outlet.v", GlobalPara::boundaryCondition::_2D::outlet::ruvp[2]);
-    //getValueIfExists("boundaryCondition.2D.outlet.p", GlobalPara::boundaryCondition::_2D::outlet::ruvp[3]);
-    //getValueIfExists("boundaryCondition.2D.outlet.Ma", GlobalPara::boundaryCondition::_2D::outlet::Ma);
-    //getValueIfExists("boundaryCondition.2D.outlet.AOA", GlobalPara::boundaryCondition::_2D::outlet::AOA);
+    getValue("constant.referenceArea", GlobalPara::constant::referenceArea);
 
     // 新添加
     getValue_boundaryCondition2D("boundaryCondition.2D.inf", GlobalPara::boundaryCondition::_2D::inf::ruvp);
@@ -117,6 +64,7 @@ void TomlFileManager::treeToGlobalParameter() {
     getValue("output.step_per_output_field", GlobalPara::output::step_per_output_field);
     getValue("output.step_per_output_hist", GlobalPara::output::step_per_output_hist);
     getValue("output.maxIteration", GlobalPara::output::maxIteration);
+    getValue("output.tolerace_residual", GlobalPara::output::tolerace_residual);
 
     getValue("output.output_var.rho", GlobalPara::output::output_var_ruvp[0]);
     getValue("output.output_var.u", GlobalPara::output::output_var_ruvp[1]);
@@ -175,14 +123,14 @@ void TomlFileManager::getValue_boundaryCondition2D(std::string parent, double ru
     int input_mode = -1;
     double Ma = 0;
     double AoA = 0;
-    double U[4];
+    double U[4]{};
     double gamma = 1.4;
     if (!treeContainsKey(parent + ".input_mode")) {
         LogWriter::logAndPrintWarning("No input_mode at " + parent + ". Will use default.\n");
         return;
     }
     getValueIfExists(parent + ".input_mode", input_mode);
-    const std::string description = "0- Ma,AoA \n1- rho,u,v,p \n2- rho, rhou, rhov, rhoE \n";
+    const std::string description = "0- Ma,AoA \n1- rho,u,v,p \n2- rho, rhou, rhov, rhoE \n3- rho, u, angle_degree, p\n";
     switch (input_mode) {
 
     case 0:
@@ -212,6 +160,19 @@ void TomlFileManager::getValue_boundaryCondition2D(std::string parent, double ru
         U2NITS::Math::U2ruvp_host(U, ruvp, gamma);
 
         break;
+    case 3:
+        {
+        double u = 0.0;
+        double angle = 0.0;
+        getValue(parent + ".rho", ruvp[0]);
+        getValue(parent + ".u", u);
+        getValue(parent + ".angle_degree", angle);
+        getValue(parent + ".p", ruvp[3]);
+        angle = angle * U2NITS::Math::PI / 180.0;
+        ruvp[1] = u * cos(angle);
+        ruvp[2] = u * sin(angle);
+        }
+        break;
 
     default:
         LogWriter::logAndPrintError("Invalid input mode at " + parent + ".\n" + description);
@@ -227,6 +188,40 @@ void TomlFileManager::printTreeContainsKeyOrNot(std::string key) {
     }
     else {
         std::cout << "Tree doesn't contain key \"" << key << "\"\n";
+    }
+}
+
+void TomlFileManager::ifFailedThenExit() {
+    if (has_getValueFailed) {
+        std::stringstream ss;
+        ss << "read_error_exception @TomlFileManager::readTomlFile. ";
+        ss << "Please check \"input.toml\" for: " << "\n";
+        ss << "1.Spelling mistake.\n";
+        ss << "2.Invalid value type.\n";
+        ss << " @TomlFileManager::readTomlFile \n";
+        LogWriter::logAndPrintError(ss.str());
+    }
+
+    bool isDebugMode = GlobalPara::basic::isDebugMode;
+    if (isDebugMode) {
+        std::cout << "Final ruvp: \n";
+        std::cout << "  inf: \t" << StringProcessor::doubleArray_2_string(GlobalPara::boundaryCondition::_2D::inf::ruvp, 4);
+        std::cout << "\n  inlet: \t" << StringProcessor::doubleArray_2_string(GlobalPara::boundaryCondition::_2D::inlet::ruvp, 4);
+        std::cout << "\n  outlet: \t" << StringProcessor::doubleArray_2_string(GlobalPara::boundaryCondition::_2D::outlet::ruvp, 4);
+
+        if (has_getValueFailed) {
+            std::cout << "has_getValueFailed. Will exit.\n";
+        }
+        printTree();
+    }
+
+    if (isDebugMode) {
+        
+        CExit::pressAnyKeyToExit();
+    }
+
+    if (has_getValueFailed) {
+        CExit::saveAndExit(114514);
     }
 }
 

@@ -8,7 +8,7 @@ void ResidualCalculator::cal_error_isentropicVortex(double xmin, double ymin, do
 	double chi, const double t_current, const int istep, const double cpu_time, const double* ruvp0) {
 	//ruvp0：均匀流参数
 	const double gamma = GlobalPara::constant::gamma;
-	const double PI = GlobalPara::constant::PI;
+	const double PI = U2NITS::Math::PI;
 	double xc = 0.5 * (xmin + xmax);
 	double yc = 0.5 * (ymin + ymax);
 	double error_norm1 = 0;//误差对体积的加权平均

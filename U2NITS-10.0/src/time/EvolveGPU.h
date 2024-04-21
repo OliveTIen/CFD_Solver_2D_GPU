@@ -7,11 +7,12 @@
 namespace GPU {
 	namespace Time {
 		void EvolveDevice(REAL dt, int flag_timeAdvance, ElementSoA& element_device, FieldSoA& elementField_device, EdgeSoA& edge_device, BoundarySetMap& boundary, SDevicePara& para);
-		void EvolveExplicitDevice(REAL dt, ElementSoA& element_device, FieldSoA& elementField_device, EdgeSoA& edge_device, BoundarySetMap& boundary, SDevicePara& para);
-		
-		void TimeIntegration(REAL dt, ElementSoA& element_device, FieldSoA& elementField_device);
-		__global__ void TimeIntegrationKernel(DReal& dt, ElementSoA& element, FieldSoA& elementField);
+		// ·Ç¶¨³£
+		void evolveSingleStep_device(real dt, GPU::ElementSoA& element_device, GPU::NodeSoA& node_device, GPU::EdgeSoA& edge_device, GPU::FieldSoA& elementField_device, 
+			BoundarySetMap& boundary, SDevicePara& para);
 	}
 }
+
+
 
 #endif

@@ -1,5 +1,6 @@
 #include "FVM_2D.h"
 #include "output/LogWriter.h"
+#include "boundary_condition/BoundaryManager.h"
 
 
 std::vector<int> BoundaryManager_2D::compressSeveralSequences(const std::vector<int>& ints) {
@@ -43,33 +44,6 @@ std::vector<int> BoundaryManager_2D::compressSeveralSequences(const std::vector<
 	return ret;
 }
 
-int BoundaryManager_2D::getBoundaryTypeByName(std::string boundaryName) {
-	// 应考虑字符串匹配/关键词检测算法。例如前缀树（Trie）可以应用于自动补全等
-	// 边界名称转边界类型 内部是-1
-	int bType = -1;
-	if (boundaryName == "wall" || boundaryName == "obstacle" || boundaryName == "airfoil" || boundaryName == "foil") {
-		//if (GlobalPara::physicsModel::equation == _EQ_euler)bType = _BC_wall_nonViscous;
-		//else bType = _BC_wall_adiabat;
-
-		bType = _BC_wall_adiabat;
-	}
-	else if (boundaryName == "inlet")bType = _BC_inlet;
-	else if (boundaryName == "outlet")bType = _BC_outlet;
-	else if (boundaryName == "inf" || boundaryName == "infinity"
-		|| boundaryName == "far" || boundaryName == "farfield")bType = _BC_inf;
-	else if (boundaryName == "symmetry")bType = _BC_symmetry;
-	else if (boundaryName.substr(0, 8) == "periodic") {//periodic_x
-		int x = std::stoi(boundaryName.substr(boundaryName.size() - 1, 1));//取最后一个字符
-		bType = _BC_periodic_0 + x;//_BC_periodic_x = _BC_periodic_0 + x
-	}
-	else {
-		LogWriter::logError("Error: unknown boundary type.");
-		
-		throw "Error: unknown boundary type.";
-	}
-	return bType;
-}
-
 VirtualBoundarySet_2D* BoundaryManager_2D::findSetByID(int ID) {
 	if (ID < 1 || ID > boundaries.size()) {
 		std::cout << "Error: illegal ID, in \"BoundaryManager_2D::findSetByID(int ID)\"\n";
@@ -90,7 +64,7 @@ void BoundaryManager_2D::iniBoundaryEdgeSetID_and_iniBoundaryType(FVM_2D* f) {
 	//打标签
 	for (int is = 0; is < boundaries.size(); is++) {
 		//边界类型赋给set的type，边界ID赋给edge的setID
-		int bType = getBoundaryTypeByName(boundaries[is].name);
+		int bType = U2NITS::BoundaryManager::boundaryNameToType(boundaries[is].name);
 		boundaries[is].type = bType;
 		for (int ie = 0; ie < boundaries[is].pEdges.size(); ie++) {
 			boundaries[is].pEdges[ie]->setID = boundaries[is].ID;

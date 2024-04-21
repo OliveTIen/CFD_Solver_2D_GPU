@@ -86,17 +86,6 @@ void LogWriter::logAndPrintWarning(std::string content) {
 	logAndPrint(content, LogWriter::Warning, LogWriter::Warning);
 }
 
-void LogWriter::writeBoundaryCondition(double* inlet_ruvp, double* outlet_ruvp, double* inf_ruvp, int num_ruvp) {
-	// 日志记录边界参数
-	std::string str;
-	str += "BoundaryCondition:\n";
-	str += "inlet::ruvp\t" + StringProcessor::doubleArray_2_string(inlet_ruvp, num_ruvp)
-		+ "\noutlet::ruvp\t" + StringProcessor::doubleArray_2_string(outlet_ruvp, num_ruvp)
-		+ "\ninf::ruvp\t" + StringProcessor::doubleArray_2_string(inf_ruvp, num_ruvp)
-		+ "\n";
-	log(str);
-}
-
 void LogWriter::logAndPrintSignalInfo(int signal) {
 	using namespace U2NITS;
 	

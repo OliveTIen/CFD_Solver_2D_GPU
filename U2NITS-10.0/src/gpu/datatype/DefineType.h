@@ -1,11 +1,5 @@
-#ifndef GPU_DATATYPE_H
-#define GPU_DATATYPE_H
-
-#ifdef _WIN32
-#include <cuda_runtime.h>
-#include "device_launch_parameters.h"
-#include <omp.h>
-#endif
+#ifndef DEFINE_TYPE_H
+#define DEFINE_TYPE_H
 
 // define data type
 // typedef作用域仅限文件，而宏(#define REAL double)作用于全局。
@@ -18,4 +12,4 @@ using REAL = double;
 using real = double;
 using integer = int;
 
-#endif // !GPU_DATATYPE_H
+#endif

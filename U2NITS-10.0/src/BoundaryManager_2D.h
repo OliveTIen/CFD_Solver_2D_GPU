@@ -64,8 +64,6 @@ public:
 public:
 	//将ints按照连续性分割成若干数组。输出：1首，1尾，2首，2尾，...
 	static std::vector<int> compressSeveralSequences(const std::vector<int>& ints);
-	// 边界条件名称转int
-	static int getBoundaryTypeByName(std::string boundaryName);
 
 	VirtualBoundarySet_2D* findSetByID(int ID);
 	//根据BoundarySet的name得到type；给边界edge打上setID标签

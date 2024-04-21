@@ -12,7 +12,7 @@
 
 #ifndef _ROE_H_
 #define _ROE_H_
-#include "../../gpu/datatype/Define.h"
+#include "../../gpu/datatype/DefineType.h"
 
 namespace U2NITS {
 	namespace Space {

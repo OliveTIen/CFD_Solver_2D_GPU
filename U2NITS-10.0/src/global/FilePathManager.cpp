@@ -5,6 +5,7 @@
 #include <io.h>
 #include "JsonConfig.h"
 #include "../global/GlobalPara.h"
+#include "../output/LogWriter.h"
 
 FilePathManager* FilePathManager::getInstance() {
     if (!class_pointer) {
@@ -43,11 +44,20 @@ void FilePathManager::initialzeVariables() {
 
 
 std::string FilePathManager::getTomlFilePath() {
-	// 工作目录下检测文件/目录是否存在 成功返回0，失败返回-1
-	if (_access(m_tomlFilePath.c_str(), 0) == -1) {// 失败
+	// 找不到默认input.toml，则用户输入
+	if (_access(m_tomlFilePath.c_str(), 0) == -1) {// 检测文件/目录是否存在 成功返回0，失败返回-1
 		std::cout << "Current working directory: " << m_workingDirectory << "\n";
 		std::cout << "Cannot find toml file. Please input the file path: \n";
 		std::cin >> m_tomlFilePath;
+	}
+	// 仍找不到，则加上.toml后缀再尝试
+	if (_access(m_tomlFilePath.c_str(), 0) == -1) {
+		m_tomlFilePath = m_tomlFilePath + ".toml";
+	}
+	// 仍找不到，则报错退出
+	if (_access(m_tomlFilePath.c_str(), 0) == -1) {
+		LogWriter::logAndPrintError("cannot find file\n");
+		exit(-1);
 	}
 
 	return m_tomlFilePath; 

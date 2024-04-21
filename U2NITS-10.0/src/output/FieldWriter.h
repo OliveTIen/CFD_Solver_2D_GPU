@@ -21,7 +21,7 @@ private:
 public:
 	FieldWriter() {};
 
-	static void writeTecplotFile_GPU(
+	static void writeTecplotFile_1(
 		double t_current,
 		std::string filePath,
 		std::string title,
@@ -29,15 +29,26 @@ public:
 		GPU::ElementSoA& elements,
 		GPU::OutputNodeFieldSoA& output_node_field	);
 
-	static void writeContinueFile_GPU(
+	static void writeContinueFile_1(
 		int i_step,
 		double t_current,
 		std::string filePath,
 		GPU::NodeSoA& nodes,
 		GPU::ElementSoA& elements,
-		GPU::FieldSoA& elementField);
+		real* elementField_U[4]);
+
+	//static void writeContinueFile_1(
+	//	int i_step,
+	//	double t_current,
+	//	std::string filePath,
+	//	GPU::NodeSoA& nodes,
+	//	GPU::ElementSoA& elements,
+	//	real* element_U_old[4]) {
+	//};
+
+
 	// ÃÌº”¡ÀUx Uy
-	static void writeContinueFile_2(
+	static void writeContinueFile_addUxUy(
 		int i_step,
 		double t_current,
 		std::string filePath,

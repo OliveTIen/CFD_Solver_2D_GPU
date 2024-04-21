@@ -1,4 +1,6 @@
 #include "CalculateDt.h"
+#include "../output/LogWriter.h"
+#include "../global/CExit.h"
 
 
 real U2NITS::Time::calculateGlobalDt(real currentPhysicalTime, real maxPhysicalTime, real gamma, real Re, real Pr, real CFL, real Rcpcv, GPU::ElementSoA& element, GPU::EdgeSoA& edge, real* element_vruvp[4]) {
@@ -40,8 +42,8 @@ real U2NITS::Time::calculateGlobalDt(real currentPhysicalTime, real maxPhysicalT
 		}
 		// 若出现异常值，则终止。通常是因为发散
 		if (rho < 0 || p < 0) {
-			std::cout << "Error: rho or p < 0 @U2NITS::calculateGlobalDt" << std::endl;
-			exit(-1);
+			LogWriter::logAndPrintError("Error: rho or p < 0 @U2NITS::calculateGlobalDt\n");
+			CExit::saveAndExit(-1);
 		}
 		// 计算面alpha，然后加到两侧单元alphaC中。分为有粘和无粘两种情况
 		real dx = edge.normal[0][i] * edge.length[i];

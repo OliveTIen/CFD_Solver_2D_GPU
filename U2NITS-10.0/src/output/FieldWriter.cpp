@@ -7,7 +7,7 @@
 
 int FieldWriter::numTecplotFileWritten = 0;
 
-void FieldWriter::writeTecplotFile_GPU(double t_current, std::string filePath, std::string title, GPU::NodeSoA& nodes, GPU::ElementSoA& elements, GPU::OutputNodeFieldSoA& output_node_field) {
+void FieldWriter::writeTecplotFile_1(double t_current, std::string filePath, std::string title, GPU::NodeSoA& nodes, GPU::ElementSoA& elements, GPU::OutputNodeFieldSoA& output_node_field) {
 	// Tecplot输出非结构网格时，节点编号从1开始
 	// 目前可能存在问题的地方：
 	// Element是三角形单元，因此输出0 1 2 2号节点，没有输出3号节点
@@ -71,7 +71,7 @@ void FieldWriter::writeTecplotFile_GPU(double t_current, std::string filePath, s
 	numTecplotFileWritten++;
 }
 
-void FieldWriter::writeContinueFile_GPU(int i_step, double t_current, std::string filePath, GPU::NodeSoA& nodes, GPU::ElementSoA& elements, GPU::FieldSoA& elementField) {
+void FieldWriter::writeContinueFile_1(int i_step, double t_current, std::string filePath, GPU::NodeSoA& nodes, GPU::ElementSoA& elements, real* elementField_U[4]) {
 	// 输出暂存文件，用于下次续算
 	// 目前还不敢直接用GPUID
 
@@ -105,10 +105,10 @@ void FieldWriter::writeContinueFile_GPU(int i_step, double t_current, std::strin
 		//outfile << elements.nodes[0][ie] << " ";
 		//outfile << elements.nodes[1][ie] << " ";
 		//outfile << elements.nodes[2][ie] << " ";
-		outfile << elementField.U[0][ie] << " ";
-		outfile << elementField.U[1][ie] << " ";
-		outfile << elementField.U[2][ie] << " ";
-		outfile << elementField.U[3][ie] << std::endl;
+		outfile << elementField_U[0][ie] << " ";
+		outfile << elementField_U[1][ie] << " ";
+		outfile << elementField_U[2][ie] << " ";
+		outfile << elementField_U[3][ie] << std::endl;
 	}
 
 	outfile << "boundaries: ID, name; edgeIDs" << std::endl;
@@ -135,7 +135,7 @@ void FieldWriter::writeContinueFile_GPU(int i_step, double t_current, std::strin
 
 }
 
-void FieldWriter::writeContinueFile_2(int i_step, double t_current, std::string filePath, GPU::NodeSoA& nodes, GPU::ElementSoA& elements, GPU::FieldSoA& elementField) {
+void FieldWriter::writeContinueFile_addUxUy(int i_step, double t_current, std::string filePath, GPU::NodeSoA& nodes, GPU::ElementSoA& elements, GPU::FieldSoA& elementField) {
 	// 添加Ux Uy
 
 	// 变量定义

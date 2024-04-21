@@ -311,3 +311,13 @@ cuder也是一种封装
 
 cudaError701 too many resources requested for launch
 
+20240414
+编程的原则：
+尽量隐藏内部细节，用接口实现各层的通信。如果不隐藏，如果底层被修改，高层也要一并修改
+目前的问题：
+时间积分，显式太慢，用局部时间步又发散。隐式
+求压力系数。我看UNITs中直接输出的表面压力 Cpp(I,J,K) = 2.0_8*(PP(I,J,K)-PPF)  
+一种方式是积分表面压力，除以参考面积和参考动压
+参考面积(参考弦长)可以直接输入，不用想太复杂。
+
+发现了stdgpu，GPU上的类STL库 https://stotko.github.io/stdgpu/getting_started/integrating_into_your_project.html

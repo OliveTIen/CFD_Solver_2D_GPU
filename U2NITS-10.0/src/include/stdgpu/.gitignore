@@ -1,0 +1,16 @@
+# Build directories
+/bin/
+/build/
+/build_install_test/
+/docs/doxygen/
+/external/
+
+# Python
+__pycache__/
+
+# Ide directories
+*.kdev4
+.kdev4/
+.vscode/
+.cache/
+.idea/

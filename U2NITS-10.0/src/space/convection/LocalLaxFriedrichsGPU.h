@@ -1,7 +1,7 @@
 #ifndef LOCAL_LAX_FRIEDRICHS_GPU_H
 #define LOCAL_LAX_FRIEDRICHS_GPU_H
 
-#include "../../gpu/datatype/Define.h"
+#include "../../gpu/datatype/DefineType.h"
 
 namespace GPU {
 	namespace Space {

@@ -12,6 +12,7 @@ private:
 	static void setInitialUniform();
 	static void setInitialIsentropicVortex(double xc, double yc, double chi, const double* ruvp0);
 	static void setInitialShockTube();
+	static void setInitialDoubleShockReflection();
 };
 
 #endif // !INITIALIZER_H

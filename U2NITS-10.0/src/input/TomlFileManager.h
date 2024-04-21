@@ -16,6 +16,18 @@ public:
 	static TomlFileManager* getInstance();
 	void readTomlFile(std::string fullFilePath);
 	
+	// 接口，遇到错误会报错退出
+	template <typename T_type>
+	void getValueOrExit(std::string key, T_type& value_to_be_changed);// 必选
+
+	// 以下函数，若遇到错误不会立刻退出，只是将has_getValueFailed置为true
+	template <typename T_type>
+	void getValueOnCondition(std::string key, T_type& value_to_be_changed, bool condition);// condition==true，则必选，否则可选
+	template <typename T_type>
+	void getValue(std::string key, T_type& value_to_be_changed);// 必选
+	template <typename T_type>
+	void getValueIfExists(std::string key, T_type& value_to_be_changed);// 可选
+	
 
 private:
 	TomlFileManager() {};
@@ -33,16 +45,11 @@ private:
 	void printTreeContainsKeyOrNot(std::string key);
 	// 打印tree
 	void printTree() { std::cout << *m_tree << std::endl; }
-
+	// 检测has_getValueFailed是否为true并退出
+	void ifFailedThenExit();
 	
 	template <typename T_type>
 	void getValueOrigin(std::string key, T_type& value_to_be_changed);
-	template <typename T_type>
-	void getValueOnCondition(std::string key, T_type& value_to_be_changed, bool condition);// condition==true，则必选，否则可选
-	template <typename T_type>
-	void getValue(std::string key, T_type& value_to_be_changed);// 必选
-	template <typename T_type>
-	void getValueIfExists(std::string key, T_type& value_to_be_changed);// 可选
 };
 
 template<typename T_type>
@@ -118,6 +125,15 @@ inline void TomlFileManager::getValueOnCondition(std::string key, T_type& value_
 template<typename T_type>
 inline void TomlFileManager::getValue(std::string key, T_type& value_to_be_changed) {
 	getValueOnCondition(key, value_to_be_changed, true);
+}
+
+template<typename T_type>
+inline void TomlFileManager::getValueOrExit(std::string key, T_type& value_to_be_changed) {
+	getValue(key, value_to_be_changed);
+	if (has_getValueFailed) {
+		LogWriter::logAndPrintError("get value failed when reading key: " + key + " @TomlFileManager::getValueOrExit\n");
+		exit(-1);
+	}
 }
 
 // 可选参数。toml文件中可以有，可以没有

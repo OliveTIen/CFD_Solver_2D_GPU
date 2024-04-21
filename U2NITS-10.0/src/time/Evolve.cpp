@@ -5,8 +5,9 @@
 #include "../math/Math.h"
 #include "CalculateDt.h"
 #include "../space/gradient/Gradient.h"
+#include "../boundary_condition/CBoundaryDoubleShockReflect.h"
 
-void U2NITS::Time::EvolveHost(REAL dt, int flag, GPU::ElementSoA& element_host, GPU::FieldSoA& elementField_host, GPU::EdgeSoA& edge_host, std::map<int, int>& edge_periodic_pair) {
+void U2NITS::Time::EvolveHost_1(REAL dt, int flag, GPU::ElementSoA& element_host, GPU::FieldSoA& elementField_host, GPU::EdgeSoA& edge_host, std::map<int, int>& edge_periodic_pair) {
     if (flag == _EVO_explicit) {
         EvolveExplicitHost(dt, element_host, elementField_host, edge_host, edge_periodic_pair);
     }
@@ -25,52 +26,7 @@ void U2NITS::Time::EvolveExplicitHost(REAL dt, GPU::ElementSoA& element_host, GP
         for (int j = 0; j < 4; j++) {
             elementField_host.U[j][ie] -= dt / omega * elementField_host.Flux[j][ie];
         }
-
     }
-}
-
-void U2NITS::Time::EvolveHost_2_addRK3(real& physicalTime, real maxPhysicalTime, GPU::ElementSoA& element_host, GPU::FieldSoA& elementField_host, GPU::EdgeSoA& edge_host, GPU::NodeSoA& node_host, real* element_vruvp[4]) {
-    /*
-    element_vruvp 用于计算
-    
-    定常，采用局部时间推进，t、T无效
-    非定常，采用整体时间推进，需要改变t的值。首先计算允许的最大dt，然后推进。可采用RK1或RK3
-    */
-    bool is_steady = GlobalPara::time::is_steady;
-    bool is_explicit = GlobalPara::time::is_explicit;
-    int temporal_choice = GlobalPara::time::time_advance;
-
-    //U_to_ruvp_proMax(elementField_host.U, element_vruvp, elementField_host.num, GlobalPara::constant::gamma);
-
-    // 定常
-    if (is_steady) {
-        //LogWriter::logAndPrintError("unimplemented is_steady @U2NITS::Time::EvolveHost_2.\n");
-        //exit(-1);
-        physicalTime += 1e-3;// 改变t是为了输出tecplot时能够以序列的方式读取
-        evolveSteadyLocalTimeStep(element_host, node_host, edge_host, elementField_host, element_vruvp);
-    }
-    // 非定常
-    else {
-        // 计算整体时间步长
-        REAL dt = U2NITS::Time::calculateGlobalDt(physicalTime, maxPhysicalTime, GlobalPara::constant::gamma, GlobalPara::constant::Re, GlobalPara::constant::Pr, GlobalPara::time::CFL, 
-            GlobalPara::constant::R, element_host, edge_host, element_vruvp);
-        // 修改当前物理时间t
-        physicalTime += dt;
-
-        switch (temporal_choice) {
-        case _EVO_explicit:
-            evolveSingleStep(dt, element_host, node_host, edge_host, elementField_host);
-            break;
-        case _EVO_rk3:
-            evolveRungeKutta3(dt, element_host, node_host, edge_host, elementField_host);
-            break;
-        default:
-            LogWriter::logAndPrintError("invalid temporal_choice @U2NITS::Time::EvolveHost_2.\n");
-            exit(-1);
-        }
-    }
-
-
 }
 
 void U2NITS::Time::evolveSingleStep(real dt, GPU::ElementSoA& element_host, GPU::NodeSoA& node_host, GPU::EdgeSoA& edge_host, GPU::FieldSoA& elementField_host) {
@@ -105,6 +61,7 @@ void U2NITS::Time::evolveRungeKutta3(real dt, GPU::ElementSoA& element_host, GPU
     如果每一小步都要更新梯度，那么就需要把前面求梯度的部分放进calculateFunctionF中
     */
     
+    CBoundaryDoubleShockReflect* pCDS = CBoundaryDoubleShockReflect::getInstance();
     int num = element_host.num_element;
     GPU::FieldSoA yn1, yn2, yn3;// k1存储于yn1.Flux，yn1存储于yn1.U
     yn1.alloc(num);
@@ -120,6 +77,7 @@ void U2NITS::Time::evolveRungeKutta3(real dt, GPU::ElementSoA& element_host, GPU
     }
 
     yn1.copyfrom(yn);
+    pCDS->set_dt(0.0);
     calculateFunctionF(element_host, node_host, edge_host, yn1);// k1，存入yn1.Flux
 
     yn2.copyfrom(yn);
@@ -128,6 +86,7 @@ void U2NITS::Time::evolveRungeKutta3(real dt, GPU::ElementSoA& element_host, GPU
             yn2.U[i][j] = yn.U[i][j] + 0.5 * dt * yn1.Flux[i][j];
         }
     }
+    pCDS->set_dt(dt);
     calculateFunctionF(element_host, node_host, edge_host, yn2);// k2
 
     yn3.copyfrom(yn);
@@ -136,6 +95,7 @@ void U2NITS::Time::evolveRungeKutta3(real dt, GPU::ElementSoA& element_host, GPU
             yn3.U[i][j] = yn.U[i][j] - dt * yn1.Flux[i][j] + 2.0 * dt * yn2.Flux[i][j];
         }
     }
+    pCDS->set_dt(0.5 * dt);
     calculateFunctionF(element_host, node_host, edge_host, yn3);// k3
 
     // 求ynp1，存入yn

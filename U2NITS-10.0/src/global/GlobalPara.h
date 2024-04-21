@@ -9,16 +9,17 @@
 
 namespace GlobalPara {
 	namespace constant {
-		extern double const R;// 气体常数
-		extern double const PI;
-		extern double T0;// 海平面温度参考值
-		extern double p0;// 海平面压力参考值
-		extern double c0;// 海平面声速参考值
+		extern double R;
+		extern double T0;
+		extern double p0;
+		extern double c0;
 		extern double gamma;
 		extern double epsilon;
 		extern double Re;
 		extern double Pr;
-		extern double mu;// 动力粘性系数
+		extern double mu;
+
+		extern double referenceArea;
 	}
 
 	//文件类
@@ -45,7 +46,7 @@ namespace GlobalPara {
 
 		// 以下数据从ContinueFile中读取，不是Toml
 		extern double t_previous;// 续算时的起始时间 从readContineFile()中读取
-		extern int istep_previous;// 续算时的起始步 从readContineFile()中读取
+		extern int istep_previous;// 续算时的起始步，默认为0 从readContineFile()中读取
 	}
 	namespace physicsModel {
 		extern int equation;//"equation:1-Eluer,2-NS": 1
@@ -82,6 +83,7 @@ namespace GlobalPara {
 		extern bool output_var_ruvp[4];
 		extern int autosaveFileNum;
 		extern int maxIteration;
+		extern double tolerace_residual;
 	}
 	namespace inviscid_flux_method {
 		extern int flux_conservation_scheme;// 无粘通量 守恒格式 用于求解黎曼问题 LLF Roe

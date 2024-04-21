@@ -1036,6 +1036,9 @@ void FVM_2D::iniElement_xy_pEdges() {
 	  有edges数组，且edge的nodeIDs已初始化
 	隐患：
 	  三角形边界，pEdges只有3个。对于四边形，pEdges的node需要重新确定
+	不足：
+	  该方式时间复杂度为O(n^2)，首先要遍历单元，然后getEdgeByNodeIDs要遍历所有edge
+	  究竟该如何并行？
 	*/
 	if (elements.size() == 0) {
 		LogWriter::logError("null elements exception, @iniElement_xy_pEdges\n");
@@ -1046,14 +1049,14 @@ void FVM_2D::iniElement_xy_pEdges() {
 
 		Element_2D* pElement = &(elements[ie]);
 		//初始化单元中心坐标
-		double tmp_x = 0;
-		double tmp_y = 0;
+		double sum_x = 0;
+		double sum_y = 0;
 		for (int i = 0; i < 3; i++) {
-			tmp_x += this->getNodeByID(pElement->nodes[i])->x;
-			tmp_y += this->getNodeByID(pElement->nodes[i])->y;
+			sum_x += this->getNodeByID(pElement->nodes[i])->x;
+			sum_y += this->getNodeByID(pElement->nodes[i])->y;
 		}
-		pElement->x = tmp_x / 3.0;
-		pElement->y = tmp_y / 3.0;
+		pElement->x = sum_x / 3.0;
+		pElement->y = sum_y / 3.0;
 
 
 		pElement->pEdges[0] = this->getEdgeByNodeIDs(pElement->nodes[0], pElement->nodes[1]);
@@ -1063,6 +1066,11 @@ void FVM_2D::iniElement_xy_pEdges() {
 
 	}
 	hasInitElementXY = true;//已经初始化单元中心坐标。
+}
+
+void FVM_2D::iniElement_xy_pEdges_parallel() {
+
+	
 }
 
 void FVM_2D::iniEdges_lengths() {

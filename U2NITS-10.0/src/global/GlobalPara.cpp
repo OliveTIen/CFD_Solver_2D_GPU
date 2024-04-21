@@ -3,16 +3,17 @@
 
 namespace GlobalPara {
 	namespace constant {
-		double const R = 287.06;// 气体常数
-		double const PI = 3.1415926535897;
-		double T0 = 288.16;// 海平面温度参考值
-		double p0 = 101325.0;// 海平面压力参考值
-		double c0 = 340.28;// 海平面声速参考值
+		double R = 287.06;                   // 气体常数
+		double T0 = 288.16;                  // 海平面温度参考值
+		double p0 = 101325.0;                // 海平面压力参考值
+		double c0 = 340.28;                  // 海平面声速参考值
 		double gamma = 1.4;
 		double epsilon = 1e-7;
 		double Re = 1.0e8;
 		double Pr = 0.73;
-		double mu = 17.9e-6;// 空气动力粘性系数
+		double mu = 17.9e-6;                 // 空气动力粘性系数
+
+		double referenceArea = 1.0;          // (三维算例)参考面积，或(二维算例)参考弦长
 	}
 
 	namespace basic {
@@ -71,6 +72,7 @@ namespace GlobalPara {
 		bool output_var_ruvp[4] = { 1,1,1,1 };
 		int autosaveFileNum = 3;
 		int maxIteration = 5000;
+		double tolerace_residual = 1.0e-7;// 低于此残差认为达到稳态
 	}
 	namespace inviscid_flux_method {
 		int flux_conservation_scheme = _SOL_Roe;// 黎曼求解器

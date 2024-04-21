@@ -76,6 +76,10 @@ std::string StringProcessor::deleteCommentByChar(std::string word, char flag) {
 }
 
 std::string StringProcessor::timeFormat(int dt) {
+	if (dt < 0) {
+		return "0:00:00";
+	}
+
 	int h = dt / 3600;//专门用int的除法
 	dt -= h * 3600;
 	int m = dt / 60;

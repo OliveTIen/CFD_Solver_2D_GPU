@@ -18,9 +18,11 @@ namespace U2NITS {
 			void getEdgeFlux_wall_adiabat(ElementSoA& element_host, FieldSoA& elementField_host, EdgeSoA& edge_host, long idx, double* flux);
 			void getEdgeFlux_farField(ElementSoA& element_host, FieldSoA& elementField_host, EdgeSoA& edge_host, long idx, REAL* ruvp_inf, REAL* flux);
 			void getEdgeFlux_farField_2(ElementSoA& element_host, FieldSoA& elementField_host, EdgeSoA& edge_host, long idx, REAL* ruvp_inf, REAL* flux);
+			void getEdgeFlux_farField_3(ElementSoA& element_host, FieldSoA& elementField_host, EdgeSoA& edge_host, integer idx, REAL* ruvp_inf, REAL* flux);
 			void modify_ruvpL_farField(const REAL nx, const REAL ny, REAL* ruvp, const REAL* ruvp_inf);
 			void getEdgeFlux_inner_and_periodic(ElementSoA& element_host, FieldSoA& elementField_host, EdgeSoA& edge_host, long idx, REAL* flux);
 			void getUByXYandElementID(ElementSoA& element_host, FieldSoA& elementField_host, REAL x, REAL y, int elementID, REAL* U);
+			void getEdgeFlux_farField_doubleShockReflect(ElementSoA& element_host, FieldSoA& elementField_host, EdgeSoA& edge_host, integer idx, REAL* flux);
 
 			void RiemannSolve(
 				const REAL* UL, const REAL* UR, const REAL nx, const REAL ny,

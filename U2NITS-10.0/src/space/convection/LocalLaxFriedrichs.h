@@ -1,7 +1,7 @@
 #ifndef LOCAL_LAX_FRIEDRICHS_H
 #define LOCAL_LAX_FRIEDRICHS_H
 
-#include "../../gpu/datatype/Define.h"
+#include "../../gpu/datatype/DefineType.h"
 
 namespace U2NITS {
 	namespace Space {

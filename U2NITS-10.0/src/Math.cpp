@@ -76,10 +76,7 @@ void Math_2D::U_2_ruvp(const double* U, double* ruvp, double gamma) {
 	ruvp[0] = U[0];
 	ruvp[1] = U[1] / U[0];
 	ruvp[2] = U[2] / U[0];
-	//if (U[3] < (ruvp[1] * ruvp[1] + ruvp[2] * ruvp[2]) * 0.5 * U[0]) {
-	//	std::cout << "E < 0.5*rho*V^2, in Math_2D::U_to_ruvp() \n";
-	//	//system("pause");
-	//}
+	
 
 	ruvp[3] = ruvp[0] * (gamma - 1) * (U[3] / U[0] - (ruvp[1] * ruvp[1] + ruvp[2] * ruvp[2]) * 0.5);
 }
@@ -141,10 +138,7 @@ void Math_2D::ruvp_2_F(const double* ruvp, double* F, double gamma) {
 	F[2] = ruvp[0] * ruvp[1] * ruvp[2];
 	F[3] = (ruvp[3] / (gamma - 1) + 0.5 * ruvp[0] * (ruvp[1] * ruvp[1] + ruvp[2] * ruvp[2]) + ruvp[3]) * ruvp[1];
 
-	//if (isnan(F[0])) {
-	//	std::cout << "isnan(F[0])\n";
-	//	system("pause");
-	//}
+	
 
 }
 

@@ -2,13 +2,15 @@
 #include <iostream>
 #include <ios>
 #include "../output/LogWriter.h"
+#include "../global/CExit.h"
+#include "Env.h"
 
 void GPU::catchCudaErrorAndExit() {
 	cudaError_t cuda_error = cudaGetLastError();
 	if (cuda_error != 0) {
 		std::string e = "cudaError=" + std::to_string(cuda_error) + ", " + cudaGetErrorString(cuda_error);
 		LogWriter::logAndPrint(e, LogWriter::Error, LogWriter::Error);
-		exit(cuda_error);
+		CExit::saveAndExit(cuda_error);
 	}
 
 

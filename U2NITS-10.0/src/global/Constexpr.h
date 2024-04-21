@@ -40,6 +40,7 @@ constexpr auto _BC_wall_isothermal = 6003;//固壁，无滑移，等温
 constexpr auto _BC_inlet = 6011;//入口
 constexpr auto _BC_outlet = 6012;//出口
 constexpr auto _BC_inf = 6013;//远场边界
+constexpr auto _BC_doubleShockReflect = 6014;// 双马赫反射特殊边界
 constexpr auto _BC_symmetry = 6021;//对称边界
 constexpr auto _BC_periodic_0 = 6100;//周期边界
 constexpr auto _BC_periodic_1 = 6101;

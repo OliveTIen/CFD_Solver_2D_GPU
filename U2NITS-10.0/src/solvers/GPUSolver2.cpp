@@ -14,144 +14,159 @@
 #include "../time/EvolveGPU.h"
 #include "../output/LogWriter.h"
 #include "../output/ResidualCalculator.h"
+#include "../global/CExit.h"
+#include "../time/CIteration.h"
 
 
-void GPU::GPUSolver2::initialize() {
-
-	initializeHost();// 申请内存，用FVM_2D旧数据初始化
-	if (GlobalPara::basic::useGPU) {
-		initializeDevice();
-	}
-
-}
-
-void GPU::GPUSolver2::initializeHost() {
-	// 申请内存，用FVM_2D旧数据初始化
+void GPU::GPUSolver2::allocateMemory() {
 	FVM_2D* pFVM2D = FVM_2D::getInstance();
-	U2NITS::OldDataConverter oldDataConverter(pFVM2D, this);
 	const int num_node = (int)pFVM2D->nodes.size();
 	const int num_element = (int)pFVM2D->elements.size();
 	const int num_edge = (int)pFVM2D->edges.size();
 	const int num_boundary = (int)pFVM2D->boundaryManager.boundaries.size();
+	if (num_node == 0 || num_element == 0 || num_edge == 0 || num_boundary == 0) {
+		LogWriter::logAndPrintError("has not read field, cannot determine how much memory to allocate. @GPU::GPUSolver2::allocateMemory()\n");
+		exit(-1);
+	}
+	allocateMemory(num_node, num_element, num_edge, num_boundary);
+}
 
+void GPU::GPUSolver2::allocateMemory(const int num_node, const int num_element, const int num_edge, const int num_boundary) {
 	allocateHostMemory(num_node, num_element, num_edge, num_boundary);
-	oldDataConverter.Convert_FVM2D_to_HostData();
+	if (GlobalPara::basic::useGPU) {
+		setGPUDevice();
+		allocateDeviceMemory(num_node, num_element, num_edge, num_boundary);
+	}
 }
 
-void GPU::GPUSolver2::initializeDevice() {
-	// 申请设备内存，将主机复制到设备
+void GPU::GPUSolver2::allocateHostMemory(const int num_node, const int num_element, const int num_edge, const int num_boundary) {
+	if (hostMemoryAllocated) {
+		LogWriter::logAndPrintError("Has allocated host memory.\n");
+		CExit::saveAndExit(-1);
+	}
+	// 申请host内存
+	this->node_host.alloc(num_node);
+	this->element_host.alloc(num_element);
+	this->elementField_host.alloc(num_element);
+	this->edge_host.alloc(num_edge);
+	for (int j = 0; j < 4; j++) {
+		element_vruvp[j] = new REAL[num_element];
+		element_U_old[j] = new REAL[num_element];
+	}
+	boundary_host.alloc(num_boundary);
+	outputNodeField.alloc(num_node);
+	// 更新状态
+	hostMemoryAllocated = true;
+}
+
+void GPU::GPUSolver2::allocateDeviceMemory(const int num_node, const int num_element, const int num_edge, const int num_boundary) {
+	if (deviceMemoryAllocated) {
+		LogWriter::logAndPrintError("Has allocated device memory，cannot allocate twice. @GPUSolver2::allocateDeviceMemory\n");
+		CExit::saveAndExit(-1);
+	}
+
+
+	if (!hasSetGPUDevice) {
+		LogWriter::logAndPrintError("Hasn't set device. Cannot allocate device memory. @GPUSolver2::allocateDeviceMemory\n");
+		exit(-1);
+	}
+	// 申请device内存
+	try {
+		// 双向拷贝数据
+		node_device.cuda_alloc(num_node);
+		element_device.cuda_alloc(num_element);
+		elementField_device.cuda_alloc(num_element);
+		edge_device.cuda_alloc(num_edge);
+		boundary_device.cuda_alloc(num_boundary);
+
+		// 仅传入GPU的数据
+		using namespace GlobalPara::boundaryCondition::_2D;// using有作用域，不用担心混淆
+		infPara_device = new GPU::DGlobalPara(inf::ruvp, inlet::ruvp, outlet::ruvp, 4
+			, &GlobalPara::constant::R, &GlobalPara::constant::gamma, &GlobalPara::inviscid_flux_method::flux_conservation_scheme);
+		sDevicePara.initialize(
+			GlobalPara::constant::T0, GlobalPara::constant::p0, GlobalPara::constant::c0, GlobalPara::constant::gamma, U2NITS::Math::EPSILON, GlobalPara::constant::Re, GlobalPara::constant::Pr, GlobalPara::constant::mu,
+			GlobalPara::inviscid_flux_method::flag_reconstruct, GlobalPara::inviscid_flux_method::flag_gradient,
+			GlobalPara::boundaryCondition::_2D::inf::ruvp, GlobalPara::boundaryCondition::_2D::inlet::ruvp, GlobalPara::boundaryCondition::_2D::outlet::ruvp,
+			GlobalPara::inviscid_flux_method::flux_conservation_scheme, GlobalPara::inviscid_flux_method::flux_limiter
+		);
+
+		// 更新状态
+		deviceMemoryAllocated = true;
+	}
+	catch (const char* e) {
+		// ! 异常处理未完成
+		std::cout << e << std::endl;
+		cudaError_t error = cudaError_t::cudaErrorDeviceUninitialized;
+		exit(-1);
+	}
+}
+
+void GPU::GPUSolver2::initializeData_byOldData() {
+
+	initializeHostData_byOldData();// 申请内存，用FVM_2D旧数据初始化
+	if (GlobalPara::basic::useGPU) {
+		initializeDeviceData_byHostData();
+	}
+
+}
+
+void GPU::GPUSolver2::initializeHostData_byOldData() {
 	if (!hostMemoryAllocated) {
-		LogWriter::logAndPrintError("Host not allocated. Cannot initialize device.\n");
+		LogWriter::logAndPrintError("Host data not allocated. @GPU::GPUSolver2::initializeHostData_byOldData()\n");
 		exit(-1);
 	}
+	if (hostDataInitialized) {
+		LogWriter::logAndPrintError("Host data has initialized. @GPU::GPUSolver2::initializeHostData_byOldData()\n");
+		exit(-1);
+	}
+
+	// 用FVM_2D旧数据初始化host数据
+	U2NITS::OldDataConverter oldDataConverter(FVM_2D::getInstance(), this);
+	oldDataConverter.Convert_FVM2D_to_HostData();
+
+	hostDataInitialized = true;
+}
+
+void GPU::GPUSolver2::initializeDeviceData_byHostData() {
+	// 将主机复制到设备
 	if (!GlobalPara::basic::useGPU) {
-		LogWriter::logAndPrintError("useGPU = false. Cannot initialize device.\n");
+		LogWriter::logAndPrintError("useGPU = false. @initializeDeviceData_byHostData.\n");
+		exit(-1);
+	}
+	if (!hostMemoryAllocated) {
+		LogWriter::logAndPrintError("Host data not allocated. @GPU::GPUSolver2::initializeDeviceData_byHostData()\n");
+		exit(-1);
+	}
+	if (!deviceMemoryAllocated) {
+		LogWriter::logAndPrintError("Device data not allocated. @GPU::GPUSolver2::initializeDeviceData_byHostData()\n");
+		exit(-1);
+	}
+	if (deviceDataInitialized) {
+		LogWriter::logAndPrintError("Device data has initialized. @GPU::GPUSolver2::initializeDeviceData_byHostData()\n");
 		exit(-1);
 	}
 
-	FVM_2D* pFVM2D = FVM_2D::getInstance();
-	const int num_node = (int)pFVM2D->nodes.size();
-	const int num_element = (int)pFVM2D->elements.size();
-	const int num_edge = (int)pFVM2D->edges.size();
-	const int num_boundary = (int)pFVM2D->boundaryManager.boundaries.size();
-
-	setGPUDevice();// 设置GPU
-	allocateDeviceMemory(num_node, num_element, num_edge, num_boundary);
 	host_to_device();// 复制host数据到device
-
+	deviceDataInitialized = true;
 }
 
 void GPU::GPUSolver2::iteration(real& t, real T) {
 	int useGPU = GlobalPara::basic::useGPU;
 	if (useGPU == 0) {
-		iterationHost(t, T);
+		CIteration::iteration_host_2(t, T, this);
 	}
 	else if (useGPU == 1) {
-		iterationGPU(t, T);
-	}
-	else if (useGPU == 2) {
-		iterationHalfGPU(t, T);
-	}
-	else if (useGPU == 3) {
-		iterationHost_2_addRK3(t, T);
+		LogWriter::logAndPrintWarning("GPU mode is in development. Enter debugging mode. @GPU::GPUSolver2::iteration\n");
+		CIteration::iteration_useGPU(t, T, this);
 	}
 	else {
+		LogWriter::logAndPrintError("Invalid parameter: useGPU. @GPU::GPUSolver2::iteration\n");
 		exit(-1);
 	}
-}
 
-void GPU::GPUSolver2::iterationHost(REAL& t, REAL T) {
-	update_ruvp_Uold();
-
-	real dt = U2NITS::Time::calculateGlobalDt(t, T, GlobalPara::constant::gamma, GlobalPara::constant::Re, GlobalPara::constant::Pr, GlobalPara::time::CFL, GlobalPara::constant::R,
-		element_host, edge_host, element_vruvp);
-
-	t += dt;
-	U2NITS::Space::Gradient::Gradient(element_host, node_host, edge_host, elementField_host);
-	U2NITS::Time::EvolveHost(dt, GlobalPara::time::time_advance, element_host, elementField_host, edge_host, edge_periodic_pair);
-	U2NITS::Space::Restrict::modifyElementFieldU2d(element_host, elementField_host);
-}
-
-void GPU::GPUSolver2::iterationHost_2_addRK3(REAL& t, REAL T) {
-	update_ruvp_Uold();
-	U2NITS::Time::EvolveHost_2_addRK3(t, T, element_host, elementField_host, edge_host, node_host, element_vruvp);
-	U2NITS::Space::Restrict::modifyElementFieldU2d(element_host, elementField_host);
-}
-
-void GPU::GPUSolver2::iterationHalfGPU(REAL& t, REAL T) {
-	// 更新时间t
-	update_ruvp_Uold();
-	real dt = U2NITS::Time::calculateGlobalDt(t, T, GlobalPara::constant::gamma, GlobalPara::constant::Re, GlobalPara::constant::Pr, GlobalPara::time::CFL, GlobalPara::constant::R,
-		element_host, edge_host, element_vruvp);
-	t += dt;
-
-	GPU::Space::Gradient::Gradient_2(element_device, elementField_device, edge_device);
-	cudaDeviceSynchronize();
-	catchCudaErrorAndExit();
-
-	device_to_host();
-	U2NITS::Time::EvolveHost(dt, GlobalPara::time::time_advance, element_host, elementField_host, edge_host, edge_periodic_pair);
-	U2NITS::Space::Restrict::modifyElementFieldU2d(element_host, elementField_host);
-	host_to_device();
-
-}
-
-void GPU::GPUSolver2::iterationGPU(REAL& t, REAL T) {
-	// 更新时间t @host
-	update_ruvp_Uold();
-	real dt = U2NITS::Time::calculateGlobalDt(t, T, GlobalPara::constant::gamma, GlobalPara::constant::Re, GlobalPara::constant::Pr, GlobalPara::time::CFL, GlobalPara::constant::R,
-		element_host, edge_host, element_vruvp);
-	t += dt;
-
-	// device
-	GPU::Space::Gradient::Gradient_2(element_device, elementField_device, edge_device);
-	catchCudaErrorAndExit();// cudaErrorIllegalAddress(700). an illegal memory access was encountered. 可以尝试用更小的块？
-	cudaDeviceSynchronize();
-	catchCudaErrorAndExit();
-
-	LogWriter::logAndPrintError("Unimplemented.GPU::Time::EvolveDevice @ GPUSolver2::iterationGPU\n");
-	exit(-11);
-	GPU::Time::EvolveDevice(dt, GlobalPara::time::time_advance, element_device, elementField_device, edge_device, boundary_device, sDevicePara);
-	catchCudaErrorAndExit();
-	cudaDeviceSynchronize();
-	catchCudaErrorAndExit();
-
-	device_to_host();// 传递到主机，用于输出
-	//host_to_device();// 不需要，因为已经将主机与设备同步
-
-}
-
-void GPU::GPUSolver2::iterationDevice(REAL dt) {
-	// 未使用
-
-	// 计算单元梯度 对device操作
-	GPU::Space::Gradient::Gradient_2(element_device, elementField_device, edge_device);
-	//GPU::calculateGradient_old(element_device, elementField_device);
-	cudaDeviceSynchronize();
-	GPU::Time::EvolveDevice(dt, GlobalPara::time::time_advance, element_device, elementField_device, edge_device, boundary_device, sDevicePara);
-	//// 时间推进 对device操作
-	// TODO
-	//cudaDeviceSynchronize();
+	if (!iterationStarted) {
+		iterationStarted = true;
+	}
 }
 
 void GPU::GPUSolver2::device_to_host() {
@@ -161,12 +176,6 @@ void GPU::GPUSolver2::device_to_host() {
 	GPU::FieldSoA::cuda_memcpy(&elementField_host, &elementField_device, cudaMemcpyDeviceToHost);
 	GPU::EdgeSoA::cuda_memcpy(&edge_host, &edge_device, cudaMemcpyDeviceToHost);
 
-}
-
-void GPU::GPUSolver2::iterationHost(REAL dt) {
-	// 主机端的迭代
-	//GPU::calculateFluxHost(element_host, elementField_host, edge_host);
-	U2NITS::Time::EvolveHost(dt, GlobalPara::time::time_advance, element_host, elementField_host, edge_host, edge_periodic_pair);
 }
 
 void GPU::GPUSolver2::host_to_device() {
@@ -232,6 +241,11 @@ void GPU::GPUSolver2::getResidual() {
 }
 
 void GPU::GPUSolver2::setGPUDevice() {
+	if (hasSetGPUDevice) {
+		LogWriter::logAndPrintError("has set GPU device, cannot set twice. @GPU::GPUSolver2::setGPUDevice()\n");
+		exit(-1);
+	}
+
 	int nDevice = 0;
 	int iDevice = 0;	
 	cudaError_t error;
@@ -251,65 +265,9 @@ void GPU::GPUSolver2::setGPUDevice() {
 	ss << "Num of GPU: " << nDevice << ", " << "active GPU: " << iDevice << "\n";
 	LogWriter::logAndPrint(ss.str());
 	// 更新状态
-	deviceReady = true;
+	hasSetGPUDevice = true;
 }
 
-void GPU::GPUSolver2::allocateMemory(const int num_node, const int num_element, const int num_edge, const int num_boundary) {
-	allocateHostMemory(num_node, num_element, num_edge, num_boundary);
-	allocateDeviceMemory(num_node, num_element, num_edge, num_boundary);
-}
-
-void GPU::GPUSolver2::allocateHostMemory(const int num_node, const int num_element, const int num_edge, const int num_boundary) {
-	// 申请host内存
-	this->node_host.alloc(num_node);
-	this->element_host.alloc(num_element);
-	this->elementField_host.alloc(num_element);
-	this->edge_host.alloc(num_edge);
-	for (int j = 0; j < 4; j++) {
-		element_vruvp[j] = new REAL[num_element];
-		element_U_old[j] = new REAL[num_element];
-	}
-	boundary_host.alloc(num_boundary);
-	outputNodeField.alloc(num_node);
-	// 更新状态
-	hostMemoryAllocated = true;
-}
-
-void GPU::GPUSolver2::allocateDeviceMemory(const int num_node, const int num_element, const int num_edge, const int num_boundary) {
-	if (!deviceReady) {
-		LogWriter::logAndPrintError("device isn't ready. Cannot allocate device memory\n");
-		exit(-1);
-	}
-	// 申请device内存
-	try {
-		// 双向拷贝数据
-		node_device.cuda_alloc(num_node);
-		element_device.cuda_alloc(num_element);
-		elementField_device.cuda_alloc(num_element);
-		edge_device.cuda_alloc(num_edge);
-		boundary_device.cuda_alloc(num_boundary);
-
-		// 仅传入GPU的数据
-		using namespace GlobalPara::boundaryCondition::_2D;// using有作用域，不用担心混淆
-		infPara_device = new GPU::DGlobalPara(inf::ruvp, inlet::ruvp, outlet::ruvp, 4
-			, &GlobalPara::constant::R, &GlobalPara::constant::gamma, &GlobalPara::inviscid_flux_method::flux_conservation_scheme);
-		sDevicePara.initialize(
-			GlobalPara::constant::T0, GlobalPara::constant::p0, GlobalPara::constant::c0, GlobalPara::constant::gamma, GlobalPara::constant::epsilon, GlobalPara::constant::Re, GlobalPara::constant::Pr, GlobalPara::constant::mu,
-			GlobalPara::inviscid_flux_method::flag_reconstruct, GlobalPara::inviscid_flux_method::flag_gradient,
-			GlobalPara::boundaryCondition::_2D::inf::ruvp, GlobalPara::boundaryCondition::_2D::inlet::ruvp, GlobalPara::boundaryCondition::_2D::outlet::ruvp,
-			GlobalPara::inviscid_flux_method::flux_conservation_scheme, GlobalPara::inviscid_flux_method::flux_limiter
-		);
-		
-		// 更新状态
-		deviceMemoryAllocated = true;
-	}
-	catch (const char* e) {
-		// ! 异常处理未完成
-		std::cout << e << std::endl;
-		cudaError_t error = cudaError_t::cudaErrorDeviceUninitialized;
-		exit(-1);
-	}
-}
 
 void GPU::GPUSolver2::initialize_nodeHost(void* _pFVM2D_, int num_node) {
 	// 初始化node_host
@@ -441,37 +399,6 @@ void GPU::GPUSolver2::initialize_boundary(void* _pFVM2D_) {
 	// boundarySet
 	for (int i = 0; i < boundaryManager.boundaries.size(); i++) {
 		boundary_host.type[i] = boundaryManager.boundaries[i].type;
-	}
-}
-
-void GPU::GPUSolver2::update_ruvp_Uold() {
-	/*
-	用U更新element_vruvp.element_vruvp用于计算时间步长Dt以及输出流场
-	*/
-	REAL gamma = GlobalPara::constant::gamma;
-	/*
-	注：经过测试，发现auto指针对ij指标的访问是可行的
-	无论是auto还是auto&，均可以
-	对于auto，虽然原数组是REAL*a[4]类型，新指针是REAL**类型，但不影响访问
-	对于auto&，毋庸置疑可以访问
-	*/
-	auto& U = this->elementField_host.U;
-	auto& U_old = this->element_U_old;
-	auto& ruvp = this->element_vruvp;
-	for (int i = 0; i < this->elementField_host.num; i++) {
-		// 更新host端的U_old
-		for (int j = 0; j < 4; j++) {
-			if (isnan(U[j][i])) {
-				LogWriter::logAndPrintError("isnan.\n");
-			}
-			U_old[j][i] = U[j][i];
-		}
-		// 更新host端的ruvp 
-		// U:rho,rho_u,rho_v,rho_E ruvp:rho,u,v,p
-		ruvp[0][i] = U[0][i];
-		ruvp[1][i] = U[1][i] / U[0][i];
-		ruvp[2][i] = U[2][i] / U[0][i];
-		ruvp[3][i] = ruvp[0][i] * (gamma - 1) * (U[3][i] / U[0][i] - (ruvp[1][i] * ruvp[1][i] + ruvp[2][i] * ruvp[2][i]) * 0.5);
 	}
 }
 

@@ -1,6 +1,7 @@
 #ifndef BASIC_ALGORITHM_H
 #define BASIC_ALGORITHM_H
-#include "../gpu/dataType/Define.h"
+#include "../gpu/dataType/DefineType.h"
+#include <cmath>
 namespace U2NITS {
 	namespace Math {
 #ifdef max

@@ -83,7 +83,8 @@ public:
 	//void isentropicVortex_2(double xc, double yc, double chi, const double* ruvp0);
 	//// 等熵涡误差文件头
 	//void writeFileHeader_isentropicVortex();
-
+private:
+	void iniElement_xy_pEdges_parallel();
 
 };
 

@@ -1,6 +1,6 @@
 #ifndef MATH_COMMON_H
 #define MATH_COMMON_H
-#include "../gpu/dataType/Define.h"
+#include "../gpu/dataType/DefineType.h"
 
 // Common被Math和MathGPU共用
 namespace U2NITS {
@@ -13,7 +13,8 @@ namespace U2NITS {
 		最小规格化数 = 1.2e-38
 		最大规格化数 = 3.4e38
 		*/
-		constexpr REAL EPSILON_FLOAT_UN = 1e-44;// float最小非规格化浮点数 unnormalized
+		constexpr real PI = 3.1415926535897;        // 圆周率
+		constexpr REAL EPSILON_FLOAT_UN = 1e-44;    // float最小非规格化浮点数 unnormalized
 		constexpr REAL EPSILON_FLOAT_NORMAL = 1e-37;// float最小规格化浮点数 normalized
 		constexpr REAL BIG_FLOAT_NORMAL = 1e38;
 

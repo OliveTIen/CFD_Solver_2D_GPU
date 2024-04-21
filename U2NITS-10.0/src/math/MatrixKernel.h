@@ -1,7 +1,7 @@
 #ifndef __MATRIX_KERNEL_H__
 #define __MATRIX_KERNEL_H__
 
-#include "../gpu/dataType/Define.h"
+#include "../gpu/dataType/DefineType.h"
 #include <iostream>
 
 namespace U2NITS {

@@ -1,6 +1,7 @@
 #ifndef BASIC_ALGORITHM_GPU_H
 #define BASIC_ALGORITHM_GPU_H
-#include "../gpu/dataType/Define.h"
+#include "../gpu/dataType/DefineType.h"
+#include "../gpu/Env.h"
 
 namespace GPU {
 	namespace Math {

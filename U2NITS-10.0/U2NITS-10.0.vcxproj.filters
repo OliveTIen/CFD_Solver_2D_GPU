@@ -70,6 +70,9 @@
     <Filter Include="src\boundary_condition">
       <UniqueIdentifier>{c3e3cce1-a60f-4af4-ab3f-13c7f409f2f5}</UniqueIdentifier>
     </Filter>
+    <Filter Include="src\space\viscous_flux">
+      <UniqueIdentifier>{ffc34ffd-8f58-4d4a-b801-3ed36eaa021f}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="src\main.cpp">
@@ -236,6 +239,18 @@
     </ClCompile>
     <ClCompile Include="src\time\CIteration.cpp">
       <Filter>src\time</Filter>
+    </ClCompile>
+    <ClCompile Include="src\solvers\SolverDataGetter.cpp">
+      <Filter>src\solvers</Filter>
+    </ClCompile>
+    <ClCompile Include="src\drivers\RoutineController.cpp">
+      <Filter>src\drivers</Filter>
+    </ClCompile>
+    <ClCompile Include="src\gpu\datatype\BoundaryV2.cpp">
+      <Filter>src\gpu\dataType</Filter>
+    </ClCompile>
+    <ClCompile Include="src\space\viscous_flux\ViscousFlux.cpp">
+      <Filter>src\space\viscous_flux</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -496,6 +511,21 @@
     </ClInclude>
     <ClInclude Include="src\time\CalculateDtGPU.h">
       <Filter>src\time</Filter>
+    </ClInclude>
+    <ClInclude Include="src\gpu\datatype\Matrix_4xn.h">
+      <Filter>src\gpu\dataType</Filter>
+    </ClInclude>
+    <ClInclude Include="src\solvers\SolverDataGetter.h">
+      <Filter>src\solvers</Filter>
+    </ClInclude>
+    <ClInclude Include="src\drivers\RoutineController.h">
+      <Filter>src\drivers</Filter>
+    </ClInclude>
+    <ClInclude Include="src\gpu\datatype\BoundaryV2.h">
+      <Filter>src\gpu\dataType</Filter>
+    </ClInclude>
+    <ClInclude Include="src\space\viscous_flux\ViscousFlux.h">
+      <Filter>src\space\viscous_flux</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

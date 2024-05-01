@@ -17,20 +17,25 @@ namespace U2NITS {
 		bool initialized = false;// 上述两个string是否初始化
 
 	public:
-		std::string tecplotFilePath;
-		std::string continueFilePath;
+		std::string tecplotFilePath;// 流场输出
+		std::string tecplotBoundaryFilePath;
+		std::string continueFilePath;// 续算
 		std::string continueFilePath_nan;
+		std::string recoveryFilePath;
+		std::string tecplot_hist_path;
 		
 		ConsolePrinter console;
 		LogWriter log;
 		HistWriter hist;
-		FieldWriter field;
 		CTimer timer;
 
 		void updateFileName(int istep);
+		void set_tecplot_hist_path(std::string path) { tecplot_hist_path = path; }
 		std::string getDir() {
 			return FilePathManager::getInstance()->getOutputDirectory();
 		}
+
+		FieldWriter* getFieldWriter() { return FieldWriter::getInstance(); }
 	};
 }
 

@@ -13,21 +13,21 @@ namespace GPU {
 #undef min
 #endif
 
-		__device__ inline real max(real a, real b) {
+		__device__ inline myfloat max(myfloat a, myfloat b) {
 			return (a > b) ? a : b;
 		}
 
-		__device__ inline real min(real a, real b) {
+		__device__ inline myfloat min(myfloat a, myfloat b) {
 			return (a < b) ? a : b;
 		}
 
-		__device__ inline real abs(real a) {
+		__device__ inline myfloat abs(myfloat a) {
 			return (a > 0) ? a : (-a);
 		}
 
-		__device__ inline real distance2D(real x1, real y1, real x2, real y2) {
-			real dx = x2 - x1;
-			real dy = y2 - y1;
+		__device__ inline myfloat distance2D(myfloat x1, myfloat y1, myfloat x2, myfloat y2) {
+			myfloat dx = x2 - x1;
+			myfloat dy = y2 - y1;
 			return sqrt(dx * dx + dy * dy);
 		}
 	}

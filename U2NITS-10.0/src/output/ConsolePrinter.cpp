@@ -199,17 +199,16 @@ void ConsolePrinter::assemblySolveInfo(double calTime, int calStep, int maxItera
 		<< "Press ESC to end Computation\n";
 	m_solveInfo = info.str();
 }
-std::string ConsolePrinter::setSolveInfo(int startStep, int currentStep, int endStep, int numOfFile, double usedTime, double physicalTime, double maxPhysicalTime, const double* residual_vector) {
+std::string ConsolePrinter::setSolveInfo(int startStep, int currentStep, int endStep, int numOfFile, double usedTime, double physicalTime, double maxPhysicalTime, const double* residual_vector, double CFL) {
 	double speed = (currentStep - startStep) / usedTime;
 	double remainTime = (endStep - currentStep) / speed;
 	std::stringstream info;
 	info << "\n"
-		<< "  Time used: \t" << StringProcessor::timeFormat((int)usedTime)
-		<< "\t(Remain: " << StringProcessor::timeFormat((int)remainTime) << " s)\n"
-		<< "  Calculate step: \t" << currentStep << " \t/" << endStep << "\n"
-		<< "  Calculate speed: \t" << speed << "\t step/s\n"
+		<< "  Time used: \t" << StringProcessor::timeFormat((int)usedTime) << "\t(Remain: " << StringProcessor::timeFormat((int)remainTime) << " s)\n"
+		<< "  Step: \t" << currentStep << " \t/" << endStep << "\n"
+		<< "  Speed: \t" << speed << "\t step/s\n"
 		<< "  Output file num: \t" << numOfFile << "\n"
-		<< "  Residual rho: \t" << std::scientific << residual_vector[0] << "\n" << std::defaultfloat
+		<< "  res_rho: \t" << std::scientific << residual_vector[0] << std::defaultfloat << "\tCFL: " << CFL << "\n"
 		<< "  Physical time: \t" << physicalTime << " s\t/" << maxPhysicalTime << " s\n"
 		<< "Press ESC to end Computation\n";
 	m_solveInfo = info.str();

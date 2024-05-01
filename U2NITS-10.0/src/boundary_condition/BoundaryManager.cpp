@@ -1,6 +1,16 @@
 #include "BoundaryManager.h"
 #include "../global/Constexpr.h"
 #include "../output/LogWriter.h"
+#include "../global/GlobalPara.h"
+
+U2NITS::BoundaryManager* U2NITS::BoundaryManager::p_instance = nullptr;
+
+U2NITS::BoundaryManager* U2NITS::BoundaryManager::getInstance() {
+	if (p_instance == nullptr) {
+		p_instance = new BoundaryManager();
+	}
+	return p_instance;
+}
 
 int U2NITS::BoundaryManager::boundaryNameToType(std::string boundaryName) {
 	// 源自 BoundaryManager_2D::getBoundaryTypeByName
@@ -9,10 +19,11 @@ int U2NITS::BoundaryManager::boundaryNameToType(std::string boundaryName) {
 	// 边界名称转边界类型 内部是-1
 	int bType = -1;
 	if (boundaryName == "wall" || boundaryName == "obstacle" || boundaryName == "airfoil" || boundaryName == "foil") {
-		//if (GlobalPara::physicsModel::equation == _EQ_euler)bType = _BC_wall_nonViscous;
-		//else bType = _BC_wall_adiabat;
-
-		bType = _BC_wall_adiabat;
+		if (GlobalPara::physicsModel::equation == _EQ_euler)bType = _BC_wall_nonViscous;
+		else bType = _BC_wall_adiabat;
+	}
+	else if (boundaryName == "wall_slippery" || boundaryName == "wall_nonViscous") {
+		bType = _BC_wall_nonViscous;
 	}
 	else if (boundaryName == "inlet")bType = _BC_inlet;
 	else if (boundaryName == "outlet")bType = _BC_outlet;

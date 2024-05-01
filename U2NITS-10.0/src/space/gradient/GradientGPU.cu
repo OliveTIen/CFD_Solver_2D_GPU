@@ -6,7 +6,7 @@
 #include "../../global/GlobalPara.h"
 #include "../../gpu/GPUGlobalFunction.h"
 
-__global__ void calculateGradientKernel_old(GPU::ElementSoA element_device, GPU::FieldSoA elementField_device) {
+__global__ void calculateGradientKernel_old(GPU::ElementSoA element_device, GPU::ElementFieldSoA elementField_device) {
 	// --- 计算单元梯度核函数 已完成 --- 
 	// 输入：单元坐标、单元U、单元邻居坐标、单元邻居U
 	// 输出：单元梯度
@@ -31,12 +31,12 @@ __global__ void calculateGradientKernel_old(GPU::ElementSoA element_device, GPU:
 	const int nVar = 4;// 守恒量个数，二维为4
 	const int nX = 2;// 坐标个数，二维为2
 	//const int nVNmax = 3;// 最大邻居个数
-	REAL dUdX[nX][nVar]{};// 已初始化为0
+	myfloat dUdX[nX][nVar]{};// 已初始化为0
 	if (nValidNeighbor == 3) {
 		// 初始化dX、dU
 		const int nVN = 3;// 有效邻居个数
-		REAL dX[nVN][nX]{};
-		REAL dU[nVN][nVar]{};
+		myfloat dX[nVN][nX]{};
+		myfloat dU[nVN][nVar]{};
 		for (int iVN = 0; iVN < nVN; iVN++) {
 			int index = validNeighbors[iVN];// 邻居的ID
 			dX[iVN][0] = element_device.xy[0][index] - element_device.xy[0][i];
@@ -48,21 +48,21 @@ __global__ void calculateGradientKernel_old(GPU::ElementSoA element_device, GPU:
 
 		// 最小二乘法 x=(A'A)^{-1}A'b，dUdX = inv(dXtrans * dX) * dXtrans * dU
 		// ! 以下函数为device，应在GPU实现
-		REAL dXtrans[nX][nVN]{};
-		REAL invdXdX[nX][nX]{};
-		REAL invdXdX_dX[nX][nVN]{};
-		GPU::Math::Matrix::transpose(nVN, nX, (REAL*)dX, (REAL*)dXtrans);
-		GPU::Math::Matrix::mul_ixj_jxk(nX, nVN, nX, (REAL*)dXtrans, (REAL*)dX, (REAL*)invdXdX);
+		myfloat dXtrans[nX][nVN]{};
+		myfloat invdXdX[nX][nX]{};
+		myfloat invdXdX_dX[nX][nVN]{};
+		GPU::Math::Matrix::transpose(nVN, nX, (myfloat*)dX, (myfloat*)dXtrans);
+		GPU::Math::Matrix::mul_ixj_jxk(nX, nVN, nX, (myfloat*)dXtrans, (myfloat*)dX, (myfloat*)invdXdX);
 		GPU::Math::Matrix::inv_2x2(invdXdX);
-		GPU::Math::Matrix::mul_ixj_jxk(nX, nX, nVN, (REAL*)invdXdX, (REAL*)dXtrans, (REAL*)invdXdX_dX);
-		GPU::Math::Matrix::mul_ixj_jxk(nX, nVN, nVar, (REAL*)invdXdX_dX, (REAL*)dU, (REAL*)dUdX);
+		GPU::Math::Matrix::mul_ixj_jxk(nX, nX, nVN, (myfloat*)invdXdX, (myfloat*)dXtrans, (myfloat*)invdXdX_dX);
+		GPU::Math::Matrix::mul_ixj_jxk(nX, nVN, nVar, (myfloat*)invdXdX_dX, (myfloat*)dU, (myfloat*)dUdX);
 	}
 	else if (nValidNeighbor == 2) {
 		// 以下代码与上面的代码相同(仅仅nVN不同)，修改时请一同修改
 		// 初始化dX、dU
 		const int nVN = 2;// 有效邻居个数
-		REAL dX[nVN][nX]{};
-		REAL dU[nVN][nVar]{};
+		myfloat dX[nVN][nX]{};
+		myfloat dU[nVN][nVar]{};
 		for (int iVN = 0; iVN < nVN; iVN++) {
 			int index = validNeighbors[iVN];// 邻居的ID
 			dX[iVN][0] = element_device.xy[0][index] - element_device.xy[0][i];
@@ -74,21 +74,21 @@ __global__ void calculateGradientKernel_old(GPU::ElementSoA element_device, GPU:
 
 		// 最小二乘法 x=(A'A)^{-1}A'b，dUdX = inv(dXtrans * dX) * dXtrans * dU
 		// ! 以下函数为device，应在GPU实现
-		REAL dXtrans[nX][nVN]{};
-		REAL invdXdX[nX][nX]{};
-		REAL invdXdX_dX[nX][nVN]{};
-		GPU::Math::Matrix::transpose(nVN, nX, (REAL*)dX, (REAL*)dXtrans);
-		GPU::Math::Matrix::mul_ixj_jxk(nX, nVN, nX, (REAL*)dXtrans, (REAL*)dX, (REAL*)invdXdX);
+		myfloat dXtrans[nX][nVN]{};
+		myfloat invdXdX[nX][nX]{};
+		myfloat invdXdX_dX[nX][nVN]{};
+		GPU::Math::Matrix::transpose(nVN, nX, (myfloat*)dX, (myfloat*)dXtrans);
+		GPU::Math::Matrix::mul_ixj_jxk(nX, nVN, nX, (myfloat*)dXtrans, (myfloat*)dX, (myfloat*)invdXdX);
 		GPU::Math::Matrix::inv_2x2(invdXdX);
-		GPU::Math::Matrix::mul_ixj_jxk(nX, nX, nVN, (REAL*)invdXdX, (REAL*)dXtrans, (REAL*)invdXdX_dX);
-		GPU::Math::Matrix::mul_ixj_jxk(nX, nVN, nVar, (REAL*)invdXdX_dX, (REAL*)dU, (REAL*)dUdX);
+		GPU::Math::Matrix::mul_ixj_jxk(nX, nX, nVN, (myfloat*)invdXdX, (myfloat*)dXtrans, (myfloat*)invdXdX_dX);
+		GPU::Math::Matrix::mul_ixj_jxk(nX, nVN, nVar, (myfloat*)invdXdX_dX, (myfloat*)dU, (myfloat*)dUdX);
 	}
 	else if (nValidNeighbor == 1) {
 		// 以下代码与上面的代码相同(仅仅nVN不同)，修改时请一同修改
 		// 初始化dX、dU
 		const int nVN = 1;// 有效邻居个数
-		REAL dX[nVN][nX]{};
-		REAL dU[nVN][nVar]{};
+		myfloat dX[nVN][nX]{};
+		myfloat dU[nVN][nVar]{};
 		for (int iVN = 0; iVN < nVN; iVN++) {
 			int index = validNeighbors[iVN];// 邻居的ID
 			dX[iVN][0] = element_device.xy[0][index] - element_device.xy[0][i];
@@ -100,14 +100,14 @@ __global__ void calculateGradientKernel_old(GPU::ElementSoA element_device, GPU:
 
 		// 最小二乘法 x=(A'A)^{-1}A'b，dUdX = inv(dXtrans * dX) * dXtrans * dU
 		// ! 以下函数为device，应在GPU实现
-		REAL dXtrans[nX][nVN]{};
-		REAL invdXdX[nX][nX]{};
-		REAL invdXdX_dX[nX][nVN]{};
-		GPU::Math::Matrix::transpose(nVN, nX, (REAL*)dX, (REAL*)dXtrans);
-		GPU::Math::Matrix::mul_ixj_jxk(nX, nVN, nX, (REAL*)dXtrans, (REAL*)dX, (REAL*)invdXdX);
+		myfloat dXtrans[nX][nVN]{};
+		myfloat invdXdX[nX][nX]{};
+		myfloat invdXdX_dX[nX][nVN]{};
+		GPU::Math::Matrix::transpose(nVN, nX, (myfloat*)dX, (myfloat*)dXtrans);
+		GPU::Math::Matrix::mul_ixj_jxk(nX, nVN, nX, (myfloat*)dXtrans, (myfloat*)dX, (myfloat*)invdXdX);
 		GPU::Math::Matrix::inv_2x2(invdXdX);
-		GPU::Math::Matrix::mul_ixj_jxk(nX, nX, nVN, (REAL*)invdXdX, (REAL*)dXtrans, (REAL*)invdXdX_dX);
-		GPU::Math::Matrix::mul_ixj_jxk(nX, nVN, nVar, (REAL*)invdXdX_dX, (REAL*)dU, (REAL*)dUdX);
+		GPU::Math::Matrix::mul_ixj_jxk(nX, nX, nVN, (myfloat*)invdXdX, (myfloat*)dXtrans, (myfloat*)invdXdX_dX);
+		GPU::Math::Matrix::mul_ixj_jxk(nX, nVN, nVar, (myfloat*)invdXdX_dX, (myfloat*)dU, (myfloat*)dUdX);
 	}
 
 	// 将dUdX存进单元
@@ -124,7 +124,7 @@ __global__ void calculateGradientKernel_old(GPU::ElementSoA element_device, GPU:
 	// 只需检查是否有±1e10量级的数
 }
 
-__global__ void GradientLeastSquareKernel(GPU::ElementSoA element_device, GPU::FieldSoA elementField_device, GPU::NodeSoA node_device) {
+__global__ void GradientLeastSquareKernel(GPU::ElementSoA element_device, GPU::ElementFieldSoA elementField_device, GPU::NodeSoA node_device) {
 	using namespace GPU;
 	const int bid = blockIdx.x;
 	const int tid = threadIdx.x;
@@ -151,12 +151,12 @@ __global__ void GradientLeastSquareKernel(GPU::ElementSoA element_device, GPU::F
 	const int nVar = 4;// 守恒量个数，二维为4
 	const int nX = 2;// 坐标个数，二维为2
 	const int& nVN = numOfValidNeighbor;// 有效邻居个数，取值1-3
-	real* dX = new real[nVN * nX]{};
-	real* dUdX = new real[nX * nVar]{};
-	real* dU = new real[nVN * nVar]{};
-	real* dXtrans = new real[nX * nVN]{};
-	real* invdXdX = new real[nX * nX]{};
-	real* invdXdX_dX = new real[nX * nVN]{};
+	myfloat* dX = new myfloat[nVN * nX]{};
+	myfloat* dUdX = new myfloat[nX * nVar]{};
+	myfloat* dU = new myfloat[nVN * nVar]{};
+	myfloat* dXtrans = new myfloat[nX * nVN]{};
+	myfloat* invdXdX = new myfloat[nX * nX]{};
+	myfloat* invdXdX_dX = new myfloat[nX * nVN]{};
 	// 初始化dX、dU
 	for (int iVN = 0; iVN < nVN; iVN++) {
 		int index = validNeighbors[iVN];// 邻居的ID
@@ -167,11 +167,11 @@ __global__ void GradientLeastSquareKernel(GPU::ElementSoA element_device, GPU::F
 		}
 	}
 	// 最小二乘法计算dUdX，x=(A'A)^{-1}A'b，dUdX = inv(dXtrans * dX) * dXtrans * dU
-	GPU::Math::Matrix::transpose(nVN, nX, (real*)dX, (real*)dXtrans);
-	GPU::Math::Matrix::mul_ixj_jxk(nX, nVN, nX, (real*)dXtrans, (real*)dX, (real*)invdXdX);
+	GPU::Math::Matrix::transpose(nVN, nX, (myfloat*)dX, (myfloat*)dXtrans);
+	GPU::Math::Matrix::mul_ixj_jxk(nX, nVN, nX, (myfloat*)dXtrans, (myfloat*)dX, (myfloat*)invdXdX);
 	GPU::Math::Matrix::inv_2x2(invdXdX);
-	GPU::Math::Matrix::mul_ixj_jxk(nX, nX, nVN, (real*)invdXdX, (real*)dXtrans, (real*)invdXdX_dX);
-	GPU::Math::Matrix::mul_ixj_jxk(nX, nVN, nVar, (real*)invdXdX_dX, (real*)dU, (real*)dUdX);
+	GPU::Math::Matrix::mul_ixj_jxk(nX, nX, nVN, (myfloat*)invdXdX, (myfloat*)dXtrans, (myfloat*)invdXdX_dX);
+	GPU::Math::Matrix::mul_ixj_jxk(nX, nVN, nVar, (myfloat*)invdXdX_dX, (myfloat*)dU, (myfloat*)dUdX);
 
 	/*
 限制器
@@ -183,8 +183,8 @@ __global__ void GradientLeastSquareKernel(GPU::ElementSoA element_device, GPU::F
 计算ratio = max(abs(dU_node/dU))，若大于1，则整体除以ratio
 		*/
 	const int nNode = 3;
-	real dU_node[nNode][nVar]{};
-	real dX_node[nNode][nX]{};
+	myfloat dU_node[nNode][nVar]{};
+	myfloat dX_node[nNode][nX]{};
 	// 计算dX_node
 	for (int iNode = 0; iNode < nNode; iNode++) {
 		for (int iVar = 0; iVar < nVar; iVar++) {
@@ -194,8 +194,8 @@ __global__ void GradientLeastSquareKernel(GPU::ElementSoA element_device, GPU::F
 		}
 	}
 	// 计算dU_node[nNode,nVar] =  dX_node[nNode,nX] * dUdX[nX,nVar]，然后计算ratio
-	GPU::Math::Matrix::mul_ixj_jxk(nNode, nX, nVar, (real*)dX_node, dUdX, (real*)dU_node);
-	real ratio = 1.0;
+	GPU::Math::Matrix::mul_ixj_jxk(nNode, nX, nVar, (myfloat*)dX_node, dUdX, (myfloat*)dU_node);
+	myfloat ratio = 1.0;
 	for (int iNode = 0; iNode < nNode; iNode++) {
 		for (int iVar = 0; iVar < nVar; iVar++) {
 			using namespace GPU::Math;
@@ -220,7 +220,7 @@ __global__ void GradientLeastSquareKernel(GPU::ElementSoA element_device, GPU::F
 
 }
 
-__global__ void GradientGreenGaussKernel(GPU::ElementSoA element, GPU::FieldSoA elementField, GPU::EdgeSoA edge) {
+__global__ void GradientGreenGaussKernel(GPU::ElementSoA element, GPU::ElementFieldSoA elementField, GPU::EdgeSoA edge) {
 	/*
 	不能传element引用，因为引用本质是指针，而指针存储的是host地址，在device中找不到。也不能传值，因为会调用class默认构造函数，构造函数是host的，device无法调用
 	改为struct后，由于struct没有默认构造和析构函数，可以传值
@@ -233,7 +233,7 @@ __global__ void GradientGreenGaussKernel(GPU::ElementSoA element, GPU::FieldSoA 
 	int num_edge = edge.num_edge;
 	// 求当前单元ID、当前单元体积、edgeID、edge朝向正负、外单元ID
 	int currentElementID = element.ID[iElement];
-	real volumeC = element.volume[currentElementID];// 体积
+	myfloat volumeC = element.volume[currentElementID];// 体积
 	// 初始化edgeID 超出数组范围的非法值赋为-1
 	int edgeID[4]{ -1,-1,-1,-1 };// 第iElement个element的第i条边的ID
 	for (int i = 0; i < 4; i++) {
@@ -242,7 +242,7 @@ __global__ void GradientGreenGaussKernel(GPU::ElementSoA element, GPU::FieldSoA 
 			edgeID[i] = -1;
 		}
 	}
-	// 初始化edgeType
+	// 初始化edgeType。edgeType即setID即所属边界的ID，-1表示内部边
 	int edgeType[4]{ -1,-1,-1,-1 };
 	for (int i = 0; i < 4; i++) {
 		int edgeIDi = edgeID[i];
@@ -271,9 +271,9 @@ __global__ void GradientGreenGaussKernel(GPU::ElementSoA element, GPU::FieldSoA 
 		}
 	}
 	// 求面积矢量edgeSVector(几何量)
-	real edgeNormal[2][4]{};
-	real edgeArea[4]{};
-	real edgeSVector[2][4]{};// 面积矢量
+	myfloat edgeNormal[2][4]{};
+	myfloat edgeArea[4]{};
+	myfloat edgeSVector[2][4]{};// 面积矢量
 	for (int i = 0; i < 4; i++) {
 		int edgeIDi = edgeID[i];
 		if (edgeIDi == -1) {
@@ -288,9 +288,9 @@ __global__ void GradientGreenGaussKernel(GPU::ElementSoA element, GPU::FieldSoA 
 	}
 
 	// 求几何权重因子gc、矢径(几何量)
-	real gC_all[4]{};
-	real rf_rC_all[4][2]{};
-	real rf_rF_all[4][2]{};
+	myfloat gC_all[4]{};
+	myfloat rf_rC_all[4][2]{};
+	myfloat rf_rF_all[4][2]{};
 	for (int i = 0; i < 4; i++) {
 		int edgeIDi = edgeID[i];
 		if (edgeIDi == -1) {
@@ -304,15 +304,15 @@ __global__ void GradientGreenGaussKernel(GPU::ElementSoA element, GPU::FieldSoA 
 				// 内部边
 
 				// 面和单元坐标
-				real fx = edge.xy[0][edgeIDi];// face x
-				real fy = edge.xy[1][edgeIDi];
-				real Cx = element.xy[0][currentElementID];// cell x
-				real Cy = element.xy[1][currentElementID];
-				real Fx = element.xy[0][currentOutElementID];
-				real Fy = element.xy[1][currentOutElementID];
+				myfloat fx = edge.xy[0][edgeIDi];// face x
+				myfloat fy = edge.xy[1][edgeIDi];
+				myfloat Cx = element.xy[0][currentElementID];// cell x
+				myfloat Cy = element.xy[1][currentElementID];
+				myfloat Fx = element.xy[0][currentOutElementID];
+				myfloat Fy = element.xy[1][currentOutElementID];
 				// 几何权重因子gC = |rF-rf|/|rF-rC|，存储于gC_all数组中
-				real dFf = Math::distance2D(Fx, Fy, fx, fy);
-				real dFC = Math::distance2D(Fx, Fy, Cx, Cy);
+				myfloat dFf = Math::distance2D(Fx, Fy, fx, fy);
+				myfloat dFC = Math::distance2D(Fx, Fy, Cx, Cy);
 				if (dFC < U2NITS::Math::EPSILON)dFC = U2NITS::Math::EPSILON;
 				gC_all[i] = dFf / dFC;
 				// 矢径 rf-rC rf-rF，在迭代时会用到
@@ -324,25 +324,25 @@ __global__ void GradientGreenGaussKernel(GPU::ElementSoA element, GPU::FieldSoA 
 			else {
 				// 周期边
 				// 面和单元坐标
-				real fx = edge.xy[0][edgeIDi];
-				real fy = edge.xy[1][edgeIDi];
-				real Cx = element.xy[0][currentElementID];// cell x
-				real Cy = element.xy[1][currentElementID];
+				myfloat fx = edge.xy[0][edgeIDi];
+				myfloat fy = edge.xy[1][edgeIDi];
+				myfloat Cx = element.xy[0][currentElementID];// cell x
+				myfloat Cy = element.xy[1][currentElementID];
 				// 周期边的outElement坐标需要平移
 				int pairIDi = edge.periodicPair[edgeIDi];
-				real fx_pair = edge.xy[0][pairIDi];
-				real fy_pair = edge.xy[1][pairIDi];
-				real shiftx = fx - fx_pair;// 从pair指向当前位置的矢径
-				real shifty = fy - fy_pair;
-				real Fx = element.xy[0][currentOutElementID];
-				real Fy = element.xy[1][currentOutElementID];
+				myfloat fx_pair = edge.xy[0][pairIDi];
+				myfloat fy_pair = edge.xy[1][pairIDi];
+				myfloat shiftx = fx - fx_pair;// 从pair指向当前位置的矢径
+				myfloat shifty = fy - fy_pair;
+				myfloat Fx = element.xy[0][currentOutElementID];
+				myfloat Fy = element.xy[1][currentOutElementID];
 				Fx += shiftx;// 用该矢径平移单元
 				Fy += shifty;
 
 				// 后面和内部边是一样的
 				// 几何权重因子gC = |rF-rf|/|rF-rC|，存储于gC_all数组中
-				real dFf = Math::distance2D(Fx, Fy, fx, fy);
-				real dFC = Math::distance2D(Fx, Fy, Cx, Cy);
+				myfloat dFf = Math::distance2D(Fx, Fy, fx, fy);
+				myfloat dFC = Math::distance2D(Fx, Fy, Cx, Cy);
 				if (dFC < U2NITS::Math::EPSILON)dFC = U2NITS::Math::EPSILON;
 				gC_all[i] = dFf / dFC;
 				// 矢径 rf-rC rf-rF，在迭代时会用到
@@ -356,15 +356,15 @@ __global__ void GradientGreenGaussKernel(GPU::ElementSoA element, GPU::FieldSoA 
 		else {
 			// 边界边(周期边界除外)
 			// F单元实际不存在，假设F单元和C单元关于f面中心对称
-			real fx = edge.xy[0][edgeIDi];// face x
-			real fy = edge.xy[1][edgeIDi];
-			real Cx = element.xy[0][currentElementID];// cell x
-			real Cy = element.xy[1][currentElementID];
+			myfloat fx = edge.xy[0][edgeIDi];// face x
+			myfloat fy = edge.xy[1][edgeIDi];
+			myfloat Cx = element.xy[0][currentElementID];// cell x
+			myfloat Cy = element.xy[1][currentElementID];
 
 			using namespace U2NITS;
-			real gC = 0.5;// 几何权重因子gc
-			real rf_rC[2]{ fx - Cx,fy - Cy };// rf-rC
-			real rf_rF[2]{ -(fx - Cx),-(fy - Cy) };// rf-rF
+			myfloat gC = 0.5;// 几何权重因子gc
+			myfloat rf_rC[2]{ fx - Cx,fy - Cy };// rf-rC
+			myfloat rf_rF[2]{ -(fx - Cx),-(fy - Cy) };// rf-rF
 
 			gC_all[i] = gC;
 			rf_rC_all[i][0] = rf_rC[0];
@@ -381,7 +381,7 @@ __global__ void GradientGreenGaussKernel(GPU::ElementSoA element, GPU::FieldSoA 
 	const int nVar = 4;
 	for (int jVar = 0; jVar < nVar; jVar++) {
 		// 求和。若面朝内，该面通量取相反数
-		real sum_phifSf[2]{};
+		myfloat sum_phifSf[2]{};
 		for (int i = 0; i < 4; i++) {
 			int currentEdgeID = edgeID[i];
 			if (currentEdgeID == -1) {
@@ -393,28 +393,28 @@ __global__ void GradientGreenGaussKernel(GPU::ElementSoA element, GPU::FieldSoA 
 				// 内部边和周期边
 
 				// 获取单元值和单元梯度值
-				real phiC = elementField.U[jVar][currentElementID];
-				real phiF = elementField.U[jVar][currentOutElementID];
+				myfloat phiC = elementField.U[jVar][currentElementID];
+				myfloat phiF = elementField.U[jVar][currentOutElementID];
 				// 求界面值(近似)
-				real gC = gC_all[i];
-				real gC1 = 1.0 - gC;
-				real phif = gC * phiC + gC1 * phiF;
-				real Sf[2]{ edgeSVector[0][i],edgeSVector[1][i] };
+				myfloat gC = gC_all[i];
+				myfloat gC1 = 1.0 - gC;
+				myfloat phif = gC * phiC + gC1 * phiF;
+				myfloat Sf[2]{ edgeSVector[0][i],edgeSVector[1][i] };
 				sum_phifSf[0] += phif * Sf[0] * edgeSign[i];// 乘以符号，以应对面朝内的情形
 				sum_phifSf[1] += phif * Sf[1] * edgeSign[i];
 			}
 			else {
 				// 边界边(周期边除外)
-				real phiC = elementField.U[jVar][currentElementID];
-				real phif = phiC;
-				real Sf[2]{ edgeSVector[0][i],edgeSVector[1][i] };
+				myfloat phiC = elementField.U[jVar][currentElementID];
+				myfloat phif = phiC;
+				myfloat Sf[2]{ edgeSVector[0][i],edgeSVector[1][i] };
 				sum_phifSf[0] += phif * Sf[0] * edgeSign[i];// 乘以符号，以应对面朝内的情形
 				sum_phifSf[1] += phif * Sf[1] * edgeSign[i];
 			}
 
 		}
 
-		real nabla_phiC_new[2]{// 梯度
+		myfloat nabla_phiC_new[2]{// 梯度
 			1 / volumeC * sum_phifSf[0],
 			1 / volumeC * sum_phifSf[1]
 		};
@@ -425,7 +425,7 @@ __global__ void GradientGreenGaussKernel(GPU::ElementSoA element, GPU::FieldSoA 
 	}
 }
 
-void GPU::calculateGradient_old(GPU::ElementSoA& element_device, GPU::FieldSoA& elementField_device) {
+void GPU::calculateGradient_old(GPU::ElementSoA& element_device, GPU::ElementFieldSoA& elementField_device) {
 	int block_size = 512;// 最好是128 256 512
 	// num element = 10216
 	int grid_size = (element_device.num_element + block_size - 1) / block_size;
@@ -437,7 +437,7 @@ void GPU::calculateGradient_old(GPU::ElementSoA& element_device, GPU::FieldSoA& 
 	// cudaDeviceSynchronize();放在外面
 }
 
-void GPU::Space::Gradient::Gradient_2(GPU::ElementSoA& element_device, GPU::FieldSoA& elementField_device, GPU::EdgeSoA& edge_device) {
+void GPU::Space::Gradient::Gradient_2(GPU::ElementSoA& element_device, GPU::ElementFieldSoA& elementField_device, GPU::EdgeSoA& edge_device) {
 	int block_size = 512;// 最好是128 256 512
 	int grid_size = (element_device.num_element + block_size - 1) / block_size;
 
@@ -457,7 +457,7 @@ void GPU::Space::Gradient::Gradient_2(GPU::ElementSoA& element_device, GPU::Fiel
 	}
 }
 
-void GPU::Space::Gradient::GradientLeastSquare(int block_size, int grid_size, GPU::ElementSoA& element_device, GPU::FieldSoA& elementField_device, GPU::NodeSoA& node_device) {
+void GPU::Space::Gradient::GradientLeastSquare(int block_size, int grid_size, GPU::ElementSoA& element_device, GPU::ElementFieldSoA& elementField_device, GPU::NodeSoA& node_device) {
 	dim3 block(block_size, 1, 1);
 	dim3 grid(grid_size, 1, 1);
 	GradientLeastSquareKernel <<<grid, block >>> (element_device, elementField_device, node_device);
@@ -465,7 +465,7 @@ void GPU::Space::Gradient::GradientLeastSquare(int block_size, int grid_size, GP
 
 }
 
-void GPU::Space::Gradient::GradientGreenGauss(int block_size, int grid_size, GPU::ElementSoA& element_device, GPU::FieldSoA& elementField_device, GPU::EdgeSoA& edge_device) {
+void GPU::Space::Gradient::GradientGreenGauss(int block_size, int grid_size, GPU::ElementSoA& element_device, GPU::ElementFieldSoA& elementField_device, GPU::EdgeSoA& edge_device) {
 	dim3 block(block_size, 1, 1);
 	dim3 grid(grid_size, 1, 1);
 	GradientGreenGaussKernel <<<grid, block>>> (element_device, elementField_device, edge_device);

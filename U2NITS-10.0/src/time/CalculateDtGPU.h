@@ -4,9 +4,9 @@
 
 namespace GPU {
 	namespace Time {
-		real calculateGlobalDt(
-			real t, real T, real gamma, real Re, real Pr, real CFL, real Rcpcv,
-			GPU::ElementSoA& element, GPU::EdgeSoA& edge, real* element_vruvp[4]
+		myfloat calculateGlobalDt(
+			myfloat t, myfloat T, myfloat gamma, myfloat Re, myfloat Pr, myfloat CFL, myfloat Rcpcv,
+			GPU::ElementSoA& element, GPU::EdgeSoA& edge, myfloat* element_vruvp[4]
 		);
 	}
 }

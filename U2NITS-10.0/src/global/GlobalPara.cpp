@@ -63,13 +63,12 @@ namespace GlobalPara {
 		}
 	}
 	namespace initialCondition {
-		int type = 1;
+		//int type = 1;
 	}
 	namespace output {
 		int step_per_print = 50;
 		int step_per_output_field = 50;
 		int step_per_output_hist = 50;
-		bool output_var_ruvp[4] = { 1,1,1,1 };
 		int autosaveFileNum = 3;
 		int maxIteration = 5000;
 		double tolerace_residual = 1.0e-7;// 低于此残差认为达到稳态

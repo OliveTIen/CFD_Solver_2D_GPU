@@ -1,6 +1,6 @@
 #include "RiemannSolver.h"
 #include "../global/GlobalPara.h"
-#include "../Math.h"
+#include "../math/Math.h"
 
 
 int RiemannSolver::solve(const double* UL, const double* UR,
@@ -23,8 +23,8 @@ int RiemannSolver::LocalLaxFriedrichs(const double* UL, const double* UR,
     //输出：flux
     const double& gamma = GlobalPara::constant::gamma;
     double ruvpL[4], ruvpR[4];
-    Math_2D::U_2_ruvp(UL, ruvpL, gamma);
-    Math_2D::U_2_ruvp(UR, ruvpR, gamma);
+    U2NITS::Math::U2ruvp_host(UL, ruvpL, gamma);
+    U2NITS::Math::U2ruvp_host(UR, ruvpR, gamma);
     double rL = ruvpL[0];
     double uL = ruvpL[1];
     double vL = ruvpL[2];
@@ -53,8 +53,8 @@ int RiemannSolver::LocalLaxFriedrichs(const double* UL, const double* UR,
     FnR[3] = rR * unR * hr;
 
     //无粘数值通量 Roe-Pike黎曼求解器 王乾论文P31
-    // 守恒格式：Local Lax-Friedrichs格式
-    double lambdaMax = Math::max_(abs(unL) + sqrt(gamma * pL / rL), abs(unR) + sqrt(gamma * pR / rR));
+    // 守恒格式：Local Lax-Friedrichs格式 U2NITS::Math::max
+    double lambdaMax = U2NITS::Math::max(abs(unL) + sqrt(gamma * pL / rL), abs(unR) + sqrt(gamma * pR / rR));
     for (int i = 0; i < 4; i++) {
         flux[i] = 0.5 * (FnL[i] + FnR[i] - lambdaMax * (UR[i] - UL[i]));
         flux[i] *= length;

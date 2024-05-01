@@ -321,3 +321,5 @@ cudaError701 too many resources requested for launch
 参考面积(参考弦长)可以直接输入，不用想太复杂。
 
 发现了stdgpu，GPU上的类STL库 https://stotko.github.io/stdgpu/getting_started/integrating_into_your_project.html
+
+20240424 按2024-01-14的方法统计代码行数，为13825行

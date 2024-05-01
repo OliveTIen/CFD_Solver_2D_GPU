@@ -75,7 +75,7 @@ void ResidualCalculator::cal_error_isentropicVortex(double xmin, double ymin, do
 
 }
 
-void ResidualCalculator::cal_residual(const std::vector<Element_2D>& elements_old, const std::vector<Element_2D>& elements, int NORM_TYPE, double* residual_to_be_changed) {
+void ResidualCalculator::cal_residual_old(const std::vector<Element_2D>& elements_old, const std::vector<Element_2D>& elements, int NORM_TYPE, double* residual_to_be_changed) {
 	double difference_U[4]{};// 全部初始化为0
 	double residual_U[4]{};
 
@@ -86,10 +86,10 @@ void ResidualCalculator::cal_residual(const std::vector<Element_2D>& elements_ol
 			difference_U[1] = elements[ie].U[1] - elements_old[ie].U[1];
 			difference_U[2] = elements[ie].U[2] - elements_old[ie].U[2];
 			difference_U[3] = elements[ie].U[3] - elements_old[ie].U[3];
-			residual_U[0] += Math::abs_(difference_U[0]);
-			residual_U[1] += Math::abs_(difference_U[1]);
-			residual_U[2] += Math::abs_(difference_U[2]);
-			residual_U[3] += Math::abs_(difference_U[3]);
+			residual_U[0] += U2NITS::Math::abs(difference_U[0]);
+			residual_U[1] += U2NITS::Math::abs(difference_U[1]);
+			residual_U[2] += U2NITS::Math::abs(difference_U[2]);
+			residual_U[3] += U2NITS::Math::abs(difference_U[3]);
 		}
 		break;
 	case NORM_2:
@@ -114,10 +114,10 @@ void ResidualCalculator::cal_residual(const std::vector<Element_2D>& elements_ol
 			difference_U[1] = elements[ie].U[1] - elements_old[ie].U[1];
 			difference_U[2] = elements[ie].U[2] - elements_old[ie].U[2];
 			difference_U[3] = elements[ie].U[3] - elements_old[ie].U[3];
-			residual_U[0] = Math::max_(residual_U[0], Math::abs_(difference_U[0]));
-			residual_U[1] = Math::max_(residual_U[1], Math::abs_(difference_U[1]));
-			residual_U[2] = Math::max_(residual_U[2], Math::abs_(difference_U[2]));
-			residual_U[3] = Math::max_(residual_U[3], Math::abs_(difference_U[3]));
+			residual_U[0] = U2NITS::Math::max(residual_U[0], U2NITS::Math::abs(difference_U[0]));
+			residual_U[1] = U2NITS::Math::max(residual_U[1], U2NITS::Math::abs(difference_U[1]));
+			residual_U[2] = U2NITS::Math::max(residual_U[2], U2NITS::Math::abs(difference_U[2]));
+			residual_U[3] = U2NITS::Math::max(residual_U[3], U2NITS::Math::abs(difference_U[3]));
 		}
 	}
 	// 输出
@@ -127,7 +127,7 @@ void ResidualCalculator::cal_residual(const std::vector<Element_2D>& elements_ol
 	residual_to_be_changed[3] = residual_U[3];
 }
 
-void ResidualCalculator::cal_residual_GPU(REAL* elements_U_old[4], GPU::FieldSoA elements, int NORM_TYPE, double* residual) {
+void ResidualCalculator::cal_residual_GPU(myfloat* elements_U_old[4], GPU::ElementFieldSoA elements, int NORM_TYPE, double* residual) {
 	// 计算残差
 	double difference_U[4]{};// 全部初始化为0
 	double residual_U[4]{};
@@ -140,10 +140,11 @@ void ResidualCalculator::cal_residual_GPU(REAL* elements_U_old[4], GPU::FieldSoA
 			difference_U[1] = elements.U[1][ie] - elements_U_old[1][ie];
 			difference_U[2] = elements.U[2][ie] - elements_U_old[2][ie];
 			difference_U[3] = elements.U[3][ie] - elements_U_old[3][ie];
-			residual_U[0] += Math::abs_(difference_U[0]);
-			residual_U[1] += Math::abs_(difference_U[1]);
-			residual_U[2] += Math::abs_(difference_U[2]);
-			residual_U[3] += Math::abs_(difference_U[3]);
+			residual_U[0] += U2NITS::Math::abs(difference_U[0]);
+			residual_U[1] += U2NITS::Math::abs(difference_U[1]);
+			residual_U[2] += U2NITS::Math::abs(difference_U[2]);
+			residual_U[3] += U2NITS::Math::abs(difference_U[3]);
+			
 		}
 		break;
 	case NORM_2:
@@ -168,10 +169,10 @@ void ResidualCalculator::cal_residual_GPU(REAL* elements_U_old[4], GPU::FieldSoA
 			difference_U[1] = elements.U[1][ie] - elements_U_old[1][ie];
 			difference_U[2] = elements.U[2][ie] - elements_U_old[2][ie];
 			difference_U[3] = elements.U[3][ie] - elements_U_old[3][ie];
-			residual_U[0] = Math::max_(residual_U[0], Math::abs_(difference_U[0]));
-			residual_U[1] = Math::max_(residual_U[1], Math::abs_(difference_U[1]));
-			residual_U[2] = Math::max_(residual_U[2], Math::abs_(difference_U[2]));
-			residual_U[3] = Math::max_(residual_U[3], Math::abs_(difference_U[3]));
+			residual_U[0] = U2NITS::Math::max(residual_U[0], U2NITS::Math::abs(difference_U[0]));
+			residual_U[1] = U2NITS::Math::max(residual_U[1], U2NITS::Math::abs(difference_U[1]));
+			residual_U[2] = U2NITS::Math::max(residual_U[2], U2NITS::Math::abs(difference_U[2]));
+			residual_U[3] = U2NITS::Math::max(residual_U[3], U2NITS::Math::abs(difference_U[3]));
 		}
 	}
 	// 输出
@@ -182,34 +183,34 @@ void ResidualCalculator::cal_residual_GPU(REAL* elements_U_old[4], GPU::FieldSoA
 
 }
 
-void ResidualCalculator::get_residual_functionF(const GPU::FieldSoA& elementField, double* residual, int NORM_TYPE) {
+void ResidualCalculator::get_residual_functionF(const GPU::ElementFieldSoA& elementField, double* residual, int NORM_TYPE) {
 	/*
 	20240411
 	直接将右端项作为残差
 	*/
-	const integer numElements = elementField.num;
+	const myint numElements = elementField.num;
 
 	for (int i = 0; i < 4; i++) {
-		real norm = 0;
+		myfloat norm = 0;
 		switch (NORM_TYPE) {
 		case NORM_1:// 绝对值之和
-			for (integer j = 0; j < numElements; j++) {
-				real flux = U2NITS::Math::abs(elementField.Flux[i][j]);
+			for (myint j = 0; j < numElements; j++) {
+				myfloat flux = U2NITS::Math::abs(elementField.Flux[i][j]);
 				norm += flux;
 			}
 
 			break;
 		case NORM_2:// 平方之和再开方
-			for (integer j = 0; j < numElements; j++) {
-				real flux = U2NITS::Math::abs(elementField.Flux[i][j]);
+			for (myint j = 0; j < numElements; j++) {
+				myfloat flux = U2NITS::Math::abs(elementField.Flux[i][j]);
 				norm += flux * flux;
 			}
 			norm = sqrt(norm);
 
 			break;
 		case NORM_INF:// 最大值
-			for (integer j = 0; j < numElements; j++) {
-				real flux = U2NITS::Math::abs(elementField.Flux[i][j]);
+			for (myint j = 0; j < numElements; j++) {
+				myfloat flux = U2NITS::Math::abs(elementField.Flux[i][j]);
 				norm = U2NITS::Math::max(norm, flux);
 			}
 

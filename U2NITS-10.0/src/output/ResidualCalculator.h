@@ -16,10 +16,10 @@ public:
 	// 计算等熵涡与精确解误差并写文件。ruvp0表示均匀流参数
 	// ![todo]该函数需要拆分为 cal_error_xxx 和 write_xxx
 	static void cal_error_isentropicVortex(double xmin, double ymin, double xmax, double ymax, double chi, const double t, const int istep, const double cpu_time, const double* ruvp0);
-	static void cal_residual(const std::vector<Element_2D>& elements_old, const std::vector<Element_2D>& elements, int NORM_TYPE, double* residual);
-	static void cal_residual_GPU(REAL* element_U_old[4], GPU::FieldSoA elementField,
+	static void cal_residual_old(const std::vector<Element_2D>& elements_old, const std::vector<Element_2D>& elements, int NORM_TYPE, double* residual);
+	static void cal_residual_GPU(myfloat* element_U_old[4], GPU::ElementFieldSoA elementField,
 		int NORM_TYPE, double* residual);
-	static void get_residual_functionF(const GPU::FieldSoA& elementField, double* residual, int NORM_TYPE);
+	static void get_residual_functionF(const GPU::ElementFieldSoA& elementField, double* residual, int NORM_TYPE);
 };
 
 #endif // !RESIDUAL_CALCULATOR_H

@@ -12,96 +12,109 @@
 #include "ContinueFileReader.h"
 #include "../global/CExit.h"
 #include "../global/StringProcessor.h"
+#include <sstream>
+#include <map>
+#include "../drivers/RoutineController.h"
 
+
+/*
+检查输入值是否属于列表
+value: 待检测值
+category: 值所属类型
+table: 列表，包含已知值和描述
+b_print: 是否输出到屏幕
+*/
+void check_if_value_belongs_to_table(int value, std::string category, std::map<int,std::string> table, bool b_print = false) {
+	/*
+	2024-05-01
+	检查输入值是否属于列表
+	若属于，则输出对应的描述，否则报错退出
+	列表为空时，相当于“不属于”
+	*/
+	std::stringstream ss;
+	auto iter = table.find(value);
+	if (iter != table.end()) {
+		ss << category << ": " << iter->second << "\n";
+		LogWriter::log(ss.str());
+		if (b_print)LogWriter::print(ss.str());
+	}
+	else {
+		ss << "invalid " << category << ": " << value << "\n";
+		LogWriter::logError(ss.str());
+		exit(-1);
+	}
+	
+}
 
 void U2NITS::CInput::readConfig() {
 	LogWriter::log(SystemInfo::getCurrentDateTime() + "\n");
 	TomlFileManager::getInstance()->readTomlFile(FilePathManager::getInstance()->getTomlFilePath());
 
+	check_if_value_belongs_to_table(RoutineController::getInstance()->getStrategy(), "time strategy",
+		{ {0, "null"}, {1, "adaptive CFL"} }, true);
+	check_if_value_belongs_to_table(GlobalPara::basic::dimension, "dimension", { {2, "2D"} });
+	check_if_value_belongs_to_table(GlobalPara::physicsModel::equation, "equation", { {_EQ_euler, "Euler"}, {_EQ_NS, "NS"} }, true);
+	check_if_value_belongs_to_table(GlobalPara::basic::useGPU, "platform", { {0,"CPU(host)"},{1,"GPU(device)"},{2,"half GPU"},{3,"development mode"} }, true);
+}
 
-	if (GlobalPara::basic::dimension != 2) {
-		LogWriter::logAndPrintError("invalid dimension type.\n");
-		CExit::saveAndExit(2);
-	}
-	if (GlobalPara::physicsModel::equation != _EQ_euler) {
-		LogWriter::logAndPrintError("Invalid equation type.\n");
-		CExit::saveAndExit(_EQ_euler);
-	}
-	if (GlobalPara::basic::useGPU == 0) {
-		LogWriter::logAndPrint("use CPU.\n");
-	}
-	else if(GlobalPara::basic::useGPU == 1){
-		LogWriter::logAndPrint("use GPU.\n");
-	}
-	else if (GlobalPara::basic::useGPU == 2) {
-		LogWriter::logAndPrint("use half GPU.\n");
-	}
-	else if (GlobalPara::basic::useGPU == 3) {
-		LogWriter::logAndPrint("enter development mode.\n",LogWriter::Warning,LogWriter::Warning);
+// 局部函数
+void log_boundary_condition() {
+	using namespace GlobalPara::boundaryCondition::_2D;
+	double* inlet_ruvp = inlet::ruvp;
+	double* outlet_ruvp = outlet::ruvp;
+	double* inf_ruvp = inf::ruvp;
+	const int num_ruvp = 4;
+
+	std::string str;
+	str += "BoundaryCondition:\n";
+	str += "inlet::ruvp\t" + StringProcessor::doubleArray_2_string(inlet_ruvp, num_ruvp)
+		+ "\noutlet::ruvp\t" + StringProcessor::doubleArray_2_string(outlet_ruvp, num_ruvp)
+		+ "\ninf::ruvp\t" + StringProcessor::doubleArray_2_string(inf_ruvp, num_ruvp)
+		+ "\n";
+	LogWriter::log(str);
+}
+
+
+void read_mesh_file_and_initialize() {
+	/*
+	从头开始。读取网格，初始化流场和边界
+	*/
+	// 读取网格
+	std::string dir = FilePathManager::getInstance()->getInputDirectory();// 目录
+	std::string basename = GlobalPara::basic::filename;// 文件名主体
+	std::string type = GlobalPara::basic::meshFileType;// 后缀
+	if (type == "su2") {
+		std::string filename = basename + "." + type;
+		LogWriter::log("mesh file: " + filename + "\n");
+		SU2MeshReader::readFile_2(dir + filename, true);
 	}
 	else {
-		LogWriter::logAndPrintError("invalid useGPU value.\n");
-		CExit::saveAndExit(1);
+		LogWriter::logAndPrint("Invalid mesh file type: " + type + " @CInput::readField_1()\n");
+		exit(-1);
 	}
+	// 初始化流场和边界
+	FieldInitializer::getInstance()->setInitialAndBoundaryCondition();
 }
 
 void U2NITS::CInput::readField_1() {
 
-	//// 初始化
-	// 尝试读取续算文件。若读取失败或者_continue==false则从头开始
-	bool startFromZero = false;
+	/*
+	若Config要求续算，则直接读取续算文件，否则从头开始
+	*/
 	if (GlobalPara::basic::_continue) {
-		int flag_readContinue = ContinueFileReader::readContinueFile_1();
-		if (flag_readContinue == -1) {
-			LogWriter::logAndPrint("Fail to read previous mesh(pause_*.dat). Will try to start from zero again.\n");
-			startFromZero = true;
-			// 防止后面histWriter不写文件头
-			GlobalPara::basic::_continue = false;
+		// 若找不到续算文件，则从头开始
+		if (ContinueFileReader::readContinueFile_1() == -1) {
+			LogWriter::logAndPrint("failed to read continue file(pause_*.dat), will read mesh file.\n");
+			read_mesh_file_and_initialize();
+			GlobalPara::basic::_continue = false;// 保证_continue为false，防止后面histWriter不写文件头
 		}
 	}
 	else {
-		startFromZero = true;
-	}
-	// 从头开始。读取网格、初始化
-	if (startFromZero) {
-		const std::string& type = GlobalPara::basic::meshFileType;
-		if (type == "inp") {
-			std::string dir = FilePathManager::getInstance()->getInputDirectory();
-			int flag_readMesh = InpMeshReader::readGmeshFile(dir + GlobalPara::basic::filename + ".inp");
-			if (flag_readMesh == -1) {
-				LogWriter::logAndPrintError("Fail to read mesh. Program will exit.\n");
-				return;//退出
-			}
-			FieldInitializer::setInitialAndBoundaryCondition();
-		}
-		else if (type == "su2") {
-			std::string dir = FilePathManager::getInstance()->getInputDirectory();
-			int flag_readMesh = SU2MeshReader::readFile_2(dir + GlobalPara::basic::filename + ".su2", true);
-			if (flag_readMesh == -1) {
-				LogWriter::logAndPrint("Fail to read mesh. Program will exit.\n");
-				return;//退出
-			}
-			FieldInitializer::setInitialAndBoundaryCondition();
-		}
-		else {
-			LogWriter::logAndPrint("Invalid mesh file type: " + type + ". Program will exit.\n");
-			return;
-		}
-
+		read_mesh_file_and_initialize();
 	}
 
 	// 日志记录边界参数
-	auto writeBoundaryCondition = [] (double* inlet_ruvp, double* outlet_ruvp, double* inf_ruvp, const int num_ruvp)->void{
-		std::string str;
-		str += "BoundaryCondition:\n";
-		str += "inlet::ruvp\t" + StringProcessor::doubleArray_2_string(inlet_ruvp, num_ruvp)
-			+ "\noutlet::ruvp\t" + StringProcessor::doubleArray_2_string(outlet_ruvp, num_ruvp)
-			+ "\ninf::ruvp\t" + StringProcessor::doubleArray_2_string(inf_ruvp, num_ruvp)
-			+ "\n";
-		LogWriter::log(str);
-	};
-	using namespace GlobalPara::boundaryCondition::_2D;
-	writeBoundaryCondition(inlet::ruvp, outlet::ruvp, inf::ruvp, 4);
+	log_boundary_condition();
 }
 
 void U2NITS::CInput::readField_2_unused() {
@@ -110,39 +123,7 @@ void U2NITS::CInput::readField_2_unused() {
 	法一：读到单元数量那一行后，就可以开辟solver中单元的内存空间。缺点是你无法保证这个数字是否正确
 	法二：先用std::vector一个一个push。完成后，开辟solver数据的内存并初始化，然后删除临时的std::vector
 	*/
-
-	bool startFromZero = false;
-	if (GlobalPara::basic::_continue) {
-		int flag_readContinue = ContinueFileReader::readContinueFile_2();
-		if (flag_readContinue != 0) {
-			LogWriter::logAndPrint("Fail to read previous mesh(pause_*.dat).\n");
-			startFromZero = true;
-			GlobalPara::basic::_continue = false;// 防止后面histWriter不写文件头
-		}
-	}
-	else {
-		startFromZero = true;
-	}
-	// 从头开始。读取网格、初始化
-	if (startFromZero) {
-		const std::string& type = GlobalPara::basic::meshFileType;
-		std::string dir = FilePathManager::getInstance()->getInputDirectory();
-		int flag_readMesh = 502;
-		if (type == "inp") {
-			flag_readMesh = InpMeshReader::readGmeshFile_2(dir + GlobalPara::basic::filename + ".inp");
-		}
-		else if (type == "su2") {
-			flag_readMesh = SU2MeshReader::readFile_2(dir + GlobalPara::basic::filename + ".su2", true);
-		}
-		else {
-			LogWriter::logAndPrintError("Invalid mesh file type: " + type + "\n");
-			flag_readMesh = 404;
-		}
-		if (flag_readMesh != 0) {
-			LogWriter::logAndPrintError("Fail to read mesh. Program will exit.\n");
-			CExit::saveAndExit(-3);//退出
-		}
-		FieldInitializer::setInitialAndBoundaryCondition();
-
-	}
+	LogWriter::logAndPrintError("unimplemented error @CInput::readField_2_unused\n");
+	exit(-1);
+	
 }

@@ -2,14 +2,14 @@
 #include <iostream>
 #include "../../global/GlobalPara.h"
 
-void ShockTubeExactSolver::solveOneStep(real* ruvp_inlet, real* ruvp_outlet, real* ruvp_output) {
-	real t{};
-	real x{};
+void ShockTubeExactSolver::solveOneStep(myfloat* ruvp_inlet, myfloat* ruvp_outlet, myfloat* ruvp_output) {
+	myfloat t{};
+	myfloat x{};
 	if (t == 0) {
 		std::cout << "Error: t==0\n";
 		return;
 	}
-	real w = x / t;
+	myfloat w = x / t;
 
 
 }

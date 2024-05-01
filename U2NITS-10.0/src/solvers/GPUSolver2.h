@@ -3,6 +3,7 @@
 
 #include "../gpu/datatype/Datatype.h"
 #include <map>
+#include "../gpu/datatype/BoundaryV2.h"
 
 namespace GPU {
 	class GPUSolver2 {
@@ -13,49 +14,68 @@ namespace GPU {
 		bool iterationStarted = false;
 		bool hostDataInitialized = false;
 		bool deviceDataInitialized = false;
+		static GPUSolver2* pInstance;// 实例的指针
 
 	public:
-		// host/device双向数据
+		/*
+		数据分为以下几种类型
+		host文件输入数据。host和device情况都会使用
+		host文件输出数据。host和device情况都会使用
+		host运算数据。仅在host情况使用
+		device运算数据。仅在device情况使用
+
+		element_vruvp、element_U_old
+
+		*/
+
+		// host/device成对数据 若互相关联，一般用cuda_memcpy在初始化时从host复制到device
 		GPU::NodeSoA node_host;
 		GPU::NodeSoA node_device;
 		GPU::ElementSoA element_host;
 		GPU::ElementSoA element_device;
-		GPU::FieldSoA elementField_host;
-		GPU::FieldSoA elementField_device;
+		GPU::ElementFieldSoA elementField_host;
+		GPU::ElementFieldSoA elementField_device;
+		GPU::EdgeFieldSoA edgeField_host;// edgeField_host和edgeField_device互不关联，因此无需cuda_memcpy
+		GPU::EdgeFieldSoA edgeField_device;
 		GPU::EdgeSoA edge_host;
 		GPU::EdgeSoA edge_device;
-		GPU::BoundarySetMap boundary_host;// 线性表，将boundary的setID映射到type
+		GPU::BoundarySetMap boundary_host;// 旧版，存储了从set ID到set type的映射
 		GPU::BoundarySetMap boundary_device;
-
+		GPU::BoundaryV2 boundary_host_new;// 新版，存储了从set type到edge IDs的映射
+		
 		// host数据
-		REAL* element_vruvp[4]{};// 存储U转换为的ruvp，用于计算节点ruvp以及计算时间步长Dt
-		REAL* element_U_old[4]{};// 存储上一步U用于计算残差, 4xn矩阵
+		myfloat* element_vruvp[4]{};// 存储U转换为的ruvp，用于计算节点ruvp以及计算时间步长Dt
+		myfloat* element_U_old[4]{};// 存储上一步U用于计算残差, 4xn矩阵
 		const int residualVectorSize = 4;
-		real residualVector[4]{ 1,1,1,1 };// 残差，residualVectorSize x 1向量
+		myfloat residualVector[4]{ 1,1,1,1 };// 残差，residualVectorSize x 1向量
 		std::map<int, int> edge_periodic_pair;// 存储周期边界的边界对
 		GPU::OutputNodeFieldSoA outputNodeField;
 
 		// device数据
-		GPU::DGlobalPara* infPara_device;// 远场参数在GPU的副本，用于传参[RAII类型]
-		SDevicePara sDevicePara;
+		GPU::DGlobalPara* infPara_device;// 已弃用
+		SDevicePara sDevicePara;// 当前使用
 
 	public:
+		GPUSolver2();
+		~GPUSolver2();
+		// 为减少耦合，请使用SolverDataGetter间接调用该方法
+		static GPUSolver2* getInstance();
 		// 申请内存。应在读取field file后使用，因为要确定有多少单元、需要多大内存
 		void allocateMemory();
 		// 用FVM_2D初始化数据
 		void initializeData_byOldData();
 		// 迭代
-		void iteration(real& t, real T);
+		void iteration(myfloat& t, myfloat T);
 		// 更新节点场
 		void updateOutputNodeField();
-		// 更新残差
-		void updateResidual();
 		// 获取残差
-		void getResidual();
+		void updateResidualVector();
 		// 释放资源
 		void freeMemory();
 
 		bool isIterationStarted() { return iterationStarted; }
+		bool isHostMemoryAllocated() { return hostMemoryAllocated; }
+		bool isDeviceMemoryAllocated() { return deviceMemoryAllocated; }
 
 		// device数据更新到host
 		void device_to_host();

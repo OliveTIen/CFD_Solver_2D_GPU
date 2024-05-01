@@ -11,14 +11,14 @@ namespace GPU {
 		int num_node = 0;
 
 		int* ID;
-		REAL* xy[2];
+		myfloat* xy[2];
 	public:
 		void alloc(int _num_node) {
 			num_node = _num_node;
 
 			ID = new int[num_node];
-			xy[0] = new REAL[num_node];
-			xy[1] = new REAL[num_node];
+			xy[0] = new myfloat[num_node];
+			xy[1] = new myfloat[num_node];
 		}
 
 		void free() {
@@ -32,8 +32,8 @@ namespace GPU {
 			num_node = _num_node;
 
 			cudaMalloc(&ID, num_node * sizeof(int));
-			cudaMalloc(&xy[0], num_node * sizeof(REAL));
-			cudaMalloc(&xy[1], num_node * sizeof(REAL));
+			cudaMalloc(&xy[0], num_node * sizeof(myfloat));
+			cudaMalloc(&xy[1], num_node * sizeof(myfloat));
 		}
 
 		void cuda_free() {

@@ -7,18 +7,18 @@ namespace GPU {
 	namespace Space {
 		namespace Convection {
 			__device__ void ConvectRoeCommon2d(
-				const REAL UL[4], const REAL UR[4], const REAL faceNormal[2], const REAL faceArea, REAL faceFlux[4], SDevicePara para
+				const myfloat UL[4], const myfloat UR[4], const myfloat faceNormal[2], const myfloat faceArea, myfloat faceFlux[4], SDevicePara para
 			);
 			__device__ void RoeDissapationTerm2d(
-				REAL gamma,
-				REAL ruvpL[4], REAL ruvpR[4],
-				const REAL faceNormal[2], REAL faceArea,
-				bool bEntropyFix, REAL KEntropyFix[3], REAL p_sensor,
-				REAL drRoe[4]
+				myfloat gamma,
+				myfloat ruvpL[4], myfloat ruvpR[4],
+				const myfloat faceNormal[2], myfloat faceArea,
+				bool bEntropyFix, myfloat KEntropyFix[3], myfloat p_sensor,
+				myfloat drRoe[4]
 			);
-			__device__ inline real PShockWaveSensor() { return 0.5; }
+			__device__ inline myfloat PShockWaveSensor() { return 0.5; }
 
-			__device__ inline void EigenEntropyFix_HartenYee(REAL& eig, REAL eig_lim, REAL epsilon) {
+			__device__ inline void EigenEntropyFix_HartenYee(myfloat& eig, myfloat eig_lim, myfloat epsilon) {
 				// Harten-Yee型熵修正 目的是让特征值不要太接近0，导致非物理解
 				// eig-特征值，lim-限制器，epsilon-防止分母为0
 				// 当eig小于eig_lim时，增大eig，使其远离0

@@ -7,15 +7,15 @@
 
 namespace U2NITS {
 	namespace Time {
-		real calculateGlobalDt(
-			real t, real T, real gamma, real Re, real Pr, real CFL, real Rcpcv, 
-			GPU::ElementSoA& element, GPU::EdgeSoA& edge, real* element_vruvp[4]
+		myfloat calculateGlobalDt(
+			myfloat t, myfloat T, myfloat gamma, myfloat Re, myfloat Pr, myfloat CFL, myfloat Rcpcv,
+			GPU::ElementSoA& element, GPU::EdgeSoA& edge, myfloat* element_vruvp[4]
 		);
 
 		// 计算本地时间步，异步模式（没有数据竞争），Euler
 		void calculateLocalTimeStep_async_Euler(
-			real& dt, real gamma, real Re, real Pr, real CFL, real Rcpcv, integer iElement,
-			GPU::ElementSoA& element, GPU::EdgeSoA& edge, real* element_vruvp[4]
+			myfloat& dt, myfloat gamma, myfloat Re, myfloat Pr, myfloat CFL, myfloat Rcpcv, myint iElement,
+			GPU::ElementSoA& element, GPU::EdgeSoA& edge, myfloat* element_vruvp[4]
 		);
 
 	}

@@ -74,13 +74,12 @@ namespace GlobalPara {
 		}
 	}
 	namespace initialCondition {
-		extern int type;
+		//extern int type;
 	}
 	namespace output {
 		extern int step_per_print;
 		extern int step_per_output_field;
 		extern int step_per_output_hist;
-		extern bool output_var_ruvp[4];
 		extern int autosaveFileNum;
 		extern int maxIteration;
 		extern double tolerace_residual;

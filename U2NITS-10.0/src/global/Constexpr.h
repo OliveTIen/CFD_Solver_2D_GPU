@@ -11,8 +11,8 @@ constexpr auto _OUT_T = 16;
 constexpr auto _OUT_Unon_all = 101;
 // 方程类型 1001-1999
 constexpr auto _EQ_convective = 1001;//对流扩散方程
-constexpr auto _EQ_euler = 1002;//欧拉方程
-constexpr auto _EQ_NS = 1003;
+constexpr auto _EQ_euler = 1;//欧拉方程
+constexpr auto _EQ_NS = 2;
 // 求解器类型 2001-2999
 constexpr auto _SOL_LocalLaxFriedrichs = 2001;//黎曼求解器 Local Lax-Friedrichs;
 constexpr auto _SOL_Roe = 2002;
@@ -28,7 +28,10 @@ constexpr auto _EVO_explicit = 3101;//显式时间推进
 constexpr auto _EVO_rk3 = 3103;//RK3
 constexpr auto _EVO_rk5 = 3105;
 // 限制器 4001-4999 limiter
-constexpr auto _LIM_minmod = 4001;
+constexpr auto _LIM_none = 0;
+constexpr auto _LIM_barth = 1;
+constexpr auto _LIM_minmod = 2;
+constexpr auto _LIM_vanleer = 3;
 // 单元类型 5001-5999
 constexpr auto _ELE_D2 = 5001;//2节点线段元
 constexpr auto _ELE_T3 = 5101;//3节点三角元

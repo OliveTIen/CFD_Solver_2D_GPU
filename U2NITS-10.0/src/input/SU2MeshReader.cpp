@@ -5,28 +5,32 @@
 #include "../output/LogWriter.h"
 #include "../global/CExit.h"
 #include "../boundary_condition/BoundaryManager.h"
-//#include "../global/VectorProcessor.h"
 
-int SU2MeshReader::readFile_2(std::string filePath, bool convertRectToTriangle) {
-	//LogWriter::logAndPrint("readFile_2\n");
+void SU2MeshReader::readFile_2(std::string filePath, bool convertRectToTriangle) {
+
 	int maxnodeID = 1;
 	int maxelementID = 1;
 	std::vector<SimpleBoundary>tmp_boudaries;
 
-	int ret = readMesh(filePath, convertRectToTriangle, maxnodeID, maxelementID, tmp_boudaries);
-	if (ret == ERROR_READ_FILE)return ret;
+	readMesh(filePath, convertRectToTriangle, maxnodeID, maxelementID, tmp_boudaries);
 	process(maxnodeID, maxelementID, tmp_boudaries);
-
-	return 0;
 }
 
-int SU2MeshReader::readMesh(std::string filePath, bool convertRectToTriangle, int& maxnodeID, int& maxelementID, std::vector<SimpleBoundary>& tmp_boudaries) {
-
+void SU2MeshReader::readMesh(std::string filePath, bool convertRectToTriangle, int& maxnodeID, int& maxelementID, std::vector<SimpleBoundary>& tmp_boudaries) {
+	/*
+	读取SU2网格文件。
+	包括节点编号、节点坐标
+	单元编号、每个单元的节点编号
+	*/
 	LogWriter::logAndPrint("Mesh file: " + filePath + "\n");
 	FVM_2D* pFVM2D = FVM_2D::getInstance();
 	std::ifstream infile(filePath);
 	if (!infile) {
-		return ERROR_READ_FILE;
+		std::stringstream ss;
+		ss << "cannot open file " << filePath << ". @SU2MeshReader::readMesh\n";
+		LogWriter::logAndPrintError(ss.str());
+		exit(-1);
+		
 	}
 	State state = state_START;//1-Node, 2-Element
 	const int bufferLength = 300;
@@ -146,7 +150,6 @@ int SU2MeshReader::readMesh(std::string filePath, bool convertRectToTriangle, in
 	}
 	infile.close();
 
-	return 0;
 }
 
 void SU2MeshReader::process(int maxNodeID, int maxElementID, std::vector<SimpleBoundary>& tmp_boudaries) {
@@ -171,6 +174,10 @@ void SU2MeshReader::process(int maxNodeID, int maxElementID, std::vector<SimpleB
 	// 初始化edge的setID
 	// 初始化周期边界关系，由boundaryManager.periodPairs维护
 	// 前置条件：有boundaries向量，有edges向量且edges已初始化nodeIDs，boundaries有name
+	/*
+	std::vector<SimpleBoundary>& tmp_boudaries：读取su2 mesh时创建，SimpleBoundary含有边界名称（例如"periodic_2"）和边的序列对（例如{51,52}）
+	real_boundaries：是pFVM2D->boundaryManager.boundaries的引用，在此处被初始化
+	*/
 	{
 		std::vector<VirtualBoundarySet_2D>& real_boundaries = pFVM2D->boundaryManager.boundaries;
 		real_boundaries.resize(tmp_boudaries.size());

@@ -7,10 +7,10 @@
 namespace GPU {
 	namespace Math {
 		namespace Matrix {
-			//constexpr real EPSILON = U2NITS::Math::EPSILON;
+			//constexpr myfloat EPSILON = U2NITS::Math::EPSILON;
 			using U2NITS::Math::EPSILON;
 
-			inline void printMatrix(long i, const long j, REAL* matrix) {
+			inline void printMatrix(long i, const long j, myfloat* matrix) {
 				for (long x = 0; x < i; x++) {
 					for (long y = 0; y < j; y++) {
 						std::cout << *(matrix + x * j + y) << " ";
@@ -20,7 +20,7 @@ namespace GPU {
 			}
 
 			// mat: ixj, res: jxi
-			inline void __device__ transpose(int i, int j, REAL* mat, REAL* res) {
+			inline void __device__ transpose(int i, int j, myfloat* mat, myfloat* res) {
 				for (int x = 0; x < i; x++) {
 					for (int y = 0; y < j; y++) {
 						*(res + y * i + x) = *(mat + x * j + y);
@@ -28,8 +28,8 @@ namespace GPU {
 				}
 			}
 
-			inline void __device__ inv_2x2(REAL(*mat)[2]) {
-				REAL det, inv_det, inv_a, inv_b, inv_c, inv_d;
+			inline void __device__ inv_2x2(myfloat(*mat)[2]) {
+				myfloat det, inv_det, inv_a, inv_b, inv_c, inv_d;
 				det = mat[0][0] * mat[1][1] - mat[0][1] * mat[1][0];
 				if (det >= 0 && det < EPSILON) det = EPSILON;
 				else if (det > -EPSILON)det = -EPSILON;
@@ -44,8 +44,8 @@ namespace GPU {
 				mat[1][1] = inv_d;
 			}
 
-			inline void __device__ inv_2x2(REAL(*mat)[2], REAL(*res)[2]) {
-				REAL det, inv_det;
+			inline void __device__ inv_2x2(myfloat(*mat)[2], myfloat(*res)[2]) {
+				myfloat det, inv_det;
 				det = mat[0][0] * mat[1][1] - mat[0][1] * mat[1][0];
 				if (det >= 0 && det < EPSILON) det = EPSILON;
 				else if (det > -EPSILON)det = -EPSILON;
@@ -56,8 +56,8 @@ namespace GPU {
 				res[1][1] = mat[0][0] * inv_det;
 			}
 
-			inline void __device__ inv_2x2(real* mat) {
-				REAL det, inv_det, inv_a, inv_b, inv_c, inv_d;
+			inline void __device__ inv_2x2(myfloat* mat) {
+				myfloat det, inv_det, inv_a, inv_b, inv_c, inv_d;
 				det = mat[0 * 2 + 0] * mat[1 * 2 + 1] - mat[0 * 2 + 1] * mat[1 * 2 + 0];
 				if (det >= 0 && det < EPSILON) det = EPSILON;
 				else if (det > -EPSILON)det = -EPSILON;
@@ -73,7 +73,7 @@ namespace GPU {
 			}
 
 			// mat1: ixj, mat2: jxk, res: ixk
-			inline void __device__ mul_ixj_jxk(int i, int j, int k, REAL* mat1, REAL* mat2, REAL* res) {
+			inline void __device__ mul_ixj_jxk(int i, int j, int k, myfloat* mat1, myfloat* mat2, myfloat* res) {
 				for (int x = 0; x < i; x++) {
 					for (int y = 0; y < k; y++) {
 						*(res + x * k + y) = 0.0;
@@ -85,7 +85,7 @@ namespace GPU {
 				}
 			}
 
-			inline void __device__ div_matrix_by_scalar(int nRow, int nCol, real* mat, real scalar) {
+			inline void __device__ div_matrix_by_scalar(int nRow, int nCol, myfloat* mat, myfloat scalar) {
 				// ¾ØÕó³ýÒÔ±êÁ¿
 				for (int i = 0; i < nRow; i++) {
 					for (int j = 0; j < nCol; j++) {

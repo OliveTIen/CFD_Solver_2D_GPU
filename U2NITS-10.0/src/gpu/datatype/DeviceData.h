@@ -43,22 +43,22 @@ namespace GPU {
 
 	};
 
-	using DReal = DSingle<real>;
+	using DReal = DSingle<myfloat>;
 	using DInt = DSingle<int>;
 
 	class DGlobalPara {
 	public:
-		DArray<real>* ruvp_inf;
-		DArray<real>* ruvp_inlet;
-		DArray<real>* ruvp_outlet;
+		DArray<myfloat>* ruvp_inf;
+		DArray<myfloat>* ruvp_inlet;
+		DArray<myfloat>* ruvp_outlet;
 		DReal* constant_R;
 		DReal* constant_gamma;
 		DInt* scheme;
 
-		DGlobalPara(real* inf, real* inlet, real* outlet, unsigned n, const real* _R, const real* _gamma, const int* _scheme) {
-			ruvp_inf = new DArray<real>(inf, n);
-			ruvp_inlet = new DArray<real>(inlet, n);
-			ruvp_outlet = new DArray<real>(outlet, n);
+		DGlobalPara(myfloat* inf, myfloat* inlet, myfloat* outlet, unsigned n, const myfloat* _R, const myfloat* _gamma, const int* _scheme) {
+			ruvp_inf = new DArray<myfloat>(inf, n);
+			ruvp_inlet = new DArray<myfloat>(inlet, n);
+			ruvp_outlet = new DArray<myfloat>(outlet, n);
 			constant_R = new DReal(_R);
 			constant_gamma = new DReal(_gamma);
 			scheme = new DInt(_scheme);
@@ -113,11 +113,11 @@ namespace GPU {
 		};
 
 		struct BoundaryCondition_2D_simple {
-			real ruvp_inf[4];
-			real ruvp_inlet[4];
-			real ruvp_outlet[4];
+			myfloat ruvp_inf[4];
+			myfloat ruvp_inlet[4];
+			myfloat ruvp_outlet[4];
 
-			void initialize(real* inf, real* inlet, real* outlet) {
+			void initialize(myfloat* inf, myfloat* inlet, myfloat* outlet) {
 				for (int i = 0; i < 4; i++) {
 					ruvp_inf[i] = inf[i];
 					ruvp_inlet[i] = inlet[i];
@@ -147,7 +147,7 @@ namespace GPU {
 		void initialize(
 			double _T0, double _p0, double _c0, double _gamma, double _epsilon, double _Re, double _Pr, double _mu,
 			int _flag_reconstruct, int _flag_gradient,
-			real* inf, real* inlet, real* outlet,
+			myfloat* inf, myfloat* inlet, myfloat* outlet,
 			int _flux_conservation_scheme, int _flux_limiter
 		) {
 			constant.initialize(_T0, _p0, _c0, _gamma, _epsilon, _Re, _Pr, _mu);

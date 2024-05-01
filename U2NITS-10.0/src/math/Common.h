@@ -13,20 +13,20 @@ namespace U2NITS {
 		最小规格化数 = 1.2e-38
 		最大规格化数 = 3.4e38
 		*/
-		constexpr real PI = 3.1415926535897;        // 圆周率
-		constexpr REAL EPSILON_FLOAT_UN = 1e-44;    // float最小非规格化浮点数 unnormalized
-		constexpr REAL EPSILON_FLOAT_NORMAL = 1e-37;// float最小规格化浮点数 normalized
-		constexpr REAL BIG_FLOAT_NORMAL = 1e38;
+		constexpr myfloat PI = 3.1415926535897;        // 圆周率
+		constexpr myfloat EPSILON_FLOAT_UN = 1e-44;    // float最小非规格化浮点数 unnormalized
+		constexpr myfloat EPSILON_FLOAT_NORMAL = 1e-37;// float最小规格化浮点数 normalized
+		constexpr myfloat BIG_FLOAT_NORMAL = 1e38;
 
-		constexpr REAL EPSILON = 1e-10;
-		constexpr REAL BIG = 1e10;
+		constexpr myfloat EPSILON = 1e-10;
+		constexpr myfloat BIG = 1e10;
 
 		namespace Physics {
-			constexpr real RHO_MAX = 300;// 密度最大值
-			constexpr real RHO_MIN = EPSILON;
-			constexpr real P_ATMOSPHERE = 101325;// 大气压
-			constexpr real P_MAX = 400 * P_ATMOSPHERE;
-			constexpr real P_MIN = EPSILON;
+			constexpr myfloat RHO_MAX = 300;// 密度最大值
+			constexpr myfloat RHO_MIN = EPSILON;
+			constexpr myfloat P_ATMOSPHERE = 101325;// 大气压
+			constexpr myfloat P_MAX = 400 * P_ATMOSPHERE;
+			constexpr myfloat P_MIN = EPSILON;
 
 		}
 	}

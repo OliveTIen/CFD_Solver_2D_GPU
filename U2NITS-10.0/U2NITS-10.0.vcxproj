@@ -15,6 +15,7 @@
     <ClCompile Include="src\boundary_condition\BoundaryManager.cpp" />
     <ClCompile Include="src\boundary_condition\CBoundaryDoubleShockReflect.cpp" />
     <ClCompile Include="src\drivers\CDriver.cpp" />
+    <ClCompile Include="src\drivers\RoutineController.cpp" />
     <ClCompile Include="src\Edge_2D.cpp" />
     <ClCompile Include="src\Element_2D.cpp" />
     <ClCompile Include="src\global\CExit.cpp" />
@@ -25,6 +26,7 @@
     <ClCompile Include="src\global\SystemInfo.cpp" />
     <ClCompile Include="src\global\VectorProcessor.cpp" />
     <ClCompile Include="src\gpu\datatype\BoundarySetMap.cu" />
+    <ClCompile Include="src\gpu\datatype\BoundaryV2.cpp" />
     <ClCompile Include="src\gpu\datatype\EdgeSoA.cu" />
     <ClCompile Include="src\gpu\datatype\ElementSoA.cu" />
     <ClCompile Include="src\gpu\datatype\NodeSoA.cu" />
@@ -54,6 +56,7 @@
     <ClCompile Include="src\solvers\equation\CEquation.cpp" />
     <ClCompile Include="src\solvers\OldDataConverter.cpp" />
     <ClCompile Include="src\solvers\platform\CPlatform.cpp" />
+    <ClCompile Include="src\solvers\SolverDataGetter.cpp" />
     <ClCompile Include="src\Solver_2D.cpp" />
     <ClCompile Include="src\space\convection\LocalLaxFriedrichs.cpp" />
     <ClCompile Include="src\space\Flux.cpp" />
@@ -63,6 +66,7 @@
     <ClCompile Include="src\space\Reconstructor.cpp" />
     <ClCompile Include="src\space\restrict\Restrict.cpp" />
     <ClCompile Include="src\space\RiemannSolver.cpp" />
+    <ClCompile Include="src\space\viscous_flux\ViscousFlux.cpp" />
     <ClCompile Include="src\time\CalculateDt.cpp" />
     <ClCompile Include="src\time\CIteration.cpp" />
     <ClCompile Include="src\time\Evolve.cpp" />
@@ -75,6 +79,7 @@
     <ClInclude Include="src\boundary_condition\BoundaryManager.h" />
     <ClInclude Include="src\boundary_condition\CBoundaryDoubleShockReflect.h" />
     <ClInclude Include="src\drivers\CDriver.h" />
+    <ClInclude Include="src\drivers\RoutineController.h" />
     <ClInclude Include="src\Edge_2D.h" />
     <ClInclude Include="src\Element_2D.h" />
     <ClInclude Include="src\global\CExit.h" />
@@ -88,12 +93,14 @@
     <ClInclude Include="src\global\SystemInfo.h" />
     <ClInclude Include="src\global\VectorProcessor.h" />
     <ClInclude Include="src\gpu\datatype\BoundarySetMap.h" />
+    <ClInclude Include="src\gpu\datatype\BoundaryV2.h" />
     <ClInclude Include="src\gpu\datatype\Datatype.h" />
     <ClInclude Include="src\gpu\datatype\DefineType.h" />
     <ClInclude Include="src\gpu\datatype\DeviceData.h" />
     <ClInclude Include="src\gpu\datatype\EdgeSoA.h" />
     <ClInclude Include="src\gpu\datatype\FieldSoA.h" />
     <ClInclude Include="src\gpu\datatype\ElementSoA.h" />
+    <ClInclude Include="src\gpu\datatype\Matrix_4xn.h" />
     <ClInclude Include="src\gpu\datatype\NodeSoA.h" />
     <ClInclude Include="src\gpu\Env.h" />
     <ClInclude Include="src\gpu\GPUGlobalFunction.h" />
@@ -133,6 +140,7 @@
     <ClInclude Include="src\solvers\GPUSolver2.h" />
     <ClInclude Include="src\solvers\OldDataConverter.h" />
     <ClInclude Include="src\solvers\platform\CPlatform.h" />
+    <ClInclude Include="src\solvers\SolverDataGetter.h" />
     <ClInclude Include="src\Solver_2D.h" />
     <ClInclude Include="src\space\convection\Convection.h" />
     <ClInclude Include="src\space\convection\ConvectionGPU.h" />
@@ -151,6 +159,7 @@
     <ClInclude Include="src\space\restrict\Restrict.h" />
     <ClInclude Include="src\space\restrict\RestrictGPU.h" />
     <ClInclude Include="src\space\RiemannSolver.h" />
+    <ClInclude Include="src\space\viscous_flux\ViscousFlux.h" />
     <ClInclude Include="src\time\CalculateDt.h" />
     <ClInclude Include="src\time\CalculateDtGPU.h" />
     <ClInclude Include="src\time\CIteration.h" />

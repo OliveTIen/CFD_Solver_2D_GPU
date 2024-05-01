@@ -5,33 +5,50 @@
 #include "../FVM_2D.h"
 #include "../output/LogWriter.h"
 #include "../global/CExit.h"
-#include "../math/Common.h"
+#include "../math/PhysicalKernel.h"
 #include "TomlFileManager.h"
 #include "../boundary_condition/CBoundaryDoubleShockReflect.h"
 
-void FieldInitializer::setInitialAndBoundaryCondition() {
+FieldInitializer* FieldInitializer::p_instance = nullptr;
 
+FieldInitializer* FieldInitializer::getInstance() {
+	if (p_instance == nullptr) {
+		p_instance = new FieldInitializer();
+	}
+	return p_instance;
+}
+
+enum InitialConditionType {
+	type_none,
+	type_uniform_flow,         // 均匀场
+	type_isentropic_vortex,    // 等熵涡
+	type_shock_tube,           // 激波管
+	type_double_mach_reflection// 双马赫反射
+};
+
+void FieldInitializer::setInitialAndBoundaryCondition() {
+	
 	auto& elements = FVM_2D::getInstance()->elements;
-	switch (GlobalPara::initialCondition::type) {
-	case 1:
+	switch (m_initial_type) {
+	case type_uniform_flow:
 	{
 		printCondition("Uniform flow");
 		setInitialUniform();
 		break;
 	}
-	case 2:
+	case type_isentropic_vortex:
 	{
 		printCondition("Uniform flow + isentropicVortex");
-		setInitialIsentropicVortex(5, 5, 5, GlobalPara::boundaryCondition::_2D::inf::ruvp);
+		setInitialIsentropicVortex();
 		break;
 	}
-	case 3:
+	case type_shock_tube:
 	{
 		printCondition("Shock Tube");
 		setInitialShockTube();
 		break;
 	}
-	case 4:
+	case type_double_mach_reflection:
 	{
 		printCondition("Double Mach Reflection");
 		setInitialDoubleShockReflection();
@@ -41,11 +58,37 @@ void FieldInitializer::setInitialAndBoundaryCondition() {
 	default:
 	{
 		std::stringstream ss;
-		ss << "Error: Invalid initialCondition type " << GlobalPara::initialCondition::type << ".\n";
+		ss << "Error: Invalid initialCondition type " << m_initial_type << ".\n";
 		LogWriter::logAndPrintError(ss.str());
-		CExit::saveAndExit(GlobalPara::initialCondition::type);
+		CExit::saveAndExit(-1);
 		break;
 	}
+	}
+}
+
+void FieldInitializer::initialize_using_config(void* tomlFileManager) {
+	/*
+	用TomlFileManager提供的API进行初始化
+	对于双马赫反射，还要求读取激波位置、角度参数
+	*/
+	TomlFileManager* t = (TomlFileManager*)tomlFileManager;
+	int initialCondition_type = type_uniform_flow;// 初始化方式
+	t->getValue("initialCondition.type", initialCondition_type);
+	FieldInitializer::getInstance()->set_initial_type(initialCondition_type);
+	if (initialCondition_type == type_double_mach_reflection) {
+		double shock_x = 0;
+		double shock_y = 0;
+		double shock_angle_degree = 60;
+		t->getValueOrExit("initialCondition.doubleShockReflection.shock_x", shock_x);
+		t->getValueOrExit("initialCondition.doubleShockReflection.shock_y", shock_y);
+		t->getValueOrExit("initialCondition.doubleShockReflection.shock_angle_degree", shock_angle_degree);
+
+		if (shock_angle_degree > 90 || shock_angle_degree < 0) {
+			std::cout << "shock_angle_degree out of range [0,90]. please try again.\n";
+			CExit::pressAnyKeyToExit();
+		}
+
+		CBoundaryDoubleShockReflect::getInstance()->setVar(shock_x, shock_y, shock_angle_degree);
 	}
 }
 
@@ -55,14 +98,6 @@ void FieldInitializer::printCondition(std::string initialConditionName) {
 	std::stringstream ss;
 	ss << "InitialCondition = "<< initialConditionName <<"\n";
 	LogWriter::logAndPrint(ss.str());
-
-	//ss.str("");// 清空
-	//ss << "ruvp_inlet = " << StringProcessor::doubleArray_2_string(inlet::ruvp, 4) << ",";
-	//ss << "ruvp_outlet = " << StringProcessor::doubleArray_2_string(outlet::ruvp, 4) << "\n";
-	//ss << "ruvp_inf = " << StringProcessor::doubleArray_2_string(inf::ruvp, 4) << ",";
-	//LogWriter::log(ss.str());
-
-
 }
 
 void FieldInitializer::setInitialUniform() {
@@ -74,25 +109,40 @@ void FieldInitializer::setInitialUniform() {
 	}
 }
 
-void FieldInitializer::setInitialIsentropicVortex(double xc, double yc, double chi, const double* ruvp0) {
-	// 等熵涡。ruvp0：均匀流参数
-	auto& elements = FVM_2D::getInstance()->elements;
-	for (int ie = 0; ie < elements.size(); ie++) {
-		Element_2D& e = elements[ie];
-		double rho, u, v, p;
-		double xbar, ybar, r2, du, dv, dT;
-		const double PI = U2NITS::Math::PI;
-		const double gamma = GlobalPara::constant::gamma;
-		xbar = e.x - xc;
-		ybar = e.y - yc;
-		r2 = xbar * xbar + ybar * ybar;
-		du = chi / 2. / PI * exp(0.5 * (1. - r2)) * (-ybar);
-		dv = chi / 2. / PI * exp(0.5 * (1. - r2)) * xbar;
-		u = ruvp0[1] + du;
-		v = ruvp0[2] + dv;
-		dT = -(gamma - 1.) * chi * chi / (8. * gamma * PI * PI) * exp(1. - r2);
-		rho = pow(ruvp0[3] + dT, 1. / (gamma - 1.));
-		p = rho * (ruvp0[3] + dT);
+void FieldInitializer::setInitialIsentropicVortex() {
+	double vortex_x = 0;
+	double vortex_y = 0;
+	double vortex_strength = 1;
+	TomlFileManager::getInstance()->getValueOrExit("initialCondition.isentropicVortex.vortex_x", vortex_x);
+	TomlFileManager::getInstance()->getValueOrExit("initialCondition.isentropicVortex.vortex_y", vortex_y);
+	TomlFileManager::getInstance()->getValueOrExit("initialCondition.isentropicVortex.vortex_strength", vortex_strength);
+
+	double xc = vortex_x;
+	double yc = vortex_y;
+	double chi = vortex_strength;
+	double chi2 = chi * chi;
+	const double* ruvp_inf = GlobalPara::boundaryCondition::_2D::inf::ruvp;
+	const double gamma = GlobalPara::constant::gamma;
+	const double ga1 = gamma - 1.0;
+	constexpr double PI = U2NITS::Math::PI;
+	constexpr double two_pi = 2.0 * PI;
+	constexpr double pi2 = PI * PI;
+	double c_du = chi / two_pi;// du表达式的系数，正数，与涡强度有关
+	double c_dT = ga1 * chi2 / (8. * gamma * pi2);// dT表达式的系数，正数，与涡强度有关
+
+	for (Element_2D& e: FVM_2D::getInstance()->elements) {
+		double dx = e.x - xc;
+		double dy = e.y - yc;
+		double r2 = dx * dx + dy * dy;
+		double one_minus_r2 = 1.0 - r2;
+		double c_distance = exp(0.5 * one_minus_r2);
+		double du = c_du * c_distance * (-dy);
+		double dv = c_du * c_distance * dx;
+		double u = ruvp_inf[1] + du;
+		double v = ruvp_inf[2] + dv;
+		double dT = -c_dT * exp(one_minus_r2);
+		double rho = pow(ruvp_inf[3] + dT, 1. / ga1);
+		double p = rho * (ruvp_inf[3] + dT);
 		double ruvp[4]{ rho,u,v,p };
 		Math_2D::ruvp_2_U(ruvp, e.U, gamma);
 	}
@@ -116,20 +166,7 @@ void FieldInitializer::setInitialShockTube() {
 void FieldInitializer::setInitialDoubleShockReflection() {
 	// 双马赫反射初始值参照 https://zhuanlan.zhihu.com/p/630069961
 	// 激波直线由点斜式(x,y,angle)确定
-	double shock_x = 0;
-	double shock_y = 0;
-	double shock_angle_degree = 60;
-	TomlFileManager::getInstance()->getValueOrExit("initialCondition.doubleShockReflection.shock_x", shock_x);
-	TomlFileManager::getInstance()->getValueOrExit("initialCondition.doubleShockReflection.shock_y", shock_y);
-	TomlFileManager::getInstance()->getValueOrExit("initialCondition.doubleShockReflection.shock_angle_degree", shock_angle_degree);
 
-	if (shock_angle_degree > 90 || shock_angle_degree < 0) {
-		std::cout << "shock_angle_degree out of range [0,90]. please try again.\n";
-		CExit::pressAnyKeyToExit();
-	}
-
-	CBoundaryDoubleShockReflect* pDSR = CBoundaryDoubleShockReflect::getInstance();
-	pDSR->setVar(shock_x, shock_y, shock_angle_degree);
 
 	constexpr bool isDebug = false;
 	if (isDebug) {
@@ -155,8 +192,7 @@ void FieldInitializer::setInitialDoubleShockReflection() {
 	using namespace GlobalPara::boundaryCondition::_2D;
 	for (int ie = 0; ie < elements.size(); ie++) {
 		Element_2D& element = elements[ie];
-		CBoundaryDoubleShockReflect::getInstance();
-		if (pDSR->isUpStreamOfShock_1(element.x, element.y)) {
+		if (CBoundaryDoubleShockReflect::getInstance()->isUpStreamOfShock_forElement(element.x, element.y)) {
 			Math_2D::ruvp_2_U(inlet::ruvp, element.U, GlobalPara::constant::gamma);
 		}
 		else {

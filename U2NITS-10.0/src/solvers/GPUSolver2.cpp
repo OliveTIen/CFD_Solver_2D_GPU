@@ -16,7 +16,36 @@
 #include "../output/ResidualCalculator.h"
 #include "../global/CExit.h"
 #include "../time/CIteration.h"
+#include "../output/FieldWriter.h"
 
+GPU::GPUSolver2* GPU::GPUSolver2::pInstance = nullptr;
+
+GPU::GPUSolver2::GPUSolver2() {
+	if (pInstance == nullptr) {
+		pInstance = this;
+	}
+	else {
+		LogWriter::logAndPrintError("only allow one instance to exist. @GPUSolver2()\n");
+		exit(-1);
+	}
+}
+
+GPU::GPUSolver2::~GPUSolver2() {
+	if (pInstance != nullptr) {
+		pInstance = nullptr;
+	}
+	else {
+		LogWriter::logAndPrintError("pInstance == nullptr on destruction. @~GPUSolver2()\n");
+	}
+}
+
+GPU::GPUSolver2* GPU::GPUSolver2::getInstance() {
+	if (pInstance == nullptr) {
+		LogWriter::logAndPrintError("pInstance == nullptr. @GPUSolver2::getInstance()\n");
+		exit(-1);
+	}
+	return pInstance;
+}
 
 void GPU::GPUSolver2::allocateMemory() {
 	FVM_2D* pFVM2D = FVM_2D::getInstance();
@@ -50,11 +79,13 @@ void GPU::GPUSolver2::allocateHostMemory(const int num_node, const int num_eleme
 	this->elementField_host.alloc(num_element);
 	this->edge_host.alloc(num_edge);
 	for (int j = 0; j < 4; j++) {
-		element_vruvp[j] = new REAL[num_element];
-		element_U_old[j] = new REAL[num_element];
+		this->element_vruvp[j] = new myfloat[num_element];
+		this->element_U_old[j] = new myfloat[num_element];
 	}
-	boundary_host.alloc(num_boundary);
-	outputNodeField.alloc(num_node);
+	this->boundary_host.alloc(num_boundary);
+	FieldWriter::getInstance()->allocNodeFieldDataUsingOutputScheme(this->outputNodeField, num_node);
+	this->edgeField_host.alloc(num_edge);
+
 	// 更新状态
 	hostMemoryAllocated = true;
 }
@@ -83,12 +114,15 @@ void GPU::GPUSolver2::allocateDeviceMemory(const int num_node, const int num_ele
 		using namespace GlobalPara::boundaryCondition::_2D;// using有作用域，不用担心混淆
 		infPara_device = new GPU::DGlobalPara(inf::ruvp, inlet::ruvp, outlet::ruvp, 4
 			, &GlobalPara::constant::R, &GlobalPara::constant::gamma, &GlobalPara::inviscid_flux_method::flux_conservation_scheme);
+
 		sDevicePara.initialize(
 			GlobalPara::constant::T0, GlobalPara::constant::p0, GlobalPara::constant::c0, GlobalPara::constant::gamma, U2NITS::Math::EPSILON, GlobalPara::constant::Re, GlobalPara::constant::Pr, GlobalPara::constant::mu,
 			GlobalPara::inviscid_flux_method::flag_reconstruct, GlobalPara::inviscid_flux_method::flag_gradient,
 			GlobalPara::boundaryCondition::_2D::inf::ruvp, GlobalPara::boundaryCondition::_2D::inlet::ruvp, GlobalPara::boundaryCondition::_2D::outlet::ruvp,
 			GlobalPara::inviscid_flux_method::flux_conservation_scheme, GlobalPara::inviscid_flux_method::flux_limiter
 		);
+
+		edgeField_device.cuda_alloc(num_edge);
 
 		// 更新状态
 		deviceMemoryAllocated = true;
@@ -150,7 +184,7 @@ void GPU::GPUSolver2::initializeDeviceData_byHostData() {
 	deviceDataInitialized = true;
 }
 
-void GPU::GPUSolver2::iteration(real& t, real T) {
+void GPU::GPUSolver2::iteration(myfloat& t, myfloat T) {
 	int useGPU = GlobalPara::basic::useGPU;
 	if (useGPU == 0) {
 		CIteration::iteration_host_2(t, T, this);
@@ -173,17 +207,18 @@ void GPU::GPUSolver2::device_to_host() {
 	// 将device端的数据复制到host端
 	GPU::NodeSoA::cuda_memcpy(&node_host, &node_device, cudaMemcpyDeviceToHost);
 	GPU::ElementSoA::cuda_memcpy(&element_host, &element_device, cudaMemcpyDeviceToHost);
-	GPU::FieldSoA::cuda_memcpy(&elementField_host, &elementField_device, cudaMemcpyDeviceToHost);
+	GPU::ElementFieldSoA::cuda_memcpy(&elementField_host, &elementField_device, cudaMemcpyDeviceToHost);
 	GPU::EdgeSoA::cuda_memcpy(&edge_host, &edge_device, cudaMemcpyDeviceToHost);
-
+	GPU::BoundarySetMap::cuda_memcpy(&boundary_host, &boundary_device, cudaMemcpyDeviceToHost);
 }
 
 void GPU::GPUSolver2::host_to_device() {
 	// 将host端的数据复制到device端
 	GPU::NodeSoA::cuda_memcpy(&node_device, &node_host, cudaMemcpyHostToDevice);
 	GPU::ElementSoA::cuda_memcpy(&element_device, &element_host, cudaMemcpyHostToDevice);
-	GPU::FieldSoA::cuda_memcpy(&elementField_device, &elementField_host, cudaMemcpyHostToDevice);
+	GPU::ElementFieldSoA::cuda_memcpy(&elementField_device, &elementField_host, cudaMemcpyHostToDevice);
 	GPU::EdgeSoA::cuda_memcpy(&edge_device, &edge_host, cudaMemcpyHostToDevice);
+	GPU::BoundarySetMap::cuda_memcpy(&boundary_device, &boundary_host, cudaMemcpyHostToDevice);
 }
 
 void GPU::GPUSolver2::freeMemory() {
@@ -209,7 +244,8 @@ void GPU::GPUSolver2::freeHostMemory() {
 		delete[] element_vruvp[j];
 		delete[] element_U_old[j];
 	}
-	this->outputNodeField.free();
+	FieldWriter::getInstance()->freeNodeFieldData(this->outputNodeField);
+	this->edgeField_host.free();
 	// 更新状态
 	hostMemoryAllocated = false;
 }
@@ -219,24 +255,22 @@ void GPU::GPUSolver2::freeDeviceMemory() {
 		LogWriter::logAndPrintError("cannot free device memory.\n");
 		exit(-1);
 	}
-	// device 双向数据
+	// 双向数据
 	this->node_device.cuda_free();
 	this->element_device.cuda_free();
 	this->elementField_device.cuda_free();
 	this->edge_device.cuda_free();
 	this->boundary_device.cuda_free();
 
-	// device device数据
+	// device 数据
 	delete this->infPara_device;
+	this->edgeField_device.cuda_free();
+
 	// 更新状态
 	deviceMemoryAllocated = false;
 }
 
-void GPU::GPUSolver2::updateResidual() {
-	ResidualCalculator::cal_residual_GPU(element_U_old, elementField_host, ResidualCalculator::NORM_INF, residualVector);
-}
-
-void GPU::GPUSolver2::getResidual() {
+void GPU::GPUSolver2::updateResidualVector() {
 	ResidualCalculator::get_residual_functionF(elementField_host, residualVector, ResidualCalculator::NORM_INF);
 }
 
@@ -247,7 +281,7 @@ void GPU::GPUSolver2::setGPUDevice() {
 	}
 
 	int nDevice = 0;
-	int iDevice = 0;	
+	int iDevice = 0;
 	cudaError_t error;
 	// 获取设备数
 	error = cudaGetDeviceCount(&nDevice);
@@ -272,7 +306,7 @@ void GPU::GPUSolver2::setGPUDevice() {
 void GPU::GPUSolver2::initialize_nodeHost(void* _pFVM2D_, int num_node) {
 	// 初始化node_host
 	FVM_2D* pFVM2D = (FVM_2D*)_pFVM2D_;
-//#pragma omp parallel for
+	//#pragma omp parallel for
 	for (int i = 0; i < num_node; i++) {
 		Node_2D node_i = pFVM2D->nodes[i];
 		node_host.ID[i] = node_i.GPUID;
@@ -291,7 +325,7 @@ void GPU::GPUSolver2::initialize_elementHost(void* _pFVM2D_, int num_element) {
 	FVM_2D* pFVM2D = (FVM_2D*)_pFVM2D_;
 	const int nodePerElement = 3;
 	const int nValue = 4;
-//#pragma omp parallel for
+	//#pragma omp parallel for
 	for (int i = 0; i < num_element; i++) {
 
 		Element_2D& element_i = pFVM2D->elements[i];
@@ -331,7 +365,7 @@ void GPU::GPUSolver2::initialize_elementHost(void* _pFVM2D_, int num_element) {
 void GPU::GPUSolver2::initialize_edgeHost(void* _pFVM2D_, int num_edge) {
 	// 初始化edge_host
 	FVM_2D* pFVM2D = (FVM_2D*)_pFVM2D_;
-//#pragma omp parallel for
+	//#pragma omp parallel for
 	for (int i = 0; i < num_edge; i++) {
 		Edge_2D& edge_i = pFVM2D->edges[i];
 		edge_host.ID[i] = edge_i.GPUID;
@@ -356,8 +390,8 @@ void GPU::GPUSolver2::initialize_edgeHost(void* _pFVM2D_, int num_edge) {
 		edge_host.xy[1][i] = (node_host.xy[1][tmpNodeID0] + node_host.xy[1][tmpNodeID1]) / 2.0;
 		// 计算normal
 		//edge_i.getDirectionN(edge_host.normal[0][i], edge_host.normal[1][i]);
-		REAL dx = node_host.xy[0][tmpNodeID1] - node_host.xy[0][tmpNodeID0];
-		REAL dy = node_host.xy[1][tmpNodeID1] - node_host.xy[1][tmpNodeID0];
+		myfloat dx = node_host.xy[0][tmpNodeID1] - node_host.xy[0][tmpNodeID0];
+		myfloat dy = node_host.xy[1][tmpNodeID1] - node_host.xy[1][tmpNodeID0];
 		edge_host.normal[0][i] = dy / edge_i.length;
 		edge_host.normal[1][i] = -dx / edge_i.length;
 	}
@@ -396,61 +430,13 @@ void GPU::GPUSolver2::initialize_boundary(void* _pFVM2D_) {
 		}
 	}
 
-	// boundarySet
-	for (int i = 0; i < boundaryManager.boundaries.size(); i++) {
-		boundary_host.type[i] = boundaryManager.boundaries[i].type;
-	}
+	//// boundarySet
+	//for (int i = 0; i < boundaryManager.boundaries.size(); i++) {
+	//	boundary_host.type[i] = boundaryManager.boundaries[i].type;
+	//}
 }
 
+
 void GPU::GPUSolver2::updateOutputNodeField() {
-
-	/*
-	可能的隐患：
-	这里nNodePerElement为4，
-	对于三角形单元，有两种处理方式，第一种让nodeID[3]=-1，另一种让nodeID[3]=nodeID[2]
-	当nodeID[3]=-1时，会跳过该节点，防止越界访问数组
-	当nodeID[3]=nodeID[2]时，邻居数量会加1，同时值会加两遍。这导致nodeID[2]权重偏大。
-	*/
-
-	auto& node_ruvp = this->outputNodeField.ruvp;
-	int num_node = this->outputNodeField.num_node;
-	int num_element = this->element_host.num_element;
-	const int nNodePerElement = 4;
-	const int nValuePerNode = 4;
-	int* node_neighborElement_num;// 记录每个节点的邻居单元数量
-	// 申请资源 初始化
-	node_neighborElement_num = new int[num_node]();// 小括号自动初始化为0
-	for (int i = 0; i < 4; i++) {
-		memset(node_ruvp[i], 0, num_node * sizeof(REAL));
-	}
-
-	// 将单元值加到其子节点值上
-	for (int iElement = 0; iElement < num_element; iElement++) {
-		// 统计每个节点的邻居单元数量，并修改节点值
-		for (int jNode = 0; jNode < nNodePerElement; jNode++) {
-			// 获取单元节点ID
-			int GPUID_of_node = this->element_host.nodes[jNode][iElement];// GPUID of node 0
-			// nodeID[3]=-1时，跳过该节点
-			if (GPUID_of_node < 0 || GPUID_of_node >= num_node)continue;// 跳过本次循环，但不跳出循环体
-			// 该ID对应的邻居单元数量+1
-			node_neighborElement_num[GPUID_of_node]++;
-			// 该ID对应的节点所有值加上单元值
-			for (int kValue = 0; kValue < nValuePerNode; kValue++) {
-				node_ruvp[kValue][GPUID_of_node] += this->element_vruvp[kValue][iElement];
-			}
-		}
-	}
-
-	// 节点值除以邻居单元数，得到平均值，作为节点ruvp值
-	for (int iNode = 0; iNode < num_node; iNode++) {
-		// 为了避免除以0，分母等于0则跳过
-		if (node_neighborElement_num[iNode] == 0)continue;
-		// node_ruvp除以邻居单元数，得到平均值
-		for (int kValue = 0; kValue < nValuePerNode; kValue++) {
-			node_ruvp[kValue][iNode] /= node_neighborElement_num[iNode];
-		}
-	}
-
-	// 释放资源
-	delete[] node_neighborElement_num;
+	FieldWriter::getInstance()->update_nodeField();
 }

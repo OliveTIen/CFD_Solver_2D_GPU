@@ -692,23 +692,6 @@ FVM_2D* FVM_2D::getInstance() {
 //	gpuSolver2.finalize();
 //}
 
-double FVM_2D::caldt(double t, double T) {
-	// 根据单元LambdaC、单元面积、CFL数计算dt_i，取最小值，返回
-	// 输入：elements、CFL、当前时间t、目标时间T
-	// 输出：dt
-	double dt = 1e10;// a big value
-	// 以下为新代码
-	for (int ie = 0; ie < elements.size(); ie++) {
-		double LambdaC_i = elements[ie].calLambdaFlux(this);
-		double Omega_i = elements[ie].calArea(this);
-		double dt_i = GlobalPara::time::CFL * Omega_i / LambdaC_i;
-		dt = (std::min)(dt, dt_i);
-	}
-	// 如果t+dt超出设定T，则限制dt
-	dt = (t + dt > T) ? (T - t) : dt;//if (t + dt > T)dt = T - t;
-	return dt;
-}
-
 //double FVM_2D::caldt_GPU(double t, double T, void* gpuSolver2) {
 //	REAL Re = 1e8;
 //	REAL Pr = 0.73;
@@ -722,53 +705,6 @@ double FVM_2D::caldt(double t, double T) {
 //	);
 //}
 
-void FVM_2D::writeTecplotFile(std::string f_name, double t_current, 
-	std::vector<double>& rho_nodes,
-	std::vector<double>& u_nodes,
-	std::vector<double>& v_nodes,
-	std::vector<double>& p_nodes
-	) {
-	// 根据单元U更新节点ruvp
-	//calculateNodeValue();
-
-	std::ofstream f(f_name);
-	if (!f.is_open())std::cout << "Error: Fail to open file " << f_name << std::endl;
-
-	//header
-	f << R"(TITLE = "Example: 2D Finite Element Data")" << "\n";
-	f << R"(VARIABLES = "X", "Y")";
-	if (GlobalPara::output::output_var_ruvp[0])		f << R"(, "rho")";
-	if (GlobalPara::output::output_var_ruvp[1])		f << R"(, "u")";
-	if (GlobalPara::output::output_var_ruvp[2])		f << R"(, "v")";
-	if (GlobalPara::output::output_var_ruvp[3])		f << R"(, "p")";
-	f << "\n";
-
-	f << "ZONE NODES="<< nodes.size() 
-		<<", ELEMENTS = "<< elements.size() 
-		<<", DATAPACKING = POINT, ZONETYPE = FEQUADRILATERAL"
-		<<", SOLUTIONTIME="<<std::scientific<< t_current<<std::fixed
-		<<std::endl;
-	
-	//nodes
-	for (int i = 0; i < nodes.size(); i++) {
-		f << nodes[i].x << ' ' << nodes[i].y;
-		if (GlobalPara::output::output_var_ruvp[0])		f << ' ' << rho_nodes[i];
-		if (GlobalPara::output::output_var_ruvp[1])		f << ' ' << u_nodes[i];
-		if (GlobalPara::output::output_var_ruvp[2])		f << ' ' << v_nodes[i];
-		if (GlobalPara::output::output_var_ruvp[3])		f << ' ' << p_nodes[i];
-		f << std::endl;
-	}
-
-	//elements
-	for (int ie = 0; ie < elements.size(); ie++) {
-		f << elements[ie].nodes[0] << " ";
-		f << elements[ie].nodes[1] << " ";
-		f << elements[ie].nodes[2] << " ";
-		f << elements[ie].nodes[2] << std::endl;
-	}
-
-	f.close();
-}
 
 void FVM_2D::writeContinueFile(std::string f_name, double t, int istep) {
 	//std::cout << "wirtefile:" << f_name << std::endl;
@@ -830,30 +766,6 @@ void FVM_2D::updateAutoSaveFile(double t, int istep, int& iCurrentAutosaveFile) 
 	if (iCurrentAutosaveFile >= GlobalPara::output::autosaveFileNum)iCurrentAutosaveFile = 0;
 }
 
-void FVM_2D::calculateNodeValue(
-	std::vector<double>& rho_nodes,
-	std::vector<double>& u_nodes,
-	std::vector<double>& v_nodes,
-	std::vector<double>& p_nodes) {
-
-	if (GlobalPara::output::output_var_ruvp[0]) 		rho_nodes.resize(nodes.size());
-	if (GlobalPara::output::output_var_ruvp[1]) 		u_nodes.resize(nodes.size());
-	if (GlobalPara::output::output_var_ruvp[2]) 		v_nodes.resize(nodes.size());
-	if (GlobalPara::output::output_var_ruvp[3]) 		p_nodes.resize(nodes.size());
-
-	for (int i = 0; i < nodes.size(); i++) {
-		// 计算节点函数值。取邻居单元的分布函数的平均值
-		double U[4];
-		nodes[i].calNodeValue(U);
-		double ruvp[4];
-		Math_2D::U_2_ruvp(U, ruvp, GlobalPara::constant::gamma);
-		if (GlobalPara::output::output_var_ruvp[0]) 		rho_nodes[i] = ruvp[0];
-		if (GlobalPara::output::output_var_ruvp[1]) 		u_nodes[i] = ruvp[1];
-		if (GlobalPara::output::output_var_ruvp[2]) 		v_nodes[i] = ruvp[2];
-		if (GlobalPara::output::output_var_ruvp[3]) 		p_nodes[i] = ruvp[3];
-	}
-
-}
 /*
 void FVM_2D::calculateNodeValue_GPU(void* pSolver) {
 

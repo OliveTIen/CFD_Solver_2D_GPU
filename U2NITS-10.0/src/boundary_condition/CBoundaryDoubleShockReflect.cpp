@@ -1,9 +1,6 @@
 #include "CBoundaryDoubleShockReflect.h"
 #include "../math/Common.h"
 
-//int BoundaryUpdater::getBoundaryTypeByName(std::string name) {
-//    return 0;
-//}
 
 CBoundaryDoubleShockReflect* CBoundaryDoubleShockReflect::m_pointer = nullptr;
 
@@ -16,7 +13,7 @@ CBoundaryDoubleShockReflect* CBoundaryDoubleShockReflect::getInstance() {
 	return m_pointer;
 }
 
-bool CBoundaryDoubleShockReflect::isUpStreamOfShock_1(double x, double y) {
+bool CBoundaryDoubleShockReflect::isUpStreamOfShock_forElement(double x, double y) {
 	/*
 	功能：更新双马赫反射的上边界
 	输入：坐标

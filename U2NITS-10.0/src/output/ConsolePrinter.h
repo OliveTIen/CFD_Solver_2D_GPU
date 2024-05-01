@@ -50,7 +50,7 @@ public:
 	// 组装求解信息
 	void assemblySolveInfo(double calTime, int calStep, int maxIteration, double calSpeed, double nFile, double t, double T, const double* residual_vector);
 	// return solveInfo
-	std::string setSolveInfo(int startStep, int currentStep, int endStep, int numOfFile, double usedTime, double physicalTime, double maxPhysicalTime, const double* residual_vector);
+	std::string setSolveInfo(int startStep, int currentStep, int endStep, int numOfFile, double usedTime, double physicalTime, double maxPhysicalTime, const double* residual_vector, double CFL);
 	std::string getSolveInfo() { return m_solveInfo; }
 	// 打印求解信息
 	static void printInfo(InfoType type);

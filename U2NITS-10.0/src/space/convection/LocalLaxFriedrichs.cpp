@@ -1,7 +1,7 @@
 #include "LocalLaxFriedrichs.h"
 #include "../../math/Math.h"
 
-void U2NITS::Space::LocalLaxFriedrichs(const REAL* UL, const REAL* UR, const REAL nx, const REAL ny, const REAL length, REAL* flux, REAL gamma) {
+void U2NITS::Space::LocalLaxFriedrichs(const myfloat* UL, const myfloat* UR, const myfloat nx, const myfloat ny, const myfloat length, myfloat* flux, myfloat gamma) {
 
     //功能：无粘通量黎曼求解器。根据ULUR等参数，进行坐标变换，计算无粘数值通量flux
     //输出：flux

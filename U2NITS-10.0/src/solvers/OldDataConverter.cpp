@@ -50,7 +50,7 @@ void U2NITS::OldDataConverter::ConvertElement(int num_element) {
 	GPU::EdgeSoA& edge_host = m_pGPUSolver2->edge_host;
 	GPU::NodeSoA& node_host = m_pGPUSolver2->node_host;
 	GPU::ElementSoA& element_host = m_pGPUSolver2->element_host;
-	GPU::FieldSoA& elementField_host = m_pGPUSolver2->elementField_host;
+	GPU::ElementFieldSoA& elementField_host = m_pGPUSolver2->elementField_host;
 
 	// 初始化element_host和elementAdjacent
 	FVM_2D* pFVM2D = (FVM_2D*)m_pFVM2D;
@@ -127,8 +127,8 @@ void U2NITS::OldDataConverter::ConvertEdge(int num_edge) {
 		edge_host.xy[1][i] = (node_host.xy[1][tmpNodeID0] + node_host.xy[1][tmpNodeID1]) / 2.0;
 		// 计算normal
 		//edge_i.getDirectionN(edge_host.normal[0][i], edge_host.normal[1][i]);
-		REAL dx = node_host.xy[0][tmpNodeID1] - node_host.xy[0][tmpNodeID0];
-		REAL dy = node_host.xy[1][tmpNodeID1] - node_host.xy[1][tmpNodeID0];
+		myfloat dx = node_host.xy[0][tmpNodeID1] - node_host.xy[0][tmpNodeID0];
+		myfloat dy = node_host.xy[1][tmpNodeID1] - node_host.xy[1][tmpNodeID0];
 		edge_host.normal[0][i] = dy / edge_i.length;
 		edge_host.normal[1][i] = -dx / edge_i.length;
 	}
@@ -149,8 +149,6 @@ void U2NITS::OldDataConverter::ConvertBoundary(int num_boundary) {
 	* 目前GPU采用法1，CPU采用法2(?)
 	*/
 	GPU::EdgeSoA& edge_host = m_pGPUSolver2->edge_host;
-	std::map<int, int>& edge_periodic_pair = m_pGPUSolver2->edge_periodic_pair;
-	GPU::BoundarySetMap& boundary_host = m_pGPUSolver2->boundary_host;
 	BoundaryManager_2D& boundaryManager = m_pFVM2D->boundaryManager;
 
 	// 初始化周期edge的elementR和edge_pair
@@ -166,18 +164,32 @@ void U2NITS::OldDataConverter::ConvertBoundary(int num_boundary) {
 				int elementL_pair = edge_host.elementL[edgeID_pair];
 				edge_host.elementR[edgeID] = elementL_pair;
 				// 用map存储pair
-				edge_periodic_pair.insert(std::pair<int, int>(edgeID, edgeID_pair));
+				m_pGPUSolver2->edge_periodic_pair.insert(std::pair<int, int>(edgeID, edgeID_pair));
 				// 用EdgeSoA成员存储pair
 				edge_host.periodicPair[edgeID] = edgeID_pair;
 			}
 		}
 	}
 
-	// 初始化边界ID类型映射表
+	// 初始化边界ID类型映射表boundary_host
 	for (int i = 0; i < num_boundary; i++) {
-		boundary_host.type[i] = boundaryManager.boundaries[i].type;
+		m_pGPUSolver2->boundary_host.type[i] = boundaryManager.boundaries[i].type;
 	}
 
-	// 初始化wall边界的单元GPUID。积分表面气动力时需要遍历某边界的单元
+	// 初始化boundary_host_new。
+	m_pGPUSolver2->boundary_host_new.edgeSets.resize(boundaryManager.boundaries.size());
+	for (int i = 0; i < num_boundary; i++) {
+		
+		const auto& boundary = boundaryManager.boundaries[i];
+		auto& edgeSet = m_pGPUSolver2->boundary_host_new.edgeSets[i];
+		edgeSet.ID = boundary.ID;
+		edgeSet.name = boundary.name;
+		edgeSet.type = boundary.type;
+		edgeSet.edge_vector.resize(boundary.pEdges.size());
+		for (int ie = 0; ie < boundary.pEdges.size(); ie++) {
+			edgeSet.edge_vector[ie] = boundary.pEdges[ie]->GPUID;
+		}
+		
+	}
 
 }

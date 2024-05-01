@@ -8,7 +8,7 @@ namespace GPU {
 	namespace Space {
 		namespace Restrict {
 
-			inline __device__ bool outOfRange(real* ruvp) {
+			inline __device__ bool outOfRange(myfloat* ruvp) {
 				if (ruvp[0] < U2NITS::Math::Physics::RHO_MIN ||
 					ruvp[0] > U2NITS::Math::Physics::RHO_MAX ||
 					ruvp[3] < U2NITS::Math::Physics::P_MIN ||

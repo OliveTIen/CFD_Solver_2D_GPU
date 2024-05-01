@@ -30,24 +30,10 @@ public:
 	
 	// 求解
 	//void solve_CPU2(std::string suffix_out, std::string suffix_info);
-	// 计算dt。根据CFL数计算各单元局部dt，取最小值。如果t+dt超出设定T，则限制dt
-	double caldt(double t, double T);
 	// 检查非法值
 	bool isNan();
 	// 更新自动保存文件
 	void updateAutoSaveFile(double t, int istep, int& iCurrentAutosaveFile);
-	// 输出流场到文件 旧函数，不推荐使用，仅用于solve_CPU()
-	// solve_GPU中，用FieldWriter实现该功能
-	void writeTecplotFile(std::string f_name, double t_current,
-		std::vector<double>& rho_nodes,
-		std::vector<double>& u_nodes,
-		std::vector<double>& v_nodes,
-		std::vector<double>& p_nodes);
-	// 计算节点函数值，输出文件时用到
-	void calculateNodeValue(std::vector<double>& rho_nodes,
-		std::vector<double>& u_nodes,
-		std::vector<double>& v_nodes,
-		std::vector<double>& p_nodes);
 	// GPU版本
 	//void calculateNodeValue_GPU(void* pSolver);
 	// 续算文件

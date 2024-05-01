@@ -3,7 +3,7 @@
 #include "../../output/LogWriter.h"
 #include "../../global/GlobalPara.h"
 
-void U2NITS::Space::Restrict::modifyElementFieldU2d(GPU::ElementSoA& element, GPU::FieldSoA& elementField) {
+void U2NITS::Space::Restrict::modifyElementFieldU2d(GPU::ElementSoA& element, GPU::ElementFieldSoA& elementField) {
 	// 对于超出范围的数据，取邻居的平均值
 	int nElement = element.num_element;
 	for (int iElement = 0; iElement < nElement; iElement++) {
@@ -11,10 +11,10 @@ void U2NITS::Space::Restrict::modifyElementFieldU2d(GPU::ElementSoA& element, GP
 	}
 }
 
-void U2NITS::Space::Restrict::modifyElementFieldUKernel2d(GPU::ElementSoA& element, GPU::FieldSoA& elementField, int iElement) {
+void U2NITS::Space::Restrict::modifyElementFieldUKernel2d(GPU::ElementSoA& element, GPU::ElementFieldSoA& elementField, int iElement) {
 	
-	real U[4]{};
-	real ruvp[4]{};
+	myfloat U[4]{};
+	myfloat ruvp[4]{};
 	for (int i = 0; i < 4; i++) {
 		U[i] = elementField.U[i][iElement];
 	}
@@ -26,8 +26,8 @@ void U2NITS::Space::Restrict::modifyElementFieldUKernel2d(GPU::ElementSoA& eleme
 
 			// 求邻居个数和邻居U之和
 			int numOfValidNeighbor = 0;
-			real Usum[4]{};
-			real volumeSum = 0.0;
+			myfloat Usum[4]{};
+			myfloat volumeSum = 0.0;
 			for (int i = 0; i < 4; i++) {
 				// -1表示无邻居；周期边界依然是-1
 				int neighborID = element.neighbors[i][iElement];
@@ -36,7 +36,7 @@ void U2NITS::Space::Restrict::modifyElementFieldUKernel2d(GPU::ElementSoA& eleme
 				}
 				numOfValidNeighbor++;
 				for (int jVar = 0; jVar < 4; jVar++) {
-					real volume = element.volume[neighborID];
+					myfloat volume = element.volume[neighborID];
 					Usum[jVar] += elementField.U[jVar][neighborID] * volume;
 					volumeSum += volume;
 				}
@@ -54,7 +54,7 @@ void U2NITS::Space::Restrict::modifyElementFieldUKernel2d(GPU::ElementSoA& eleme
 
 			// 求邻居个数和邻居U之和
 			int numOfValidNeighbor = 0;
-			real Usum[4]{};
+			myfloat Usum[4]{};
 			for (int i = 0; i < 4; i++) {
 				// -1表示无邻居；周期边界依然是-1
 				int neighborID = element.neighbors[i][iElement];

@@ -1,7 +1,7 @@
 #include "CalculateDtGPU.h"
 #include "../output/LogWriter.h"
 
-real GPU::Time::calculateGlobalDt(real currentPhysicalTime, real maxPhysicalTime, real gamma, real Re, real Pr, real CFL, real Rcpcv, GPU::ElementSoA& element, GPU::EdgeSoA& edge, real* element_vruvp[4]) {
+myfloat GPU::Time::calculateGlobalDt(myfloat currentPhysicalTime, myfloat maxPhysicalTime, myfloat gamma, myfloat Re, myfloat Pr, myfloat CFL, myfloat Rcpcv, GPU::ElementSoA& element, GPU::EdgeSoA& edge, myfloat* element_vruvp[4]) {
 	/*
 	涉及到规约操作
 	*/

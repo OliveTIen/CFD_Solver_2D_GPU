@@ -26,22 +26,24 @@ namespace U2NITS {
 		};
 		class SignalPack {
 		public:
-			bool b_writeContinue = false;
-			bool b_writeTecplot = false;
+			bool b_writeContinue = false;// 续算
+			bool b_writeTecplot = false;// 流场
+			bool b_writeRecovery = false;// 还原点
 			bool b_nanDetected = false;
-			bool b_writeHist = false;
-			bool b_print = false;
+			bool b_writeHist = false;// 残差
+			bool b_print = false;// 屏幕
 			PauseSignal pauseSignal = _NoSignal;// 暂停信号
 		};
 
 	public:
 		static CDriver* getInstance();
+		// 主循环
 		void run();
 		static void saveAndExit(int _Code);
 		
 	private:
 		CDriver() {};
-		SignalPack emitSignalPack(int istep, int maxIteration, real t, real T, real residualRho);
+		SignalPack emitSignalPack(int istep, int maxIteration, myfloat t, myfloat T, myfloat residualRho);
 		void onSignalPack(const SignalPack& sp);
 		void updateOldData(int istep, double t) {
 			m_last_istep = istep;

@@ -183,38 +183,73 @@ void BoundaryManager_2D::checkPeriodPairs() {
 	// 检查周期边界的正确性和完整性
 	// !隐患：存在以下假设：
 	// gmsh输出的inp文件中，edge编号是从第一个顶点出发，逆时针环绕一圈。因此一对periodPair其方向必然是相反的
-	int check_2 = 1;
-	for (int ip = 0; ip < periodPairs.size() && check_2; ip++) {
-		//某一对边界
-		const VirtualBoundarySet_2D& vbs0 = boundaries[periodPairs[ip].setID_0 - 1];
-		const VirtualBoundarySet_2D& vbs1 = boundaries[periodPairs[ip].setID_1 - 1];
-		//检查对应点的坐标是否满足平移规律
-		if (vbs0.pEdges.size() != vbs1.pEdges.size()) {//首先应满足点个数相同
-			check_2 *= 0;
+	bool b_loop = true;
+	bool b_error_uninitialized = false;
+	bool b_error_edge_num_not_match = false;
+	bool b_error_not_translatable = false;
+	for (int ip = 0; ip < periodPairs.size() && b_loop; ip++) {
+		// 检查对应边界是否存在。如果不存在，可能是因为写周期边界时，每种周期边界不是成对出现，导致未初始化
+		auto& pair = periodPairs[ip];
+		if (pair.setID_0 == -1 || pair.setID_1 == -1) {
+			b_error_uninitialized = true;
+			b_loop = false;
+			break;
 		}
-		else {
-			const int eSize = int(vbs0.pEdges.size());
-			//计算平移向量
-			double vx, vy;//平移向量v
-			vx = vbs1.pEdges[eSize - 1]->getx() - vbs0.pEdges[0]->getx();
-			vy = vbs1.pEdges[eSize - 1]->gety() - vbs0.pEdges[0]->gety();
-			for (int ie = 0; ie < eSize && check_2; ie++) {
-				//将边界1中某点平移(vx,vy)得到p0,判断p0和p1是否重合
-				double p0_x = vbs0.pEdges[ie]->getx() + vx;
-				double p0_y = vbs0.pEdges[ie]->gety() + vy;
-				double p1_x = vbs1.pEdges[eSize - 1 - ie]->getx();
-				double p1_y = vbs1.pEdges[eSize - 1 - ie]->gety();
-				double distance2 = (p1_x - p0_x) * (p1_x - p0_x) + (p1_y - p0_y) * (p1_y - p0_y);
-				double vlength2 = vx * vx + vy * vy;
-				if (distance2 >= 0.0001 * vlength2)check_2 *= 0;//|p1-p0|大于0.01*|v|则认为不重合
+
+		const VirtualBoundarySet_2D& vbs0 = boundaries[pair.setID_0 - 1];
+		const VirtualBoundarySet_2D& vbs1 = boundaries[pair.setID_1 - 1];
+
+		// 检查对应边界是否点数相等
+		if (vbs0.pEdges.size() != vbs1.pEdges.size()) {
+			b_error_edge_num_not_match = true;
+			b_loop = false;
+			break;
+		}
+
+		// 检查对应边界是否满足平移规律 将边界1中某点平移(vx,vy)得到p0,判断p0和p1是否重合
+		// 首先取第一对对应点，计算位移
+		const int pEdge_size = int(vbs0.pEdges.size());
+		double translate_x = vbs1.pEdges[pEdge_size - 1]->getx() - vbs0.pEdges[0]->getx();
+		double translate_y = vbs1.pEdges[pEdge_size - 1]->gety() - vbs0.pEdges[0]->gety();
+		for (int ie = 0; ie < pEdge_size && b_loop; ie++) {
+			double x1_ref = vbs0.pEdges[ie]->getx() + translate_x;
+			double y1_ref = vbs0.pEdges[ie]->gety() + translate_y;
+			double x1 = vbs1.pEdges[pEdge_size - 1 - ie]->getx();
+			double y1 = vbs1.pEdges[pEdge_size - 1 - ie]->gety();
+			double residual_x = x1 - x1_ref;
+			double residual_y = y1 - y1_ref;
+			double residual_square = residual_x * residual_x + residual_y * residual_y;
+			double translate_square = translate_x * translate_x + translate_y * translate_y;
+			double residual_relative = residual_square / translate_square;// 相对残差
+
+			if (residual_relative >= 0.0001) {
+				b_error_not_translatable = true;
+				b_loop = false;
+				break;
 			}
 		}
-		//不满足则报错
-		if (!check_2) {
-			std::string str = "Invalid periodic boundary, for not meeting translation conditions. (BoundaryManager_2D::iniBoundaryEdge_SetType)\n";
-			LogWriter::logAndPrintError(str);
-			throw str;
-		}
+	}
+
+	if (b_error_uninitialized) {
+		std::stringstream ss;
+		ss << "b_error_uninitialized, @BoundaryManager_2D::checkPeriodPairs().\n"
+			<< "Maybe because perioic boundaries does not appear in pairs. Please write periodic boundary seperately.\n";
+		LogWriter::logAndPrintError(ss.str());
+		exit(-1);
+	}
+	if (b_error_edge_num_not_match) {
+		std::stringstream ss;
+		ss << "b_error_edge_num_not_match, @BoundaryManager_2D::checkPeriodPairs().\n"
+			<< "Invalid periodic boundary, for nums of edges doesn't match.\n";
+		LogWriter::logAndPrintError(ss.str());
+		exit(-1);
+	}
+	if (b_error_not_translatable) {
+		std::stringstream ss;
+		ss << "b_error_not_translatable, @BoundaryManager_2D::checkPeriodPairs().\n"
+			<< "Invalid periodic boundary, for not meeting translation conditions.\n";
+		LogWriter::logAndPrintError(ss.str());
+		exit(-1);
 	}
 }
 

@@ -2,6 +2,7 @@
 #include "../FVM_2D.h"
 #include "../math/Common.h"
 #include "../global/CExit.h"
+#include "RoutineController.h"
 
 U2NITS::CDriver* U2NITS::CDriver::pCDriver = nullptr;
 
@@ -30,12 +31,14 @@ void U2NITS::CDriver::run() {
 
 	// 迭代
 	out.hist.setFilePath(out.getDir() + GlobalPara::basic::filename + "_hist.dat");
+	out.set_tecplot_hist_path(out.getDir() + GlobalPara::basic::filename + "_hist.dat");
 	out.timer.start();// 计时
 	out.console.setClearStartPosition();
 	while (true) {// 循环终止条件见signal
 		istep++;
 		// 更新文件名
 		out.updateFileName(istep);
+
 		solver.iteration(t, T);
 		std::cout << ".";// 输出“.”表示正在计算，没有卡顿
 
@@ -43,33 +46,35 @@ void U2NITS::CDriver::run() {
 
 		// 打印操作
 		if (sp.b_print) {
-			solver.getResidual();
+			solver.updateResidualVector();
+			// 调整CFL数，后面计算dt时会用到
+			RoutineController::getInstance()->applyStrategy(solver.residualVector[0], GlobalPara::time::CFL, istep);
 			out.console.clear();
 			out.console.drawProgressBar((double)istep, (double)maxIteration, 45);
-			out.console.setSolveInfo(istep_start, istep, maxIteration, out.field.getNumTecplotFileWritten(), out.timer.getIime(), t, T, solver.residualVector);
+			out.console.setSolveInfo(istep_start, istep, maxIteration, out.getFieldWriter()->getNumTecplotFileWritten(), out.timer.getIime(), t, T, solver.residualVector, GlobalPara::time::CFL);
 			out.console.print(out.console.getSolveInfo());
 		}
 		// 写文件操作
-		if (sp.b_writeContinue || sp.b_writeTecplot) {
-			solver.updateOutputNodeField();// 根据单元U更新节点ruvp
+		if (sp.b_writeContinue || sp.b_writeTecplot || sp.b_writeRecovery || sp.b_writeHist) {
+			solver.updateOutputNodeField();
+			solver.updateResidualVector();
 			if (sp.b_nanDetected) {
 				out.console.printInfo(out.console.InfoType::type_nan_detected);
 				out.continueFilePath = out.continueFilePath_nan;
 			}
 			if (sp.b_writeContinue) {
-				out.field.writeContinueFile_1(
-					istep, t, out.continueFilePath,
-					solver.node_host, solver.element_host, solver.elementField_host.U
-				);
+				out.getFieldWriter()->writeContinueFile_1(istep, t, out.continueFilePath, solver.node_host, solver.element_host, solver.elementField_host.U);
 			}
 			if (sp.b_writeTecplot) {
-				out.field.writeTecplotFile_1(t, out.tecplotFilePath, "title", solver.node_host, solver.element_host, solver.outputNodeField);
+				out.getFieldWriter()->write_tecplot_volume_file(t, out.tecplotFilePath, "title", solver.node_host, solver.element_host, solver.outputNodeField);
+				out.getFieldWriter()->write_tecplot_boundary_file(t, out.tecplotBoundaryFilePath, solver.node_host, solver.edge_host, solver.outputNodeField, solver.boundary_host_new);
 			}
-		}
-		if (sp.b_writeHist) {
-			// 获取残差，结果保存在residual_vector中
-			solver.getResidual();
-			out.hist.writeHistFile_2(istep, solver.residualVector, solver.residualVectorSize);
+			if (sp.b_writeRecovery) {
+				out.getFieldWriter()->writeContinueFile_1(istep, t, out.recoveryFilePath, solver.node_host, solver.element_host, solver.elementField_host.U);
+			}
+			if (sp.b_writeHist) {
+				out.getFieldWriter()->write_tecplot_hist_file(out.tecplot_hist_path, istep, t, solver.residualVector, solver.edge_host, solver.outputNodeField, solver.boundary_host_new);
+			}
 		}
 		// 终止操作
 		if (sp.pauseSignal != _NoSignal) {
@@ -112,7 +117,7 @@ void U2NITS::CDriver::m_saveAndExit(int _Code) {
 	}
 
 	out.updateFileName(m_last_istep);
-	out.field.writeContinueFile_1(
+	out.getFieldWriter()->writeContinueFile_1(
 		m_last_istep, m_last_t, out.continueFilePath,
 		solver.node_host, solver.element_host, solver.element_U_old
 	);
@@ -120,24 +125,30 @@ void U2NITS::CDriver::m_saveAndExit(int _Code) {
 }
 
 
-U2NITS::CDriver::SignalPack U2NITS::CDriver::emitSignalPack(int istep, int maxIteration, real t, real T, real residualRho) {
+U2NITS::CDriver::SignalPack U2NITS::CDriver::emitSignalPack(int istep, int maxIteration, myfloat t, myfloat T, myfloat residualRho) {
 	SignalPack s;
 
 	// 发射信号
 	const int offset = 0;
 	const double big_value = 1e8;
 
-	//PauseSignal pauseSignal = _NoSignal;// 暂停信号 提示词分类
-	if (istep % GlobalPara::output::step_per_print == offset) {// 定期输出进度
+	if (istep % GlobalPara::output::step_per_print == offset) {
+		// 屏幕
 		s.b_print = true;
+		// 还原点
+		s.b_writeRecovery = true;
 	}
-	if (istep % GlobalPara::output::step_per_output_field == offset) {// 定期输出流场
+	if (istep % GlobalPara::output::step_per_output_field == offset) {
+		// 屏幕
+		s.b_print = true;
+		// 流场
 		s.b_writeTecplot = true;
-		s.b_print = true;
 	}
-	if (istep % GlobalPara::output::step_per_output_hist == offset) {// 定期输出残差
+	if (istep % GlobalPara::output::step_per_output_hist == offset) {
+		// 残差
 		s.b_writeHist = true;
 	}
+
 	if (residualRho > big_value) {// 残差过大，终止
 		s.b_writeContinue = true;
 		s.b_writeTecplot = true;
@@ -148,7 +159,7 @@ U2NITS::CDriver::SignalPack U2NITS::CDriver::emitSignalPack(int istep, int maxIt
 		if (_getch() == 27) {
 			s.b_writeContinue = true;
 			s.pauseSignal = _EscPressed;
-			std::cout << "Stopping...\n";
+			std::cout << "Stopping at step " << istep << "...\n";
 		}
 	}
 	else if (t > T || istep >= maxIteration) {// 达到规定迭代时间或迭代步数，终止

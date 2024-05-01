@@ -6,6 +6,9 @@
 #include "../math/PhysicalKernel.h"
 #include "../global/StringProcessor.h"
 #include "../global/CExit.h"
+#include "../drivers/RoutineController.h"
+#include "../output/FieldWriter.h"
+#include "FieldInitializer.h"
 
 // 类指针
 TomlFileManager* TomlFileManager::classPointer = nullptr;
@@ -53,12 +56,11 @@ void TomlFileManager::treeToGlobalParameter() {
     getValue("constant.gamma", GlobalPara::constant::gamma);
     getValue("constant.referenceArea", GlobalPara::constant::referenceArea);
 
-    // 新添加
     getValue_boundaryCondition2D("boundaryCondition.2D.inf", GlobalPara::boundaryCondition::_2D::inf::ruvp);
     getValue_boundaryCondition2D("boundaryCondition.2D.inlet", GlobalPara::boundaryCondition::_2D::inlet::ruvp);
     getValue_boundaryCondition2D("boundaryCondition.2D.outlet", GlobalPara::boundaryCondition::_2D::outlet::ruvp);
 
-    getValue("initialCondition.type", GlobalPara::initialCondition::type);
+    FieldInitializer::getInstance()->initialize_using_config(this);
 
     getValue("output.step_per_print", GlobalPara::output::step_per_print);
     getValue("output.step_per_output_field", GlobalPara::output::step_per_output_field);
@@ -66,12 +68,13 @@ void TomlFileManager::treeToGlobalParameter() {
     getValue("output.maxIteration", GlobalPara::output::maxIteration);
     getValue("output.tolerace_residual", GlobalPara::output::tolerace_residual);
 
-    getValue("output.output_var.rho", GlobalPara::output::output_var_ruvp[0]);
-    getValue("output.output_var.u", GlobalPara::output::output_var_ruvp[1]);
-    getValue("output.output_var.v", GlobalPara::output::output_var_ruvp[2]);
-    getValue("output.output_var.p", GlobalPara::output::output_var_ruvp[3]);
+    FieldWriter::getInstance()->initialize_outputScheme_usingConfig();
 
     getValue("physicsModel.equation", GlobalPara::physicsModel::equation);
+
+    int time_strategy = 0;
+    getValueIfExists("time.strategy", time_strategy);
+    RoutineController::getInstance()->setStrategy(time_strategy);
 
     getValue("time.is_steady", GlobalPara::time::is_steady);
     getValueOnCondition("time.CFL_steady", GlobalPara::time::CFL_steady, GlobalPara::time::is_steady);

@@ -9,7 +9,8 @@
 
 // 实数类型
 using REAL = double;
-using real = double;
+using myfloat = REAL;
 using integer = int;
+using myint = integer;
 
 #endif

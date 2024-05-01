@@ -8,36 +8,36 @@ namespace GPU {
 	// structure of array
 	struct EdgeSoA {
 	public:
-		int num_edge = 0;// 仅可CPU读取
-		int* ID;
-		int* nodes[2];
-		int* setID;
-		int* periodicPair;// 周期边界对应pair的ID。普通边界默认是-1
-		int* elementL;// 左单元ID。任何edge一定有左单元，因此一定不是-1
-		int* elementR;// 右单元ID。边界edge的右单元一般是-1，周期边界除外
-		REAL* length;
-		REAL* distanceOfElements;// 两侧单元中心距离
-		REAL* xy[2];// 边坐标
-		REAL* normal[2];// 边法向量(归一化)
+		myint num_edge = 0;// 仅可CPU读取
+		myint* ID;
+		myint* nodes[2];
+		myint* setID;// 存储边界类型ID。虽然边界不会超过21亿种，但为了内存对齐，全部用myint
+		myint* periodicPair;// 周期边界对应pair的ID。普通边界默认是-1
+		myint* elementL;// 左单元ID。任何edge一定有左单元，因此一定不是-1
+		myint* elementR;// 右单元ID。边界edge的右单元一般是-1，周期边界除外
+		myfloat* length;
+		myfloat* distanceOfElements;// 两侧单元中心距离
+		myfloat* xy[2];// 边坐标
+		myfloat* normal[2];// 边法向量(归一化)
 
 	public:
 		// 申请内存 初始化放在后面，因为后面被覆盖，初始化没有意义
-		void alloc(int num) {
+		void alloc(myint num) {
 			num_edge = num;
 
-			ID = new int[num];
-			nodes[0] = new int[num];
-			nodes[1] = new int[num];
-			setID = new int[num];
-			periodicPair = new int[num];
-			elementL = new int[num];
-			elementR = new int[num];
-			length = new REAL[num];
-			distanceOfElements = new REAL[num];	
-			xy[0] = new REAL[num];
-			xy[1] = new REAL[num];
-			normal[0] = new REAL[num];
-			normal[1] = new REAL[num];
+			ID = new myint[num];
+			nodes[0] = new myint[num];
+			nodes[1] = new myint[num];
+			setID = new myint[num];
+			periodicPair = new myint[num];
+			elementL = new myint[num];
+			elementR = new myint[num];
+			length = new myfloat[num];
+			distanceOfElements = new myfloat[num];
+			xy[0] = new myfloat[num];
+			xy[1] = new myfloat[num];
+			normal[0] = new myfloat[num];
+			normal[1] = new myfloat[num];
 		}
 
 		void free() {
@@ -57,22 +57,22 @@ namespace GPU {
 			num_edge = 0;
 		}
 		// cuda 申请内存
-		void cuda_alloc(int num) {
+		void cuda_alloc(myint num) {
 			num_edge = num;
 
-			cudaMalloc((void**)&ID, num * sizeof(int));
-			cudaMalloc((void**)&nodes[0], num * sizeof(int));
-			cudaMalloc((void**)&nodes[1], num * sizeof(int));
-			cudaMalloc((void**)&setID, num * sizeof(int));
-			cudaMalloc((void**)&periodicPair, num * sizeof(int));
-			cudaMalloc((void**)&elementL, num * sizeof(int));
-			cudaMalloc((void**)&elementR, num * sizeof(int));
-			cudaMalloc((void**)&length, num * sizeof(REAL));
-			cudaMalloc((void**)&distanceOfElements, num * sizeof(REAL));
-			cudaMalloc((void**)&xy[0], num * sizeof(REAL));
-			cudaMalloc((void**)&xy[1], num * sizeof(REAL));
-			cudaMalloc((void**)&normal[0], num * sizeof(REAL));
-			cudaMalloc((void**)&normal[1], num * sizeof(REAL));
+			cudaMalloc((void**)&ID, num * sizeof(myint));
+			cudaMalloc((void**)&nodes[0], num * sizeof(myint));
+			cudaMalloc((void**)&nodes[1], num * sizeof(myint));
+			cudaMalloc((void**)&setID, num * sizeof(myint));
+			cudaMalloc((void**)&periodicPair, num * sizeof(myint));
+			cudaMalloc((void**)&elementL, num * sizeof(myint));
+			cudaMalloc((void**)&elementR, num * sizeof(myint));
+			cudaMalloc((void**)&length, num * sizeof(myfloat));
+			cudaMalloc((void**)&distanceOfElements, num * sizeof(myfloat));
+			cudaMalloc((void**)&xy[0], num * sizeof(myfloat));
+			cudaMalloc((void**)&xy[1], num * sizeof(myfloat));
+			cudaMalloc((void**)&normal[0], num * sizeof(myfloat));
+			cudaMalloc((void**)&normal[1], num * sizeof(myfloat));
 		}
 
 		void cuda_free() {
@@ -94,7 +94,7 @@ namespace GPU {
 
 		static void cuda_memcpy(EdgeSoA* dist, const EdgeSoA* src, cudaMemcpyKind kind);
 
-		bool has(integer iEdge) {
+		bool has(myint iEdge) {
 			return (iEdge >= 0 && iEdge < num_edge);
 		}
 	};

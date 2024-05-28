@@ -62,6 +62,17 @@ void LogWriter::logAndPrint(std::string content, LogLevel logLevel, LogLevel cou
 	print(content, coutLevel);
 }
 
+void LogWriter::logDebug(std::string content) {
+	log(content, LogWriter::Debug);
+}
+
+void LogWriter::printDebug(std::string content) {
+	print(content, LogWriter::Debug);
+}
+
+void LogWriter::logAndPrintDebug(std::string content) {
+	logAndPrint(content, LogWriter::Debug, LogWriter::Debug);
+}
 void LogWriter::logError(std::string content) {
 	log(content, LogWriter::Error);
 }

@@ -7,7 +7,7 @@ namespace GPU {
 	namespace Space {
 		namespace Convection {
 			__device__ void ConvectRoeCommon2d(
-				const myfloat UL[4], const myfloat UR[4], const myfloat faceNormal[2], const myfloat faceArea, myfloat faceFlux[4], SDevicePara para
+				const myfloat UL[4], const myfloat UR[4], const myfloat faceNormal[2], const myfloat faceArea, myfloat faceFlux[4], myfloat gamma, myfloat rcpcv
 			);
 			__device__ void RoeDissapationTerm2d(
 				myfloat gamma,

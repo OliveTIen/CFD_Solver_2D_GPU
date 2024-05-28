@@ -4,6 +4,7 @@
 
 #include <vector>
 #include <string>
+#include "../gpu/datatype/DefineType.h"
 
 class StringProcessor {
 public:
@@ -25,7 +26,7 @@ public:
 	// 时间转字符串。输入：秒，输出：时:分:秒
 	static std::string timeFormat(int dt);
 	// double数组转字符串。数组转化为{}表示的形式
-	static std::string doubleArray_2_string(double* U, int length);
+	static std::string doubleArray_2_string(myfloat* U, int length);
 
 };
 

@@ -4,22 +4,23 @@
 #define GLOBALPARA_H
 #include <cmath>
 #include <string>
-
+#include "../gpu/datatype/DefineType.h"
 
 
 namespace GlobalPara {
 	namespace constant {
-		extern double R;
-		extern double T0;
-		extern double p0;
-		extern double c0;
-		extern double gamma;
-		extern double epsilon;
-		extern double Re;
-		extern double Pr;
-		extern double mu;
+		extern myfloat R;
+		extern myfloat T0;
+		extern myfloat p0;
+		extern myfloat c0;
+		extern myfloat gamma;
+		extern myfloat epsilon;
+		extern myfloat Re;
+		extern myfloat Pr;
+		extern myfloat mu0;
 
-		extern double referenceArea;
+		extern myfloat referenceArea;
+		extern myfloat mesh_scale_factor;
 	}
 
 	//文件类
@@ -39,13 +40,13 @@ namespace GlobalPara {
 		extern bool is_steady;
 		extern bool is_explicit;
 
-		extern double CFL;
-		extern double CFL_steady;
-		extern double max_physical_time;// 最大物理时间，控制终止计算
+		extern myfloat CFL;
+		extern myfloat CFL_steady;
+		extern myfloat max_physical_time;// 最大物理时间，控制终止计算
 		extern int time_advance;// 时间推进方式
 
 		// 以下数据从ContinueFile中读取，不是Toml
-		extern double t_previous;// 续算时的起始时间 从readContineFile()中读取
+		extern myfloat t_previous;// 续算时的起始时间 从readContineFile()中读取
 		extern int istep_previous;// 续算时的起始步，默认为0 从readContineFile()中读取
 	}
 	namespace physicsModel {
@@ -55,21 +56,21 @@ namespace GlobalPara {
 		namespace _2D {
 			namespace inlet {
 				extern int input_mode;
-				extern double Ma;
-				extern double AOA;
-				extern double ruvp[4];
+				extern myfloat Ma;
+				extern myfloat AOA;
+				extern myfloat ruvp[4];
 			}
 			namespace outlet {
 				extern int input_mode;
-				extern double Ma;
-				extern double AOA;
-				extern double ruvp[4];
+				extern myfloat Ma;
+				extern myfloat AOA;
+				extern myfloat ruvp[4];
 			}
 			namespace inf {
 				extern int input_mode;
-				extern double Ma;
-				extern double AOA;
-				extern double ruvp[4];
+				extern myfloat Ma;
+				extern myfloat AOA;
+				extern myfloat ruvp[4];
 			}
 		}
 	}
@@ -80,9 +81,10 @@ namespace GlobalPara {
 		extern int step_per_print;
 		extern int step_per_output_field;
 		extern int step_per_output_hist;
+		extern int start_output_field;
 		extern int autosaveFileNum;
 		extern int maxIteration;
-		extern double tolerace_residual;
+		extern myfloat tolerace_residual;
 	}
 	namespace inviscid_flux_method {
 		extern int flux_conservation_scheme;// 无粘通量 守恒格式 用于求解黎曼问题 LLF Roe

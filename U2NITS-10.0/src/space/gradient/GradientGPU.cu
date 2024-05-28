@@ -376,7 +376,6 @@ __global__ void GradientGreenGaussKernel(GPU::ElementSoA element, GPU::ElementFi
 	}
 
 
-
 	// 计算每条边的向量通量phif·Sf，然后求和，除以体积，得到单元C的梯度
 	const int nVar = 4;
 	for (int jVar = 0; jVar < nVar; jVar++) {
@@ -437,17 +436,92 @@ void GPU::calculateGradient_old(GPU::ElementSoA& element_device, GPU::ElementFie
 	// cudaDeviceSynchronize();放在外面
 }
 
-void GPU::Space::Gradient::Gradient_2(GPU::ElementSoA& element_device, GPU::ElementFieldSoA& elementField_device, GPU::EdgeSoA& edge_device) {
-	int block_size = 512;// 最好是128 256 512
-	int grid_size = (element_device.num_element + block_size - 1) / block_size;
+__device__ inline void getElementT3ValidNeighbor(int validNeighbors[3], int& numOfValidNeighbor, myint iElement, GPU::ElementSoA& element_device) {
+	numOfValidNeighbor = 0;
+	for (int j = 0; j < 3; j++) {// 三角形单元，最多3个邻居
+		if (element_device.neighbors[j][iElement] != -1) {
+			validNeighbors[numOfValidNeighbor] = element_device.neighbors[j][iElement];
+			numOfValidNeighbor += 1;
+		}
+	}
+}
 
+__device__ inline void get_U_linear(myfloat x, myfloat y, myfloat& U_dist, myint i_e, const myfloat* x_e, const myfloat* y_e, const myfloat* U_e, const myfloat* Ux_e, const myfloat* Uy_e) {
+	U_dist = U_e[i_e] + Ux_e[i_e] * (x - x_e[i_e]) + Uy_e[i_e] * (y - y_e[i_e]);
+}
+
+__global__ void LimiterBarth_device_kernel(GPU::ElementFieldSoA elementField_device, GPU::ElementSoA element_device, GPU::NodeSoA node_device) {
+	const int iElement = blockIdx.x * blockDim.x + threadIdx.x;
+	if (iElement >= element_device.num_element || iElement < 0) return;
+
+	int validNeighbors[3]{ -1,-1,-1 };
+	int numOfValidNeighbor = 0;
+	getElementT3ValidNeighbor(validNeighbors, numOfValidNeighbor, iElement, element_device);
+	const auto& U_element = elementField_device.U;
+	auto& Ux_element = elementField_device.Ux;
+	auto& Uy_element = elementField_device.Uy;
+
+	for (int iVar = 0; iVar < 4; iVar++) {
+		// 获取自身及邻居单元中心值的下界U_lower和上界U_upper
+		myfloat U_element_center = U_element[iVar][iElement];
+		myfloat U_lower = U_element_center;
+		myfloat U_upper = U_element_center;
+		for (int j = 0; j < numOfValidNeighbor; j++) {
+			myint iNeighbor = validNeighbors[j];
+			U_lower = GPU::Math::min(U_lower, U_element[iVar][iNeighbor]);
+			U_upper = GPU::Math::max(U_upper, U_element[iVar][iNeighbor]);
+		}
+
+		// 计算限制器系数phi，取顶点限制器系数phi_node的最小值
+		myfloat phi = 1.0;
+		for (int j = 0; j < 3; j++) {
+			myint iNode = element_device.nodes[j][iElement];
+			myfloat x_node = node_device.xy[0][iNode];
+			myfloat y_node = node_device.xy[1][iNode];
+			myfloat U_node = 0.0f;
+			get_U_linear(x_node, y_node, U_node, iElement, element_device.xy[0], element_device.xy[1], U_element[iVar], Ux_element[iVar], Uy_element[iVar]);
+			myfloat U_node_relative = U_node - U_element_center;
+			myfloat U_upper_relative = U_upper - U_element_center;
+			myfloat U_lower_relative = U_lower - U_element_center;
+			myfloat phi_node = 1.0;
+			if (U_node_relative > 0) {
+				U_node_relative += U2NITS::Math::EPSILON;
+				phi_node = GPU::Math::min(1, U_upper_relative / U_node_relative);
+			}
+			else if (U_node_relative < 0) {
+				U_node_relative -= U2NITS::Math::EPSILON;
+				phi_node = GPU::Math::min(1, U_lower_relative / U_node_relative);
+			}
+			phi = GPU::Math::min(phi, phi_node);
+		}
+
+		// 修正梯度
+		Ux_element[iVar][iElement] *= phi;
+		Uy_element[iVar][iElement] *= phi;
+	}
+}
+
+void LimiterBarth_device(GPU::ElementFieldSoA& elementField_device, GPU::ElementSoA& element_device, GPU::NodeSoA& node_device) {
+	int block_size = GPU::MY_BLOCK_SIZE;
+	int grid_size = (element_device.num_element + block_size - 1) / block_size;
+	dim3 block(block_size, 1, 1);
+	dim3 grid(grid_size, 1, 1);
+	LimiterBarth_device_kernel <<<grid, block >>> (elementField_device, element_device, node_device);
+	getLastCudaError("LimiterBarth_device failed.");
+}
+
+void GPU::Space::Gradient::Gradient_2(GPU::ElementSoA& element_device, GPU::NodeSoA& node_device, GPU::EdgeSoA& edge_device, GPU::ElementFieldSoA& elementField_device) {
+	int block_size = GPU::MY_BLOCK_SIZE;
+	int grid_size = (element_device.num_element + block_size - 1) / block_size;
+	static bool is_called_first_time = true;
+	// 求梯度
 	switch (GlobalPara::inviscid_flux_method::flag_gradient) {
 	case _GRA_leastSquare:
 		LogWriter::logAndPrintError("Unimplemented gradient type.\n");
 		exit(-1);
 		break;
 	case _GRA_greenGauss:
-		GradientGreenGauss(block_size, grid_size, element_device, elementField_device, edge_device);
+		GradientGreenGauss(block_size, grid_size, element_device, elementField_device, edge_device);// 已检查
 		break;
 
 	default:
@@ -455,19 +529,37 @@ void GPU::Space::Gradient::Gradient_2(GPU::ElementSoA& element_device, GPU::Elem
 		exit(-1);
 		break;
 	}
+	// 限制器
+	switch (GlobalPara::inviscid_flux_method::flux_limiter) {
+	case _LIM_none:
+		if (is_called_first_time) {
+			LogWriter::logAndPrintWarning("No limiter used.\n");
+		}
+		break;
+
+	case _LIM_barth:
+		LimiterBarth_device(elementField_device, element_device, node_device);// 已检查
+		break;
+
+	default:
+		LogWriter::logAndPrintError("invalid limiter type.\n");
+		exit(-1);
+		break;
+	}
+
+	getLastCudaError("GPU::Space::Gradient::Gradient_2 failed.");
 }
 
 void GPU::Space::Gradient::GradientLeastSquare(int block_size, int grid_size, GPU::ElementSoA& element_device, GPU::ElementFieldSoA& elementField_device, GPU::NodeSoA& node_device) {
 	dim3 block(block_size, 1, 1);
 	dim3 grid(grid_size, 1, 1);
 	GradientLeastSquareKernel <<<grid, block >>> (element_device, elementField_device, node_device);
-	catchCudaErrorAndExit();
-
+	getLastCudaError("GradientLeastSquare failed.");
 }
 
 void GPU::Space::Gradient::GradientGreenGauss(int block_size, int grid_size, GPU::ElementSoA& element_device, GPU::ElementFieldSoA& elementField_device, GPU::EdgeSoA& edge_device) {
 	dim3 block(block_size, 1, 1);
 	dim3 grid(grid_size, 1, 1);
 	GradientGreenGaussKernel <<<grid, block>>> (element_device, elementField_device, edge_device);
-	catchCudaErrorAndExit();
+	getLastCudaError("GradientGreenGauss failed.");
 }

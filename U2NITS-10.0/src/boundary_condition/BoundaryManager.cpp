@@ -22,7 +22,7 @@ int U2NITS::BoundaryManager::boundaryNameToType(std::string boundaryName) {
 		if (GlobalPara::physicsModel::equation == _EQ_euler)bType = _BC_wall_nonViscous;
 		else bType = _BC_wall_adiabat;
 	}
-	else if (boundaryName == "wall_slippery" || boundaryName == "wall_nonViscous") {
+	else if (boundaryName == "wall_nonViscous" || boundaryName == "wall_slippery" || boundaryName == "slippery" || boundaryName == "slippery_wall") {
 		bType = _BC_wall_nonViscous;
 	}
 	else if (boundaryName == "inlet")bType = _BC_inlet;

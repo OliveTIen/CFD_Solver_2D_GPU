@@ -147,7 +147,7 @@ void BoundaryManager_2D::setBoundaryElementU(int tag) {
 			}
 			else if (bType == _BC_inlet) {
 				//Math_2D::ruvp_2_U(inlet::ruvp, edge_tmp.pElement_L->U, GlobalPara::constant::gamma);
-				double* ruvp = inlet::ruvp;
+				myfloat* ruvp = inlet::ruvp;
 				//edge_tmp.pElement_L->U[0] = ruvp[0];
 				//edge_tmp.pElement_L->U[1] = ruvp[0] * ruvp[1];
 				//edge_tmp.pElement_L->U[2] = ruvp[0] * ruvp[2];
@@ -155,7 +155,7 @@ void BoundaryManager_2D::setBoundaryElementU(int tag) {
 			}
 			else if (bType == _BC_outlet) {
 				//Math_2D::ruvp_2_U(outlet::ruvp, edge_tmp.pElement_L->U, GlobalPara::constant::gamma);
-				double* ruvp = outlet::ruvp;
+				myfloat* ruvp = outlet::ruvp;
 				//edge_tmp.pElement_L->U[0] = ruvp[0];
 				//edge_tmp.pElement_L->U[1] = ruvp[0] * ruvp[1];
 				//edge_tmp.pElement_L->U[2] = ruvp[0] * ruvp[2];
@@ -209,18 +209,18 @@ void BoundaryManager_2D::checkPeriodPairs() {
 		// 检查对应边界是否满足平移规律 将边界1中某点平移(vx,vy)得到p0,判断p0和p1是否重合
 		// 首先取第一对对应点，计算位移
 		const int pEdge_size = int(vbs0.pEdges.size());
-		double translate_x = vbs1.pEdges[pEdge_size - 1]->getx() - vbs0.pEdges[0]->getx();
-		double translate_y = vbs1.pEdges[pEdge_size - 1]->gety() - vbs0.pEdges[0]->gety();
+		myfloat translate_x = vbs1.pEdges[pEdge_size - 1]->getx() - vbs0.pEdges[0]->getx();
+		myfloat translate_y = vbs1.pEdges[pEdge_size - 1]->gety() - vbs0.pEdges[0]->gety();
 		for (int ie = 0; ie < pEdge_size && b_loop; ie++) {
-			double x1_ref = vbs0.pEdges[ie]->getx() + translate_x;
-			double y1_ref = vbs0.pEdges[ie]->gety() + translate_y;
-			double x1 = vbs1.pEdges[pEdge_size - 1 - ie]->getx();
-			double y1 = vbs1.pEdges[pEdge_size - 1 - ie]->gety();
-			double residual_x = x1 - x1_ref;
-			double residual_y = y1 - y1_ref;
-			double residual_square = residual_x * residual_x + residual_y * residual_y;
-			double translate_square = translate_x * translate_x + translate_y * translate_y;
-			double residual_relative = residual_square / translate_square;// 相对残差
+			myfloat x1_ref = vbs0.pEdges[ie]->getx() + translate_x;
+			myfloat y1_ref = vbs0.pEdges[ie]->gety() + translate_y;
+			myfloat x1 = vbs1.pEdges[pEdge_size - 1 - ie]->getx();
+			myfloat y1 = vbs1.pEdges[pEdge_size - 1 - ie]->gety();
+			myfloat residual_x = x1 - x1_ref;
+			myfloat residual_y = y1 - y1_ref;
+			myfloat residual_square = residual_x * residual_x + residual_y * residual_y;
+			myfloat translate_square = translate_x * translate_x + translate_y * translate_y;
+			myfloat residual_relative = residual_square / translate_square;// 相对残差
 
 			if (residual_relative >= 0.0001) {
 				b_error_not_translatable = true;

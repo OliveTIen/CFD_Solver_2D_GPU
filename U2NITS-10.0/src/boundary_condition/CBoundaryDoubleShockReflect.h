@@ -27,17 +27,24 @@ public:
 	// 由于不知道如何计算激波运动速度，该方法被弃用。只适合用于初始化初场(t=0)
 	bool isUpStreamOfShock_forElement(double x, double y);
 	// 该方法只适合计算90度角的情况，但可以计算各时间
-	bool isUpStreamOfShock_atBoundary(double x, double y, double t_RK);
+	bool isUpStreamOfShock_atBoundary(double x, double y);
+
 	void setVar(double x, double y, double angle) {
 		shock_x = x;
 		shock_y = y;
 		shock_angle_degree = angle;
 	}
+	// 设置成员变量t的值
 	void set_t(double _t) { m_physical_t = _t; }
+	// 设置成员变量dt的值
 	void set_dt(double _dt) { m_physical_dt = _dt; }
 	double get_t() { return m_physical_t; }
 	double get_dt() { return m_physical_dt; }
 	double get_t_plus_dt() { return m_physical_t + m_physical_dt; }
+	double get_shock_x() { return shock_x; }
+	double get_shock_y() { return shock_y; }
+	double get_shock_speed() { return shock_speed; }
+	double get_sqrt3() { return sqrt3; }
 };
 
 #endif

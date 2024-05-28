@@ -39,7 +39,7 @@ namespace U2NITS {
 
 		void ConvectRoeCommon3d(
 			const myfloat UL[5], const myfloat UR[5], const myfloat faceNormal[3], const myfloat faceArea, myfloat faceFlux[5],
-			bool bDynamicMesh, myfloat dynamicMeshValue, myfloat gamma);
+			bool bDynamicMesh, myfloat dynamicMeshValue, myfloat gamma, myfloat rcpcv);
 		// using by ConvectRoeCommon3d
 		void RoeDissapationTerm3d(
 			myfloat gamma,
@@ -52,7 +52,7 @@ namespace U2NITS {
 		);
 
 		void ConvectRoeCommon2d(
-			const myfloat UL[4], const myfloat UR[4], const myfloat faceNormal[2], const myfloat faceArea, myfloat faceFlux[4], myfloat gamma
+			const myfloat UL[4], const myfloat UR[4], const myfloat faceNormal[2], const myfloat faceArea, myfloat faceFlux[4], myfloat gamma, myfloat rcpcv
 		);
 		void RoeDissapationTerm2d(
 			myfloat gamma,

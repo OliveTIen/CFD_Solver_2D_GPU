@@ -8,6 +8,7 @@
 #include "../math/PhysicalKernel.h"
 #include "TomlFileManager.h"
 #include "../boundary_condition/CBoundaryDoubleShockReflect.h"
+#include "MaterialManager.h"
 
 FieldInitializer* FieldInitializer::p_instance = nullptr;
 
@@ -18,16 +19,9 @@ FieldInitializer* FieldInitializer::getInstance() {
 	return p_instance;
 }
 
-enum InitialConditionType {
-	type_none,
-	type_uniform_flow,         // 均匀场
-	type_isentropic_vortex,    // 等熵涡
-	type_shock_tube,           // 激波管
-	type_double_mach_reflection// 双马赫反射
-};
-
 void FieldInitializer::setInitialAndBoundaryCondition() {
-	
+
+	// 设置初始和边界条件
 	auto& elements = FVM_2D::getInstance()->elements;
 	switch (m_initial_type) {
 	case type_uniform_flow:
@@ -55,6 +49,13 @@ void FieldInitializer::setInitialAndBoundaryCondition() {
 		break;
 	}
 
+	case type_tecplot_file:
+	{
+		printCondition("Tecplot File");
+		setInitialTecplotFile();
+		break;
+	}
+
 	default:
 	{
 		std::stringstream ss;
@@ -64,21 +65,28 @@ void FieldInitializer::setInitialAndBoundaryCondition() {
 		break;
 	}
 	}
+
 }
 
-void FieldInitializer::initialize_using_config(void* tomlFileManager) {
+void FieldInitializer::read_initial_type_from_config() {
+	TomlFileManager* t = TomlFileManager::getInstance();
+	t->getValue("initialCondition.type", m_initial_type);
+}
+void FieldInitializer::initialize_using_config() {
 	/*
-	用TomlFileManager提供的API进行初始化
+	用TomlFileManager提供的API初始化m_initial_type
 	对于双马赫反射，还要求读取激波位置、角度参数
 	*/
-	TomlFileManager* t = (TomlFileManager*)tomlFileManager;
-	int initialCondition_type = type_uniform_flow;// 初始化方式
-	t->getValue("initialCondition.type", initialCondition_type);
-	FieldInitializer::getInstance()->set_initial_type(initialCondition_type);
-	if (initialCondition_type == type_double_mach_reflection) {
-		double shock_x = 0;
-		double shock_y = 0;
-		double shock_angle_degree = 60;
+	TomlFileManager* t = TomlFileManager::getInstance();
+	read_initial_type_from_config();
+
+	/*
+	[to do]下面应移动到CBoundaryDoubleShockReflect::initialize_using_config
+	*/
+	if (m_initial_type == type_double_mach_reflection) {
+		myfloat shock_x = 0;
+		myfloat shock_y = 0;
+		myfloat shock_angle_degree = 60;
 		t->getValueOrExit("initialCondition.doubleShockReflection.shock_x", shock_x);
 		t->getValueOrExit("initialCondition.doubleShockReflection.shock_y", shock_y);
 		t->getValueOrExit("initialCondition.doubleShockReflection.shock_angle_degree", shock_angle_degree);
@@ -90,6 +98,16 @@ void FieldInitializer::initialize_using_config(void* tomlFileManager) {
 
 		CBoundaryDoubleShockReflect::getInstance()->setVar(shock_x, shock_y, shock_angle_degree);
 	}
+
+	b_has_read_config = true;
+}
+
+int FieldInitializer::get_initial_type() {
+	if (!b_has_read_config) {
+		LogWriter::logAndPrintError("!b_has_read_config\n");
+		exit(-1);
+	}
+	return m_initial_type; 
 }
 
 
@@ -110,40 +128,40 @@ void FieldInitializer::setInitialUniform() {
 }
 
 void FieldInitializer::setInitialIsentropicVortex() {
-	double vortex_x = 0;
-	double vortex_y = 0;
-	double vortex_strength = 1;
+	myfloat vortex_x = 0;
+	myfloat vortex_y = 0;
+	myfloat vortex_strength = 1;
 	TomlFileManager::getInstance()->getValueOrExit("initialCondition.isentropicVortex.vortex_x", vortex_x);
 	TomlFileManager::getInstance()->getValueOrExit("initialCondition.isentropicVortex.vortex_y", vortex_y);
 	TomlFileManager::getInstance()->getValueOrExit("initialCondition.isentropicVortex.vortex_strength", vortex_strength);
 
-	double xc = vortex_x;
-	double yc = vortex_y;
-	double chi = vortex_strength;
-	double chi2 = chi * chi;
-	const double* ruvp_inf = GlobalPara::boundaryCondition::_2D::inf::ruvp;
-	const double gamma = GlobalPara::constant::gamma;
-	const double ga1 = gamma - 1.0;
-	constexpr double PI = U2NITS::Math::PI;
-	constexpr double two_pi = 2.0 * PI;
-	constexpr double pi2 = PI * PI;
-	double c_du = chi / two_pi;// du表达式的系数，正数，与涡强度有关
-	double c_dT = ga1 * chi2 / (8. * gamma * pi2);// dT表达式的系数，正数，与涡强度有关
+	myfloat xc = vortex_x;
+	myfloat yc = vortex_y;
+	myfloat chi = vortex_strength;
+	myfloat chi2 = chi * chi;
+	const myfloat* ruvp_inf = GlobalPara::boundaryCondition::_2D::inf::ruvp;
+	const myfloat gamma = GlobalPara::constant::gamma;
+	const myfloat ga1 = gamma - 1.0;
+	constexpr myfloat PI = U2NITS::Math::PI;
+	constexpr myfloat two_pi = 2.0 * PI;
+	constexpr myfloat pi2 = PI * PI;
+	myfloat c_du = chi / two_pi;// du表达式的系数，正数，与涡强度有关
+	myfloat c_dT = ga1 * chi2 / (8. * gamma * pi2);// dT表达式的系数，正数，与涡强度有关
 
 	for (Element_2D& e: FVM_2D::getInstance()->elements) {
-		double dx = e.x - xc;
-		double dy = e.y - yc;
-		double r2 = dx * dx + dy * dy;
-		double one_minus_r2 = 1.0 - r2;
-		double c_distance = exp(0.5 * one_minus_r2);
-		double du = c_du * c_distance * (-dy);
-		double dv = c_du * c_distance * dx;
-		double u = ruvp_inf[1] + du;
-		double v = ruvp_inf[2] + dv;
-		double dT = -c_dT * exp(one_minus_r2);
-		double rho = pow(ruvp_inf[3] + dT, 1. / ga1);
-		double p = rho * (ruvp_inf[3] + dT);
-		double ruvp[4]{ rho,u,v,p };
+		myfloat dx = e.x - xc;
+		myfloat dy = e.y - yc;
+		myfloat r2 = dx * dx + dy * dy;
+		myfloat one_minus_r2 = 1.0 - r2;
+		myfloat c_distance = exp(0.5 * one_minus_r2);
+		myfloat du = c_du * c_distance * (-dy);
+		myfloat dv = c_du * c_distance * dx;
+		myfloat u = ruvp_inf[1] + du;
+		myfloat v = ruvp_inf[2] + dv;
+		myfloat dT = -c_dT * exp(one_minus_r2);
+		myfloat rho = pow(ruvp_inf[3] + dT, 1. / ga1);
+		myfloat p = rho * (ruvp_inf[3] + dT);
+		myfloat ruvp[4]{ rho,u,v,p };
 		Math_2D::ruvp_2_U(ruvp, e.U, gamma);
 	}
 
@@ -172,7 +190,7 @@ void FieldInitializer::setInitialDoubleShockReflection() {
 	if (isDebug) {
 
 		// 记录边界参数
-		auto writeBoundaryCondition = [](double* inlet_ruvp, double* outlet_ruvp, double* inf_ruvp, const int num_ruvp)->void {
+		auto writeBoundaryCondition = [](myfloat* inlet_ruvp, myfloat* outlet_ruvp, myfloat* inf_ruvp, const int num_ruvp)->void {
 			std::string str;
 			str += "BoundaryCondition:\n";
 			str += "inlet::ruvp\t" + StringProcessor::doubleArray_2_string(inlet_ruvp, num_ruvp)
@@ -199,4 +217,14 @@ void FieldInitializer::setInitialDoubleShockReflection() {
 			Math_2D::ruvp_2_U(outlet::ruvp, element.U, GlobalPara::constant::gamma);
 		}
 	}
+}
+
+void FieldInitializer::setInitialTecplotFile() {
+	LogWriter::logAndPrintError("unimplemented.\n");
+	exit(-1);
+	/*
+	2024-05-27代办
+	继续完成TecplotFileReader
+	
+	*/
 }

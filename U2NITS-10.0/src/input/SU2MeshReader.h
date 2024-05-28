@@ -39,8 +39,11 @@ public:
 
 public:
 	// readFile的拆分版，拆成两个子函数
-	static void readFile_2(std::string filePath, bool convertRectToTriangle);
+	static void read_mesh_and_process(std::string filePath, bool convertRectToTriangle);
+	// 读取网格文件
 	static void readMesh(std::string filePath, bool convertRectToTriangle, int& maxNodeID, int& maxElementID, std::vector<SimpleBoundary>& tmp_boudaries);
+	// 缩放网格坐标。应在process前调用
+	static void scaleMesh(double factor);
 	static void process(int maxNodeID, int maxElementID, std::vector<SimpleBoundary>&tmp_boudaries);
 	// 
 };

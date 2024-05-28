@@ -1,89 +1,98 @@
 #include "CalculateDt.h"
 #include "../output/LogWriter.h"
 #include "../global/CExit.h"
+#include "../space/viscous_flux/ViscousFlux.h"
+#include "../space/viscous_flux/ViscousFluxGPU.h"
+#include "../global/GlobalPara.h"
 
 
-myfloat U2NITS::Time::calculateGlobalDt(myfloat currentPhysicalTime, myfloat maxPhysicalTime, myfloat gamma, myfloat Re, myfloat Pr, myfloat CFL, myfloat Rcpcv, GPU::ElementSoA& element, GPU::EdgeSoA& edge, myfloat* element_vruvp[4]) {
-	/*
-	统一时间步长，用于非定常
-	参考CFD Pinciples and Applications P175
+// 遍历edge，计算通量alpha，加减到左右单元的alphaC
+void update_alphaC(myfloat gamma, myfloat Pr, myfloat Rcpcv, myfloat* alphaC, myfloat sutherland_C1,
+	GPU::ElementSoA& element, GPU::EdgeSoA& edge, myfloat* element_vruvp[4], int physicsModel_equation) {
 
-	*/
+	const myfloat value_1 = (U2NITS::Math::max)(4.0 / 3.0, gamma / Pr);
 
-	bool isViscous = false;
-	bool isConstantViscous = false;
-	myfloat dt = 1e10;
-	const myfloat value_1 = (Math::max)(4.0 / 3.0, gamma / Pr);
-	const myint num_element = element.num_element;// int最大表示21亿，最好全部用myint
-	// 申请资源
-	myfloat* alphaC;
-	alphaC = new myfloat[num_element]();
-	// 初始化单元ruvp 单元守恒量转单元ruvp 已在GPUSolver2::update_ruvp_Uold(void* _pFVM2D_);中完成
-
-	// 面循环 参照laminar-WangQ Timestep.f90
+	// 单元alphaC归零
+	const myint num_element = element.num_element;
+	for (myint i = 0; i < num_element; i++) {
+		alphaC[i] = 0.0;
+	}
+	// 计算edge的alpha，加减到单元alphaC
 	for (myint i = 0; i < edge.num_edge; i++) {
-		// 计算面守恒量值
+		// 计算edge守恒量，分为内部edge和边界edge两种情况
 		myint elementL = edge.elementL[i];
 		myint elementR = edge.elementR[i];
 		myfloat rho, u, v, p;
 		if (elementR != -1) {
-			// 单元内面，取两侧平均值
 			rho = 0.5 * (element_vruvp[0][elementL] + element_vruvp[0][elementR]);
 			u = 0.5 * (element_vruvp[1][elementL] + element_vruvp[1][elementR]);
 			v = 0.5 * (element_vruvp[2][elementL] + element_vruvp[2][elementR]);
 			p = 0.5 * (element_vruvp[3][elementL] + element_vruvp[3][elementR]);
 		}
 		else {
-			// 边界面，取内侧单元值
 			rho = element_vruvp[0][elementL];
 			u = element_vruvp[1][elementL];
 			v = element_vruvp[2][elementL];
 			p = element_vruvp[3][elementL];
 		}
-		// 若出现异常值，则终止。通常是因为发散
 		if (rho < 0 || p < 0) {
-			LogWriter::logAndPrintError("Error: rho or p < 0 @U2NITS::calculateGlobalDt\n");
+			LogWriter::logAndPrintError("Error: rho or p < 0 @U2NITS::get_global_dt_host\n");
 			CExit::saveAndExit(-1);
 		}
-		// 计算面alpha，然后加到两侧单元alphaC中。分为有粘和无粘两种情况
+
+		// 计算edge的无粘alpha，加减到两侧单元alphaC
 		myfloat dx = edge.normal[0][i] * edge.length[i];
 		myfloat dy = edge.normal[1][i] * edge.length[i];
 		const myfloat length = edge.length[i];
-		myfloat unormal = u * dx + v * dy;// 法向速度大小乘以边长
-		if (isViscous) {
-			// 有粘时，考虑粘性效应带来的CFL稳定性
-			// 计算vmul
-			myfloat vmul = 0;
-			if (isConstantViscous) {
-				// 若粘性系数恒定，则直接用粘性系数
-				vmul = 1.0 / Re;
-			}
-			else {
-				myfloat temperature = p / Rcpcv / rho;
-				vmul = 1.458 * pow(abs(temperature), 1.5) / (temperature + 110.4) * 1.0 - 6;
-			}
-			// 计算面的alpa+alpaVis/Volume，然后加到两侧单元的alpaC 
-			myfloat alpha = abs(unormal) + sqrt(gamma * p / rho) * sqrt(length);
-			myfloat alphaVis = 2.0 * (length)*value_1 * vmul / rho;
-			alphaC[elementL] += alpha + alphaVis / element.volume[elementL];
-			if (elementR != -1)alphaC[elementR] += alpha + alphaVis / element.volume[elementR];
+		myfloat unormal = u * dx + v * dy;
+		myfloat alpha = abs(unormal) + sqrt(gamma * p / rho) * sqrt(length);
+
+		alphaC[elementL] += alpha;
+		if (elementR != -1)alphaC[elementR] += alpha;
+
+		// 计算edge的有粘alphaVis，加减到两侧单元alphaC。粘性会增加CFL稳定性
+		if (physicsModel_equation == _EQ_NS) {
+			myfloat temperature = p / Rcpcv / rho;
+			myfloat mu_laminar = GPU::Space::get_mu_using_Sutherland_air_host_device(temperature, sutherland_C1);
+			myfloat alphaVis = 2.0 * length * value_1 * mu_laminar / rho;
+
+			alphaC[elementL] += alphaVis / element.volume[elementL];
+			if (elementR != -1)alphaC[elementR] += alphaVis / element.volume[elementR];
 		}
-		else {
-			// 无粘
-			myfloat alpha = abs(unormal) + sqrt(gamma * p / rho) * sqrt(length);
-			alphaC[elementL] += alpha;
-			if (elementR != -1)alphaC[elementR] += alpha;
-		}// if ifViscous
-	}// num_edge
-	 // 计算单元dt
-	for (myint i = 0; i < num_element; i++) {
-		dt = (Math::min)(dt, CFL * element.volume[i] / alphaC[i]);
 	}
-	// 如果t+dt超出设定T，则限制dt
-	dt = (currentPhysicalTime + dt > maxPhysicalTime) ? (maxPhysicalTime - currentPhysicalTime) : dt;//if (t + dt > T)dt = T - t;
-	// 释放资源
-	delete[] alphaC;
-	// 返回dt
+}
+
+// 遍历单元，各自用alphaC计算各自的dt，最后取最小值
+myfloat get_minimus_dt_by_alphaC(myfloat* alphaC, const myfloat* volume, myfloat CFL, myint num_element) {
+	/*
+	如果要改造成GPU代码的话，为节省存储空间，可以就用alphaC存储dt
+	即 alphaC[i] = CFL * volume[i] / alphaC[i]
+	然后对alphaC进行规约，其最小值就是待求的dt
+	*/
+	myfloat dt = 1e10;
+	for (myint i = 0; i < num_element; i++) {
+		dt = (U2NITS::Math::min)(dt, CFL * volume[i] / alphaC[i]);
+	}
+	return dt;
+}
+
+myfloat U2NITS::Time::get_global_dt_host(myfloat currentPhysicalTime, myfloat maxPhysicalTime, myfloat gamma, myfloat Pr, myfloat CFL, myfloat Rcpcv, GPU::ElementFieldVariable_dt elementFieldVariable_dt,
+	GPU::ElementSoA& element, GPU::EdgeSoA& edge, myfloat* element_vruvp[4], int physicsModel_equation) {
+	/*
+	统一时间步长，用于非定常
+	参考CFD Pinciples and Applications P175，以及laminar-WangQ代码 Timestep.f90
+
+	首先遍历edge，计算通量alpha，加减到左右单元的alphaC
+	然后遍历单元，各自用alphaC计算各自的dt，最后取最小值
+	*/
+
+	/*
+	新代码 已测试 05-15
+	*/
+	myfloat sutherland_C1 = GPU::Space::get_Sutherland_C1_host_device(GPU::Space::S_Sutherland, GlobalPara::constant::mu0, GlobalPara::constant::T0);
+	update_alphaC(gamma, Pr, Rcpcv, elementFieldVariable_dt.alphaC, sutherland_C1, element, edge, element_vruvp, physicsModel_equation);
+	myfloat dt = get_minimus_dt_by_alphaC(elementFieldVariable_dt.alphaC, element.volume, CFL, element.num_element);
+	dt = (currentPhysicalTime + dt > maxPhysicalTime) ? (maxPhysicalTime - currentPhysicalTime) : dt;//if (t + dt > T)dt = T - t; 
 	return dt;
 }
 
@@ -98,6 +107,7 @@ void U2NITS::Time::calculateLocalTimeStep_async_Euler(myfloat& dt, myfloat gamma
 
 	bool ifViscous = false;
 	const myfloat _4_3 = 4.0 / 3.0;
+	const myfloat value_1 = (U2NITS::Math::max)(4.0 / 3.0, gamma / Pr);
 	const myint num_element = element.num_element;
 
 	if (!element.has(iElement)) {
@@ -145,6 +155,8 @@ void U2NITS::Time::calculateLocalTimeStep_async_Euler(myfloat& dt, myfloat gamma
 			//myfloat a2 = 
 
 		}
+
+
 	}
 	myfloat volume = element.volume[iElement];
 	myfloat C = 2.0;

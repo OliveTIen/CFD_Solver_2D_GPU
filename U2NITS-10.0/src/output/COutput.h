@@ -6,7 +6,7 @@
 #include "FieldWriter.h"
 #include "HistWriter.h"
 #include "LogWriter.h"
-#include "ResidualCalculator.h"
+//#include "ResidualCalculator.h"
 #include "../global/CTimer.h"
 #include "../global/FilePathManager.h"
 namespace U2NITS {

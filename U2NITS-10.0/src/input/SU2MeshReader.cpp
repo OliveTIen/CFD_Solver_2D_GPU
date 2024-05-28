@@ -6,13 +6,14 @@
 #include "../global/CExit.h"
 #include "../boundary_condition/BoundaryManager.h"
 
-void SU2MeshReader::readFile_2(std::string filePath, bool convertRectToTriangle) {
+void SU2MeshReader::read_mesh_and_process(std::string filePath, bool convertRectToTriangle) {
 
 	int maxnodeID = 1;
 	int maxelementID = 1;
 	std::vector<SimpleBoundary>tmp_boudaries;
 
 	readMesh(filePath, convertRectToTriangle, maxnodeID, maxelementID, tmp_boudaries);
+	scaleMesh(GlobalPara::constant::mesh_scale_factor);
 	process(maxnodeID, maxelementID, tmp_boudaries);
 }
 
@@ -70,7 +71,7 @@ void SU2MeshReader::readMesh(std::string filePath, bool convertRectToTriangle, i
 			}
 			else {
 				LogWriter::logAndPrintError("SU2 mesh dimension is not 2D\n");
-				CExit::saveAndExit(-1);
+				exit(-1);
 			}
 		}
 		else if (state == state_NPOIN && tWords[0].substr(0, 1) != "N") {//"*NODE" 读取节点ID和坐标
@@ -150,6 +151,24 @@ void SU2MeshReader::readMesh(std::string filePath, bool convertRectToTriangle, i
 	}
 	infile.close();
 
+}
+
+void SU2MeshReader::scaleMesh(double factor) {
+	double res = factor - 1.0;
+	double limit = 0.01;
+	if (res > -limit && res < limit) {
+		return;
+	}
+	if (factor < 0.0) {
+		LogWriter::logAndPrintError("mesh scale factor should be positive.\n");
+		exit(-1);
+	}
+	LogWriter::logAndPrint("mesh scale factor: " + std::to_string(factor) + "\n");
+	FVM_2D* pFVM2D = FVM_2D::getInstance();
+	for (auto& node : pFVM2D->nodes) {
+		node.x *= factor;
+		node.y *= factor;
+	}
 }
 
 void SU2MeshReader::process(int maxNodeID, int maxElementID, std::vector<SimpleBoundary>& tmp_boudaries) {

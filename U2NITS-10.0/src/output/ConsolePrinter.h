@@ -4,6 +4,7 @@
 #include <windows.h>
 #include <string>
 #include <iostream>
+#include "../gpu/datatype/DefineType.h"
 
 class ConsolePrinter {
 private:
@@ -44,21 +45,22 @@ public:
 	static void printHeader(HeaderStyle h);
 	// ...
 	static void printGenshinStart();
-	static void drawProgressBar(double value, double maxValue, int barLength = 45);
+	static void drawProgressBar(myfloat value, myfloat maxValue, int barLength = 45);
 	// 清除p1, p2之间的控制台内容，光标不变
 	static void clearDisplay(COORD p1, COORD p2);
-	// 组装求解信息
-	void assemblySolveInfo(double calTime, int calStep, int maxIteration, double calSpeed, double nFile, double t, double T, const double* residual_vector);
 	// return solveInfo
-	std::string setSolveInfo(int startStep, int currentStep, int endStep, int numOfFile, double usedTime, double physicalTime, double maxPhysicalTime, const double* residual_vector, double CFL);
+	std::string setSolveInfo(int startStep, int currentStep, int endStep, int numOfFile, myfloat usedTime, myfloat physicalTime, myfloat maxPhysicalTime, const myfloat* residual_vector, myfloat CFL);
 	std::string getSolveInfo() { return m_solveInfo; }
 	// 打印求解信息
 	static void printInfo(InfoType type);
+	static myfloat getSpeed(int currentStep, int startStep, myfloat usedTime);
+	// 日志记录当前速度
+	static void logSpeed(int currentStep, int startStep, myfloat usedTime);
 
 private:
 	// 绘制进度条。0<=percent<=100
-	static void m_drawProgressBar(double percent, int barLength);
-
+	static void m_drawProgressBar(myfloat percent, int barLength);
+	
 
 };
 

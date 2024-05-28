@@ -40,7 +40,7 @@ private:
 		myfloat CL_wall;// wall边界的升力系数。y正方向
 		// 设置所有数据
 		void update(int _iteration, myfloat _physical_time, const std::vector<myfloat>& _res, ReferenceData& referenceData, GPU::BoundaryV2& boundary_host_new);
-		void update(int _iteration, myfloat _physical_time, const double _res[4], ReferenceData& referenceData, GPU::BoundaryV2& boundary_host_new);
+		void update(int _iteration, myfloat _physical_time, const myfloat _res[4], ReferenceData& referenceData, GPU::BoundaryV2& boundary_host_new);
 		// 设置wall升阻力系数
 		void set_CDCL_wall(ReferenceData& referenceData, GPU::BoundaryV2& boundary_host_new);
 	};
@@ -107,7 +107,7 @@ public:
 	void initialize_outputScheme_usingConfig();
 
 	void write_tecplot_volume_file(
-		double t_current,
+		myfloat t_current,
 		std::string filePath,
 		std::string title,
 		GPU::NodeSoA& nodes,
@@ -116,7 +116,7 @@ public:
 	);
 
 	void write_tecplot_boundary_file(
-		double t_current,
+		myfloat t_current,
 		std::string filePath,
 		GPU::NodeSoA& node_host,
 		GPU::EdgeSoA& edge_host,
@@ -127,14 +127,14 @@ public:
 	void write_tecplot_hist_file(
 		std::string filePath,
 		int iteration,
-		double t_physics,
-		double residual[4],
+		myfloat t_physics,
+		myfloat residual[4],
 		GPU::EdgeSoA& edge_host, GPU::OutputNodeFieldSoA& output_node_field, GPU::BoundaryV2& boundary_host_new
 	);
 
 	void writeContinueFile_1(
 		int i_step,
-		double t_current,
+		myfloat t_current,
 		std::string filePath,
 		GPU::NodeSoA& nodes,
 		GPU::ElementSoA& elements,
@@ -153,7 +153,7 @@ public:
 	void update_nodeField();
 	// 更新nodeField.ruvp。将格心数据element_vruvp转化为格点数据nodeField的ruvp
 private:
-	// 
+	// 根据elementField.ruvp求nodeField.ruvp
 	void update_nodeField_ruvp(GPU::ElementSoA& element, GPU::OutputNodeFieldSoA& nodeField, myfloat* element_vruvp[4]);
 	// 计算nodeField其他场变量。升阻力参见write_tecplot_boundary_file，要遍历边界edge而不是全场node
 	void update_nodeField_other_variables(GPU::OutputNodeFieldSoA& nodeField);

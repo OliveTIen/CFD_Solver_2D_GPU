@@ -9,14 +9,18 @@
 #include "../space/FluxGPU.h"
 #include "../space/restrict/Restrict.h"
 #include "../math/Math.h"
+#include "../math/BasicAlgorithmGPU.h"
+#include "../math/Common.h"
 #include "../time/CalculateDt.h"
 #include "../time/Evolve.h"
 #include "../time/EvolveGPU.h"
 #include "../output/LogWriter.h"
-#include "../output/ResidualCalculator.h"
+//#include "../output/ResidualCalculator.h"
 #include "../global/CExit.h"
 #include "../time/CIteration.h"
 #include "../output/FieldWriter.h"
+#include "../drivers/CDriver.h"
+#include "../output/residual/Residual.h"
 
 GPU::GPUSolver2* GPU::GPUSolver2::pInstance = nullptr;
 
@@ -57,16 +61,22 @@ void GPU::GPUSolver2::allocateMemory() {
 		LogWriter::logAndPrintError("has not read field, cannot determine how much memory to allocate. @GPU::GPUSolver2::allocateMemory()\n");
 		exit(-1);
 	}
-	allocateMemory(num_node, num_element, num_edge, num_boundary);
-}
+	//allocateMemory_kernel(num_node, num_element, num_edge, num_boundary);
 
-void GPU::GPUSolver2::allocateMemory(const int num_node, const int num_element, const int num_edge, const int num_boundary) {
 	allocateHostMemory(num_node, num_element, num_edge, num_boundary);
 	if (GlobalPara::basic::useGPU) {
 		setGPUDevice();
 		allocateDeviceMemory(num_node, num_element, num_edge, num_boundary);
 	}
 }
+
+//void GPU::GPUSolver2::allocateMemory_kernel(const int num_node, const int num_element, const int num_edge, const int num_boundary) {
+//	allocateHostMemory(num_node, num_element, num_edge, num_boundary);
+//	if (GlobalPara::basic::useGPU) {
+//		setGPUDevice();
+//		allocateDeviceMemory(num_node, num_element, num_edge, num_boundary);
+//	}
+//}
 
 void GPU::GPUSolver2::allocateHostMemory(const int num_node, const int num_element, const int num_edge, const int num_boundary) {
 	if (hostMemoryAllocated) {
@@ -85,6 +95,7 @@ void GPU::GPUSolver2::allocateHostMemory(const int num_node, const int num_eleme
 	this->boundary_host.alloc(num_boundary);
 	FieldWriter::getInstance()->allocNodeFieldDataUsingOutputScheme(this->outputNodeField, num_node);
 	this->edgeField_host.alloc(num_edge);
+	this->elementFieldVariable_dt_host.alloc(num_element);
 
 	// 更新状态
 	hostMemoryAllocated = true;
@@ -112,17 +123,21 @@ void GPU::GPUSolver2::allocateDeviceMemory(const int num_node, const int num_ele
 
 		// 仅传入GPU的数据
 		using namespace GlobalPara::boundaryCondition::_2D;// using有作用域，不用担心混淆
-		infPara_device = new GPU::DGlobalPara(inf::ruvp, inlet::ruvp, outlet::ruvp, 4
-			, &GlobalPara::constant::R, &GlobalPara::constant::gamma, &GlobalPara::inviscid_flux_method::flux_conservation_scheme);
+		//infPara_device = new GPU::DGlobalPara(inf::ruvp, inlet::ruvp, outlet::ruvp, 4
+		//	, &GlobalPara::constant::R, &GlobalPara::constant::gamma, &GlobalPara::inviscid_flux_method::flux_conservation_scheme);
 
+		// 注意：目前mu0不是最新的参数
 		sDevicePara.initialize(
-			GlobalPara::constant::T0, GlobalPara::constant::p0, GlobalPara::constant::c0, GlobalPara::constant::gamma, U2NITS::Math::EPSILON, GlobalPara::constant::Re, GlobalPara::constant::Pr, GlobalPara::constant::mu,
+			GlobalPara::constant::T0, GlobalPara::constant::p0, GlobalPara::constant::c0, GlobalPara::constant::gamma, U2NITS::Math::EPSILON, GlobalPara::constant::Re, GlobalPara::constant::Pr, GlobalPara::constant::mu0,
 			GlobalPara::inviscid_flux_method::flag_reconstruct, GlobalPara::inviscid_flux_method::flag_gradient,
 			GlobalPara::boundaryCondition::_2D::inf::ruvp, GlobalPara::boundaryCondition::_2D::inlet::ruvp, GlobalPara::boundaryCondition::_2D::outlet::ruvp,
 			GlobalPara::inviscid_flux_method::flux_conservation_scheme, GlobalPara::inviscid_flux_method::flux_limiter
 		);
 
 		edgeField_device.cuda_alloc(num_edge);
+		elementFieldVariable_dt_device.cuda_alloc(num_element);
+		// 将alphaC中为了规约而补齐的元素进行赋值。规约是取最小值，因此补齐的元素取较大的值
+		GPU::Math::assign_elements_in_array_device(num_element, elementFieldVariable_dt_device.num_reduce, elementFieldVariable_dt_device.alphaC, U2NITS::Math::BIG_FLOAT_NORMAL);
 
 		// 更新状态
 		deviceMemoryAllocated = true;
@@ -184,25 +199,6 @@ void GPU::GPUSolver2::initializeDeviceData_byHostData() {
 	deviceDataInitialized = true;
 }
 
-void GPU::GPUSolver2::iteration(myfloat& t, myfloat T) {
-	int useGPU = GlobalPara::basic::useGPU;
-	if (useGPU == 0) {
-		CIteration::iteration_host_2(t, T, this);
-	}
-	else if (useGPU == 1) {
-		LogWriter::logAndPrintWarning("GPU mode is in development. Enter debugging mode. @GPU::GPUSolver2::iteration\n");
-		CIteration::iteration_useGPU(t, T, this);
-	}
-	else {
-		LogWriter::logAndPrintError("Invalid parameter: useGPU. @GPU::GPUSolver2::iteration\n");
-		exit(-1);
-	}
-
-	if (!iterationStarted) {
-		iterationStarted = true;
-	}
-}
-
 void GPU::GPUSolver2::device_to_host() {
 	// 将device端的数据复制到host端
 	GPU::NodeSoA::cuda_memcpy(&node_host, &node_device, cudaMemcpyDeviceToHost);
@@ -246,6 +242,7 @@ void GPU::GPUSolver2::freeHostMemory() {
 	}
 	FieldWriter::getInstance()->freeNodeFieldData(this->outputNodeField);
 	this->edgeField_host.free();
+	this->elementFieldVariable_dt_host.free();
 	// 更新状态
 	hostMemoryAllocated = false;
 }
@@ -263,15 +260,23 @@ void GPU::GPUSolver2::freeDeviceMemory() {
 	this->boundary_device.cuda_free();
 
 	// device 数据
-	delete this->infPara_device;
+	//delete this->infPara_device;
 	this->edgeField_device.cuda_free();
+	this->elementFieldVariable_dt_device.cuda_free();
 
 	// 更新状态
 	deviceMemoryAllocated = false;
 }
 
 void GPU::GPUSolver2::updateResidualVector() {
-	ResidualCalculator::get_residual_functionF(elementField_host, residualVector, ResidualCalculator::NORM_INF);
+	U2NITS::Output::get_residual_host(elementField_host, residualVector, U2NITS::Output::normType_infinity);
+}
+
+inline void check_cudaError_t(cudaError_t error) {
+	if (error != cudaSuccess) {
+		LogWriter::logError(cudaGetErrorString(error));
+		exit(-1);
+	}
 }
 
 void GPU::GPUSolver2::setGPUDevice() {
@@ -282,21 +287,16 @@ void GPU::GPUSolver2::setGPUDevice() {
 
 	int nDevice = 0;
 	int iDevice = 0;
-	cudaError_t error;
-	// 获取设备数
-	error = cudaGetDeviceCount(&nDevice);
-	if (error != cudaSuccess || nDevice <= 0) {
-		LogWriter::log(cudaGetErrorString(error), LogWriter::Error);
-		exit(-1);
-	}
-	// 设置工作设备
-	error = cudaSetDevice(iDevice);
-	if (error != cudaSuccess) {
-		LogWriter::log(cudaGetErrorString(error), LogWriter::Error);
-		exit(-1);
-	}
+	cudaDeviceProp deviceProp;
+	check_cudaError_t(cudaGetDeviceCount(&nDevice));
+	check_cudaError_t(cudaSetDevice(iDevice));
+	check_cudaError_t(cudaGetDeviceProperties(&deviceProp, iDevice));
 	std::stringstream ss;
-	ss << "Num of GPU: " << nDevice << ", " << "active GPU: " << iDevice << "\n";
+	ss << "device num: " << nDevice << "; ";
+	ss << "active device: " << iDevice << ",";
+	ss << "name: " << deviceProp.name << ",";
+	ss << "compute capability: " << deviceProp.major << "." << deviceProp.minor << "\n";
+
 	LogWriter::logAndPrint(ss.str());
 	// 更新状态
 	hasSetGPUDevice = true;

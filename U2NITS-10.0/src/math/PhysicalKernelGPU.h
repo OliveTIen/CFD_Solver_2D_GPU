@@ -2,6 +2,8 @@
 #define PHYSICAL_KERNEL_GPU_H
 
 #include "Common.h"
+#include "../gpu/Env.h"
+#include "../gpu/datatype/Datatype.h"
 
 namespace GPU {
 	namespace Math {
@@ -18,6 +20,8 @@ namespace GPU {
 			U[2] = ruvp[0] * ruvp[2];
 			U[3] = ruvp[3] / (gamma - 1) + 0.5 * ruvp[0] * (ruvp[1] * ruvp[1] + ruvp[2] * ruvp[2]);//rhoE
 		}
+
+		void update_ruvp_Uold_device_2(GPU::ElementFieldSoA& elementField_device, myfloat gamma);
 	}
 }
 

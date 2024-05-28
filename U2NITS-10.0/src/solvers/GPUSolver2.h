@@ -35,25 +35,29 @@ namespace GPU {
 		GPU::ElementSoA element_device;
 		GPU::ElementFieldSoA elementField_host;
 		GPU::ElementFieldSoA elementField_device;
-		GPU::EdgeFieldSoA edgeField_host;// edgeField_host和edgeField_device互不关联，因此无需cuda_memcpy
-		GPU::EdgeFieldSoA edgeField_device;
+		GPU::ElementFieldVariable_dt elementFieldVariable_dt_host;// 互不关联，无需cuda_memcpy。仅作为中间变量
+		GPU::ElementFieldVariable_dt elementFieldVariable_dt_device;
 		GPU::EdgeSoA edge_host;
 		GPU::EdgeSoA edge_device;
+		GPU::EdgeFieldSoA edgeField_host;// edgeField_host和edgeField_device互不关联，因此无需cuda_memcpy
+		GPU::EdgeFieldSoA edgeField_device;
 		GPU::BoundarySetMap boundary_host;// 旧版，存储了从set ID到set type的映射
 		GPU::BoundarySetMap boundary_device;
 		GPU::BoundaryV2 boundary_host_new;// 新版，存储了从set type到edge IDs的映射
 		
-		// host数据
+		// host数据[未使用]
 		myfloat* element_vruvp[4]{};// 存储U转换为的ruvp，用于计算节点ruvp以及计算时间步长Dt
 		myfloat* element_U_old[4]{};// 存储上一步U用于计算残差, 4xn矩阵
+
+		// host数据
 		const int residualVectorSize = 4;
 		myfloat residualVector[4]{ 1,1,1,1 };// 残差，residualVectorSize x 1向量
 		std::map<int, int> edge_periodic_pair;// 存储周期边界的边界对
-		GPU::OutputNodeFieldSoA outputNodeField;
+		GPU::OutputNodeFieldSoA outputNodeField;// nodeField_host
 
-		// device数据
-		GPU::DGlobalPara* infPara_device;// 已弃用
-		SDevicePara sDevicePara;// 当前使用
+		// device数据[未使用]
+		//GPU::DGlobalPara* infPara_device;// 已弃用
+		SDevicePara sDevicePara;
 
 	public:
 		GPUSolver2();
@@ -64,8 +68,6 @@ namespace GPU {
 		void allocateMemory();
 		// 用FVM_2D初始化数据
 		void initializeData_byOldData();
-		// 迭代
-		void iteration(myfloat& t, myfloat T);
 		// 更新节点场
 		void updateOutputNodeField();
 		// 获取残差
@@ -73,6 +75,7 @@ namespace GPU {
 		// 释放资源
 		void freeMemory();
 
+		void setIterationStarted(bool b) { iterationStarted = b; }
 		bool isIterationStarted() { return iterationStarted; }
 		bool isHostMemoryAllocated() { return hostMemoryAllocated; }
 		bool isDeviceMemoryAllocated() { return deviceMemoryAllocated; }
@@ -96,7 +99,7 @@ namespace GPU {
 		void initialize_boundary(void* _pFVM2D_);
 
 
-		void allocateMemory(const int num_node, const int num_element, const int num_edge, const int num_boundary);
+		//void allocateMemory_kernel(const int num_node, const int num_element, const int num_edge, const int num_boundary);
 		void allocateHostMemory(const int num_node, const int num_element, const int num_edge, const int num_boundary);
 		void allocateDeviceMemory(const int num_node, const int num_element, const int num_edge, const int num_boundary);// 需要在setGPUDevice之后
 		void freeHostMemory();

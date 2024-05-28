@@ -38,14 +38,16 @@ namespace U2NITS {
 	public:
 		static CDriver* getInstance();
 		// 主循环
-		void run();
+		void run_20240517();
 		static void saveAndExit(int _Code);
 		
 	private:
 		CDriver() {};
-		SignalPack emitSignalPack(int istep, int maxIteration, myfloat t, myfloat T, myfloat residualRho);
+		void modifySignalPack1_output(SignalPack& s, int istep, int maxIteration);
+		void modifySignalPack2_pause(SignalPack& s, int istep, int maxIteration, myfloat t, myfloat T, myfloat residualRho);
 		void onSignalPack(const SignalPack& sp);
-		void updateOldData(int istep, double t) {
+		// 存储当前istep和t
+		void updateOldData_istep_t(int istep, double t) {
 			m_last_istep = istep;
 			m_last_t = t;
 		}

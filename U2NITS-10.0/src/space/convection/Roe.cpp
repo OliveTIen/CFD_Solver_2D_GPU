@@ -188,7 +188,7 @@ void U2NITS::Space::RoeAverageFUN3D(
 
 
 void U2NITS::Space::ConvectRoeCommon3d(const myfloat UL[5], const myfloat UR[5], const myfloat faceNormal[3],
-	const myfloat faceArea, myfloat faceFlux[5], bool bDynamicMesh, myfloat dynamicMeshValue, myfloat gamma) {
+	const myfloat faceArea, myfloat faceFlux[5], bool bDynamicMesh, myfloat dynamicMeshValue, myfloat gamma, myfloat rcpcv) {
 	// 采用熵修正的Roe求解器 参考UNITs Convect_Roe_Common
 	// 被RiemannSolver调用
 	// 输出：faceFlux
@@ -198,7 +198,6 @@ void U2NITS::Space::ConvectRoeCommon3d(const myfloat UL[5], const myfloat UR[5],
 	myfloat sav2n = faceNormal[1];
 	myfloat sav3n = faceNormal[2];
 	myfloat sav4n = dynamicMeshValue / faceArea;//动网格相关，目前不需要
-	myfloat rcpcv = GlobalPara::constant::R;
 	// 守恒量转场变量rho u v w p
 	myfloat ruvwpL[5]{};
 	U2NITS::Math::U2ruvwp_host_3d(UL, ruvwpL, gamma);
@@ -380,14 +379,13 @@ void U2NITS::Space::RoeDissapationTerm3d(
 	drRoe[4] = dreRoe;
 }
 
-void U2NITS::Space::ConvectRoeCommon2d(const myfloat UL[4], const myfloat UR[4], const myfloat faceNormal[2], const myfloat faceArea, myfloat faceFlux[4], myfloat gamma) {
+void U2NITS::Space::ConvectRoeCommon2d(const myfloat UL[4], const myfloat UR[4], const myfloat faceNormal[2], const myfloat faceArea, myfloat faceFlux[4], myfloat gamma, myfloat rcpcv) {
 	// 采用熵修正的Roe求解器 参考UNITs Convect_Roe_Common
 	// 被RiemannSolver调用
 	// 输出：faceFlux
 	myfloat nx = faceNormal[0];
 	myfloat ny = faceNormal[1];
 	myfloat velocity_dynaMesh = 0;//动网格相关，目前不需要
-	myfloat rcpcv = GlobalPara::constant::R;
 	// 守恒量转场变量rho u v w p
 	myfloat ruvpL[4]{};
 	myfloat ruvpR[4]{};
@@ -442,12 +440,6 @@ void U2NITS::Space::ConvectRoeCommon2d(const myfloat UL[4], const myfloat UR[4],
 	faceFlux[1] -= funscheme * drRoe[1];
 	faceFlux[2] -= funscheme * drRoe[2];
 	faceFlux[3] -= funscheme * drRoe[3];
-
-	//for (int i = 0; i < 4; i++) {
-	//	if (isnan(faceFlux[i])) {
-	//		std::cout << "Error isnan(faceFlux[i])\n";
-	//	}
-	//}
 
 }
 
@@ -543,13 +535,6 @@ void U2NITS::Space::RoeDissapationTerm2d(myfloat gamma, myfloat ruvpL[4], myfloa
 	drRoe[1] = 0.5 * (eig1 * dW[1] + dUroe * rm * um + dProe * nx) * sav;
 	drRoe[2] = 0.5 * (eig1 * dW[2] + dUroe * rm * vm + dProe * ny) * sav;
 	drRoe[3] = 0.5 * (eig1 * dW[3] + dUroe * rm * Hm + dProe * (unormaln - meshNormalVelocity)) * sav;
-
-	for (int i = 0; i < 4; i++) {
-		if (isnan(drRoe[i])) {
-			LogWriter::logAndPrintError("Error isnan(drRoe[i]) @U2NITS::Space::RoeDissapationTerm2d\n");
-			CExit::saveAndExit(-1);
-		}
-	}
 
 }
 

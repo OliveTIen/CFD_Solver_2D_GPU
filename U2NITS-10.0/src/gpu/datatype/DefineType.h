@@ -8,9 +8,12 @@
 // using与typedef差不多，但赋值的方式更符合直觉；此外using可以给模板起别名
 
 // 实数类型
-using REAL = double;
+using REAL = float;
 using myfloat = REAL;
 using integer = int;
 using myint = integer;
+
+// 函数指针，float类型的双目运算符
+typedef void(*func_bin_myfloat) (myfloat&, const myfloat&);
 
 #endif

@@ -93,8 +93,8 @@ int ContinueFileReader::readContinueFile_1() {
 		if (state == 0 && tWords[0].substr(0, 1) != "t") {//t_solve, istep_solve, CFL
 			GlobalPara::time::t_previous = std::stod(tWords[0]);
 			GlobalPara::time::istep_previous = (int)std::stod(tWords[1]);
-			if (tWords.size() == 3 && RoutineController::getInstance()->getStrategy() != 0) {
-				GlobalPara::time::CFL = std::stod(tWords[2]);// 对于自适应CFL，读取上次保存的CFL
+			if (tWords.size() == 3) {
+				GlobalPara::time::CFL = std::stod(tWords[2]);// 读取上次保存的CFL
 			}
 		}
 		else if (state == 1 && tWords[0].substr(0, 1) != "n") {//nodes: ID, x, y
@@ -381,8 +381,8 @@ int read_1_1(int& maxnodeID, int& maxelementID, std::vector<SU2MeshReader::Simpl
 		if (state == 0 && tWords[0].substr(0, 1) != "t") {//t_solve, istep_solve, CFL
 			GlobalPara::time::t_previous = std::stod(tWords[0]);
 			GlobalPara::time::istep_previous = (int)std::stod(tWords[1]);
-			if (tWords.size() == 3 && RoutineController::getInstance()->getStrategy() != 0) {
-				GlobalPara::time::CFL = std::stod(tWords[2]);// 对于自适应CFL，读取上次保存的CFL
+			if (tWords.size() == 3) {
+				GlobalPara::time::CFL = std::stod(tWords[2]);// 读取上次保存的CFL
 			}
 		}
 		else if (state == 1 && tWords[0].substr(0, 1) != "n") {//nodes: ID, x, y

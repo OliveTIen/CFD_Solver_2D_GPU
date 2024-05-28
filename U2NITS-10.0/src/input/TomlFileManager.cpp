@@ -41,6 +41,71 @@ void TomlFileManager::readTomlFile(std::string fullFilePath) {
 
 }
 
+
+inline double get_velocity_magnitude(myfloat* ruvp) {
+    myfloat u = ruvp[1];
+    myfloat v = ruvp[2];
+    return sqrt(u * u + v * v);
+}
+
+// 获取参考来流参数
+void get_reference_value_according_to_initialType(myfloat& rho_ref, myfloat& U_ref, myfloat& L_ref, int initial_type) {
+    /*
+    对于激波管和双马赫反射，取inlet和outlet的速度大者作为来流参数
+    其他情况，取inf作为来流参数
+    */
+    using namespace GlobalPara::boundaryCondition::_2D;
+    if (initial_type == type_shock_tube || initial_type == type_double_mach_reflection) {
+        myfloat U_inlet = get_velocity_magnitude(inlet::ruvp);
+        myfloat U_outlet = get_velocity_magnitude(outlet::ruvp);
+        if (U_inlet > U_outlet) {
+            rho_ref = inlet::ruvp[0];
+            U_ref = U_inlet;
+        }
+        else {
+            rho_ref = outlet::ruvp[0];
+            U_ref = U_outlet;
+        }
+    }
+    else {
+        rho_ref = inf::ruvp[0];
+        U_ref = get_velocity_magnitude(inf::ruvp);
+    }
+    L_ref = GlobalPara::constant::referenceArea;// 二维，无需开根号
+}
+
+// 从toml读取mu0和Re。读取1个，另一个根据来流参数自动确定。依赖于GlobalPara::referencearea
+void read_mu0_Re_from_config() {
+    TomlFileManager* t = TomlFileManager::getInstance();
+
+    myfloat rho_ref{ 1.0 }, U_ref{ 1.0 }, L_ref{ 1.0 };
+    get_reference_value_according_to_initialType(rho_ref, U_ref, L_ref, FieldInitializer::getInstance()->get_initial_type());// 获取参考来流参数
+
+    bool calculate_mu0_by_Re = false;
+    t->getValueIfExists("constant.calculate_mu0_by_Re", calculate_mu0_by_Re);
+    if (calculate_mu0_by_Re) {
+        t->getValue("constant.Re", GlobalPara::constant::Re);
+        GlobalPara::constant::mu0 = rho_ref * U_ref * L_ref / GlobalPara::constant::Re;
+    }
+    else {
+        t->getValueIfExists("constant.mu0", GlobalPara::constant::mu0);
+        GlobalPara::constant::Re = rho_ref * U_ref * L_ref / GlobalPara::constant::mu0;
+    }
+
+    std::stringstream ss;
+    ss << std::scientific
+        << "modify_mu0_by_Re_using_config: "
+        << "calculate_mu0_by_Re=" << calculate_mu0_by_Re << ", "
+        << "Re=" << GlobalPara::constant::Re << ", "
+        << "mu0=" << GlobalPara::constant::mu0 << "\n";
+    LogWriter::logAndPrint(ss.str());
+    //CExit::pressAnyKeyToExit();
+}
+
+void read_initialCondition_from_config() {
+    FieldInitializer::getInstance()->initialize_using_config();
+}
+
 void TomlFileManager::treeToGlobalParameter() {
     getValue("basic.continue", GlobalPara::basic::_continue);
     getValue("basic.dimension", GlobalPara::basic::dimension);
@@ -51,20 +116,27 @@ void TomlFileManager::treeToGlobalParameter() {
 
     getValue("constant.T0", GlobalPara::constant::T0);
     getValue("constant.p0", GlobalPara::constant::p0);
-    getValue("constant.Re", GlobalPara::constant::Re);
     getValue("constant.Pr", GlobalPara::constant::Pr);
     getValue("constant.gamma", GlobalPara::constant::gamma);
     getValue("constant.referenceArea", GlobalPara::constant::referenceArea);
+    getValueIfExists("constant.mesh_scale_factor", GlobalPara::constant::mesh_scale_factor);
+    // 应在读取referenceArea和mesh_scale_factor后修正referenceArea
+    GlobalPara::constant::referenceArea *= GlobalPara::constant::mesh_scale_factor;
 
     getValue_boundaryCondition2D("boundaryCondition.2D.inf", GlobalPara::boundaryCondition::_2D::inf::ruvp);
     getValue_boundaryCondition2D("boundaryCondition.2D.inlet", GlobalPara::boundaryCondition::_2D::inlet::ruvp);
     getValue_boundaryCondition2D("boundaryCondition.2D.outlet", GlobalPara::boundaryCondition::_2D::outlet::ruvp);
 
-    FieldInitializer::getInstance()->initialize_using_config(this);
+    read_initialCondition_from_config();
+    read_mu0_Re_from_config();// 应放在referenceArea、initial_type后面
 
     getValue("output.step_per_print", GlobalPara::output::step_per_print);
     getValue("output.step_per_output_field", GlobalPara::output::step_per_output_field);
     getValue("output.step_per_output_hist", GlobalPara::output::step_per_output_hist);
+    getValueIfExists("output.start_output_field", GlobalPara::output::start_output_field);
+    if (GlobalPara::output::start_output_field != 0) {
+        LogWriter::log("start_output_field = " + std::to_string(GlobalPara::output::start_output_field) + "\n");
+    }
     getValue("output.maxIteration", GlobalPara::output::maxIteration);
     getValue("output.tolerace_residual", GlobalPara::output::tolerace_residual);
 
@@ -118,18 +190,18 @@ void TomlFileManager::handleConflictingInputs() {
 
 }
 
-void TomlFileManager::getValue_boundaryCondition2D(std::string parent, double ruvp[4]) {
+void TomlFileManager::getValue_boundaryCondition2D(std::string parent, myfloat ruvp[4]) {
     /*
     事实上input_mode Ma AoA无需作为全局变量，因为仅仅在输入时用到
     */
     // eg. parent = "boundaryCondition.2D.inf"
     int input_mode = -1;
-    double Ma = 0;
-    double AoA = 0;
-    double U[4]{};
-    double gamma = 1.4;
+    myfloat Ma = 0;
+    myfloat AoA = 0;
+    myfloat U[4]{};
+    myfloat gamma = 1.4;
     if (!treeContainsKey(parent + ".input_mode")) {
-        LogWriter::logAndPrintWarning("No input_mode at " + parent + ". Will use default.\n");
+        LogWriter::logWarning("No input_mode at " + parent + ". Will use default.\n");
         return;
     }
     getValueIfExists(parent + ".input_mode", input_mode);
@@ -165,8 +237,8 @@ void TomlFileManager::getValue_boundaryCondition2D(std::string parent, double ru
         break;
     case 3:
         {
-        double u = 0.0;
-        double angle = 0.0;
+        myfloat u = 0.0;
+        myfloat angle = 0.0;
         getValue(parent + ".rho", ruvp[0]);
         getValue(parent + ".u", u);
         getValue(parent + ".angle_degree", angle);

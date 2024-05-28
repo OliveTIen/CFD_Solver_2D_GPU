@@ -1,5 +1,6 @@
 #ifndef RIEMANN_SOLVER_H
 #define RIEMANN_SOLVER_H
+#include "../gpu/datatype/DefineType.h"
 /**
 * 无粘黎曼求解器 先坐标变换，然后根据两侧U值计算界面无粘通量(准一维)
 * 
@@ -19,11 +20,11 @@ public:
 	};
 
 public:
-	static int solve(const double* UL, const double* UR,
-		const double nx, const double ny, const double length, double* flux,
+	static int solve(const myfloat* UL, const myfloat* UR,
+		const myfloat nx, const myfloat ny, const myfloat length, myfloat* flux,
 		const int conservation_scheme);
-	static int LocalLaxFriedrichs(const double* UL, const double* UR, 
-		const double nx, const double ny, const double length, double* flux);
+	static int LocalLaxFriedrichs(const myfloat* UL, const myfloat* UR, 
+		const myfloat nx, const myfloat ny, const myfloat length, myfloat* flux);
 };
 
 

@@ -1,6 +1,6 @@
 #include "FVM_2D.h"
 #include "output/ConsolePrinter.h"
-#include "output/ResidualCalculator.h"
+//#include "output/ResidualCalculator.h"
 #include "output/LogWriter.h"
 #include "global/StringProcessor.h"
 #include "global/SystemInfo.h"

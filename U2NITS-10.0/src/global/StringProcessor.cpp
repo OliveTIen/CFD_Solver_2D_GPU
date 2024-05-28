@@ -8,7 +8,7 @@ std::vector<int> StringProcessor::stringVector_2_intVector(std::vector<std::stri
 	return ints;
 }
 
-std::string StringProcessor::doubleArray_2_string(double* U, int length) {
+std::string StringProcessor::doubleArray_2_string(myfloat* U, int length) {
 	std::string str;
 	str += "{";
 	for (int i = 0; i < length; i++) {

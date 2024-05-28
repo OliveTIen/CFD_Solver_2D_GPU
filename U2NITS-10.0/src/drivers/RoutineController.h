@@ -43,7 +43,7 @@ class RoutineController {
 
 
 public:
-	myfloat tolerance_max_CFL = 500;// 允许最大CFL
+	myfloat tolerance_max_CFL = 500;// 允许最大CFL(后面发现CFL还可以增大，因此该参数未使用)
 	myfloat tolerance_min_CFL = 0.5;// 允许最小CFL
 	int increase_start_time = 5000;// 允许增大CFL的起始时间步
 	int decrease_start_time = 1000;// 允许减小CFL的起始时间步

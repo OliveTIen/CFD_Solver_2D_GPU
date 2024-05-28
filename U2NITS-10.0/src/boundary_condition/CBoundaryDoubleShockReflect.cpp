@@ -13,6 +13,7 @@ CBoundaryDoubleShockReflect* CBoundaryDoubleShockReflect::getInstance() {
 	return m_pointer;
 }
 
+
 bool CBoundaryDoubleShockReflect::isUpStreamOfShock_forElement(double x, double y) {
 	/*
 	功能：更新双马赫反射的上边界
@@ -32,7 +33,7 @@ bool CBoundaryDoubleShockReflect::isUpStreamOfShock_forElement(double x, double 
 }
 
 
-bool CBoundaryDoubleShockReflect::isUpStreamOfShock_atBoundary(double x, double y, double t_RK) {
+bool CBoundaryDoubleShockReflect::isUpStreamOfShock_atBoundary(double x, double y) {
 	/*
 	https://zhuanlan.zhihu.com/p/630069961
 	该方法仅适合边界
@@ -41,7 +42,7 @@ bool CBoundaryDoubleShockReflect::isUpStreamOfShock_atBoundary(double x, double 
 	域高度
 	此处要求y是区域顶部的y坐标
 	*/
-
+	double t_RK = get_t_plus_dt();
 	double right = shock_x + (y + shock_speed * t_RK) / sqrt3;
 	if (x < right) return true;
 	else return false;

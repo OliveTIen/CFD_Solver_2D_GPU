@@ -11,7 +11,7 @@ public:
 	void start() {
 		m_clock = clock();
 	}
-	double getIime() {
+	double getTime() {
 		return (double)(clock() - m_clock) / CLOCKS_PER_SEC;
 	}
 };

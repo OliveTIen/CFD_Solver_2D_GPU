@@ -1,43 +1,43 @@
 //#include "head.h"
 #include "Math.h"
 
-double Math::dot(std::vector<double> a, std::vector<double> b) {
+myfloat Math::dot(std::vector<myfloat> a, std::vector<myfloat> b) {
     if (a.size() != b.size()) {
         std::cout << "Error: a.size() != b.size(), in Math::dot\n";
         return 0.0;
     }
-    double ret = 0.0;
+    myfloat ret = 0.0;
     for (int i = 0; i < a.size(); i++) {
         ret += a[i] * b[i];
     }
     return ret;
 }
 
-inline double Math::vector_norm_1(std::vector<double> v) {
-	double sum = 0.0;
+inline myfloat Math::vector_norm_1(std::vector<myfloat> v) {
+	myfloat sum = 0.0;
 	for (int i = 0; i < v.size(); i++) {
 		sum += abs_(v[i]);
 	}
 	return sum;
 }
 
-inline double Math::vector_norm_2(std::vector<double> v) {
-	double sum = 0.0;
+inline myfloat Math::vector_norm_2(std::vector<myfloat> v) {
+	myfloat sum = 0.0;
 	for (int i = 0; i < v.size(); i++) {
 		sum += v[i] * v[i];
 	}
 	return sqrt(sum);
 }
 
-inline double Math::vector_norm_infinity(std::vector<double> v) {
-	double m_max = 0.0;
+inline myfloat Math::vector_norm_infinity(std::vector<myfloat> v) {
+	myfloat m_max = 0.0;
 	for (int i = 0; i < v.size(); i++) {
 		m_max = max_(m_max, abs_(v[i]));
 	}
 	return m_max;
 }
 
-void Math::vector_times_scalar(double* v, const int vlength, const double s) {
+void Math::vector_times_scalar(myfloat* v, const int vlength, const myfloat s) {
 	for (int i = 0; i < vlength; i++) {
 		v[i] *= s;
 	}
@@ -59,18 +59,18 @@ std::string Math::timeFormat(int dt) {
 	return str;
 }
 
-double Math::RK3(double x, double y, double h, double (*f)(double, double)) {
+myfloat Math::RK3(myfloat x, myfloat y, myfloat h, myfloat (*f)(myfloat, myfloat)) {
 	//目的：解常微分方程y'=f(x,y),例如y'=y-2x/y
 	//
 
 	//找到求积节点
-	double k1 = (*f)(x, y);
-	double k2 = (*f)(x + h * 0.5, y + 0.5 * h * k1);//这里的y是当前y
-	double k3 = (*f)(x + h, y - 1.0 * h * k1 + 2.0 * h * k2);
+	myfloat k1 = (*f)(x, y);
+	myfloat k2 = (*f)(x + h * 0.5, y + 0.5 * h * k1);//这里的y是当前y
+	myfloat k3 = (*f)(x + h, y - 1.0 * h * k1 + 2.0 * h * k2);
 	return y + h / 6.0 * (k1 + 4 * k2 + k3);
 }
 
-void Math_2D::U_2_ruvp(const double* U, double* ruvp, double gamma) {
+void Math_2D::U_2_ruvp(const myfloat* U, myfloat* ruvp, myfloat gamma) {
 	//U:	rho,rho_u,rho_v,rho_E
 	//ruvp: rho,u,v,p
 	ruvp[0] = U[0];
@@ -81,11 +81,11 @@ void Math_2D::U_2_ruvp(const double* U, double* ruvp, double gamma) {
 	ruvp[3] = ruvp[0] * (gamma - 1) * (U[3] / U[0] - (ruvp[1] * ruvp[1] + ruvp[2] * ruvp[2]) * 0.5);
 }
 
-void Math_2D::ruvp_2_U(const double* ruvp, double* U, double gamma) {
-	//double rho = U[0];
-	//double rho_u = U[1];//rho*u
-	//double rho_v = U[2];
-	//double rho_E = U[3];
+void Math_2D::ruvp_2_U(const myfloat* ruvp, myfloat* U, myfloat gamma) {
+	//myfloat rho = U[0];
+	//myfloat rho_u = U[1];//rho*u
+	//myfloat rho_v = U[2];
+	//myfloat rho_E = U[3];
 
 	U[0] = ruvp[0];
 	U[1] = ruvp[0] * ruvp[1];
@@ -93,18 +93,18 @@ void Math_2D::ruvp_2_U(const double* ruvp, double* U, double gamma) {
 	U[3] = ruvp[3] / (gamma - 1) + 0.5 * ruvp[0] * (ruvp[1] * ruvp[1] + ruvp[2] * ruvp[2]);//rhoE
 }
 
-void Math_2D::U_2_F(const double* U, double* F, double gamma) {
+void Math_2D::U_2_F(const myfloat* U, myfloat* F, myfloat gamma) {
 	//U[0]: rho 
 	//U[1]: rho_u 
 	//U[2]: rho_v 
 	//U[3]: rho_E 
-	double p = 0.5 * U[0] * (gamma - 1) * (2 * U[3] / U[0] - U[1] / U[0] * U[1] / U[0] - U[2] / U[0] * U[2] / U[0]);
+	myfloat p = 0.5 * U[0] * (gamma - 1) * (2 * U[3] / U[0] - U[1] / U[0] * U[1] / U[0] - U[2] / U[0] * U[2] / U[0]);
 	F[0] = U[1];//rho*u
 	F[1] = U[1] * U[1] / U[0] + p;//rho*u^2+p
 	F[2] = U[1] * U[2] / U[0];//rho*u*v
 	F[3] = (U[3] + p) * U[1] / U[0];//(rho*E+p)*u
 
-	//double ret2 = gamma * p / rho;
+	//myfloat ret2 = gamma * p / rho;
 	//if (ret2 < 0) {
 	//	GlobalStatic::log("Error: gamma * p / rho < 0, at Edge\n");
 	//	std::cout << "Error: gamma * p / rho < 0, at Edge\n";
@@ -114,25 +114,25 @@ void Math_2D::U_2_F(const double* U, double* F, double gamma) {
 
 }
 
-//void Math_2D::U_2_F(const Eigen::Vector4d& U, Eigen::Vector4d& F, double gamma) {
-//	double p = 0.5 * U[0] * (gamma - 1) * (2 * U[3] / U[0] - U[1] / U[0] * U[1] / U[0] - U[2] / U[0] * U[2] / U[0]);
+//void Math_2D::U_2_F(const Eigen::Vector4d& U, Eigen::Vector4d& F, myfloat gamma) {
+//	myfloat p = 0.5 * U[0] * (gamma - 1) * (2 * U[3] / U[0] - U[1] / U[0] * U[1] / U[0] - U[2] / U[0] * U[2] / U[0]);
 //	F[0] = U[1];//rho*u
 //	F[1] = U[1] * U[1] / U[0] + p;//rho*u^2+p
 //	F[2] = U[1] * U[2] / U[0];//rho*u*v
 //	F[3] = (U[3] + p) * U[1] / U[0];//(rho*E+p)*u
 //}
 
-//void Math_2D::U_2_F_lambda(const Eigen::Vector4d U, Eigen::Vector4d& F, double& lambda, double gamma) {
-//	double rho = U[0];
-//	double u = U[1] / U[0];
-//	double v = U[2] / U[0];
-//	double E = U[3] / U[0];
+//void Math_2D::U_2_F_lambda(const Eigen::Vector4d U, Eigen::Vector4d& F, myfloat& lambda, myfloat gamma) {
+//	myfloat rho = U[0];
+//	myfloat u = U[1] / U[0];
+//	myfloat v = U[2] / U[0];
+//	myfloat E = U[3] / U[0];
 //	Math_2D::U_2_F(U, F, gamma);
-//	double p = Math_2D::get_p(rho, gamma, E, u, v);
+//	myfloat p = Math_2D::get_p(rho, gamma, E, u, v);
 //	lambda = sqrt(u * u + v * v) + sqrt(gamma * p / rho);
 //}
 
-void Math_2D::ruvp_2_F(const double* ruvp, double* F, double gamma) {
+void Math_2D::ruvp_2_F(const myfloat* ruvp, myfloat* F, myfloat gamma) {
 	F[0] = ruvp[0] * ruvp[1];
 	F[1] = ruvp[0] * ruvp[1] * ruvp[1] + ruvp[3];
 	F[2] = ruvp[0] * ruvp[1] * ruvp[2];
@@ -142,14 +142,14 @@ void Math_2D::ruvp_2_F(const double* ruvp, double* F, double gamma) {
 
 }
 
-void Math_2D::ruvp_2_Fn_lambda_2D(const double* ruvp, double* Fn, double& lambda, double nx, double ny, double gamma) {
+void Math_2D::ruvp_2_Fn_lambda_2D(const myfloat* ruvp, myfloat* Fn, myfloat& lambda, myfloat nx, myfloat ny, myfloat gamma) {
 	//计算F·n
-	double rho = ruvp[0];
-	double u = ruvp[1];
-	double v = ruvp[2];
-	double p = ruvp[3];
-	double un = u * nx + v * ny;
-	double E = get_E(ruvp, gamma);
+	myfloat rho = ruvp[0];
+	myfloat u = ruvp[1];
+	myfloat v = ruvp[2];
+	myfloat p = ruvp[3];
+	myfloat un = u * nx + v * ny;
+	myfloat E = get_E(ruvp, gamma);
 	Fn[0] = rho * un;//rho*u*nx + rho*v*ny = rho*un
 	Fn[1] = rho * u * un + p * nx;//(rho*u^2+p)*nx + (rho*u*v)*ny = rho * u * un + p * nx
 	Fn[2] = rho * v * un + p + ny;//rho * v * un + p + ny
@@ -157,8 +157,8 @@ void Math_2D::ruvp_2_Fn_lambda_2D(const double* ruvp, double* Fn, double& lambda
 	lambda = abs(un) + sqrt(gamma * p / rho);
 }
 
-void Math_2D::U_2_Fn_lambda_2D(const double* U, double* Fn, double& lambda, double nx, double ny, double gamma) {
-	double ruvp[4];
+void Math_2D::U_2_Fn_lambda_2D(const myfloat* U, myfloat* Fn, myfloat& lambda, myfloat nx, myfloat ny, myfloat gamma) {
+	myfloat ruvp[4];
 	U_2_ruvp(U, ruvp, gamma);
 	ruvp_2_Fn_lambda_2D(ruvp, Fn, lambda, nx, ny, gamma);
 }

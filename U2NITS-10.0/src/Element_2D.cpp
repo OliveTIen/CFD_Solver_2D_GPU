@@ -14,9 +14,9 @@ namespace {
     }
 
     Eigen::MatrixXd iniGaussPoint_Q4() {
-        //高斯积分点 1/sqrt(3)=0.577350269189625(7,8), double取0.577350269189626
+        //高斯积分点 1/sqrt(3)=0.577350269189625(7,8), myfloat取0.577350269189626
         Eigen::MatrixXd GaussPointMatrix(8, 3);//(顶点数, 维数)
-        double ops3 = 0.577350269189626;//onePerSqrt3
+        myfloat ops3 = 0.577350269189626;//onePerSqrt3
         GaussPointMatrix <<
             -ops3, -ops3,
             ops3, -ops3,
@@ -29,9 +29,9 @@ namespace {
 //Eigen::MatrixXi Element_Q4::si_ti = iniSiti_Q4();
 //Eigen::MatrixXd Element_Q4::GaussPointMatrix = iniGaussPoint_Q4();
 
-double Element_2D::calArea(FVM_2D* f) {
+myfloat Element_2D::calArea(FVM_2D* f) {
     // 叉乘法计算三角形面积
-    double xn[3]{}, yn[3]{};
+    myfloat xn[3]{}, yn[3]{};
     for (int i = 0; i < 3; i++) {
         xn[i] = f->getNodeByID(nodes[i])->x;
         yn[i] = f->getNodeByID(nodes[i])->y;
@@ -39,7 +39,7 @@ double Element_2D::calArea(FVM_2D* f) {
     return 0.5 * abs(xn[0] * (yn[1] - yn[2]) + xn[1] * (yn[2] - yn[0]) + xn[2] * (yn[0] - yn[1]));
 
     //// 但事实上总有单元其节点顺序是逆时针，这是不可避免的
-    //double area = 0.5 * (xn[0] * (yn[1] - yn[2]) + xn[1] * (yn[2] - yn[0]) + xn[2] * (yn[0] - yn[1]));
+    //myfloat area = 0.5 * (xn[0] * (yn[1] - yn[2]) + xn[1] * (yn[2] - yn[0]) + xn[2] * (yn[0] - yn[1]));
     //if (area <= 0) {
     //    // 要求节点顺序必须是逆时针，否则计算通量时会出错
     //    std::stringstream ss;
@@ -96,10 +96,10 @@ std::vector<Element_2D*> Element_2D::findNeighbor_withoutNullptr() {
     return neighbors;
 }
 
-double Element_2D::calDistanceFromNearestNeighbor(FVM_2D* f) {
+myfloat Element_2D::calDistanceFromNearestNeighbor(FVM_2D* f) {
     std::vector<Element_2D*> n = findNeighbor();
-    double dis = 1e10;
-    double tmpx, tmpy, tmpdis;
+    myfloat dis = 1e10;
+    myfloat tmpx, tmpy, tmpdis;
     //this->calxy(f);读取文件时已经calxy了
     for (int in = 0; in < n.size(); in++) {
         if (n[in] != nullptr) {
@@ -182,9 +182,9 @@ void Element_2D::restructor_in_updateSlope_Barth(FVM_2D* f) {
     //限制器，用来修正Ux,Uy。其理论依据是若三个顶点处的Ux,Uy满足有界性，则面内全满足有界性
     //计算偏差上下界
     std::vector<Element_2D*> neighbors = findNeighbor();
-    double UU[3][4]{};//邻居函数值与自身函数值的差
-    double UUup = 0;
-    double UUdown = 0;
+    myfloat UU[3][4]{};//邻居函数值与自身函数值的差
+    myfloat UUup = 0;
+    myfloat UUdown = 0;
     for (int i = 0; i < neighbors.size(); i++) {
         if (neighbors[i] != nullptr) {
             for (int j = 0; j < 4; j++) {
@@ -195,10 +195,10 @@ void Element_2D::restructor_in_updateSlope_Barth(FVM_2D* f) {
         }
     }
     //计算顶点偏差
-    double U_node[3][4]{};
-    double UU_node[3][4]{};//顶点函数值与自身函数值的差
-    double UUup_node = 0;
-    double UUdown_node = 0;
+    myfloat U_node[3][4]{};
+    myfloat UU_node[3][4]{};//顶点函数值与自身函数值的差
+    myfloat UUup_node = 0;
+    myfloat UUdown_node = 0;
     for (int i_node = 0; i_node < 3; i_node++) {
         Node_2D* pNode = f->pNodeTable[nodes[i_node]];
         get_U(pNode->x, pNode->y, U_node[i_node]);
@@ -209,7 +209,7 @@ void Element_2D::restructor_in_updateSlope_Barth(FVM_2D* f) {
         }
     }
     //修正Ux, Uy
-    double ratio = 1;
+    myfloat ratio = 1;
     if (UUup_node > UUup) {
         ratio = (std::max)(ratio, UUup_node / UUup);
     }
@@ -223,7 +223,7 @@ void Element_2D::restructor_in_updateSlope_Barth(FVM_2D* f) {
     }
 }
 
-void Element_2D::get_U(double xpoint, double ypoint, double* _U) {
+void Element_2D::get_U(myfloat xpoint, myfloat ypoint, myfloat* _U) {
     //常量重构
     if (GlobalPara::inviscid_flux_method::flag_reconstruct == _REC_constant) {
         for (int j = 0; j < 4; j++) {
@@ -239,9 +239,9 @@ void Element_2D::get_U(double xpoint, double ypoint, double* _U) {
     }
 }
 
-Eigen::Vector4d Element_2D::get_U(double xpoint, double ypoint) {
+Eigen::Vector4d Element_2D::get_U(myfloat xpoint, myfloat ypoint) {
     //初始化_U数组
-    double _U[4];
+    myfloat _U[4];
     get_U(xpoint, ypoint, _U);//另一个重载函数
     //数组转向量
     Eigen::Vector4d _U_vector;
@@ -251,9 +251,9 @@ Eigen::Vector4d Element_2D::get_U(double xpoint, double ypoint) {
     return _U_vector;
 }
 
-std::vector<double> Element_2D::U2uv(const Eigen::Vector4d& Uc) {
+std::vector<myfloat> Element_2D::U2uv(const Eigen::Vector4d& Uc) {
     //守恒量ρ,ρu,ρv,ρE
-    std::vector<double> uv;//非守恒量u v
+    std::vector<myfloat> uv;//非守恒量u v
     uv[0] = Uc[1]/Uc[0];
     uv[1] = Uc[2]/Uc[0];
     return uv;
@@ -306,42 +306,42 @@ void Element_2D::generateElementEdge_registerSingle(FVM_2D* f, int ID_0, int ID_
 }
 
 
-double Element_2D::calLambda(const double gamma) {
-    double rho = U[0];
-    double rho_u = U[1];//rho*u
-    double rho_v = U[2];
-    double rho_E = U[3];
-    double E = rho_E / rho;
-    double u = rho_u / rho;
-    double v = rho_v / rho;
-    double V2 = u * u + v * v;//|U|^2
-    double p = 0.5 * rho * (gamma - 1) * (2 * E - V2);
+myfloat Element_2D::calLambda(const myfloat gamma) {
+    myfloat rho = U[0];
+    myfloat rho_u = U[1];//rho*u
+    myfloat rho_v = U[2];
+    myfloat rho_E = U[3];
+    myfloat E = rho_E / rho;
+    myfloat u = rho_u / rho;
+    myfloat v = rho_v / rho;
+    myfloat V2 = u * u + v * v;//|U|^2
+    myfloat p = 0.5 * rho * (gamma - 1) * (2 * E - V2);
     return sqrt(V2) + sqrt(gamma * p / rho);
 }
 
-double Element_2D::calLambdaFlux(FVM_2D* f) {
-    double LambdaC = 0;
+myfloat Element_2D::calLambdaFlux(FVM_2D* f) {
+    myfloat LambdaC = 0;
     // 对于每条边，计算其坐标，然后获取边上的LambdaC
     // 目前这段代码有问题
     for (int ie = 0; ie < 3; ie++) {
         // 边坐标、U
-        double ex, ey;
-        double eU[4]{};//边中点处ρ,ρu,ρv,ρE
+        myfloat ex, ey;
+        myfloat eU[4]{};//边中点处ρ,ρu,ρv,ρE
         pEdges[ie]->getxy(f, ex, ey);
         get_U(ex, ey, eU);
         // 边法向量
-        std::vector<double> en = pEdges[ie]->getDirectionN();
+        std::vector<myfloat> en = pEdges[ie]->getDirectionN();
         //eabs
-        double u = eU[1] / eU[0];
-        double v = eU[2] / eU[0];
-        double E = eU[3] / eU[0];
-        double eabs = abs(u * en[0] + v * en[1]);//|euv·en|
+        myfloat u = eU[1] / eU[0];
+        myfloat v = eU[2] / eU[0];
+        myfloat E = eU[3] / eU[0];
+        myfloat eabs = abs(u * en[0] + v * en[1]);//|euv·en|
         //ec
-        double V2 = u * u + v * v;
-        double& rho = eU[0];
-        double p = 0.5 * rho * (GlobalPara::constant::gamma - 1) * (2 * E - V2);
-        double ec = sqrt(GlobalPara::constant::gamma * p / rho);
-        double dl = pEdges[ie]->getLength();
+        myfloat V2 = u * u + v * v;
+        myfloat& rho = eU[0];
+        myfloat p = 0.5 * rho * (GlobalPara::constant::gamma - 1) * (2 * E - V2);
+        myfloat ec = sqrt(GlobalPara::constant::gamma * p / rho);
+        myfloat dl = pEdges[ie]->getLength();
         LambdaC += (eabs + ec) * dl;
     }
     return LambdaC;

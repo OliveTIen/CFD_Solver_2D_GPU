@@ -80,18 +80,18 @@ namespace GPU {
 
 		/* struct type define */
 		struct Constant {
-			double const R = 287.06;// 气体常数
-			double const PI = 3.1415926535897;
-			double T0 = 288.16;// 海平面温度参考值
-			double p0 = 101325.0;// 海平面压力参考值
-			double c0 = 340.28;// 海平面声速参考值
-			double gamma = 1.4;
-			double epsilon = 1e-7;
-			double Re = 1.0e8;
-			double Pr = 0.73;
-			double mu = 17.9e-6;// 空气动力粘性系数
+			myfloat const R = 287.06;// 气体常数
+			myfloat const PI = 3.1415926535897;
+			myfloat T0 = 288.16;// 海平面温度参考值
+			myfloat p0 = 101325.0;// 海平面压力参考值
+			myfloat c0 = 340.28;// 海平面声速参考值
+			myfloat gamma = 1.4;
+			myfloat epsilon = 1e-7;
+			myfloat Re = 1.0e8;
+			myfloat Pr = 0.73;
+			myfloat mu = 17.9e-6;// 空气动力粘性系数
 
-			void initialize(double _T0, double _p0, double _c0, double _gamma, double _epsilon, double _Re, double _Pr, double _mu) {
+			void initialize(myfloat _T0, myfloat _p0, myfloat _c0, myfloat _gamma, myfloat _epsilon, myfloat _Re, myfloat _Pr, myfloat _mu) {
 				T0 = _T0;
 				p0 = _p0;
 				c0 = _c0;
@@ -145,7 +145,7 @@ namespace GPU {
 
 		/* functions */
 		void initialize(
-			double _T0, double _p0, double _c0, double _gamma, double _epsilon, double _Re, double _Pr, double _mu,
+			myfloat _T0, myfloat _p0, myfloat _c0, myfloat _gamma, myfloat _epsilon, myfloat _Re, myfloat _Pr, myfloat _mu,
 			int _flag_reconstruct, int _flag_gradient,
 			myfloat* inf, myfloat* inlet, myfloat* outlet,
 			int _flux_conservation_scheme, int _flux_limiter

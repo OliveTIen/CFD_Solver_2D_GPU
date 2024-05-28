@@ -29,7 +29,7 @@ void U2NITS::Time::EvolveExplicitHost(myfloat dt, GPU::ElementSoA& element_host,
     }
 }
 
-void U2NITS::Time::evolveSingleStep(myfloat dt, GPU::ElementSoA& element_host, GPU::NodeSoA& node_host, GPU::EdgeSoA& edge_host, GPU::ElementFieldSoA& elementField_host) {
+void U2NITS::Time::evolve_unsteady_explicit(myfloat dt, GPU::ElementSoA& element_host, GPU::NodeSoA& node_host, GPU::EdgeSoA& edge_host, GPU::ElementFieldSoA& elementField_host) {
 
     int num = element_host.num_element;
     // 计算dU/dt = f(t,U)右端项
@@ -43,7 +43,7 @@ void U2NITS::Time::evolveSingleStep(myfloat dt, GPU::ElementSoA& element_host, G
 
 }
 
-void U2NITS::Time::evolveRungeKutta3(myfloat dt, GPU::ElementSoA& element_host, GPU::NodeSoA& node_host, GPU::EdgeSoA& edge_host, GPU::ElementFieldSoA& yn) {
+void U2NITS::Time::evolve_unsteady_rk3(myfloat dt, GPU::ElementSoA& element_host, GPU::NodeSoA& node_host, GPU::EdgeSoA& edge_host, GPU::ElementFieldSoA& yn) {
     /*
     数值求解常微分方程 dU/dt = f(t,U)，右端项即residual
     MATLAB代码如下
@@ -148,7 +148,7 @@ void U2NITS::Time::U_to_ruvp_proMax(const myfloat* U[4], myfloat* ruvp[4], int l
     }
 }
 
-void U2NITS::Time::evolveSteadyLocalTimeStep(GPU::ElementSoA& element, GPU::NodeSoA& node, GPU::EdgeSoA& edge, GPU::ElementFieldSoA& elementField, myfloat* element_vruvp[4]) {
+void U2NITS::Time::evolve_steady_explicit_localTimeStep(GPU::ElementSoA& element, GPU::NodeSoA& node, GPU::EdgeSoA& edge, GPU::ElementFieldSoA& elementField, myfloat* element_vruvp[4]) {
     /*
     定常采用局部时间步长加速收敛，每个单元使用各自的时间步
     */

@@ -2,8 +2,10 @@
 #define TOML_FILE_MANAGER_H
 #include <string>
 #include <iostream>
+#include <sstream>
 #include "../include/toml/cpptoml.h"
 #include "../global/SGlobalPara.h"
+#include "../gpu/datatype/DefineType.h"
 
 class TomlFileManager {
 private:
@@ -37,7 +39,7 @@ private:
 	void treeToSGlobalPara(SGlobalPara::SGlobalPara& spara);
 	// 统一相互矛盾的输入
 	void handleConflictingInputs();
-	void getValue_boundaryCondition2D(std::string parent, double ruvp[4]);
+	void getValue_boundaryCondition2D(std::string parent, myfloat ruvp[4]);
 
 	// tree是否包含key。输入参数以"."分隔层级
 	bool treeContainsKey(std::string key) { return m_tree->contains_qualified(key); }
@@ -117,7 +119,11 @@ inline void TomlFileManager::getValueOnCondition(std::string key, T_type& value_
 			has_getValueFailed = true;
 		}
 		else {// 无条件，则可选，因此不会报错
-			LogWriter::log("Parameter \"" + key + "\" uses default value.\n", LogWriter::Info);
+			//LogWriter::log("Parameter \"" + key + "\" uses default value.\n", LogWriter::Info);
+
+			std::stringstream ss;
+			ss << "parameter \"" << key << "\" uses default value: " << value_to_be_changed << "\n";
+			LogWriter::log(ss.str(), LogWriter::Info);
 		}
 	}
 }

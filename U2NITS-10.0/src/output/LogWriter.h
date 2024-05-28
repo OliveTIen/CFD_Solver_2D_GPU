@@ -31,6 +31,9 @@ public:
 	static void log(std::string content, LogLevel logLevel = Info);
 	static void print(std::string content, LogLevel coutLevel = Info);
 	static void logAndPrint(std::string content, LogLevel logLevel = Info, LogLevel coutLevel = Info);
+	static void logDebug(std::string content);
+	static void printDebug(std::string content);
+	static void logAndPrintDebug(std::string content);
 	static void logError(std::string content);
 	static void printError(std::string content);
 	static void logAndPrintError(std::string content);

@@ -2,92 +2,23 @@
 #include "../../solvers/GPUSolver2.h"
 #include "../../solvers/SolverDataGetter.h"
 #include "../../global/GlobalPara.h"
+#include "ViscousFluxGPU.h"
 
 // 取左右单元梯度平均值
-void get_U_Gradient_mean(
+__host__ __device__ void get_U_Gradient_mean_host_device(
 	myfloat& drhodx, myfloat& drhoudx, myfloat& drhovdx, myfloat& drhoEdx,
 	myfloat& drhody, myfloat& drhoudy, myfloat& drhovdy, myfloat& drhoEdy,
 	myint elementL, myint elementR, GPU::ElementFieldSoA& elementField_host
-) {
-	myfloat drhodxL = elementField_host.Ux[0][elementL];
-	myfloat drhoudxL = elementField_host.Ux[1][elementL];
-	myfloat drhovdxL = elementField_host.Ux[2][elementL];
-	myfloat drhoEdxL = elementField_host.Ux[3][elementL];
-
-	myfloat drhodyL = elementField_host.Uy[0][elementL];
-	myfloat drhoudyL = elementField_host.Uy[1][elementL];
-	myfloat drhovdyL = elementField_host.Uy[2][elementL];
-	myfloat drhoEdyL = elementField_host.Uy[3][elementL];
-
-	// 若elementR不存在，即是边界且非周期边界edge，则取左单元值
-	if (!elementField_host.has(elementR)) {
-		drhodx = drhodxL;
-		drhoudx = drhoudxL;
-		drhovdx = drhovdxL;
-		drhoEdx = drhoEdxL;
-
-		drhody = drhodyL;
-		drhoudy = drhoudyL;
-		drhovdy = drhovdyL;
-		drhoEdy = drhoEdyL;
-		return;// 用return代替else，防止分支判断，并行执行更高效
-	}
-
-	myfloat drhodxR = elementField_host.Ux[0][elementR];
-	myfloat drhoudxR = elementField_host.Ux[1][elementR];
-	myfloat drhovdxR = elementField_host.Ux[2][elementR];
-	myfloat drhoEdxR = elementField_host.Ux[3][elementR];
-
-	myfloat drhodyR = elementField_host.Uy[0][elementR];
-	myfloat drhoudyR = elementField_host.Uy[1][elementR];
-	myfloat drhovdyR = elementField_host.Uy[2][elementR];
-	myfloat drhoEdyR = elementField_host.Uy[3][elementR];
-
-	drhodx = 0.5 * (drhodxL + drhodxR);
-	drhoudx = 0.5 * (drhoudxL + drhoudxR);
-	drhovdx = 0.5 * (drhovdxL + drhovdxR);
-	drhoEdx = 0.5 * (drhoEdxL + drhoEdxR);
-
-	drhody = 0.5 * (drhodyL + drhodyR);
-	drhoudy = 0.5 * (drhoudyL + drhoudyR);
-	drhovdy = 0.5 * (drhovdyL + drhovdyR);
-	drhoEdy = 0.5 * (drhoEdyL + drhoEdyR);
-
-}
+);
 
 // 取左右单元守恒量平均值
-void get_U_mean(
+__host__ __device__ void get_U_mean_host_device(
 	myfloat& rho, myfloat& rhou, myfloat& rhov, myfloat& rhoE,
 	myint elementL, myint elementR, GPU::ElementFieldSoA& elementField_host
-) {
-	myfloat rhoL = elementField_host.U[0][elementL];
-	myfloat rhouL = elementField_host.U[1][elementL];
-	myfloat rhovL = elementField_host.U[2][elementL];
-	myfloat rhoEL = elementField_host.U[3][elementL];
-
-	// 若elementR不存在，即是边界且非周期边界edge，则取左单元值
-	if (!elementField_host.has(elementR)) {
-		rho = rhoL;
-		rhou = rhouL;
-		rhov = rhovL;
-		rhoE = rhoEL;
-		return;// 用return代替else
-	}
-
-	myfloat rhoR = elementField_host.U[0][elementR];
-	myfloat rhouR = elementField_host.U[1][elementR];
-	myfloat rhovR = elementField_host.U[2][elementR];
-	myfloat rhoER = elementField_host.U[3][elementR];
-
-	rho = 0.5 * (rhoL + rhoR);
-	rhou = 0.5 * (rhouL + rhouR);
-	rhov = 0.5 * (rhovL + rhovR);
-	rhoE = 0.5 * (rhoEL + rhoER);
-	
-}
+);
 
 // 计算物理量及梯度。用求导链式法则
-void get_physical_variable_and_gradient(
+__host__ __device__ void get_physical_variable_and_gradient_host_device(
 	myfloat& u, myfloat& v, myfloat& T,
 	myfloat& dudx, myfloat& dvdx, myfloat& dTdx,
 	myfloat& dudy, myfloat& dvdy, myfloat& dTdy,
@@ -95,39 +26,11 @@ void get_physical_variable_and_gradient(
 	myfloat drhodx, myfloat drhoudx, myfloat drhovdx, myfloat drhoEdx,
 	myfloat drhody, myfloat drhoudy, myfloat drhovdy, myfloat drhoEdy,
 	myfloat Cv
-) {
-	myfloat one_on_rho = 1.0 / rho;
-	u = rhou * one_on_rho;
-	v = rhov * one_on_rho;
-	myfloat E = rhoE * one_on_rho;
-
-
-	dudx = one_on_rho * (drhoudx - u * drhodx);
-	dvdx = one_on_rho * (drhovdx - v * drhodx);
-	dudy = one_on_rho * (drhoudy - u * drhody);
-	dvdy = one_on_rho * (drhovdy - v * drhody);
-
-	myfloat dEdx = one_on_rho * (drhoEdx - E * drhodx);
-	myfloat dEdy = one_on_rho * (drhoEdy - E * drhody);
-
-	/*
-	E = e + 0.5 * V2 = Cv * T + 0.5 * (u*u+v*v)
-	dEdx = Cv * dTdx + 0.5 * d(u*u+v*v)dx = Cv * dTdx + u*dudx + v*dvdx
-	因此
-	dTdx = (dEdx - u*dudx - v*dvdx)/Cv
-	*/
-	myfloat one_on_Cv = 1.0 / Cv;
-	myfloat V2 = u * u + v * v;
-	T = one_on_Cv * (E - 0.5 * V2);
-	dTdx = (dEdx - u * dudx - v * dvdx) * one_on_Cv;
-	dTdy = (dEdy - u * dudy - v * dvdy) * one_on_Cv;
-}
+);
 
 // 用苏世兰公式(Sutherland's law)求粘性系数
 myfloat get_mu_using_Sutherland_air(myfloat temperature) {
 	/*
-
-	根据UNITs, Csthlnd = 117.0/T_inf
 	用静态变量，第一次计算，后续无需重复计算
 	静态变量生存期为程序周期。下次调用时仍使用上次的值
 	问题：
@@ -144,24 +47,8 @@ myfloat get_mu_using_Sutherland_air(myfloat temperature) {
 	return (1.0 + C_sutherland) / (T + C_sutherland) * pow(T, 1.5);
 }
 
-myfloat get_mu_using_Sutherland_air_2(myfloat temperature) {
-	/*
-	此处仅适用于空气参数
-
-	空气参数计算过程 https://www.cfd-online.com/Wiki/Sutherland%27s_law
-		mu0 = 1.716e-5;// 参考
-		T0 = 273.15;// 参考温度
-		S = 110.4;
-		C1 = mu0 / pow(T0, 1.5) * (T0 + S) = 1.45793e-06，跟网站结果吻合
-	*/
-	myfloat& T = temperature;
-	myfloat S = 110.4;
-	myfloat C1 = 1.45793e-06;
-	return C1 * pow(T, 1.5) / (T + S);
-}
-
 // 计算雷诺应力
-inline void get_Reynolds_stress_2d(
+inline void get_Reynolds_stress_2d_host_inline(
 	myfloat& tau_xx, myfloat& tau_yy, myfloat& tau_xy,
 	myfloat mu, myfloat dudx, myfloat dudy, myfloat dvdx, myfloat dvdy
 ) {
@@ -173,7 +60,7 @@ inline void get_Reynolds_stress_2d(
 	tau_xy = mu * (dudy + dvdx);
 }
 
-void viscous_flux_kernel(myint iEdge, GPU::EdgeSoA& edge_host, GPU::EdgeFieldSoA& edgeField_host, GPU::ElementSoA& element_host, GPU::ElementFieldSoA& elementField_host) {
+void viscous_flux_kernel(myint iEdge, GPU::EdgeSoA& edge_host, GPU::EdgeFieldSoA& edgeField_host, GPU::ElementSoA& element_host, GPU::ElementFieldSoA& elementField_host, myfloat sutherland_C1) {
 	/*
 	对iEdge，计算数值通量，并
 	创建：tgl, 20240430
@@ -193,7 +80,7 @@ void viscous_flux_kernel(myint iEdge, GPU::EdgeSoA& edge_host, GPU::EdgeFieldSoA
 	*/
 	myfloat drhodx, drhoudx, drhovdx, drhoEdx;
 	myfloat drhody, drhoudy, drhovdy, drhoEdy;
-	get_U_Gradient_mean(
+	get_U_Gradient_mean_host_device(
 		drhodx, drhoudx, drhovdx, drhoEdx, drhody, drhoudy, drhovdy, drhoEdy,
 		elementL, elementR, elementField_host
 	);
@@ -203,11 +90,11 @@ void viscous_flux_kernel(myint iEdge, GPU::EdgeSoA& edge_host, GPU::EdgeFieldSoA
 	疑问2：链式法则求导时计算量较大，不知道其他函数是否会用到？需要存起来吗？
 	*/
 	myfloat rho, rhou, rhov, rhoE;
-	get_U_mean(rho, rhou, rhov, rhoE, elementL, elementR, elementField_host);
+	get_U_mean_host_device(rho, rhou, rhov, rhoE, elementL, elementR, elementField_host);
 	myfloat u, v, T;
 	myfloat dudx, dvdx, dTdx;
 	myfloat dudy, dvdy, dTdy;
-	get_physical_variable_and_gradient(
+	get_physical_variable_and_gradient_host_device(
 		u, v, T,
 		dudx, dvdx, dTdx,
 		dudy, dvdy, dTdy,
@@ -221,9 +108,9 @@ void viscous_flux_kernel(myint iEdge, GPU::EdgeSoA& edge_host, GPU::EdgeFieldSoA
 	湍流目前先不管
 	*/
 	myfloat tau_xx{}, tau_yy{}, tau_xy{};// 雷诺应力。用{}初始化为0.0
-	myfloat mu = get_mu_using_Sutherland_air_2(T);// 动力粘性系数
+	myfloat mu = GPU::Space::get_mu_using_Sutherland_air_host_device(T, sutherland_C1);// 动力粘性系数
 	myfloat tau_xx_laminar, tau_yy_laminar, tau_xy_laminar;// 层流雷诺应力
-	get_Reynolds_stress_2d(
+	get_Reynolds_stress_2d_host_inline(
 		tau_xx_laminar, tau_yy_laminar, tau_xy_laminar, mu,
 		dudx, dudy, dvdx, dvdy
 	);
@@ -231,7 +118,7 @@ void viscous_flux_kernel(myint iEdge, GPU::EdgeSoA& edge_host, GPU::EdgeFieldSoA
 	myfloat mu_turbulence = 0.0;// 涡粘系数
 	myfloat tau_xx_turbulence{}, tau_yy_turbulence{}, tau_xy_turbulence{};// 湍流雷诺应力
 	if (use_turbulence) {
-		get_Reynolds_stress_2d(
+		get_Reynolds_stress_2d_host_inline(
 			tau_xx_turbulence, tau_yy_turbulence, tau_xy_turbulence, mu_turbulence,
 			dudx, dudy, dvdx, dvdy
 		);
@@ -267,29 +154,23 @@ void viscous_flux_kernel(myint iEdge, GPU::EdgeSoA& edge_host, GPU::EdgeFieldSoA
 	const myfloat ny = edge_host.normal[1][iEdge];
 	const myfloat area = edge_host.length[iEdge];// 界面面积
 	myfloat flux[4]{};
-	//myfloat Re = GlobalPara::constant::Re;// 归一化后网格中单位1所对应的物理长度尺度的雷诺数
-	//myfloat area_on_Re = area / Re;
+
 	flux[0] = 0.0;
 	flux[1] = (tau_xx * nx + tau_xy * ny) * area;
 	flux[2] = (tau_xy * nx + tau_yy * ny) * area;
 	flux[3] = (Phix * nx + Phiy * ny) * area;
 
-
 	edgeField_host.Flux[0][iEdge] -= flux[0];
 	edgeField_host.Flux[1][iEdge] -= flux[1];
 	edgeField_host.Flux[2][iEdge] -= flux[2];
 	edgeField_host.Flux[3][iEdge] -= flux[3];
-	// 看看是加还是减到左右单元。此外最后要校核，看代码是否正确
+	
 }
-
-
-
 
 void U2NITS::Space::edge_viscous_flux() {
 	/*
 	20240430 粘性通量
 	计算粘性通量后，对edgeField_host的值进行修改
-
 	将循环体提取成函数viscous_flux_kernel，与CUDA kernel保持一致，便于转化
 	*/
 
@@ -300,9 +181,10 @@ void U2NITS::Space::edge_viscous_flux() {
 	GPU::EdgeFieldSoA& edgeField_host = solver->edgeField_host;
 
 	myint num_edge = edge_host.num_edge;
+	myfloat sutherland_C1 = GPU::Space::get_Sutherland_C1_host_device(GPU::Space::S_Sutherland, GlobalPara::constant::mu0, GlobalPara::constant::T0);
 
 	for (myint iEdge = 0; iEdge < num_edge; iEdge++) {
-		viscous_flux_kernel(iEdge, edge_host, edgeField_host, element_host, elementField_host);
+		viscous_flux_kernel(iEdge, edge_host, edgeField_host, element_host, elementField_host, sutherland_C1);
 	}
 
 }

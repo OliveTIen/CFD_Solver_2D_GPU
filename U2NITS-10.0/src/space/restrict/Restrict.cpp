@@ -2,6 +2,7 @@
 #include "../../math/Math.h"
 #include "../../output/LogWriter.h"
 #include "../../global/GlobalPara.h"
+#include "../../global/CExit.h"
 
 void U2NITS::Space::Restrict::modifyElementFieldU2d(GPU::ElementSoA& element, GPU::ElementFieldSoA& elementField) {
 	// 对于超出范围的数据，取邻居的平均值
@@ -19,6 +20,13 @@ void U2NITS::Space::Restrict::modifyElementFieldUKernel2d(GPU::ElementSoA& eleme
 		U[i] = elementField.U[i][iElement];
 	}
 	Math::U2ruvp_host(U, ruvp, GlobalPara::constant::gamma);
+
+	for (int i = 0; i < 4; i++) {
+		if (isnan(ruvp[i])) {
+			LogWriter::logAndPrintError("Error isnan @U2NITS::Space::Restrict::modifyElementFieldUKernel2d\n");
+			CExit::saveAndExit(-1);
+		}
+	}
 
 	if (outOfRange(ruvp)) {
 		bool volumeWeight = true;// 体积加权

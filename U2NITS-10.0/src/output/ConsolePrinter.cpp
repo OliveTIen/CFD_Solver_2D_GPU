@@ -68,7 +68,7 @@ void ConsolePrinter::printGenshinStart() {
 
 }
 
-void ConsolePrinter::m_drawProgressBar(double percent, int barLength) {
+void ConsolePrinter::m_drawProgressBar(myfloat percent, int barLength) {
 	std::cout << "Progress:";
 	if (percent > 1)percent = 1;
 	if (percent < 0)percent = 0;
@@ -88,7 +88,7 @@ void ConsolePrinter::m_drawProgressBar(double percent, int barLength) {
 	std::cout << std::setprecision(default_precision);
 }
 
-void ConsolePrinter::drawProgressBar(double value, double maxValue, int barLength) {
+void ConsolePrinter::drawProgressBar(myfloat value, myfloat maxValue, int barLength) {
 	m_drawProgressBar(value / maxValue, barLength);
 }
 
@@ -186,22 +186,15 @@ void ConsolePrinter::clearDisplay(COORD p1, COORD p2){
 
 
 }
-void ConsolePrinter::assemblySolveInfo(double calTime, int calStep, int maxIteration, double calSpeed, double nFile, double t, double T, const double* residual_vector) {
-	std::stringstream info;
-	info << "\n"
-		<< "  Calculate time: \t" << StringProcessor::timeFormat((int)calTime) 
-		<< "\t(Remain: " << StringProcessor::timeFormat(int((maxIteration - calStep) / calSpeed)) << " s)\n"
-		<< "  Calculate step: \t" << calStep << " \t/" << maxIteration << "\n"
-		<< "  Calculate speed: \t" << calSpeed << "\t step/s\n"
-		<< "  Output file num: \t" << nFile << "\n"
-		<< "  Residual rho: \t" << std::scientific << residual_vector[0] << "\n" << std::defaultfloat
-		<< "  Physical time: \t" << t << " s\t/" << T << " s\n"
-		<< "Press ESC to end Computation\n";
-	m_solveInfo = info.str();
-}
-std::string ConsolePrinter::setSolveInfo(int startStep, int currentStep, int endStep, int numOfFile, double usedTime, double physicalTime, double maxPhysicalTime, const double* residual_vector, double CFL) {
-	double speed = (currentStep - startStep) / usedTime;
-	double remainTime = (endStep - currentStep) / speed;
+
+std::string ConsolePrinter::setSolveInfo(int startStep, int currentStep, int endStep, int numOfFile, myfloat usedTime, myfloat physicalTime, myfloat maxPhysicalTime, const myfloat* residual_vector, myfloat CFL) {
+	myfloat speed = getSpeed(currentStep, startStep, usedTime);
+	myfloat remainTime = (endStep - currentStep) / speed;
+
+	//std::stringstream info_log;
+	//info_log << "speed: " << speed << " step/s\n";
+	//LogWriter::log(info_log.str());
+
 	std::stringstream info;
 	info << "\n"
 		<< "  Time used: \t" << StringProcessor::timeFormat((int)usedTime) << "\t(Remain: " << StringProcessor::timeFormat((int)remainTime) << " s)\n"
@@ -214,6 +207,7 @@ std::string ConsolePrinter::setSolveInfo(int startStep, int currentStep, int end
 	m_solveInfo = info.str();
 	return m_solveInfo;
 }
+
 void ConsolePrinter::printInfo(InfoType type) {
 	switch (type) {
 	case InfoType::type_nan_detected:
@@ -229,5 +223,16 @@ void ConsolePrinter::printInfo(InfoType type) {
 	default:
 		break;
 	}
+}
+
+myfloat ConsolePrinter::getSpeed(int currentStep, int startStep, myfloat usedTime) {
+	return (currentStep - startStep) / usedTime; 
+}
+
+void ConsolePrinter::logSpeed(int currentStep, int startStep, myfloat usedTime) {
+	myfloat speed = getSpeed(currentStep, startStep, usedTime);
+	std::stringstream info_log;
+	info_log << "speed: " << speed << " step/s\n";
+	LogWriter::log(info_log.str());
 }
 #endif

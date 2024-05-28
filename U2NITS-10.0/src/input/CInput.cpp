@@ -57,14 +57,15 @@ void U2NITS::CInput::readConfig() {
 	check_if_value_belongs_to_table(GlobalPara::basic::useGPU, "platform", { {0,"CPU(host)"},{1,"GPU(device)"},{2,"half GPU"},{3,"development mode"} }, true);
 }
 
-// 局部函数
+
+// 记录边界参数
 void log_boundary_condition() {
 	using namespace GlobalPara::boundaryCondition::_2D;
-	double* inlet_ruvp = inlet::ruvp;
-	double* outlet_ruvp = outlet::ruvp;
-	double* inf_ruvp = inf::ruvp;
+	myfloat* inlet_ruvp = inlet::ruvp;
+	myfloat* outlet_ruvp = outlet::ruvp;
+	myfloat* inf_ruvp = inf::ruvp;
 	const int num_ruvp = 4;
-
+	// 边界参数
 	std::string str;
 	str += "BoundaryCondition:\n";
 	str += "inlet::ruvp\t" + StringProcessor::doubleArray_2_string(inlet_ruvp, num_ruvp)
@@ -72,8 +73,10 @@ void log_boundary_condition() {
 		+ "\ninf::ruvp\t" + StringProcessor::doubleArray_2_string(inf_ruvp, num_ruvp)
 		+ "\n";
 	LogWriter::log(str);
-}
+	// 输出雷诺数参见FieldInitialize，因为要根据initial_type确定用inf, inlet还是outlet
 
+
+}
 
 void read_mesh_file_and_initialize() {
 	/*
@@ -86,7 +89,7 @@ void read_mesh_file_and_initialize() {
 	if (type == "su2") {
 		std::string filename = basename + "." + type;
 		LogWriter::log("mesh file: " + filename + "\n");
-		SU2MeshReader::readFile_2(dir + filename, true);
+		SU2MeshReader::read_mesh_and_process(dir + filename, true);
 	}
 	else {
 		LogWriter::logAndPrint("Invalid mesh file type: " + type + " @CInput::readField_1()\n");

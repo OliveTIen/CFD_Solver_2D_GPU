@@ -7,9 +7,9 @@
 
 namespace U2NITS {
 	namespace Time {
-		myfloat calculateGlobalDt(
-			myfloat t, myfloat T, myfloat gamma, myfloat Re, myfloat Pr, myfloat CFL, myfloat Rcpcv,
-			GPU::ElementSoA& element, GPU::EdgeSoA& edge, myfloat* element_vruvp[4]
+		myfloat get_global_dt_host(
+			myfloat t, myfloat T, myfloat gamma, myfloat Pr, myfloat CFL, myfloat Rcpcv, GPU::ElementFieldVariable_dt elementFieldVariable_dt, 
+			GPU::ElementSoA& element, GPU::EdgeSoA& edge, myfloat* element_vruvp[4], int physicsModel_equation
 		);
 
 		// 计算本地时间步，异步模式（没有数据竞争），Euler

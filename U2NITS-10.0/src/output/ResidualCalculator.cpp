@@ -4,7 +4,7 @@
 #include "../global/FilePathManager.h"
 #include "../math/Math.h"
 
-void ResidualCalculator::cal_error_isentropicVortex(double xmin, double ymin, double xmax, double ymax, 
+void ResidualCalculator::abandoned_cal_error_isentropicVortex(double xmin, double ymin, double xmax, double ymax, 
 	double chi, const double t_current, const int istep, const double cpu_time, const double* ruvp0) {
 	//ruvp0：均匀流参数
 	const double gamma = GlobalPara::constant::gamma;
@@ -75,7 +75,7 @@ void ResidualCalculator::cal_error_isentropicVortex(double xmin, double ymin, do
 
 }
 
-void ResidualCalculator::cal_residual_old(const std::vector<Element_2D>& elements_old, const std::vector<Element_2D>& elements, int NORM_TYPE, double* residual_to_be_changed) {
+void ResidualCalculator::abandoned_cal_residual_old(const std::vector<Element_2D>& elements_old, const std::vector<Element_2D>& elements, int NORM_TYPE, double* residual_to_be_changed) {
 	double difference_U[4]{};// 全部初始化为0
 	double residual_U[4]{};
 
@@ -127,7 +127,7 @@ void ResidualCalculator::cal_residual_old(const std::vector<Element_2D>& element
 	residual_to_be_changed[3] = residual_U[3];
 }
 
-void ResidualCalculator::cal_residual_GPU(myfloat* elements_U_old[4], GPU::ElementFieldSoA elements, int NORM_TYPE, double* residual) {
+void ResidualCalculator::abandoned_cal_residual_GPU(myfloat* elements_U_old[4], GPU::ElementFieldSoA elements, int NORM_TYPE, double* residual) {
 	// 计算残差
 	double difference_U[4]{};// 全部初始化为0
 	double residual_U[4]{};
@@ -183,26 +183,28 @@ void ResidualCalculator::cal_residual_GPU(myfloat* elements_U_old[4], GPU::Eleme
 
 }
 
-void ResidualCalculator::get_residual_functionF(const GPU::ElementFieldSoA& elementField, double* residual, int NORM_TYPE) {
+void ResidualCalculator::abandoned_get_residual_functionF(const GPU::ElementFieldSoA& elementField_host, myfloat* residual_host, int NORM_TYPE) {
 	/*
 	20240411
 	直接将右端项作为残差
+	20240517
+	如果要改造成GPU，涉及到规约问题。先在GPU规约好，然后将最终结果拷贝到host
 	*/
-	const myint numElements = elementField.num;
+	const myint numElements = elementField_host.num;
 
 	for (int i = 0; i < 4; i++) {
 		myfloat norm = 0;
 		switch (NORM_TYPE) {
 		case NORM_1:// 绝对值之和
 			for (myint j = 0; j < numElements; j++) {
-				myfloat flux = U2NITS::Math::abs(elementField.Flux[i][j]);
+				myfloat flux = U2NITS::Math::abs(elementField_host.Flux[i][j]);
 				norm += flux;
 			}
 
 			break;
 		case NORM_2:// 平方之和再开方
 			for (myint j = 0; j < numElements; j++) {
-				myfloat flux = U2NITS::Math::abs(elementField.Flux[i][j]);
+				myfloat flux = U2NITS::Math::abs(elementField_host.Flux[i][j]);
 				norm += flux * flux;
 			}
 			norm = sqrt(norm);
@@ -210,7 +212,7 @@ void ResidualCalculator::get_residual_functionF(const GPU::ElementFieldSoA& elem
 			break;
 		case NORM_INF:// 最大值
 			for (myint j = 0; j < numElements; j++) {
-				myfloat flux = U2NITS::Math::abs(elementField.Flux[i][j]);
+				myfloat flux = U2NITS::Math::abs(elementField_host.Flux[i][j]);
 				norm = U2NITS::Math::max(norm, flux);
 			}
 
@@ -218,7 +220,7 @@ void ResidualCalculator::get_residual_functionF(const GPU::ElementFieldSoA& elem
 		default:
 			break;
 		}
-		residual[i] = norm;
+		residual_host[i] = norm;
 	}
 
 

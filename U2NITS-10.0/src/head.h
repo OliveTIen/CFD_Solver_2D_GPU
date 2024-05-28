@@ -29,6 +29,7 @@
 #include "./include/rapidjson/stringbuffer.h"
 
 #include "global/globalPara.h"
+#include "gpu/datatype/DefineType.h"
 
 #ifdef _WIN32
 

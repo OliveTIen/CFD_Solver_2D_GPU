@@ -45,6 +45,7 @@ void RoutineController::strategy_dynamic_CFL(myfloat& CFL) {
 	修改CFL数
 	将修改应用至全局变量，以及GPU的全局变量副本。由于CFL只在计算dt时用到，而GPU程序计算dt在host完成，因此无需创建副本
 	*/
+	//myfloat CFL_origin = CFL;
 	// 第一次调用，记录
 	if (m_num_of_strategy_calls == 0) {// m_tick在applyStrategy中更新
 		m_record_res_rho = m_current_residual_rho;
@@ -78,7 +79,9 @@ void RoutineController::strategy_dynamic_CFL(myfloat& CFL) {
 		CFL = tolerance_min_CFL;
 	}
 	if (CFL > tolerance_max_CFL) {
-		CFL = tolerance_max_CFL;
+		//CFL = tolerance_max_CFL;
+		//myfloat dCFL = CFL - CFL_origin;
+
 	}
 
 	if (apply_success) {

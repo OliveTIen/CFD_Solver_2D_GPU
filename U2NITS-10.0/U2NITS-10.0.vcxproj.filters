@@ -73,6 +73,9 @@
     <Filter Include="src\space\viscous_flux">
       <UniqueIdentifier>{ffc34ffd-8f58-4d4a-b801-3ed36eaa021f}</UniqueIdentifier>
     </Filter>
+    <Filter Include="src\output\residual">
+      <UniqueIdentifier>{468bef98-cb7a-40cd-85ca-1452ccc9fd8d}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="src\main.cpp">
@@ -251,6 +254,15 @@
     </ClCompile>
     <ClCompile Include="src\space\viscous_flux\ViscousFlux.cpp">
       <Filter>src\space\viscous_flux</Filter>
+    </ClCompile>
+    <ClCompile Include="src\input\MaterialManager.cpp">
+      <Filter>src\input</Filter>
+    </ClCompile>
+    <ClCompile Include="src\output\residual\Residual.cpp">
+      <Filter>src\output\residual</Filter>
+    </ClCompile>
+    <ClCompile Include="src\input\TecplotFileReader.cpp">
+      <Filter>src\input</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -527,6 +539,28 @@
     <ClInclude Include="src\space\viscous_flux\ViscousFlux.h">
       <Filter>src\space\viscous_flux</Filter>
     </ClInclude>
+    <ClInclude Include="src\input\MaterialManager.h">
+      <Filter>src\input</Filter>
+    </ClInclude>
+    <ClInclude Include="resource.h" />
+    <ClInclude Include="src\space\viscous_flux\ViscousFluxGPU.h">
+      <Filter>src\space\viscous_flux</Filter>
+    </ClInclude>
+    <ClInclude Include="src\math\ReduceGPU.h">
+      <Filter>src\math</Filter>
+    </ClInclude>
+    <ClInclude Include="src\output\residual\Residual.h">
+      <Filter>src\output\residual</Filter>
+    </ClInclude>
+    <ClInclude Include="src\output\residual\EnumNormType.h">
+      <Filter>src\output\residual</Filter>
+    </ClInclude>
+    <ClInclude Include="src\output\residual\ResidualGPU.h">
+      <Filter>src\output\residual</Filter>
+    </ClInclude>
+    <ClInclude Include="src\input\TecplotFileReader.h">
+      <Filter>src\input</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <CudaCompile Include="src\gpu\datatype\FieldSoA.cu">
@@ -565,5 +599,23 @@
     <CudaCompile Include="src\time\CalculateDtGPU.cu">
       <Filter>src\time</Filter>
     </CudaCompile>
+    <CudaCompile Include="src\space\viscous_flux\ViscousFluxGPU.cu">
+      <Filter>src\space\viscous_flux</Filter>
+    </CudaCompile>
+    <CudaCompile Include="src\math\BasicAlgorithmGPU.cu">
+      <Filter>src\math</Filter>
+    </CudaCompile>
+    <CudaCompile Include="src\math\ReduceGPU.cu">
+      <Filter>src\math</Filter>
+    </CudaCompile>
+    <CudaCompile Include="src\math\PhysicalKernelGPU.cu">
+      <Filter>src\math</Filter>
+    </CudaCompile>
+    <CudaCompile Include="src\output\residual\ResidualGPU.cu">
+      <Filter>src\output\residual</Filter>
+    </CudaCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <ResourceCompile Include="Resource.rc" />
   </ItemGroup>
 </Project>

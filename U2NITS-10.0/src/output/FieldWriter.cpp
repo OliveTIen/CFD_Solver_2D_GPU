@@ -41,7 +41,7 @@ std::string stringVector_to_string_withQuote(const std::vector<std::string>& v) 
 	return out;
 }
 
-void FieldWriter::write_tecplot_volume_file(double t_current, std::string filePath, std::string title, GPU::NodeSoA& nodes, GPU::ElementSoA& elements, GPU::OutputNodeFieldSoA& output_node_field) {
+void FieldWriter::write_tecplot_volume_file(myfloat t_current, std::string filePath, std::string title, GPU::NodeSoA& nodes, GPU::ElementSoA& elements, GPU::OutputNodeFieldSoA& output_node_field) {
 
 /*
 参照Tecplot安装目录 E:\Tecplot\Tecplot\Tecplot 360 EX 2023 R1\doc\360_data_format_guide.pdf
@@ -95,7 +95,7 @@ datapacking:
 	m_numTecplotFileWritten++;
 }
 
-void FieldWriter::write_tecplot_boundary_file(double t_current,std::string filePath,GPU::NodeSoA& node_host,GPU::EdgeSoA& edge_host,GPU::OutputNodeFieldSoA& output_node_field,GPU::BoundaryV2& boundary_host_new) {
+void FieldWriter::write_tecplot_boundary_file(myfloat t_current,std::string filePath,GPU::NodeSoA& node_host,GPU::EdgeSoA& edge_host,GPU::OutputNodeFieldSoA& output_node_field,GPU::BoundaryV2& boundary_host_new) {
 	/*
 	由于流场是二维的，因此边界是一维的，要绘制一维线图
 	*/
@@ -204,7 +204,7 @@ void FieldWriter::ReferenceData::calculate_edgeSet_force(GPU::EdgeSoA& edge_host
 	}
 }
 
-void FieldWriter::write_tecplot_hist_file(std::string filePath, int iteration, double t_physics, double residual[4], GPU::EdgeSoA& edge_host, GPU::OutputNodeFieldSoA& output_node_field, GPU::BoundaryV2& boundary_host_new) {
+void FieldWriter::write_tecplot_hist_file(std::string filePath, int iteration, myfloat t_physics, myfloat residual[4], GPU::EdgeSoA& edge_host, GPU::OutputNodeFieldSoA& output_node_field, GPU::BoundaryV2& boundary_host_new) {
 	/*
 	判断是否应该写文件头
 	在第一次调用该函数的情况下：
@@ -261,7 +261,7 @@ void FieldWriter::write_tecplot_hist_file(std::string filePath, int iteration, d
 }
 
 
-void FieldWriter::writeContinueFile_1(int i_step, double t_current, std::string filePath, GPU::NodeSoA& nodes, GPU::ElementSoA& elements, myfloat* elementField_U[4]) {
+void FieldWriter::writeContinueFile_1(int i_step, myfloat t_current, std::string filePath, GPU::NodeSoA& nodes, GPU::ElementSoA& elements, myfloat* elementField_U[4]) {
 	// 输出暂存文件，用于下次续算
 	// 目前还不敢直接用GPUID
 
@@ -363,7 +363,8 @@ void FieldWriter::freeNodeFieldData(GPU::OutputNodeFieldSoA& nodeField) {
 
 void FieldWriter::update_nodeField() {
 	GPU::GPUSolver2* solver = GPU::GPUSolver2::getInstance();
-	update_nodeField_ruvp(solver->element_host, solver->outputNodeField, solver->element_vruvp);
+	//update_nodeField_ruvp(solver->element_host, solver->outputNodeField, solver->element_vruvp);
+	update_nodeField_ruvp(solver->element_host, solver->outputNodeField, solver->elementField_host.ruvp);
 	update_nodeField_other_variables(solver->outputNodeField);
 }
 
@@ -555,6 +556,7 @@ std::string FieldWriter::HistOutputScheme::get_variable_names() {
 	std::vector<std::string> variables_vector_string;
 
 	variables_vector_string.push_back("Iteration");
+	variables_vector_string.push_back("physical_time");
 	variables_vector_string.push_back("R_1");
 	variables_vector_string.push_back("R_2");
 	variables_vector_string.push_back("R_3");
@@ -569,6 +571,7 @@ std::string FieldWriter::HistOutputScheme::get_variable_names() {
 std::string FieldWriter::HistOutputScheme::get_variable_value_string(HistData& histData) {
 	std::vector<myfloat> float_vector;
 	// iteration是int，单独处理
+	float_vector.push_back(histData.physical_time);
 	float_vector.push_back(histData.residual[0]);
 	float_vector.push_back(histData.residual[1]);
 	float_vector.push_back(histData.residual[2]);
@@ -590,7 +593,7 @@ std::string FieldWriter::HistOutputScheme::get_variable_value_string(HistData& h
 	return ss.str();
 }
 
-void FieldWriter::HistData::update(int _iteration, myfloat _physical_time, const double _res[4], ReferenceData& referenceData, GPU::BoundaryV2& boundary_host_new) {
+void FieldWriter::HistData::update(int _iteration, myfloat _physical_time, const myfloat _res[4], ReferenceData& referenceData, GPU::BoundaryV2& boundary_host_new) {
 	std::vector<myfloat> _res_vector(4);
 	for (int i = 0; i < 4; i++) {
 		_res_vector[i] = _res[i];

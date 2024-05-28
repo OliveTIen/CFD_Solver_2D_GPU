@@ -121,20 +121,13 @@ void U2NITS::Space::Gradient::Gradient(GPU::ElementSoA& element_host, GPU::NodeS
 	但对于业务代码，最好把求梯度和限制器的功能拆开，分成两个循环。
 	*/
 
-	/*
-	函数体内的静态变量，其生存期是整个程序，作用域是函数体。仅在第一次调用函数时被初始化，后面调用函数时会使用之前的值。
-	可用于保存函数体的状态。参见 https://www.geeksforgeeks.org/static-keyword-cpp/
-	*/
 	static bool is_called_first_time = true;
-	
 	// 求梯度
 	switch (GlobalPara::inviscid_flux_method::flag_gradient) {
 	case _GRA_leastSquare:
-		//LogWriter::logAndPrint("GradientLeastSquare_2\n");
 		GradientLeastSquare_2(element_host, elementField_host, node_host);
 		break;
 	case _GRA_greenGauss:
-		//LogWriter::logAndPrint("GradientGreenGauss\n");
 		GradientGreenGauss_2(element_host, elementField_host, edge_host);
 		break;
 
@@ -154,14 +147,6 @@ void U2NITS::Space::Gradient::Gradient(GPU::ElementSoA& element_host, GPU::NodeS
 	case _LIM_barth:
 		LimiterBarth(elementField_host, element_host, node_host);
 		break;
-
-	//case _LIM_minmod:
-
-	//	break;
-
-	//case _LIM_vanleer:
-
-	//	break;
 
 	default:
 		LogWriter::logAndPrintError("invalid limiter type.\n");
@@ -424,7 +409,6 @@ void U2NITS::Space::Gradient::GradientGreenGauss_2(GPU::ElementSoA& element_host
 			}
 
 		}
-
 
 
 		// 计算每条边的向量通量phif·Sf，然后求和，除以体积，得到单元C的梯度

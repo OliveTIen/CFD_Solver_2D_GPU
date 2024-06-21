@@ -6,7 +6,7 @@
 第2版kernel，合并全局内存
 每个线程处理两个数据，这两个数据的空间距离（即步长stride）是相同的，类似滑动窗口
 */
-__global__ void reduce_device_kernel_1(float* input, float* output, unsigned int n, func_bin_myfloat p_func) {
+__global__ void reduce_device_kernel(myfloat* input, myfloat* output, unsigned int n, func_bin_myfloat p_func) {
     // Determine this thread's various ids
     unsigned int block_size = blockDim.x;
     unsigned int thread_id = threadIdx.x;
@@ -35,14 +35,20 @@ __global__ void reduce_device_kernel_1(float* input, float* output, unsigned int
     }
 }
 
-//__device__ func_bin_myfloat p_operator_min = GPU::Math::operator_min;
+inline void reduce_device_show_debug_info(unsigned int remaining, unsigned int blocks, unsigned int threads_needed) {
+    printf("Launching kernels:\n");
+    printf("remaining: %u\n", remaining);
+    printf("blocks: %u\n", blocks);
+    printf("threads_needed: %u\n", threads_needed);
+    printf("\n");
+}
 
 void GPU::Math::reduce_device(const myint n, myfloat* dev_input, myfloat* dev_output, bool debug_info, ReduceType reduceType) {
     /*
-   n dev_input的总长度，要求为2的幂。否则在某一步，当n为奇数时，最后一个元素没有参与运算
-   dev_input 待规约数组 大小为n
-   dev_output 中间数组及最终输出数组 大小为 n/block_size 向上取整。事先已经分配好
-   */
+    n dev_input的总长度，要求为2的幂。否则在某一步，当n为奇数时，最后一个元素没有参与运算
+    dev_input 待规约数组 大小为n
+    dev_output 中间数组及最终输出数组 大小为 n/block_size 向上取整。事先已经分配好
+    */
 
     // 检查n是否为2的幂。参照 https://blog.csdn.net/qq_39360985/article/details/78628550
     if ((n & n - 1) == 0) {
@@ -52,45 +58,38 @@ void GPU::Math::reduce_device(const myint n, myfloat* dev_input, myfloat* dev_ou
         printf("warning: %d is NOT pow of 2\n", n);
     }
 
-    func_bin_myfloat p_func_host;// reduce kernel所用到的函数的指针
-
+    // 根据规约类型，选择对应的双目运算符(函数指针)
+    func_bin_myfloat p_func_host;// 函数指针
     switch (reduceType) {
     case reduceType_min:
-        cudaMemcpyFromSymbol(&p_func_host, GPU::Math::p_operator_min, sizeof(func_bin_myfloat));// devic to host
+        cudaMemcpyFromSymbol(&p_func_host, GPU::Math::p_operator_min, sizeof(func_bin_myfloat));// device to host
         break;
     default:
         cudaMemcpyFromSymbol(&p_func_host, GPU::Math::p_operator_min, sizeof(func_bin_myfloat));
     }
+    getLastCudaError("cudaMemcpyFromSymbol @ reduce_device failed.");
 
-    getLastCudaError("cudaMemcpyFromSymbol, reduce_device failed.");
-
-    const int block_threads = GPU::get_max_threads_per_block();
-    unsigned int threads_needed = n / 2; // we'll need one thread to add every 2 elements
-    unsigned int blocks = threads_needed / block_threads +  // we'll need this many blocks
-        (threads_needed % block_threads > 0 ? 1 : 0); // plus one extra if threads_needed
-
-    unsigned int remaining = n; // tracks number of elements left to add
+    const int block_threads = GPU::get_max_threads_per_block();// 每个block允许的线程数
+    unsigned int threads_needed = n / 2; // 线程数量
+    unsigned int blocks = threads_needed / block_threads + (threads_needed % block_threads > 0 ? 1 : 0); // block数量
+    unsigned int remaining = n; // 需要求和的元素数量
     while (remaining > 1) {
+        // 显示调试信息
         if (debug_info) {
-            printf("Launching kernels:\n");
-            printf("remaining: %u\n", remaining);
-            printf("blocks: %u\n", blocks);
-            printf("threads_needed: %u\n", threads_needed);
-            printf("\n");
+            reduce_device_show_debug_info(remaining, blocks, threads_needed);
         }
 
-        // call the kernel
-        reduce_device_kernel_1 <<<blocks, block_threads>>> (dev_input, dev_output, remaining, p_func_host);
+        // 调用核函数
+        reduce_device_kernel <<<blocks, block_threads>>> (dev_input, dev_output, remaining, p_func_host);
 
-        // re-compute our size information for the next iteration
-        remaining = blocks; // After the previous kernel call, each block has reduced its chunk down to a single partial sum
-        threads_needed = remaining / 2; // each thread added 2 elements
-        blocks = threads_needed / block_threads + (threads_needed % block_threads ? 1 : 0); // again, might need one extra block if threads_needed
-        // is not evenly divisible by block_threads
+        // 计算下一步迭代的相关信息
+        remaining = blocks; // 下一步需要求和的元素数量
+        threads_needed = remaining / 2; // 下一步需要的线程数量
+        blocks = threads_needed / block_threads + (threads_needed % block_threads ? 1 : 0); // 下一步需要的block数量
 
         // 交换指针。并没有传递数据到host，几乎无开销
         if (remaining > 1) {
-            float* dev_temp = dev_input;
+            myfloat* dev_temp = dev_input;
             dev_input = dev_output;
             dev_output = dev_temp;
         }

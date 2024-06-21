@@ -88,7 +88,7 @@ void read_mu0_Re_from_config() {
         GlobalPara::constant::mu0 = rho_ref * U_ref * L_ref / GlobalPara::constant::Re;
     }
     else {
-        t->getValueIfExists("constant.mu0", GlobalPara::constant::mu0);
+        t->getValue("constant.mu0", GlobalPara::constant::mu0);
         GlobalPara::constant::Re = rho_ref * U_ref * L_ref / GlobalPara::constant::mu0;
     }
 

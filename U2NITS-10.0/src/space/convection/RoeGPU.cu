@@ -13,8 +13,8 @@ __device__ void GPU::Space::Convection::ConvectRoeCommon2d(const myfloat UL[4], 
 	// 面法向单位向量
 	myfloat velocity_dynaMesh = 0;//动网格相关，目前不需要
 	// 守恒量转场变量rho u v w p
-	GPU::Math::U2ruvp(UL, ruvpL, gamma);
-	GPU::Math::U2ruvp(UR, ruvpR, gamma);
+	GPU::Math::U2ruvp_device(UL, ruvpL, gamma);
+	GPU::Math::U2ruvp_device(UR, ruvpR, gamma);
 	myfloat rL = ruvpL[0];
 	myfloat uL = ruvpL[1];
 	myfloat vL = ruvpL[2];

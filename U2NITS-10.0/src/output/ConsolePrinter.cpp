@@ -22,8 +22,7 @@ void ConsolePrinter::printHeader(HeaderStyle h) {
 
 		break;
 	case HeaderStyle::simple:
-		std::cout << "U2NITS, by LASD\n";
-		std::cout << "------------------------------------------------------------\n";
+		std::cout << "[U2NITs, by LASD, 2024.05.29]\n";
 		break;
 
 	}
@@ -187,19 +186,16 @@ void ConsolePrinter::clearDisplay(COORD p1, COORD p2){
 
 }
 
-std::string ConsolePrinter::setSolveInfo(int startStep, int currentStep, int endStep, int numOfFile, myfloat usedTime, myfloat physicalTime, myfloat maxPhysicalTime, const myfloat* residual_vector, myfloat CFL) {
-	myfloat speed = getSpeed(currentStep, startStep, usedTime);
-	myfloat remainTime = (endStep - currentStep) / speed;
+std::string ConsolePrinter::setSolveInfo(int currentStep, int endStep, int numOfFile, myfloat usedTime, myfloat physicalTime, myfloat maxPhysicalTime, const myfloat* residual_vector, myfloat CFL, double mean_speed, double pure_calculate_speed) {
 
-	//std::stringstream info_log;
-	//info_log << "speed: " << speed << " step/s\n";
-	//LogWriter::log(info_log.str());
+	myfloat remainTime = (endStep - currentStep) / mean_speed;
 
 	std::stringstream info;
 	info << "\n"
 		<< "  Time used: \t" << StringProcessor::timeFormat((int)usedTime) << "\t(Remain: " << StringProcessor::timeFormat((int)remainTime) << " s)\n"
 		<< "  Step: \t" << currentStep << " \t/" << endStep << "\n"
-		<< "  Speed: \t" << speed << "\t step/s\n"
+		<< "  Mean speed: \t" << mean_speed << "\t step/s\t"
+		<< "  Pure speed: \t" << pure_calculate_speed << "\t step/s\n"
 		<< "  Output file num: \t" << numOfFile << "\n"
 		<< "  res_rho: \t" << std::scientific << residual_vector[0] << std::defaultfloat << "\tCFL: " << CFL << "\n"
 		<< "  Physical time: \t" << physicalTime << " s\t/" << maxPhysicalTime << " s\n"
@@ -225,14 +221,9 @@ void ConsolePrinter::printInfo(InfoType type) {
 	}
 }
 
-myfloat ConsolePrinter::getSpeed(int currentStep, int startStep, myfloat usedTime) {
+myfloat ConsolePrinter::getMeanSpeed(int currentStep, int startStep, myfloat usedTime) {
 	return (currentStep - startStep) / usedTime; 
 }
 
-void ConsolePrinter::logSpeed(int currentStep, int startStep, myfloat usedTime) {
-	myfloat speed = getSpeed(currentStep, startStep, usedTime);
-	std::stringstream info_log;
-	info_log << "speed: " << speed << " step/s\n";
-	LogWriter::log(info_log.str());
-}
+
 #endif

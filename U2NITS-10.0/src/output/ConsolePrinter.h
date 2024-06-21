@@ -49,13 +49,12 @@ public:
 	// 清除p1, p2之间的控制台内容，光标不变
 	static void clearDisplay(COORD p1, COORD p2);
 	// return solveInfo
-	std::string setSolveInfo(int startStep, int currentStep, int endStep, int numOfFile, myfloat usedTime, myfloat physicalTime, myfloat maxPhysicalTime, const myfloat* residual_vector, myfloat CFL);
+	std::string setSolveInfo(int currentStep, int endStep, int numOfFile, myfloat usedTime, myfloat physicalTime, myfloat maxPhysicalTime, const myfloat* residual_vector, myfloat CFL, double mean_speed, double pure_calculate_speed);
 	std::string getSolveInfo() { return m_solveInfo; }
 	// 打印求解信息
 	static void printInfo(InfoType type);
-	static myfloat getSpeed(int currentStep, int startStep, myfloat usedTime);
-	// 日志记录当前速度
-	static void logSpeed(int currentStep, int startStep, myfloat usedTime);
+	static myfloat getMeanSpeed(int currentStep, int startStep, myfloat usedTime);
+
 
 private:
 	// 绘制进度条。0<=percent<=100

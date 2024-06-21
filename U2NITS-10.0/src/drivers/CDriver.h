@@ -15,6 +15,8 @@ namespace U2NITS {
 		GPU::GPUSolver2 solver;
 		int m_last_istep = 0;
 		double m_last_t = 0.0;
+		double m_last_snapshot_time = 0.0;// 上次保存快照的时间，默认为0
+		double m_snapshot_cold_time = 1800.0;// 保存快照的冷却时间[秒]，默认为30min=1800s
 
 	public:
 		enum PauseSignal {
@@ -28,7 +30,7 @@ namespace U2NITS {
 		public:
 			bool b_writeContinue = false;// 续算
 			bool b_writeTecplot = false;// 流场
-			bool b_writeRecovery = false;// 还原点
+			bool b_writeRecovery = false;// [已弃用]因为不如保存续算文件，所以没用到
 			bool b_nanDetected = false;
 			bool b_writeHist = false;// 残差
 			bool b_print = false;// 屏幕
@@ -43,9 +45,8 @@ namespace U2NITS {
 		
 	private:
 		CDriver() {};
-		void modifySignalPack1_output(SignalPack& s, int istep, int maxIteration);
+		void modifySignalPack1_output(SignalPack& s, int istep, int maxIteration, double current_time);
 		void modifySignalPack2_pause(SignalPack& s, int istep, int maxIteration, myfloat t, myfloat T, myfloat residualRho);
-		void onSignalPack(const SignalPack& sp);
 		// 存储当前istep和t
 		void updateOldData_istep_t(int istep, double t) {
 			m_last_istep = istep;

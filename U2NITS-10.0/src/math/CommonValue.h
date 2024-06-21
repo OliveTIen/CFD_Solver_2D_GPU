@@ -1,5 +1,5 @@
-#ifndef MATH_COMMON_H
-#define MATH_COMMON_H
+#ifndef MATH_COMMON_VALUE_H
+#define MATH_COMMON_VALUE_H
 #include "../gpu/dataType/DefineType.h"
 
 // Common被Math和MathGPU共用

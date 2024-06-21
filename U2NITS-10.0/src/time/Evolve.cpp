@@ -6,44 +6,24 @@
 #include "CalculateDt.h"
 #include "../space/gradient/Gradient.h"
 #include "../boundary_condition/CBoundaryDoubleShockReflect.h"
+#include "../space/viscous_flux/ViscousFluxGPU.h"
 
-void U2NITS::Time::EvolveHost_1(myfloat dt, int flag, GPU::ElementSoA& element_host, GPU::ElementFieldSoA& elementField_host, GPU::EdgeSoA& edge_host, std::map<int, int>& edge_periodic_pair) {
-    if (flag == _EVO_explicit) {
-        EvolveExplicitHost(dt, element_host, elementField_host, edge_host, edge_periodic_pair);
-    }
-    else {
-        LogWriter::logAndPrint("Error: invalid evolve method.\n", LogWriter::Error, LogWriter::Error);
-        exit(1);
-    }
-}
 
-void U2NITS::Time::EvolveExplicitHost(myfloat dt, GPU::ElementSoA& element_host, GPU::ElementFieldSoA& elementField_host, GPU::EdgeSoA& edge_host, std::map<int, int>& edge_periodic_pair) {
-    // 数值通量
-    U2NITS::Space::Flux::calculateFluxHost(element_host, edge_host, elementField_host);
-    // 时间推进
-    for (int ie = 0; ie < element_host.num_element; ie++) {
-        myfloat omega = element_host.volume[ie];
-        for (int j = 0; j < 4; j++) {
-            elementField_host.U[j][ie] -= dt / omega * elementField_host.Flux[j][ie];
-        }
-    }
-}
 
-void U2NITS::Time::evolve_unsteady_explicit(myfloat dt, GPU::ElementSoA& element_host, GPU::NodeSoA& node_host, GPU::EdgeSoA& edge_host, GPU::ElementFieldSoA& elementField_host) {
+void U2NITS::Time::evolve_explicit_globaltimestep(myfloat dt, GPU::ElementSoA& element_host, GPU::NodeSoA& node_host, GPU::EdgeSoA& edge_host, GPU::ElementFieldSoA& elementField_host) {
 
-    int num = element_host.num_element;
-    // 计算dU/dt = f(t,U)右端项
+    // 计算残值。dU/dt = f(t,U)右端项
     calculateFunctionF(element_host, node_host, edge_host, elementField_host);
-    // 时间积分
+    // 时间推进
     for (int i = 0; i < 4; i++) {
-        for (int j = 0; j < num; j++) {
+        for (int j = 0; j < element_host.num_element; j++) {
             elementField_host.U[i][j] += dt * elementField_host.Flux[i][j];
         }
     }
 
 }
 
-void U2NITS::Time::evolve_unsteady_rk3(myfloat dt, GPU::ElementSoA& element_host, GPU::NodeSoA& node_host, GPU::EdgeSoA& edge_host, GPU::ElementFieldSoA& yn) {
+void U2NITS::Time::evolve_rk3_globaltimestep(myfloat dt, GPU::ElementSoA& element_host, GPU::NodeSoA& node_host, GPU::EdgeSoA& edge_host, GPU::ElementFieldSoA& yn) {
     /*
     数值求解常微分方程 dU/dt = f(t,U)，右端项即residual
     MATLAB代码如下
@@ -133,36 +113,15 @@ void U2NITS::Time::calculateFunctionF(GPU::ElementSoA& element, GPU::NodeSoA& no
 }
 
 
-void U2NITS::Time::U_to_ruvp_proMax(const myfloat* U[4], myfloat* ruvp[4], int length, myfloat gamma) {
-    for (int j = 0; j < length; j++) {
-        /*
-        ruvp[0] = U[0];
-        ruvp[1] = U[1] / U[0];
-        ruvp[2] = U[2] / U[0];
-        ruvp[3] = ruvp[0] * (gamma - 1) * (U[3] / U[0] - (ruvp[1] * ruvp[1] + ruvp[2] * ruvp[2]) * 0.5);
-        */
-        ruvp[0][j] = U[0][j];
-        ruvp[1][j] = U[1][j] / U[0][j];
-        ruvp[2][j] = U[2][j] / U[0][j];
-        ruvp[3][j] = ruvp[0][j] * (gamma - 1) * (U[3][j] / U[0][j] - (ruvp[1][j] * ruvp[1][j] + ruvp[2][j] * ruvp[2][j]) * 0.5);
-    }
-}
-
-void U2NITS::Time::evolve_steady_explicit_localTimeStep(GPU::ElementSoA& element, GPU::NodeSoA& node, GPU::EdgeSoA& edge, GPU::ElementFieldSoA& elementField, myfloat* element_vruvp[4]) {
-    /*
-    定常采用局部时间步长加速收敛，每个单元使用各自的时间步
-    */
-    myint num = element.num_element;
-    myfloat CFL_steady = GlobalPara::time::CFL_steady;
-    calculateFunctionF(element, node, edge, elementField);
-    for (int i = 0; i < 4; i++) {
-        for (myint j = 0; j < num; j++) {
-            myfloat dt = 0.0;
-            calculateLocalTimeStep_async_Euler(dt, GlobalPara::constant::gamma, GlobalPara::constant::Re, GlobalPara::constant::Pr, CFL_steady,
-                GlobalPara::constant::R, j, element, edge, element_vruvp);
-
-            elementField.U[i][j] += dt * elementField.Flux[i][j];
+void U2NITS::Time::evolve_explicit_localtimestep(GPU::ElementSoA& element_host, GPU::NodeSoA& node_host, GPU::EdgeSoA& edge_host, GPU::ElementFieldSoA& elementField_host, GPU::ElementFieldVariable_dt& elementFieldVariable_dt_host) {
+    // 计算残值(位于Flux)
+    calculateFunctionF(element_host, node_host, edge_host, elementField_host);
+    // 时间推进
+    for (myint j = 0; j < element_host.num_element; j++) {
+        for (int i = 0; i < 4; i++) {
+            elementField_host.U[i][j] += elementFieldVariable_dt_host.alphaC[j] * elementField_host.Flux[i][j];
         }
     }
+
 }
 

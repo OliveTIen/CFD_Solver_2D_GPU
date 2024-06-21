@@ -6,7 +6,7 @@
 #include "../FVM_2D.h"
 #include "LogWriter.h"
 #include "../global/CExit.h"
-#include "../math/Common.h"
+#include "../math/CommonValue.h"
 #include "../input/TomlFileManager.h"
 #include "../solvers/GPUSolver2.h"
 #include "../solvers/SolverDataGetter.h"

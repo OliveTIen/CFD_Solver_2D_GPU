@@ -52,8 +52,8 @@ __device__ void get_Uvector_reconstruct_2_device(GPU::ElementSoA& element, GPU::
 
     // 若数据异常，则常量重构
     myfloat ruvp[4]{};
-    GPU::Math::U2ruvp(U_dist, ruvp, gamma);
-    if (GPU::Space::Restrict::outOfRange(ruvp)) {
+    GPU::Math::U2ruvp_device(U_dist, ruvp, gamma);
+    if (GPU::Space::Restrict::outOfRange_device(ruvp)) {
         for (int i = 0; i < 4; i++) {
             U_dist[i] = elementField.U[i][iElement];
         }
@@ -98,7 +98,7 @@ __device__ void get_UR_farField_device(const myfloat* U_L, const myfloat* ruvp_i
     myfloat p_f = ruvp_inf[3];
 
     myfloat ruvp_e[4]{};
-    GPU::Math::U2ruvp(U_L, ruvp_e, gamma);
+    GPU::Math::U2ruvp_device(U_L, ruvp_e, gamma);
     myfloat rho_e = ruvp_e[0];
     myfloat u_e = ruvp_e[1];
     myfloat v_e = ruvp_e[2];
@@ -161,10 +161,10 @@ __device__ void get_UR_farField_device(const myfloat* U_L, const myfloat* ruvp_i
     }
     myfloat ruvp0[4]{ rho0,u0,v0,p0 };
     // 计算flux
-    if (GPU::Space::Restrict::outOfRange(ruvp0)) {
+    if (GPU::Space::Restrict::outOfRange_device(ruvp0)) {
         printf("Out of range @get_UR_farField \n");
     }
-    GPU::Math::ruvp2U(ruvp0, U_R, gamma);
+    GPU::Math::ruvp2U_device(ruvp0, U_R, gamma);
 }
 
 __device__ void get_UR_inner_and_periodic_device(GPU::ElementSoA& element, GPU::ElementFieldSoA& elementField, GPU::EdgeSoA& edge, myint iEdge, myint iElementR, myfloat x_edge, myfloat y_edge, myfloat* U_R, int inviscid_flux_method_flag_reconstruct, myfloat gamma) {

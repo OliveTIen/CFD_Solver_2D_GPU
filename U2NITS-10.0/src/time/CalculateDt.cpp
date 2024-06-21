@@ -6,11 +6,12 @@
 #include "../global/GlobalPara.h"
 
 
-// 遍历edge，计算通量alpha，加减到左右单元的alphaC
-void update_alphaC(myfloat gamma, myfloat Pr, myfloat Rcpcv, myfloat* alphaC, myfloat sutherland_C1,
-	GPU::ElementSoA& element, GPU::EdgeSoA& edge, myfloat* element_vruvp[4], int physicsModel_equation) {
+// 单元alphaC归零，然后计算edge的alpha，加减到单元alphaC
+void update_alphaC_host(myfloat gamma, myfloat Pr, myfloat Rcpcv, myfloat* alphaC, myfloat sutherland_C1,
+	GPU::ElementSoA& element, GPU::EdgeSoA& edge, GPU::ElementFieldSoA& elementField, int physicsModel_equation) {
 
 	const myfloat value_1 = (U2NITS::Math::max)(4.0 / 3.0, gamma / Pr);
+	auto& element_vruvp = elementField.ruvp;
 
 	// 单元alphaC归零
 	const myint num_element = element.num_element;
@@ -62,6 +63,13 @@ void update_alphaC(myfloat gamma, myfloat Pr, myfloat Rcpcv, myfloat* alphaC, my
 	}
 }
 
+// 用单元各自的alphaC计算dt，计算结果仍存入alphaC数组
+void get_local_dt_using_alphaC_CFL_volume_host(myfloat* alphaC, const myfloat* volume, myfloat CFL, myint array_size) {
+	for (myint i = 0; i < array_size; i++) {
+		alphaC[i] = CFL * volume[i] / alphaC[i];
+	}
+}
+
 // 遍历单元，各自用alphaC计算各自的dt，最后取最小值
 myfloat get_minimus_dt_by_alphaC(myfloat* alphaC, const myfloat* volume, myfloat CFL, myint num_element) {
 	/*
@@ -76,8 +84,8 @@ myfloat get_minimus_dt_by_alphaC(myfloat* alphaC, const myfloat* volume, myfloat
 	return dt;
 }
 
-myfloat U2NITS::Time::get_global_dt_host(myfloat currentPhysicalTime, myfloat maxPhysicalTime, myfloat gamma, myfloat Pr, myfloat CFL, myfloat Rcpcv, GPU::ElementFieldVariable_dt elementFieldVariable_dt,
-	GPU::ElementSoA& element, GPU::EdgeSoA& edge, myfloat* element_vruvp[4], int physicsModel_equation) {
+myfloat U2NITS::Time::get_global_dt_host(myfloat gamma, myfloat Pr, myfloat CFL, myfloat Rcpcv, GPU::ElementFieldVariable_dt& elementFieldVariable_dt_host,
+	GPU::ElementSoA& element, GPU::EdgeSoA& edge, GPU::ElementFieldSoA& elementField, int physicsModel_equation) {
 	/*
 	统一时间步长，用于非定常
 	参考CFD Pinciples and Applications P175，以及laminar-WangQ代码 Timestep.f90
@@ -86,17 +94,25 @@ myfloat U2NITS::Time::get_global_dt_host(myfloat currentPhysicalTime, myfloat ma
 	然后遍历单元，各自用alphaC计算各自的dt，最后取最小值
 	*/
 
-	/*
-	新代码 已测试 05-15
-	*/
 	myfloat sutherland_C1 = GPU::Space::get_Sutherland_C1_host_device(GPU::Space::S_Sutherland, GlobalPara::constant::mu0, GlobalPara::constant::T0);
-	update_alphaC(gamma, Pr, Rcpcv, elementFieldVariable_dt.alphaC, sutherland_C1, element, edge, element_vruvp, physicsModel_equation);
-	myfloat dt = get_minimus_dt_by_alphaC(elementFieldVariable_dt.alphaC, element.volume, CFL, element.num_element);
-	dt = (currentPhysicalTime + dt > maxPhysicalTime) ? (maxPhysicalTime - currentPhysicalTime) : dt;//if (t + dt > T)dt = T - t; 
+	update_alphaC_host(gamma, Pr, Rcpcv, elementFieldVariable_dt_host.alphaC, sutherland_C1, element, edge, elementField, physicsModel_equation);
+	myfloat dt = get_minimus_dt_by_alphaC(elementFieldVariable_dt_host.alphaC, element.volume, CFL, element.num_element);
+
 	return dt;
 }
 
-void U2NITS::Time::calculateLocalTimeStep_async_Euler(myfloat& dt, myfloat gamma, myfloat Re, myfloat Pr, myfloat CFL, myfloat R, myint iElement, GPU::ElementSoA& element, GPU::EdgeSoA& edge, myfloat* element_vruvp[4]) {
+myfloat U2NITS::Time::get_global_dt_host_0529beta(myfloat gamma, myfloat Pr, myfloat CFL, myfloat Rcpcv, GPU::ElementFieldVariable_dt& elementFieldVariable_dt_host, GPU::ElementSoA& element, GPU::EdgeSoA& edge, GPU::ElementFieldSoA& elementField, int physicsModel_equation) {
+	// 测试中 beta版，跟GPU保持一致
+	
+	myfloat sutherland_C1 = GPU::Space::get_Sutherland_C1_host_device(GPU::Space::S_Sutherland, GlobalPara::constant::mu0, GlobalPara::constant::T0);
+	update_alphaC_host(gamma, Pr, Rcpcv, elementFieldVariable_dt_host.alphaC, sutherland_C1, element, edge, elementField, physicsModel_equation);
+	get_local_dt_using_alphaC_CFL_volume_host(elementFieldVariable_dt_host.alphaC, element.volume, CFL, element.num_element);
+	myfloat dt = U2NITS::Math::get_min_of_vector(elementFieldVariable_dt_host.alphaC, element.num_element);
+
+	return dt;
+}
+
+void U2NITS::Time::calculateLocalTimeStep_async_Euler_kernel(myfloat& dt, myfloat gamma, myfloat Re, myfloat Pr, myfloat CFL, myfloat R, myint iElement, GPU::ElementSoA& element, GPU::EdgeSoA& edge, myfloat* element_vruvp[4]) {
 
 	/*
 	[仅完成无粘通量]
@@ -161,4 +177,10 @@ void U2NITS::Time::calculateLocalTimeStep_async_Euler(myfloat& dt, myfloat gamma
 	myfloat volume = element.volume[iElement];
 	myfloat C = 2.0;
 	dt = CFL * volume / (lambdaConvective + C * lambdaViscous);
+}
+
+void U2NITS::Time::get_local_dt_host(myfloat gamma, myfloat Pr, myfloat CFL, myfloat Rcpcv, GPU::ElementFieldVariable_dt& elementFieldVariable_dt_host, GPU::ElementSoA& element, GPU::EdgeSoA& edge, GPU::ElementFieldSoA& elementField, int physicsModel_equation) {
+	myfloat sutherland_C1 = GPU::Space::get_Sutherland_C1_host_device(GPU::Space::S_Sutherland, GlobalPara::constant::mu0, GlobalPara::constant::T0);
+	update_alphaC_host(gamma, Pr, Rcpcv, elementFieldVariable_dt_host.alphaC, sutherland_C1, element, edge, elementField, physicsModel_equation);
+	get_local_dt_using_alphaC_CFL_volume_host(elementFieldVariable_dt_host.alphaC, element.volume, CFL, element.num_element);
 }

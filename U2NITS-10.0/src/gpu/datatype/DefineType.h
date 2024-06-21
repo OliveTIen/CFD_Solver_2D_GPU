@@ -8,8 +8,8 @@
 // using与typedef差不多，但赋值的方式更符合直觉；此外using可以给模板起别名
 
 // 实数类型
-using REAL = float;
-using myfloat = REAL;
+//using REAL = double;
+using myfloat = float;
 using integer = int;
 using myint = integer;
 

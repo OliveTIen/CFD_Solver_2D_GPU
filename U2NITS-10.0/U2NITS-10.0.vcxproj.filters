@@ -264,6 +264,9 @@
     <ClCompile Include="src\input\TecplotFileReader.cpp">
       <Filter>src\input</Filter>
     </ClCompile>
+    <ClCompile Include="src\math\PhysicalKernel.cpp">
+      <Filter>src\math</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <None Include="README.md" />
@@ -458,7 +461,7 @@
     <ClInclude Include="src\math\MathGPU.h">
       <Filter>src\math</Filter>
     </ClInclude>
-    <ClInclude Include="src\math\Common.h">
+    <ClInclude Include="src\math\CommonValue.h">
       <Filter>src\math</Filter>
     </ClInclude>
     <ClInclude Include="src\math\BasicAlgorithm.h">
@@ -560,6 +563,9 @@
     </ClInclude>
     <ClInclude Include="src\input\TecplotFileReader.h">
       <Filter>src\input</Filter>
+    </ClInclude>
+    <ClInclude Include="src\math\StandardHeader.h">
+      <Filter>src\math</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

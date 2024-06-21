@@ -20,16 +20,14 @@ private:
 	CBoundaryDoubleShockReflect() {};
 
 public:
-	// 
+	// 获取类实例
 	static CBoundaryDoubleShockReflect* getInstance();
-
-
 	// 由于不知道如何计算激波运动速度，该方法被弃用。只适合用于初始化初场(t=0)
 	bool isUpStreamOfShock_forElement(double x, double y);
 	// 该方法只适合计算90度角的情况，但可以计算各时间
 	bool isUpStreamOfShock_atBoundary(double x, double y);
-
-	void setVar(double x, double y, double angle) {
+	// 设置成员变量shock_x,shock_y,shock_angle_degree的值
+	void set_shock_x_y_angle(double x, double y, double angle) {
 		shock_x = x;
 		shock_y = y;
 		shock_angle_degree = angle;

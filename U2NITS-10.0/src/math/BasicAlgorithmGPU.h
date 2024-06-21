@@ -50,6 +50,8 @@ namespace GPU {
 		__global__ void vector_weighted_reciprocal_kernel(myint length, myfloat* v1, const myfloat* v2, myfloat weight);
 		// 带权的向量加法 v1 += v2 .* weight
 		__global__ void vector_weighted_add_kernel(myint length, myfloat* v1, const myfloat* v2, myfloat weight);
+		// 向量点积 v1 += v2 .* v3
+		__global__ void vector_dot_product_add_kernel(myint v_size, myfloat* v1, const myfloat* v2, const myfloat* v3);
 
 		/*
 		functions, vector

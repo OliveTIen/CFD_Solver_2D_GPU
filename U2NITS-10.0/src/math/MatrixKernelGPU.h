@@ -1,7 +1,7 @@
 #ifndef __GPUMATHKERNEL_H__
 #define __GPUMATHKERNEL_H__
 
-#include "Common.h"
+#include "CommonValue.h"
 #include <iostream>
 
 namespace GPU {

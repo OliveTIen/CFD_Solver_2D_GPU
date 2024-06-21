@@ -16,9 +16,16 @@ __global__ void GPU::Math::vector_weighted_reciprocal_kernel(myint length, myflo
 }
 
 __global__  void GPU::Math::vector_weighted_add_kernel(myint length, myfloat* v1, const myfloat* v2, myfloat weight) {
-    int i = blockDim.x * blockIdx.x + threadIdx.x;
+    myint i = blockDim.x * blockIdx.x + threadIdx.x;
     if (i < length) {
         v1[i] += weight * v2[i];
+    }
+}
+
+__global__  void GPU::Math::vector_dot_product_add_kernel(myint v_size, myfloat* v1, const myfloat* v2, const myfloat* v3) {
+    myint i = blockDim.x * blockIdx.x + threadIdx.x;
+    if (i < v_size) {
+        v1[i] += v2[i] * v3[i];
     }
 }
 

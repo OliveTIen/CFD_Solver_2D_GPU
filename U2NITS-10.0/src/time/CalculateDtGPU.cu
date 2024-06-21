@@ -79,8 +79,8 @@ void update_alphaC_device(myfloat gamma, myfloat Pr, myfloat Rcpcv, myfloat* alp
 	
 }
 
-// 用单元各自的alphaC计算dt，并存入alphaC数组
-void get_local_dt_using_alphaC_CFL_volume(myfloat* alphaC, const myfloat* volume, myfloat CFL, myint length) {
+// 用单元各自的alphaC计算dt，计算结果仍存入alphaC数组
+void get_local_dt_using_alphaC_CFL_volume_device(myfloat* alphaC, const myfloat* volume, myfloat CFL, myint length) {
 	/*
 	计算 dt ，把结果存入alphaC数组，即alphaC = CFL*volume/alphaC，使用kernel: “带权的向量倒数”
 	*/
@@ -89,20 +89,25 @@ void get_local_dt_using_alphaC_CFL_volume(myfloat* alphaC, const myfloat* volume
 	dim3 block(block_size, 1, 1);
 	dim3 grid(grid_size, 1, 1);
 	GPU::Math::vector_weighted_reciprocal_kernel <<<grid, block>>> (length, alphaC, volume, CFL);
-	getLastCudaError("get_local_dt_using_alphaC_CFL_volume failed.");
+	getLastCudaError("get_local_dt_using_alphaC_CFL_volume_device failed.");
 }
 
-void GPU::Time::get_global_dt_device(myfloat currentPhysicalTime, myfloat maxPhysicalTime, myfloat gamma, myfloat Re, myfloat Pr, myfloat CFL, myfloat Rcpcv, GPU::ElementFieldVariable_dt& elementFieldVariable_dt_device, GPU::ElementSoA& element, GPU::EdgeSoA& edge, GPU::ElementFieldSoA& elementField, int physicsModel_equation) {
+void GPU::Time::get_global_dt_device(myfloat gamma, myfloat Re, myfloat Pr, myfloat CFL, myfloat Rcpcv, GPU::ElementFieldVariable_dt& elementFieldVariable_dt_device, GPU::ElementSoA& element, GPU::EdgeSoA& edge, GPU::ElementFieldSoA& elementField, int physicsModel_equation) {
 	/*
-	涉及到规约操作。注意reduce_device中n必须为2的幂，用num_reduce而不是num_element
+	先计算局部时间步长，然后取最小值
+	注意reduce_device中n必须为2的幂，用num_reduce而不是num_element
 	*/
 
-	//auto& ccc = elementFieldVariable_dt_device.alphaC;
-
-	auto& element_var = elementFieldVariable_dt_device;
 	myfloat sutherland_C1 = GPU::Space::get_Sutherland_C1_host_device(GPU::Space::S_Sutherland, GlobalPara::constant::mu0, GlobalPara::constant::T0);
-	update_alphaC_device(gamma, Pr, Rcpcv, element_var.alphaC, sutherland_C1, element, edge, elementField, physicsModel_equation);
-	get_local_dt_using_alphaC_CFL_volume(element_var.alphaC, element.volume, CFL, element.num_element);
-	GPU::Math::reduce_device(element_var.num_reduce, element_var.alphaC, element_var.dev_output, false, GPU::Math::ReduceType::reduceType_min);
+	update_alphaC_device(gamma, Pr, Rcpcv, elementFieldVariable_dt_device.alphaC, sutherland_C1, element, edge, elementField, physicsModel_equation);
+	get_local_dt_using_alphaC_CFL_volume_device(elementFieldVariable_dt_device.alphaC, element.volume, CFL, element.num_element);
+	GPU::Math::reduce_device(elementFieldVariable_dt_device.num_reduce, elementFieldVariable_dt_device.alphaC, elementFieldVariable_dt_device.dev_output, false, GPU::Math::ReduceType::reduceType_min);
 	getLastCudaError("get_global_dt_device failed.");
+}
+
+void GPU::Time::get_local_dt_device(myfloat gamma, myfloat Re, myfloat Pr, myfloat CFL, myfloat Rcpcv, GPU::ElementFieldVariable_dt& elementFieldVariable_dt_device, GPU::ElementSoA& element, GPU::EdgeSoA& edge, GPU::ElementFieldSoA& elementField, int physicsModel_equation) {
+	myfloat sutherland_C1 = GPU::Space::get_Sutherland_C1_host_device(GPU::Space::S_Sutherland, GlobalPara::constant::mu0, GlobalPara::constant::T0);
+	update_alphaC_device(gamma, Pr, Rcpcv, elementFieldVariable_dt_device.alphaC, sutherland_C1, element, edge, elementField, physicsModel_equation);
+	get_local_dt_using_alphaC_CFL_volume_device(elementFieldVariable_dt_device.alphaC, element.volume, CFL, element.num_element);
+	getLastCudaError("get_local_dt_device failed.");
 }

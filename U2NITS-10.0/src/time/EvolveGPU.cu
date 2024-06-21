@@ -8,54 +8,6 @@
 #include "../math/BasicAlgorithmGPU.h"
 #include <sstream>
 
-__global__ void TimeIntegration_1_kernel(GPU::DReal& dt, GPU::ElementSoA& element, GPU::ElementFieldSoA& elementField) {
-    // 获取id，判断是否有效
-    const int bid = blockIdx.x;
-    const int tid = threadIdx.x;
-    const int id = bid * blockDim.x + tid;
-    const int& ie = id;
-    if (ie >= element.num_element || ie < 0) return;
-
-    myfloat omega = element.volume[ie];
-    for (int j = 0; j < 4; j++) {
-        elementField.U[j][ie] -= *(dt.ptr) / omega * elementField.Flux[j][ie];
-    }
-
-}
-
-void TimeIntegration_1(myfloat dt, GPU::ElementSoA& element_device, GPU::ElementFieldSoA& elementField_device) {
-    GPU::DReal dt_device(&dt);
-
-    int block_size = GPU::get_max_threads_per_block();
-    int grid_size = (element_device.num_element + block_size - 1) / block_size;
-    dim3 block(block_size, 1, 1);
-    dim3 grid(grid_size, 1, 1);
-    TimeIntegration_1_kernel <<<grid, block >>> (dt_device, element_device, elementField_device);
-
-}
-
-void EvolveExplicitDevice_1(myfloat dt, GPU::ElementSoA& element_device, GPU::ElementFieldSoA& elementField_device, GPU::EdgeSoA& edge_device, GPU::BoundarySetMap& boundary, GPU::SDevicePara& para) {
-    // 数值通量
-    //GPU::Space::Flux::calculateFluxDevice(element_device, elementField_device, edge_device, boundary, para);
-    cudaDeviceSynchronize();
-    GPU::catchCudaErrorAndExit();
-
-    // 时间积分
-    TimeIntegration_1(dt, element_device, elementField_device);
-
-}
-
-void GPU::Time::EvolveDevice(myfloat dt, int flag_timeAdvance, ElementSoA& element_device, ElementFieldSoA& elementField_device, EdgeSoA& edge_device, BoundarySetMap& boundary, SDevicePara& para) {
-    if (flag_timeAdvance == _EVO_explicit) {
-        EvolveExplicitDevice_1(dt, element_device, elementField_device, edge_device, boundary, para);
-    }
-    else {
-        LogWriter::logAndPrintError("Error: invalid evolve method.\n");
-        exit(1);
-    }
-}
-
-
 void cuda_vector_divide_by_elements_with_weight(integer length, myfloat* dist, const myfloat* src, myfloat weight) {
     // 带权的向量对应元素相除
     int threadsPerBlock = 256;
@@ -87,27 +39,31 @@ void calculateFunctionF_device(GPU::ElementSoA& element_device, GPU::NodeSoA& no
     getLastCudaError("calculateFunctionF_device failed.");
 }
 
-void cuda_vector_add_with_weight(integer length, myfloat* dist, const myfloat* src, myfloat weight) {
-    // 带权的向量加法
+void GPU::Time::evolve_explicit_globaltimestep_device(myfloat dt, GPU::ElementSoA& element_device, GPU::NodeSoA& node_device, GPU::EdgeSoA& edge_device, GPU::ElementFieldSoA& elementField_device) {
+    myint num_element = element_device.num_element;
     int threadsPerBlock = 256;
-    int blocksPerGrid = (length + threadsPerBlock - 1) / threadsPerBlock;
-    GPU::Math::vector_weighted_add_kernel <<<blocksPerGrid, threadsPerBlock >>> (length, dist, src, weight);
-    getLastCudaError("cuda_vector_add_with_weight failed.");
-}
+    int blocksPerGrid = (num_element + threadsPerBlock - 1) / threadsPerBlock;
 
-void evolveSingleStep_timeIntegration_scale2Darray(integer num, myfloat* U[4], myfloat dt, myfloat* flux[4]) {
+    // 计算残值。dU/dt = f(t,U)右端项
+    calculateFunctionF_device(element_device, node_device, edge_device, elementField_device);
+    // 时间推进(时间积分)
     for (int i = 0; i < 4; i++) {
-        cuda_vector_add_with_weight(num, U[i], flux[i], dt);
+        GPU::Math::vector_weighted_add_kernel <<<blocksPerGrid, threadsPerBlock>>> (num_element, elementField_device.U[i], elementField_device.Flux[i], dt);
     }
 
-    getLastCudaError("evolveSingleStep_timeIntegration_scale2Darray failed.");
+    getLastCudaError("evolve_explicit_globaltimestep_device failed.");
 }
 
-void GPU::Time::evolveSingleStep_device(myfloat dt, GPU::ElementSoA& element_device, GPU::NodeSoA& node_device, GPU::EdgeSoA& edge_device, GPU::ElementFieldSoA& elementField_device) {
-    // 计算dU/dt = f(t,U)右端项
+void GPU::Time::evolve_explicit_localtimestep_device(GPU::ElementSoA& element_device, GPU::NodeSoA& node_device, GPU::EdgeSoA& edge_device, GPU::ElementFieldSoA& elementField_device, GPU::ElementFieldVariable_dt& elementFieldVariable_dt_device) {
+    myint num_element = element_device.num_element;
+    int threadsPerBlock = 256;
+    int blocksPerGrid = (num_element + threadsPerBlock - 1) / threadsPerBlock;
+    // 计算残值
     calculateFunctionF_device(element_device, node_device, edge_device, elementField_device);
-    // 时间积分
-    evolveSingleStep_timeIntegration_scale2Darray(elementField_device.num, elementField_device.U, dt, elementField_device.Flux);
+    // 时间推进(时间积分)
+    for (int i = 0; i < 4; i++) {
+        GPU::Math::vector_dot_product_add_kernel <<<blocksPerGrid, threadsPerBlock>>> (num_element, elementField_device.U[i], elementField_device.Flux[i], elementFieldVariable_dt_device.alphaC);
+    }
 
-    getLastCudaError("evolveSingleStep_device failed.");
+    getLastCudaError("evolve_explicit_localtimestep_device failed.");
 }

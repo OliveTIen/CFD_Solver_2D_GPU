@@ -8,27 +8,30 @@ void U2NITS::Space::Restrict::modifyElementFieldU2d(GPU::ElementSoA& element, GP
 	// 对于超出范围的数据，取邻居的平均值
 	int nElement = element.num_element;
 	for (int iElement = 0; iElement < nElement; iElement++) {
-		modifyElementFieldUKernel2d(element, elementField, iElement);
+		modifyElementFieldU2d_kernel(element, elementField, iElement);
 	}
 }
 
-void U2NITS::Space::Restrict::modifyElementFieldUKernel2d(GPU::ElementSoA& element, GPU::ElementFieldSoA& elementField, int iElement) {
-	
+void U2NITS::Space::Restrict::modifyElementFieldU2d_kernel(GPU::ElementSoA& element, GPU::ElementFieldSoA& elementField, int iElement) {
+	// 守恒量转原始变量
 	myfloat U[4]{};
 	myfloat ruvp[4]{};
 	for (int i = 0; i < 4; i++) {
 		U[i] = elementField.U[i][iElement];
 	}
 	Math::U2ruvp_host(U, ruvp, GlobalPara::constant::gamma);
-
+	// 检测是否需要修正(NaN、越界)
+	bool need_modification = false;
 	for (int i = 0; i < 4; i++) {
 		if (isnan(ruvp[i])) {
-			LogWriter::logAndPrintError("Error isnan @U2NITS::Space::Restrict::modifyElementFieldUKernel2d\n");
+			need_modification = true;
+			LogWriter::logAndPrintError("Error isnan @U2NITS::Space::Restrict::modifyElementFieldU2d_kernel\n");
 			CExit::saveAndExit(-1);
 		}
 	}
-
-	if (outOfRange(ruvp)) {
+	if (outOfRange(ruvp)) need_modification = true;
+	// 若需要修正，则取邻居平均值
+	if (need_modification) {
 		bool volumeWeight = true;// 体积加权
 		if (volumeWeight) {
 
@@ -83,8 +86,6 @@ void U2NITS::Space::Restrict::modifyElementFieldUKernel2d(GPU::ElementSoA& eleme
 				elementField.U[jVar][iElement] = Usum[jVar] / numOfValidNeighbor;
 			}	
 		}
-
-
 	}
 }
 

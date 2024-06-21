@@ -22,8 +22,7 @@ include - 外部库
 来源：https://blog.csdn.net/qianniulaoren/article/details/133160383
 也可以在项目属性中点击任意项-编辑，展开宏，以进行浏览。
 如果在常规的浏览中找不到，可以在调试的浏览中找
-
-
+```
 $(TargetDir)                                           # 目标输出文件所在的目录
 $(TargetName) = U2NITS-10.0                            # 目标的名称
 $(TargetExt) = .exe                                    # 目标的扩展名
@@ -46,7 +45,7 @@ $(ProjectDir) = $(SolutionDir)$(ProjectName)\
 
 $(OutDir) = $(SolutionDir)$(Platform)\$(Configuration)\
           = D:\tgl\Local\HPC\U2NITS-10.0\x64\Debug\    # 输出目录 该目录下生成exe pdb等文件
-
+```
 例如我将调试的工作目录修改为$(ProjectDir)WorkingDirectory\。设置后注意点“应用”
 
 # 日志

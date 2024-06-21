@@ -1,12 +1,12 @@
 #ifndef PHYSICAL_KERNEL_H
 #define PHYSICAL_KERNEL_H
 
-#include "Common.h"
+#include "CommonValue.h"
+#include "StandardHeader.h"
 
 namespace U2NITS {
 	namespace Math {
 
-		// 默认标记为global，global是不是可以既可以在host也可以在device运行？
 		// 将U数组转换为ruvp数组
 		inline void U2ruvp_host(const myfloat U[4], myfloat ruvp[4], myfloat gamma) {
 			// U:	rho,rho_u,rho_v,rho_E 注意E=e+0.5*V^2
@@ -30,30 +30,15 @@ namespace U2NITS {
 		inline void U2ruvwp_host_3d(const myfloat U[5], myfloat ruvwp[5], myfloat gamma) {
 
 			/*
-			// [别删]原始版本，用于理解和推导，不要删了给自己添麻烦
-			typedef myfloat myfloat;
-			myfloat rho = U[0];
-			myfloat rhou = U[1];
-			myfloat rhov = U[2];
-			myfloat rhow = U[3];
-			myfloat rhoE = U[4];// 能量方程中的守恒量
-			myfloat u = rhou / rho;
-			myfloat v = rhov / rho;
-			myfloat w = rhow / rho;
-			myfloat E = rhoE / rho;
-			myfloat V2 = u * u + v * v + w * w;
-			myfloat e = E - 0.5 * V2;
-			// e = p/rho/(gamma-1)
-			myfloat p = e * rho * (gamma - 1);
+			e=Cv*t, Cv:R:Cp=1:(gamma-1):gama => R*t = (gamma-1)*Cv*t = (gamma-1)*e
+			p=rho*R*t => p=rho*(gamma-1)*e = rho*(gamma-1)*(E-0.5*V2)
 			*/
-
-			// 简化版本
-			ruvwp[0] = U[0];
-			ruvwp[1] = U[1] / U[0];
-			ruvwp[2] = U[2] / U[0];
-			ruvwp[3] = U[3] / U[0];
-			myfloat V2 = ruvwp[1] * ruvwp[1] + ruvwp[2] * ruvwp[2] + ruvwp[3] * ruvwp[3];
-			ruvwp[4] = (U[4] / U[0] - 0.5 * V2) * U[0] * (gamma - 1);
+			ruvwp[0] = U[0];// rho
+			ruvwp[1] = U[1] / U[0];// u
+			ruvwp[2] = U[2] / U[0];// v
+			ruvwp[3] = U[3] / U[0];// w
+			myfloat V2 = ruvwp[1] * ruvwp[1] + ruvwp[2] * ruvwp[2] + ruvwp[3] * ruvwp[3];// 速度平方
+			ruvwp[4] = (U[4] / U[0] - 0.5 * V2) * U[0] * (gamma - 1);// p
 		}
 
 		// 某方向上的马赫数
@@ -70,10 +55,9 @@ namespace U2NITS {
 			return sqrt(Ma2);
 		}
 
-		//inline myfloat getPressureCoeffient() {
-		//	// Cpp(I, J, K) = 2.0_8 * (PP(I, J, K) - PPF)   !!压力系数
-
-		//}
+		
+		// 批量转换
+		void U_to_ruvp_in_batch(const myfloat* U[4], myfloat* ruvp[4], int length, myfloat gamma);
 	}
 }
 

@@ -7,8 +7,8 @@ __device__ void GPU::Space::Convection::LocalLaxFriedrichs2d(const myfloat* UL, 
     //Êä³ö£ºflux
 
     myfloat ruvpL[4], ruvpR[4];
-    GPU::Math::U2ruvp(UL, ruvpL, gamma);
-    GPU::Math::U2ruvp(UR, ruvpR, gamma);
+    GPU::Math::U2ruvp_device(UL, ruvpL, gamma);
+    GPU::Math::U2ruvp_device(UR, ruvpR, gamma);
     myfloat rL = ruvpL[0];
     myfloat uL = ruvpL[1];
     myfloat vL = ruvpL[2];

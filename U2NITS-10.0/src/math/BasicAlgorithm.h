@@ -1,15 +1,12 @@
+// 标准运算和向量运算
 #ifndef BASIC_ALGORITHM_H
 #define BASIC_ALGORITHM_H
 #include "../gpu/dataType/DefineType.h"
-#include <cmath>
+#include "StandardHeader.h"
+
 namespace U2NITS {
 	namespace Math {
-#ifdef max
-#undef max
-#endif
-#ifdef min
-#undef min
-#endif
+
 		inline myfloat max(myfloat a, myfloat b) {
 			return (a > b) ? a : b;
 		}
@@ -49,6 +46,16 @@ namespace U2NITS {
 				v[i] += u[i];
 			}
 		}
+		// 获取向量最小值
+		inline myfloat get_min_of_vector(const myfloat* v, myint v_size) {
+			myfloat result = v[0];
+
+			for (myint i = 1; i < v_size; i++) {
+				result = min(result, v[i]);
+			}
+			return result;
+		}
+
 	}
 }
 

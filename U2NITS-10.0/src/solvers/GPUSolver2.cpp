@@ -10,7 +10,7 @@
 #include "../space/restrict/Restrict.h"
 #include "../math/Math.h"
 #include "../math/BasicAlgorithmGPU.h"
-#include "../math/Common.h"
+#include "../math/CommonValue.h"
 #include "../time/CalculateDt.h"
 #include "../time/Evolve.h"
 #include "../time/EvolveGPU.h"

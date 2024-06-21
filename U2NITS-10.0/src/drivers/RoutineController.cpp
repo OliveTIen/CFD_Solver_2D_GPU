@@ -18,7 +18,7 @@ void RoutineController::setStrategy(int s) {
 }
 
 
-void RoutineController::applyStrategy(myfloat residual_rho, myfloat& CFL, int step) {
+void RoutineController::applyStrategy(myfloat residual_rho, myfloat& CFL, int step, bool& apply_success) {
 	m_current_time = step;
 	m_current_CFL = CFL;
 	m_current_residual_rho = residual_rho;
@@ -30,7 +30,7 @@ void RoutineController::applyStrategy(myfloat residual_rho, myfloat& CFL, int st
 
 	case 1:
 		// 定常，根据残差调整CFL数和时间步长
-		strategy_dynamic_CFL(CFL);
+		strategy_dynamic_CFL(CFL, apply_success);
 		break;
 
 	default:
@@ -40,12 +40,14 @@ void RoutineController::applyStrategy(myfloat residual_rho, myfloat& CFL, int st
 	m_num_of_strategy_calls++;
 }
 
-void RoutineController::strategy_dynamic_CFL(myfloat& CFL) {
+void RoutineController::strategy_dynamic_CFL(myfloat& CFL, bool& apply_success) {
 	/*
 	修改CFL数
 	将修改应用至全局变量，以及GPU的全局变量副本。由于CFL只在计算dt时用到，而GPU程序计算dt在host完成，因此无需创建副本
 	*/
-	//myfloat CFL_origin = CFL;
+
+	apply_success = false;
+
 	// 第一次调用，记录
 	if (m_num_of_strategy_calls == 0) {// m_tick在applyStrategy中更新
 		m_record_res_rho = m_current_residual_rho;
@@ -53,7 +55,6 @@ void RoutineController::strategy_dynamic_CFL(myfloat& CFL) {
 		return;
 	}
 
-	bool apply_success = false;
 	// 若大一个量级，则减小CFL
 	if (m_current_time > decrease_start_time && m_current_residual_rho > m_record_res_rho * 10.0) {
 		if (tryApplyAction(decrease, CFL, 0.75)) {
@@ -82,11 +83,5 @@ void RoutineController::strategy_dynamic_CFL(myfloat& CFL) {
 		//CFL = tolerance_max_CFL;
 		//myfloat dCFL = CFL - CFL_origin;
 
-	}
-
-	if (apply_success) {
-		std::stringstream ss;
-		ss << "step = " << m_current_time << "\tresidual_rho = " << m_current_residual_rho << "\tCFL = " << CFL << "\n";
-		LogWriter::log(ss.str());
 	}
 }

@@ -96,7 +96,7 @@ void FieldInitializer::initialize_using_config() {
 			CExit::pressAnyKeyToExit();
 		}
 
-		CBoundaryDoubleShockReflect::getInstance()->setVar(shock_x, shock_y, shock_angle_degree);
+		CBoundaryDoubleShockReflect::getInstance()->set_shock_x_y_angle(shock_x, shock_y, shock_angle_degree);
 	}
 
 	b_has_read_config = true;

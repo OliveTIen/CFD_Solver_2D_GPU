@@ -1,5 +1,5 @@
 #include "CBoundaryDoubleShockReflect.h"
-#include "../math/Common.h"
+#include "../math/CommonValue.h"
 
 
 CBoundaryDoubleShockReflect* CBoundaryDoubleShockReflect::m_pointer = nullptr;

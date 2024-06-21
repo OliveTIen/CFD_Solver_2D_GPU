@@ -67,12 +67,12 @@ public:
 	void setStrategy(int s);
 	int getStrategy() { return m_strategy; }
 	// 应用时间推进策略，动态调整CFL数
-	void applyStrategy(myfloat residual_rho, myfloat& CFL, int step);
+	void applyStrategy(myfloat residual_rho, myfloat& CFL, int step, bool& apply_success);
 
 private:
 	RoutineController() {};
 	// 策略：动态调整CFL
-	void strategy_dynamic_CFL(myfloat& CFL);
+	void strategy_dynamic_CFL(myfloat& CFL, bool& apply_success);
 	// 尝试用action修改参数值。若已冷却，则成功，更新action计时器，返回true
 	bool tryApplyAction(Action& a, myfloat& value) {return a.try_operate(value, m_current_time, a.get_value());}
 	bool tryApplyAction(Action& a, myfloat& value, myfloat para) {return a.try_operate(value, m_current_time, para);}

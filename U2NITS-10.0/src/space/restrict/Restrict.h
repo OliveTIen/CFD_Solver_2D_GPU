@@ -2,7 +2,7 @@
 #define _SPACE_RESTRICT_H_
 
 #include "../../gpu/datatype/DataType.h"
-#include "../../math/Common.h"
+#include "../../math/CommonValue.h"
 
 namespace U2NITS {
 	namespace Space {
@@ -10,7 +10,7 @@ namespace U2NITS {
 			// 修正所有单元场变量。对于超出范围的数据，取邻居的平均值
 			void modifyElementFieldU2d(GPU::ElementSoA& element, GPU::ElementFieldSoA& elementField);
 			// 修正iElemnet单元场变量。对于超出范围的数据，取邻居的平均值
-			void modifyElementFieldUKernel2d(GPU::ElementSoA& element, GPU::ElementFieldSoA& elementField, int iElement);
+			void modifyElementFieldU2d_kernel(GPU::ElementSoA& element, GPU::ElementFieldSoA& elementField, int iElement);
 
 			inline bool outOfRange(myfloat* ruvp) {
 				if (ruvp[0]<Math::Physics::RHO_MIN ||

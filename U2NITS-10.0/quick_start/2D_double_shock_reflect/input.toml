@@ -1,0 +1,75 @@
+# 20240603
+# filename: 
+# 
+
+[basic]
+continue = true
+dimension = 2
+filename = "dsr131new_slippery" 
+meshFileType = "su2" 
+useGPU = 1                      # 0-CPU 1-GPU
+isDebugMode = false
+
+[constant]
+T0 = 288.16                     # 海平面温度参考
+p0 = 101325.0                   # 海平面压力参考
+Re = 6.5e6
+Pr = 0.73
+gamma = 1.4
+referenceArea = 1               # (三维算例)参考面积，或(二维算例)参考弦长
+mesh_scale_factor = 1           # 网格缩放因子
+calculate_mu0_by_Re = true      # true: 以Re为基准 false: 以mu0为基准
+
+[initialCondition]
+type = 4                        # 1-inf均匀流 2-等熵涡 3-激波管 4-双马赫反射
+[initialCondition.doubleShockReflection]
+shock_x = 0.6                   # shock_x,shock_y为激波与壁面交点
+shock_y = 0 
+shock_angle_degree = 60
+
+[boundaryCondition.2D.inlet]
+input_mode = 3                  # 0-{Ma,AoA} 1-{rho,u,v,p} 2-{rho,rhou,rhov,rhoE} 3-{rho, u, angle_degree, p}
+rho = 8
+u = 8.25
+angle_degree = -30
+p = 116.5
+
+
+[boundaryCondition.2D.outlet]
+input_mode = 3
+rho = 1.4
+u = 0
+angle_degree = 0
+p = 1
+
+[output]
+step_per_print = 50
+step_per_output_field = 200
+step_per_output_hist = 100
+maxIteration = 1000
+tolerace_residual = 1e-7        # 残差低于此值认为达到稳态
+
+[output.output_var]
+rho = true
+u = true
+v = true
+p = true
+
+[physicsModel]
+equation = 2                    # 1-Euler,2-NS
+
+
+[time]
+is_steady = 0                   # 0-非定常 1-定常
+is_explicit = 1                 # 0-隐式   1-显式
+CFL = 1.6
+CFL_steady = 0.8
+max_physical_time = 200         # max_physical_time = 2.255788
+time_advance = 3101             # 3101-显式单步推进，3103-RK3
+
+
+[inviscid_flux_method]
+flag_reconstruct = 3002         # 3001-常量重构 3002-线性重构 3003-MUSCL插值
+flag_gradient = 2               # 1-最小二乘 2-GreenGauss
+flux_conservation_scheme = 2002 # 2001-LocalLaxFriedrichs, 2002-Roe
+flux_limiter = 1                # 0-none 1-barth 2-minmod 3-vanleer

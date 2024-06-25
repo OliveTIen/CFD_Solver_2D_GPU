@@ -1,0 +1,75 @@
+# 20240625
+# filename: neuvillette
+# 
+
+[basic]
+continue = true                 # 是否续算。true-续算，false-覆盖之前输出结果
+dimension = 2                   # 维度。只能填2
+filename = "neuvillette"        # 网格文件名
+meshFileType = "su2"            # 网格文件后缀名，只能填su2
+useGPU = 1                      # 0-CPU 1-GPU
+isDebugMode = false             # 调试模式。设为true，则会在读取输入参数失败时输出调试结果
+
+[constant]
+T0 = 288.16                     # 海平面温度参考
+p0 = 101325.0                   # 海平面压力参考
+Re = 6.5e6                      # 雷诺数
+Pr = 0.73                       # 普朗特数。计算粘性系数时会用到
+gamma = 1.4                     # 比热比
+referenceArea = 1               # (三维算例)参考面积，或(二维算例)参考弦长
+calculate_mu0_by_Re = true      # 根据Re计算粘度系数
+
+[initialCondition]
+type = 3                        # 1-inf均匀流 2-等熵涡 3-激波管 4-双马赫反射
+
+[initialCondition.shockTube]    # 仅在"3-激波管"模式下有效
+shock_x = 0                     
+shock_y = 0.5                   
+shock_normal_x = 0
+shock_normal_y = 1
+
+[boundaryCondition.2D.inlet]    
+input_mode = 1                  # 0-{Ma,AoA} 1-{rho,u,v,p} 2-{rho,rhou,rhov,rhoE} 3-{rho, u, angle_degree, p}
+rho = 8
+u = 0
+v = 8.25
+p = 116.5
+
+[boundaryCondition.2D.outlet]
+input_mode = 1
+rho = 1.4
+u = 0
+v = 0
+p = 1
+
+[output]
+step_per_print = 50             # 进度条刷新频率。例如50步刷新1次
+step_per_output_field = 100     # 流场文件输出频率。输出文件名为`neuvillette[0001].dat`
+step_per_output_hist = 100      # 线图文件输出频率。输出文件名为`neuvillette_hist.dat`
+maxIteration = 12000            # 最大迭代步数，用于终止
+tolerace_residual = 1e-7        # 残差低于此值认为达到稳态
+
+[output.output_var]             # 输出哪些变量
+rho = true
+u = true
+v = true
+p = true
+
+[physicsModel]
+equation = 2                    # 1-Euler, 2-NS
+
+
+[time]
+is_steady = 0                   # 0-非定常 1-定常。目前定常容易发散，只能用非定常
+is_explicit = 1                 # 0-隐式   1-显式。目前只能用显式
+CFL = 2.5                       # CFL数，非定常模式下使用
+CFL_steady = 0.8                # CFL数，定常模式下使用
+max_physical_time = 2.255788    # 最大物理时间，用于终止
+time_advance = 3101             # 3101-显式单步推进，3103-RK3
+
+
+[inviscid_flux_method]
+flag_reconstruct = 3002         # 3001-常量重构 3002-线性重构 3003-MUSCL插值
+flag_gradient = 2               # 1-最小二乘 2-GreenGauss。GPU模式下只能用GreenGauss
+flux_conservation_scheme = 2002 # 2001-LocalLaxFriedrichs, 2002-Roe
+flux_limiter = 1                # 0-none 1-barth 2-minmod 3-vanleer

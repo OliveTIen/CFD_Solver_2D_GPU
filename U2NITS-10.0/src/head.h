@@ -23,10 +23,7 @@
 #include <time.h>
 #include <ctime>
 #include <thread>
-//#include "Math.h"
-#include "./include/rapidjson/document.h"
-#include "./include/rapidjson/prettyWriter.h"
-#include "./include/rapidjson/stringbuffer.h"
+
 
 #include "global/globalPara.h"
 #include "gpu/datatype/DefineType.h"

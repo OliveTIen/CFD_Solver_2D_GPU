@@ -5,10 +5,16 @@
 #include "../global/FilePathManager.h"
 #include "../global/GlobalPara.h"
 #include "../global/StringProcessor.h"
-#include "../global/VectorProcessor.h"
 #include "../output/LogWriter.h"
 #include "../drivers/RoutineController.h"
 #include "SU2MeshReader.h"
+
+static void jointVectors(std::vector<int>& accepter, const std::vector<int>& giver) {
+	// 拼接数组
+	for (int i = 0; i < giver.size(); i++) {
+		accepter.push_back(giver[i]);
+	}
+}
 
 int ContinueFileReader::readContinueFile_1() {
 	/*
@@ -139,7 +145,7 @@ int ContinueFileReader::readContinueFile_1() {
 				// 引用最后一个BoundarySet
 				std::vector<int>& edges_of_current_set = edges_of_all_sets[edges_of_all_sets.size() - 1];
 				std::vector<int> intVector = StringProcessor::stringVector_2_intVector(tWords);
-				VectorProcessor::appendToVector(edges_of_current_set, intVector);
+				jointVectors(edges_of_current_set, intVector);
 			}
 		}
 	}
@@ -283,7 +289,7 @@ int ContinueFileReader::readContinueFile_2_unused_addUxUy() {
 				// 引用最后一个BoundarySet
 				std::vector<int>& edges_of_current_set = edges_of_all_sets[edges_of_all_sets.size() - 1];
 				std::vector<int> intVector = StringProcessor::stringVector_2_intVector(tWords);
-				VectorProcessor::appendToVector(edges_of_current_set, intVector);
+				jointVectors(edges_of_current_set, intVector);
 			}
 		}
 	}

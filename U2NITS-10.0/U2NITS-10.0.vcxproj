@@ -20,11 +20,9 @@
     <ClCompile Include="src\Element_2D.cpp" />
     <ClCompile Include="src\global\CExit.cpp" />
     <ClCompile Include="src\global\GlobalPara.cpp" />
-    <ClCompile Include="src\global\JsonConfig.cpp" />
     <ClCompile Include="src\global\FilePathManager.cpp" />
     <ClCompile Include="src\global\StringProcessor.cpp" />
     <ClCompile Include="src\global\SystemInfo.cpp" />
-    <ClCompile Include="src\global\VectorProcessor.cpp" />
     <ClCompile Include="src\gpu\datatype\BoundarySetMap.cu" />
     <ClCompile Include="src\gpu\datatype\BoundaryV2.cpp" />
     <ClCompile Include="src\gpu\datatype\EdgeSoA.cu" />
@@ -43,7 +41,6 @@
     <ClCompile Include="src\input\TomlFileManager.cpp" />
     <ClCompile Include="src\FVM_2D.cpp" />
     <ClCompile Include="src\main.cpp" />
-    <ClCompile Include="src\Math.cpp" />
     <ClCompile Include="src\math\PhysicalKernel.cpp" />
     <ClCompile Include="src\Node_2D.cpp" />
     <ClCompile Include="src\output\ConsolePrinter.cpp" />
@@ -61,7 +58,6 @@
     <ClCompile Include="src\solvers\OldDataConverter.cpp" />
     <ClCompile Include="src\solvers\platform\CPlatform.cpp" />
     <ClCompile Include="src\solvers\SolverDataGetter.cpp" />
-    <ClCompile Include="src\Solver_2D.cpp" />
     <ClCompile Include="src\space\convection\LocalLaxFriedrichs.cpp" />
     <ClCompile Include="src\space\Flux.cpp" />
     <ClCompile Include="src\space\gradient\Gradient.cpp" />
@@ -91,12 +87,10 @@
     <ClInclude Include="src\global\Constexpr.h" />
     <ClInclude Include="src\global\CTimer.h" />
     <ClInclude Include="src\global\GlobalPara.h" />
-    <ClInclude Include="src\global\JsonConfig.h" />
     <ClInclude Include="src\global\FilePathManager.h" />
     <ClInclude Include="src\global\SGlobalPara.h" />
     <ClInclude Include="src\global\StringProcessor.h" />
     <ClInclude Include="src\global\SystemInfo.h" />
-    <ClInclude Include="src\global\VectorProcessor.h" />
     <ClInclude Include="src\gpu\datatype\BoundarySetMap.h" />
     <ClInclude Include="src\gpu\datatype\BoundaryV2.h" />
     <ClInclude Include="src\gpu\datatype\Datatype.h" />
@@ -122,7 +116,6 @@
     <ClInclude Include="src\input\TomlFileManager.h" />
     <ClInclude Include="src\FVM_2D.h" />
     <ClInclude Include="src\head.h" />
-    <ClInclude Include="src\Math.h" />
     <ClInclude Include="src\math\BasicAlgorithm.h" />
     <ClInclude Include="src\math\BasicAlgorithmGPU.h" />
     <ClInclude Include="src\math\CommonValue.h" />
@@ -153,7 +146,6 @@
     <ClInclude Include="src\solvers\OldDataConverter.h" />
     <ClInclude Include="src\solvers\platform\CPlatform.h" />
     <ClInclude Include="src\solvers\SolverDataGetter.h" />
-    <ClInclude Include="src\Solver_2D.h" />
     <ClInclude Include="src\space\convection\Convection.h" />
     <ClInclude Include="src\space\convection\ConvectionGPU.h" />
     <ClInclude Include="src\space\convection\LocalLaxFriedrichs.h" />

@@ -2,7 +2,6 @@
 #include "../global/GlobalPara.h"
 #include "../space/Flux.h"
 #include "../output/LogWriter.h"
-#include "../math/Math.h"
 #include "CalculateDt.h"
 #include "../space/gradient/Gradient.h"
 #include "../boundary_condition/CBoundaryDoubleShockReflect.h"

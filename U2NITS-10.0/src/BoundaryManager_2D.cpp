@@ -1,6 +1,7 @@
 #include "FVM_2D.h"
 #include "output/LogWriter.h"
 #include "boundary_condition/BoundaryManager.h"
+#include "math/PhysicalKernel.h"
 
 
 std::vector<int> BoundaryManager_2D::compressSeveralSequences(const std::vector<int>& ints) {
@@ -124,13 +125,13 @@ void BoundaryManager_2D::setBoundaryElementU(int tag) {
 			Edge_2D& edge_tmp = FVM_2D::getInstance()->edges[ie];
 			const int bType = boundaries[edge_tmp.setID - 1].type;
 			if (bType == _BC_inf) {
-				Math_2D::ruvp_2_U(inf::ruvp, edge_tmp.pElement_L->U, GlobalPara::constant::gamma);
+				U2NITS::Math::ruvp2U_host(inf::ruvp, edge_tmp.pElement_L->U, GlobalPara::constant::gamma);
 			}
 			else if (bType == _BC_inlet) {
-				Math_2D::ruvp_2_U(inlet::ruvp, edge_tmp.pElement_L->U, GlobalPara::constant::gamma);
+				U2NITS::Math::ruvp2U_host(inlet::ruvp, edge_tmp.pElement_L->U, GlobalPara::constant::gamma);
 			}
 			else if (bType == _BC_outlet) {
-				Math_2D::ruvp_2_U(outlet::ruvp, edge_tmp.pElement_L->U, GlobalPara::constant::gamma);
+				U2NITS::Math::ruvp2U_host(outlet::ruvp, edge_tmp.pElement_L->U, GlobalPara::constant::gamma);
 			}
 		}
 		break;

@@ -1,10 +1,39 @@
-﻿---
-date:   2024-01-12
-author: tgl
+﻿
 
----
+# 基于GPU的二维非结构网格N-S层流求解器
+
+英文名：2D Unstructured-Grid N-S Laminar Solver Based on GPU
+
+简介：该求解器能够计算简单二维流动问题，使用非结构网格(三角网格)，并且已经对无粘通量求解器(Euler求解器)进行了算例验证。求解器可采用CPU或GPU计算，GPU计算部分采用CUDA编写。
+
+宣传视频：[【本科毕设】手搓流体求解器，并用GPU实现](https://www.bilibili.com/video/BV1dw3gerE2N/) 
+
+## 版本说明
+
+### 10.0
+
+10.0是第一个版本。从10而不是0或1开始是为了跟之前的CPU程序区分开
+
+## 开始
+
+### 前置条件
+
+下载并安装 [CUDA Toolkit 12.3](https://developer.nvidia.com/cuda-downloads) 。系统要求和安装指南请参见 [Linux Installation Guide](http://docs.nvidia.com/cuda/cuda-installation-guide-linux/) 和 [Windows Installation Guide](http://docs.nvidia.com/cuda/cuda-installation-guide-microsoft-windows/index.html).。
+
+下载并安装 Visual Studio Community 2022。
+
+# 依赖
+
+依赖项目已包含进项目目录`U2NITS-10.0/src/include`中，均为头文件形式，无需静态库或动态库。依赖项目列表如下：
+
+- toml：文件解析库，用于解析toml类型的控制参数文件。它只有一个文件`cpptoml.h`，因此使用时可以直接包含，无需添加到解决方案中。
+- AMatrix：矩阵运算库。它包含`.cpp`文件，因此需要添加到解决方案中。
+  该库在`U2NITS-10.0\src\space\Reconstructor.cpp`中被函数`Reconstructor::Element_T3_updateSlope_Barth`使用。
+
+`U2NITS-10.0/src/include`目录中还有其他依赖库，这些库是曾经使用过但现在不再需要的，因此可以删去。
 
 # 目录结构
+
 include - 外部库
 
 # 代码规范
@@ -18,7 +47,9 @@ include - 外部库
 .h和.cpp分开是为了避免编译耗时太长
 多用git
 
-# Visual Studio 配置宏介绍
+# 其他知识
+
+## Visual Studio 配置宏介绍
 来源：https://blog.csdn.net/qianniulaoren/article/details/133160383
 也可以在项目属性中点击任意项-编辑，展开宏，以进行浏览。
 如果在常规的浏览中找不到，可以在调试的浏览中找

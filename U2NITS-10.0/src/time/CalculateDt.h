@@ -1,7 +1,7 @@
 #ifndef _CALCULATE_DT_H_
 #define _CALCULATE_DT_H_
 
-#include "../math/Math.h"
+
 #include "../solvers/GPUSolver2.h"
 #include <iostream>
 

@@ -4,7 +4,7 @@
 #include "../space/viscous_flux/ViscousFlux.h"
 #include "../space/viscous_flux/ViscousFluxGPU.h"
 #include "../global/GlobalPara.h"
-
+#include "../math/Math.h"
 
 // 单元alphaC归零，然后计算edge的alpha，加减到单元alphaC
 void update_alphaC_host(myfloat gamma, myfloat Pr, myfloat Rcpcv, myfloat* alphaC, myfloat sutherland_C1,

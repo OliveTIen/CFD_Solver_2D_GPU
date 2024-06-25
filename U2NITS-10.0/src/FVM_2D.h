@@ -32,12 +32,6 @@ public:
 	//void solve_CPU2(std::string suffix_out, std::string suffix_info);
 	// 检查非法值
 	bool isNan();
-	// 更新自动保存文件
-	void updateAutoSaveFile(double t, int istep, int& iCurrentAutosaveFile);
-	// GPU版本
-	//void calculateNodeValue_GPU(void* pSolver);
-	// 续算文件
-	void writeContinueFile(std::string f_name, double t, int istep);
 	// 是否达到稳态
 	bool isStable(std::vector<Element_2D> old);
 
@@ -64,11 +58,6 @@ public:
 	// 根据节点ID返回Node指针
 	Node_2D* getNodeByID(int ID);
 
-	//// 等熵涡 Isentropic vortex
-	//void isentropicVortex(double x, double y, double xc, double yc, double chi, double& deltau, double& deltav, double& deltaT);
-	//void isentropicVortex_2(double xc, double yc, double chi, const double* ruvp0);
-	//// 等熵涡误差文件头
-	//void writeFileHeader_isentropicVortex();
 private:
 	void iniElement_xy_pEdges_parallel();
 

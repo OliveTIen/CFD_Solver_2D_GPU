@@ -80,6 +80,14 @@ void FieldInitializer::initialize_using_config() {
 	TomlFileManager* t = TomlFileManager::getInstance();
 	read_initial_type_from_config();
 
+	if (m_initial_type == type_shock_tube) {
+		t->getValueIfExists("initialCondition.shockTube.shock_x", m_shock_x);
+		t->getValueIfExists("initialCondition.shockTube.shock_y", m_shock_y);
+		t->getValueIfExists("initialCondition.shockTube.shock_normal_x", m_shock_normal_x);
+		t->getValueIfExists("initialCondition.shockTube.shock_normal_y", m_shock_normal_y);
+
+	}
+
 	/*
 	[to do]下面应移动到CBoundaryDoubleShockReflect::initialize_using_config
 	*/
@@ -123,7 +131,8 @@ void FieldInitializer::setInitialUniform() {
 	auto& elements = FVM_2D::getInstance()->elements;
 	using namespace GlobalPara::boundaryCondition::_2D;
 	for (int ie = 0; ie < elements.size(); ie++) {
-		Math_2D::ruvp_2_U(inf::ruvp, elements[ie].U, GlobalPara::constant::gamma);
+		//Math_2D::ruvp_2_U(inf::ruvp, elements[ie].U, GlobalPara::constant::gamma);
+		U2NITS::Math::ruvp2U_host(inf::ruvp, elements[ie].U, GlobalPara::constant::gamma);
 	}
 }
 
@@ -162,23 +171,54 @@ void FieldInitializer::setInitialIsentropicVortex() {
 		myfloat rho = pow(ruvp_inf[3] + dT, 1. / ga1);
 		myfloat p = rho * (ruvp_inf[3] + dT);
 		myfloat ruvp[4]{ rho,u,v,p };
-		Math_2D::ruvp_2_U(ruvp, e.U, gamma);
+		U2NITS::Math::ruvp2U_host(ruvp, e.U, gamma);
 	}
 
 }
 
 void FieldInitializer::setInitialShockTube() {
-	// 激波管。参照论文shock_tube（https://zhuanlan.zhihu.com/p/154508317），见D:\tgl\Local\CFD\shock_tube_code
+	/*
+	遍历单元，如果位于激波inlet方位，则用inlet值初始化
+	激波管精确解参考论文shock_tube（https://zhuanlan.zhihu.com/p/154508317），见D:\tgl\Local\CFD\shock_tube_code
+	*/
 	auto& elements = FVM_2D::getInstance()->elements;
 	using namespace GlobalPara::boundaryCondition::_2D;
+	double shock_x = m_shock_x;
+	double shock_y = m_shock_y;
+	double shock_normal_x = m_shock_normal_x;
+	double shock_normal_y = m_shock_normal_y;
+	
+	// 归一化方向向量
+	if (shock_normal_x == 0.0 && shock_normal_y == 0.0) {
+		shock_normal_x = 1.0;
+	}
+	double length_inv = 1.0 / sqrt(shock_normal_x * shock_normal_x + shock_normal_y * shock_normal_y);
+	shock_normal_x *= length_inv;
+	shock_normal_y *= length_inv;
+
+	auto is_inlet_direction = [shock_x,shock_y,shock_normal_x,shock_normal_y](myfloat x, myfloat y) -> bool {
+		if (shock_normal_x == 1.0) {
+			if (x < shock_x)return true;
+			else return false;
+		}
+		double rx = x - shock_x;// 矢径
+		double ry = y - shock_y;
+		double dot = rx * shock_normal_x + ry * shock_normal_y;
+		if (dot > 0)return false;// 点积大于0，则位于出口方向(outlet)
+		else return true;
+	};
+
 	for (int ie = 0; ie < elements.size(); ie++) {
-		if (elements[ie].x < 0) {
-			Math_2D::ruvp_2_U(inlet::ruvp, elements[ie].U, GlobalPara::constant::gamma);
+		if (is_inlet_direction(elements[ie].x,elements[ie].y)) {
+			U2NITS::Math::ruvp2U_host(inlet::ruvp, elements[ie].U, GlobalPara::constant::gamma);
 		}
 		else {
-			Math_2D::ruvp_2_U(outlet::ruvp, elements[ie].U, GlobalPara::constant::gamma);
+			U2NITS::Math::ruvp2U_host(outlet::ruvp, elements[ie].U, GlobalPara::constant::gamma);
 		}
 	}
+
+
+
 }
 
 void FieldInitializer::setInitialDoubleShockReflection() {
@@ -211,10 +251,10 @@ void FieldInitializer::setInitialDoubleShockReflection() {
 	for (int ie = 0; ie < elements.size(); ie++) {
 		Element_2D& element = elements[ie];
 		if (CBoundaryDoubleShockReflect::getInstance()->isUpStreamOfShock_forElement(element.x, element.y)) {
-			Math_2D::ruvp_2_U(inlet::ruvp, element.U, GlobalPara::constant::gamma);
+			U2NITS::Math::ruvp2U_host(inlet::ruvp, element.U, GlobalPara::constant::gamma);
 		}
 		else {
-			Math_2D::ruvp_2_U(outlet::ruvp, element.U, GlobalPara::constant::gamma);
+			U2NITS::Math::ruvp2U_host(outlet::ruvp, element.U, GlobalPara::constant::gamma);
 		}
 	}
 }

@@ -3,7 +3,6 @@
 #include <iostream>
 #include <vector>
 #include <io.h>
-#include "JsonConfig.h"
 #include "../global/GlobalPara.h"
 #include "../output/LogWriter.h"
 
@@ -36,7 +35,6 @@ void FilePathManager::initialzeVariables() {
 	}
 
 	m_tomlFilePath = m_inputDirectory + m_TomlFileName;
-	m_jsonFilePath = m_inputDirectory + m_JsonFileName;
 
 	// 设置标志符，表示已初始化
 	if_initialized = true;
@@ -63,16 +61,6 @@ std::string FilePathManager::getTomlFilePath() {
 	return m_tomlFilePath; 
 }
 
-std::string FilePathManager::getJsonFilePath() {
-	if (_access(m_jsonFilePath.c_str(), 0) == -1) {// 失败
-		std::cout << "Current working directory: " << m_workingDirectory << "\n";
-		std::cout << "Cannot find json file. Please input the file path: \n";
-		std::cin >> m_jsonFilePath;
-	}
-
-	return m_jsonFilePath; 
-}
-
 std::vector<std::string> FilePathManager::getFiles(std::string path) {
 	path += "*";
 	_finddata64i32_t fileInfo;
@@ -86,38 +74,6 @@ std::vector<std::string> FilePathManager::getFiles(std::string path) {
 		files.push_back(fileInfo.name);
 	} while (_findnext(hFile, &fileInfo) == 0);
 	return files;
-}
-
-void FilePathManager::getFileName_UseUserInput() {
-	std::string lastf;
-	if (JsonConfig::config.FindMember("lastfilename") != JsonConfig::config.MemberEnd()) {
-		lastf = JsonConfig::config["lastfilename"].GetString();//将config的值赋给lastf
-	}
-	if (1) {
-
-
-		//输入提示
-		std::cout << "Please input filename (without suffix):" << std::endl;
-		if (lastf != "[NULL]")
-			//若lastf!="[NULL]"则说明可以直接读取上次filename
-			std::cout << "(Press a single \"Enter\" to use last filename [" << lastf << "])\n";
-		else {
-			//若lastf=="[NULL]"则说明是原本没有config文件，因此不能使用last filename
-			//检测所有inp文件
-		}
-		//接受用户输入，作为文件名。若输入为空(即直接按enter)，则使用lastf
-		char a = 0;
-		std::string str;
-		while (a != '\n') {
-			a = getchar();
-			str.push_back(a);
-		}
-		str.pop_back();//删除最后的\n
-		if (str == "")str = lastf;
-		GlobalPara::basic::filename = str;
-	}
-
-
 }
 
 void FilePathManager::m_initializeWorkingDirectory() {

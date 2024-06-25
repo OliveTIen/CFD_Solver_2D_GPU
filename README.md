@@ -2,11 +2,13 @@
 
 # 基于GPU的二维非结构网格CFD求解器
 
+[TOC]
+
 英文名：2D Unstructured-Grid CFD Solver Based on GPU
 
 简介：该求解器能够计算简单二维N-S方程层流流动问题，使用非结构网格(三角网格)，并且已经对无粘通量求解器(Euler求解器)进行了算例验证。求解器可采用CPU或GPU计算，GPU计算部分采用CUDA编写。
 
-宣传视频：[【本科毕设】手搓流体求解器，并用GPU实现](https://www.bilibili.com/video/BV1dw3gerE2N/) 
+视频：[【本科毕设】手搓流体求解器，并用GPU实现](https://www.bilibili.com/video/BV1dw3gerE2N/) 
 
 ![](img/neuvillette.mp4)
 

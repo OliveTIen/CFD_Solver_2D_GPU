@@ -1,4 +1,4 @@
-#include "Edge_2D.h"
+ï»¿#include "Edge_2D.h"
 #include "FVM_2D.h"
 #include "Math.h"
 
@@ -30,7 +30,7 @@ myfloat Edge_2D::getLength() {
 }
 
 myfloat Edge_2D::getRefLength() {
-    // »ñÈ¡Á½²àµ¥ÔªÖÐÐÄ¾àÀë
+    // èŽ·å–ä¸¤ä¾§å•å…ƒä¸­å¿ƒè·ç¦»
     FVM_2D* f = FVM_2D::getInstance();
     if (f->hasInitEdgeLengths) {
         return this->refLength;
@@ -54,17 +54,6 @@ myfloat Edge_2D::getRefLength() {
     }
 }
 
-//void Edge_2D::U_2_F_lambda(const Eigen::Vector4d U, Eigen::Vector4d& F, myfloat& lambda) {
-//    myfloat rho = U[0];
-//    myfloat u = U[1] / U[0];
-//    myfloat v = U[2] / U[0];
-//    myfloat E = U[3] / U[0];
-//    myfloat gamma = GlobalPara::constant::gamma;
-//    Math_2D::U_2_F(U, F, gamma);
-//    myfloat p = Math_2D::get_p(rho, gamma, E, u, v);
-//    lambda = sqrt(u * u + v * v) + sqrt(gamma * p / rho);
-//
-//}
 
 std::vector<myfloat> Edge_2D::getDirectionN() {
     std::vector<myfloat> T = getDirectionT();
@@ -86,40 +75,3 @@ std::vector<myfloat> Edge_2D::getDirectionT() {
     return T;
 }
 
-Eigen::Matrix4d Edge_2D::calT(FVM_2D* f,myfloat flag) {
-    Eigen::Matrix4d matT;
-    std::vector<myfloat>dir = getDirectionN();
-    myfloat nx = dir[0]; myfloat ny = dir[1];
-    ny *= flag;//Äæ¾ØÕó¾ÍÊÇsin±äÎªÏà·´Êý
-    matT <<
-        1, 0, 0, 0,
-        0, nx, ny, 0,
-        0, -ny, nx, 0,
-        0, 0, 0, 1;
-    return matT;
-}
-
-//Eigen::Vector4d Edge_2D::get_UL() {
-//    //»ñÈ¡±ßÖÐµã×ø±ê£¬´úÈë×óµ¥Ôª·Ö²¼º¯Êý£¬»ñÈ¡U
-//    myfloat x_edge, y_edge; getxy(FVM_2D::getInstance(), x_edge, y_edge);
-//    return pElement_L->get_U(x_edge, y_edge);
-//}
-
-//Eigen::Vector4d Edge_2D::get_UR() {
-//    //»ñÈ¡±ßÖÐµã×ø±ê£¬´úÈë×óµ¥Ôª·Ö²¼º¯Êý£¬»ñÈ¡U
-//    myfloat x_edge, y_edge; getxy(FVM_2D::getInstance(), x_edge, y_edge);
-//    return pElement_R->get_U(x_edge, y_edge);
-//}
-
-//void Edge_2D::get_ULUR(Eigen::Vector4d& U_L, Eigen::Vector4d& U_R) {
-//    //»ñÈ¡±ßÖÐµã×ø±ê£¬´úÈë×ó/ÓÒµ¥Ôª·Ö²¼º¯Êý£¬»ñÈ¡U
-//    myfloat x_edge, y_edge; getxy(FVM_2D::getInstance(), x_edge, y_edge);
-//    U_L = pElement_L->get_U(x_edge, y_edge);
-//    U_R = pElement_R->get_U(x_edge, y_edge);
-//}
-
-void Edge_2D::get_ULUR(myfloat* U_L, myfloat* U_R) {
-    myfloat x_edge, y_edge; getxy(FVM_2D::getInstance(), x_edge, y_edge);
-    pElement_L->get_U(x_edge, y_edge, U_L);
-    pElement_R->get_U(x_edge, y_edge, U_R);
-}

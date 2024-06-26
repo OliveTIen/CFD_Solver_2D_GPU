@@ -16,12 +16,6 @@
     <Filter Include="src\include">
       <UniqueIdentifier>{a7adfe9a-cfd7-41f3-8596-c693afbac073}</UniqueIdentifier>
     </Filter>
-    <Filter Include="src\include\easyloggingpp">
-      <UniqueIdentifier>{ad3f2508-6f02-4c87-9a17-7bc2a083267f}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="src\include\rapidjson">
-      <UniqueIdentifier>{0b3a33e6-4f29-46d4-87ea-67e0ee05b739}</UniqueIdentifier>
-    </Filter>
     <Filter Include="src\global">
       <UniqueIdentifier>{67b8fe61-ae4b-4c78-bc45-e39b906d045b}</UniqueIdentifier>
     </Filter>

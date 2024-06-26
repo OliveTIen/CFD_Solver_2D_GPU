@@ -1,44 +1,38 @@
-#ifndef EDGE_2D_H
+ï»¿#ifndef EDGE_2D_H
 #define EDGE_2D_H
 #include "head.h"
 
 class FVM_2D;
 class Element_2D;
 
-//µ¥ÔªÏàÁÚµÄ±ß£¬Ò»Î¬Ê±Îªµã
+//å•å…ƒç›¸é‚»çš„è¾¹ï¼Œä¸€ç»´æ—¶ä¸ºç‚¹
 class Edge_2D {
 public:
 	int ID;
-	int nodes[2];//½ÚµãID
-	int setID = -1;//±ß½çID(Êı×éÖ¸±ê+1£¬´Ó1¿ªÊ¼)¡£Í¨¹ısetID¿ÉÒÔµÃµ½setType
+	int nodes[2];//èŠ‚ç‚¹ID
+	int setID = -1;//è¾¹ç•ŒID(æ•°ç»„æŒ‡æ ‡+1ï¼Œä»1å¼€å§‹)ã€‚é€šè¿‡setIDå¯ä»¥å¾—åˆ°setType
 	Element_2D* pElement_L = nullptr;
 	Element_2D* pElement_R = nullptr;
-	myfloat length{};// ±ß³¤¶È¡£³õÊ¼¼ÆËãºÃ£¬ºóĞøÎŞĞè¼ÆËã¡£Îª¼õĞ¡ÄÚ´æÕ¼ÓÃ£¬ÓÃfloat
-	myfloat refLength{};// Á½²àµ¥ÔªÖĞĞÄ¾àÀë£¬ÓÃÓÚÌİ¶È¼ÆËã¡£
+	myfloat length{};// è¾¹é•¿åº¦ã€‚åˆå§‹è®¡ç®—å¥½ï¼Œåç»­æ— éœ€è®¡ç®—ã€‚ä¸ºå‡å°å†…å­˜å ç”¨ï¼Œç”¨float
+	myfloat refLength{};// ä¸¤ä¾§å•å…ƒä¸­å¿ƒè·ç¦»ï¼Œç”¨äºæ¢¯åº¦è®¡ç®—ã€‚
 	int GPUID = -1;
 
 public:
 	void getxy(FVM_2D* f, myfloat& x, myfloat& y);
-	myfloat getx();//ÓÃÄÚÁª»á±¨´í£ºÎ´¶¨ÒåÀàĞÍFVM_2D
+	myfloat getx();
 	myfloat gety();
 	//myfloat getLength(FVM_2D* f);
 	myfloat getLength();
-	// ¼ÆËãÁ½¸öµ¥ÔªÖĞĞÄµÄ¾àÀë
+	// è®¡ç®—ä¸¤ä¸ªå•å…ƒä¸­å¿ƒçš„è·ç¦»
 	myfloat getRefLength();
-	//void U_2_F_lambda(const Eigen::Vector4d U, Eigen::Vector4d& F, myfloat& lambda);
 
-	//¼ÆËã·¨Ïò£¬´ÓElement_Lµ½Element_R
+	// æœªä½¿ç”¨ è®¡ç®—æ³•å‘ï¼Œä»Element_Låˆ°Element_R
 	std::vector<myfloat> getDirectionN();
+	// æœªä½¿ç”¨
 	void getDirectionN(myfloat& nx, myfloat& ny);
-	//¼ÆËã±ß³¯Ïò£¬´Ónode0µ½node1
+	// è®¡ç®—è¾¹æœå‘ï¼Œä»node0åˆ°node1
 	std::vector<myfloat> getDirectionT();
-	//Ğı×ª¾ØÕó¡£flag=-1±íÊ¾Äæ¾ØÕó
-	Eigen::Matrix4d calT(FVM_2D* f, myfloat flag=1);
-	//»ñÈ¡±ßÖĞµã×ø±ê£¬´úÈë×ó/ÓÒµ¥Ôª·Ö²¼º¯Êı£¬»ñÈ¡U
-	//Eigen::Vector4d get_UL();
-	//Eigen::Vector4d get_UR();
-	//void get_ULUR(Eigen::Vector4d& U_L, Eigen::Vector4d&U_R);
-	void get_ULUR(myfloat* U_L, myfloat* U_R);
+	
 };
 
 #endif

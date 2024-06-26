@@ -1,4 +1,4 @@
-#include "FVM_2D.h"
+ï»¿#include "FVM_2D.h"
 #include "output/ConsolePrinter.h"
 //#include "output/ResidualCalculator.h"
 #include "output/LogWriter.h"
@@ -34,7 +34,7 @@ void FVM_2D::iniPNodeTable(int maxnodeID) {
 }
 
 void FVM_2D::iniEdges() {
-	// È·±£µ¥Ôª¡¢½ÚµãĞÅÏ¢ÒÑ¶ÁÈ¡¡£ÕâÊÇ×é×°edgeµÄÇ°ÌáÌõ¼ş
+	// ç¡®ä¿å•å…ƒã€èŠ‚ç‚¹ä¿¡æ¯å·²è¯»å–ã€‚è¿™æ˜¯ç»„è£…edgeçš„å‰ææ¡ä»¶
 	if (elements.size() == 0) {
 		LogWriter::logError("null elements exception, @FVM_2D::iniEdges\n");
 		exit(-1);
@@ -47,9 +47,9 @@ void FVM_2D::iniEdges() {
 		LogWriter::logError("null pNodeTable exception, @FVM_2D::iniEdges\n");
 		exit(-1);
 	}
-	// ²æ³Ë¼ÆËãµ¥ÔªÃæ»ı£¬È·±£½ÚµãË³ĞòÊÇÄæÊ±Õë¡£
+	// å‰ä¹˜è®¡ç®—å•å…ƒé¢ç§¯ï¼Œç¡®ä¿èŠ‚ç‚¹é¡ºåºæ˜¯é€†æ—¶é’ˆã€‚
 	for (int ie = 0; ie < elements.size(); ie++) {
-		// ²æ³Ë¼ÆËãµ¥ÔªÃæ»ı£¬ÈôÃæ»ıÎª¸º£¬Ó¦½»»»Ä³Á½¸ö½ÚµãË³Ğò£¬Ê¹µÃ½ÚµãË³ĞòÊÇÄæÊ±Õë
+		// å‰ä¹˜è®¡ç®—å•å…ƒé¢ç§¯ï¼Œè‹¥é¢ç§¯ä¸ºè´Ÿï¼Œåº”äº¤æ¢æŸä¸¤ä¸ªèŠ‚ç‚¹é¡ºåºï¼Œä½¿å¾—èŠ‚ç‚¹é¡ºåºæ˜¯é€†æ—¶é’ˆ
 		Element_2D& element_i = elements[ie];
 		double xn[3]{}, yn[3]{};
 		for (int i = 0; i < 3; i++) {
@@ -68,7 +68,7 @@ void FVM_2D::iniEdges() {
 			element_i.area = area;
 		}
 	}
-	// ×é×°edge
+	// ç»„è£…edge
 	for (int ie = 0; ie < elements.size(); ie++) {
 
 		int n0, n1, n2;
@@ -93,7 +93,7 @@ void FVM_2D::iniPEdgeTable() {
 }
 
 void FVM_2D::iniNode_neighborElements() {
-	// Ç°ÖÃÌõ¼ş£ºelements, elements.nodes, pNodeTable
+	// å‰ç½®æ¡ä»¶ï¼šelements, elements.nodes, pNodeTable
 	for (int ie = 0; ie < elements.size(); ie++) {
 		for (int jn = 0; jn < 3; jn++) {
 			Node_2D* pN = getNodeByID(elements[ie].nodes[jn]);
@@ -103,8 +103,8 @@ void FVM_2D::iniNode_neighborElements() {
 }
 
 Edge_2D* FVM_2D::getEdgeByNodeIDs(int n0, int n1) {
-	// ÔÚedgesÖĞ¸ù¾İnodeIDs²éÑ¯edge
-	//n0, n1±íÊ¾½ÚµãID
+	// åœ¨edgesä¸­æ ¹æ®nodeIDsæŸ¥è¯¢edge
+	//n0, n1è¡¨ç¤ºèŠ‚ç‚¹ID
 	if(edges.size()==0)return nullptr;
 	for (int i = 0; i < edges.size(); i++) {
 		if (edges[i].nodes[0] == n0 && edges[i].nodes[1] == n1)return &(edges[i]);
@@ -114,7 +114,7 @@ Edge_2D* FVM_2D::getEdgeByNodeIDs(int n0, int n1) {
 }
 
 void FVM_2D::iniEdges_registerSingle(int n0, int n1, Element_2D* pE) {
-	// ÒÀÀµÓÚelements, edges,
+	// ä¾èµ–äºelements, edges,
 	Edge_2D* pEdge = getEdgeByNodeIDs(n0, n1);
 	if (pEdge == nullptr) {
 		Edge_2D tmp_edge;
@@ -126,8 +126,8 @@ void FVM_2D::iniEdges_registerSingle(int n0, int n1, Element_2D* pE) {
 	}
 	else {
 		/*
-		Òşº¬¼ÙÉè£ºÒ»¸öedgeÈç¹ûÒÑ¾­ÊôÓÚÄ³¸öelement A£¬ÔòAÊÇ¸ÃedgeµÄ×óelement
-		Ò»¸öedge×î¶àÍ¬Ê±ÊôÓÚ2¸öelement
+		éšå«å‡è®¾ï¼šä¸€ä¸ªedgeå¦‚æœå·²ç»å±äºæŸä¸ªelement Aï¼Œåˆ™Aæ˜¯è¯¥edgeçš„å·¦element
+		ä¸€ä¸ªedgeæœ€å¤šåŒæ—¶å±äº2ä¸ªelement
 		*/ 
 		pEdge->pElement_R = pE;
 	}
@@ -146,27 +146,27 @@ void FVM_2D::iniPElementTable(int maxelementID) {
 
 void FVM_2D::iniElement_xy_pEdges() {
 	/*
-	³õÊ¼»¯µ¥ÔªµÄx,y,pEdges£¬±ãÓÚÒÔºó²éÕÒ
-	Ç°ÖÃÌõ¼ş£º
-	  ĞèÒªÓĞelementsÊı×é
-	  ĞèÒªÒÑÖªelementµÄnodeIDs
-	  nodeµÄ×ø±êÒÑ³õÊ¼»¯
-	  ÓĞedgesÊı×é£¬ÇÒedgeµÄnodeIDsÒÑ³õÊ¼»¯
-	Òş»¼£º
-	  Èı½ÇĞÎ±ß½ç£¬pEdgesÖ»ÓĞ3¸ö¡£¶ÔÓÚËÄ±ßĞÎ£¬pEdgesµÄnodeĞèÒªÖØĞÂÈ·¶¨
-	²»×ã£º
-	  ¸Ã·½Ê½Ê±¼ä¸´ÔÓ¶ÈÎªO(n^2)£¬Ê×ÏÈÒª±éÀúµ¥Ôª£¬È»ºógetEdgeByNodeIDsÒª±éÀúËùÓĞedge
-	  ¾¿¾¹¸ÃÈçºÎ²¢ĞĞ£¿
+	åˆå§‹åŒ–å•å…ƒçš„x,y,pEdgesï¼Œä¾¿äºä»¥åæŸ¥æ‰¾
+	å‰ç½®æ¡ä»¶ï¼š
+	  éœ€è¦æœ‰elementsæ•°ç»„
+	  éœ€è¦å·²çŸ¥elementçš„nodeIDs
+	  nodeçš„åæ ‡å·²åˆå§‹åŒ–
+	  æœ‰edgesæ•°ç»„ï¼Œä¸”edgeçš„nodeIDså·²åˆå§‹åŒ–
+	éšæ‚£ï¼š
+	  ä¸‰è§’å½¢è¾¹ç•Œï¼ŒpEdgesåªæœ‰3ä¸ªã€‚å¯¹äºå››è¾¹å½¢ï¼ŒpEdgesçš„nodeéœ€è¦é‡æ–°ç¡®å®š
+	ä¸è¶³ï¼š
+	  è¯¥æ–¹å¼æ—¶é—´å¤æ‚åº¦ä¸ºO(n^2)ï¼Œé¦–å…ˆè¦éå†å•å…ƒï¼Œç„¶ågetEdgeByNodeIDsè¦éå†æ‰€æœ‰edge
+	  ç©¶ç«Ÿè¯¥å¦‚ä½•å¹¶è¡Œï¼Ÿ
 	*/
 	if (elements.size() == 0) {
 		LogWriter::logError("null elements exception, @iniElement_xy_pEdges\n");
 		exit(-1);
 	}
 	for (int ie = 0; ie < elements.size(); ie++) {
-		//ÒÑ¾­calxy£¬ÒÔºó²»±Øµ£ĞÄ¡£µ«ÊÇ±ØĞëÒªÏÈ¶ÁÈ¡nodeÔÙ¶ÁÈ¡element
+		//å·²ç»calxyï¼Œä»¥åä¸å¿…æ‹…å¿ƒã€‚ä½†æ˜¯å¿…é¡»è¦å…ˆè¯»å–nodeå†è¯»å–element
 
 		Element_2D* pElement = &(elements[ie]);
-		//³õÊ¼»¯µ¥ÔªÖĞĞÄ×ø±ê
+		//åˆå§‹åŒ–å•å…ƒä¸­å¿ƒåæ ‡
 		double sum_x = 0;
 		double sum_y = 0;
 		for (int i = 0; i < 3; i++) {
@@ -183,12 +183,7 @@ void FVM_2D::iniElement_xy_pEdges() {
 
 
 	}
-	hasInitElementXY = true;//ÒÑ¾­³õÊ¼»¯µ¥ÔªÖĞĞÄ×ø±ê¡£
-}
-
-void FVM_2D::iniElement_xy_pEdges_parallel() {
-
-	
+	hasInitElementXY = true;//å·²ç»åˆå§‹åŒ–å•å…ƒä¸­å¿ƒåæ ‡ã€‚
 }
 
 void FVM_2D::iniEdges_lengths() {
@@ -203,7 +198,7 @@ void FVM_2D::iniEdges_lengths() {
 }
 
 Node_2D* FVM_2D::getNodeByID(int ID) {
-	// ·ÀÖ¹Ô½½ç
+	// é˜²æ­¢è¶Šç•Œ
 	if (ID < 0 || ID >= pNodeTable.size()) {
 		std::string error_msg = "ID out of range in FVM_2D::getNodeByID(), ID=" + std::to_string(ID) + "\n";
 		LogWriter::logAndPrintError(error_msg);
@@ -212,44 +207,3 @@ Node_2D* FVM_2D::getNodeByID(int ID) {
 	return pNodeTable[ID];
 }
 
-bool FVM_2D::isStable(std::vector<Element_2D> old) {
-	double sum = 0;
-	double res;
-	for (int ie = 0; ie < elements.size(); ie++) {
-		//sum += abs(elements[ie].calculateu() - old[ie].calculateu());
-		res = elements[ie].U[1] - old[ie].U[1];
-		sum += abs(res);
-	}
-	//std::cout << sum << std::endl;
-	if (sum <= 1e-12)return 1;
-	else return 0;
-}
-
-bool FVM_2D::isNan() {
-	// ¼ì²éÃ¿¸öÔªËØµÄÊØºãÁ¿£¬Êä³öËùÓĞÒì³£Öµ
-	bool is_nan = 0;
-	for (int ie = 0; ie < elements.size(); ie++) {
-		
-		std::string str;
-		if (isnan(elements[ie].U[0])) {// ÕâÀïµ÷ÓÃµÄÊÇÏµÍ³µÄisnanº¯Êı
-			is_nan = 1;
-			const double& x = elements[ie].x;
-			const double& y = elements[ie].y;
-			str = 
-				"rho ==\"NaN\", in element (x=" + std::to_string(x) + ", y=" + std::to_string(y) 
-				+ ", U[0,1,2,3]=" + std::to_string(elements[ie].U[0]) + ", " + std::to_string(elements[ie].U[1])
-				+ ", " + std::to_string(elements[ie].U[2]) + ", " + std::to_string(elements[ie].U[3]) + "\n";
-			//break;
-		}
-		else if(elements[ie].U[0] < 0) {
-			const double& x = elements[ie].x;
-			const double& y = elements[ie].y;
-			str =
-				"rho < 0, in element (x=" + std::to_string(x) + ", y=" + std::to_string(y)
-				+ ", U[0,1,2,3]=" + std::to_string(elements[ie].U[0]) + ", " + std::to_string(elements[ie].U[1])
-				+ ", " + std::to_string(elements[ie].U[2]) + ", " + std::to_string(elements[ie].U[3]) + "\n";
-		}
-		LogWriter::logAndPrint(str,LogWriter::Warning);
-	}
-	return is_nan;
-}

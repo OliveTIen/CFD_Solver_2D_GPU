@@ -1,4 +1,4 @@
-#ifndef FVM2D_H
+ï»¿#ifndef FVM2D_H
 #define FVM2D_H
 #include "Node_2D.h"
 #include "head.h"
@@ -7,6 +7,13 @@
 #include "Edge_2D.h"
 #include "BoundaryManager_2D.h"
 #include "Solver_2D.h"
+
+/*
+å†å²é—ç•™ä»£ç ï¼Œå­˜å‚¨æ•°æ®ï¼Œä»…åœ¨è¯»å–ç½‘æ ¼æ—¶ä½¿ç”¨ã€‚
+è®¡ç®—å‰ï¼Œä¼šç”¨OldDataConverterè½¬æ¢ä¸ºåˆ«çš„æ•°æ®ç»“æ„
+
+*/
+
 class FVM_2D {
 private:
 	FVM_2D() {};
@@ -17,49 +24,41 @@ public:
 	std::vector<Node_2D> nodes;
 	std::vector<Element_2D> elements;
 	std::vector<Edge_2D> edges;
-	std::vector<Node_2D*> pNodeTable;// ½«ID×÷ÎªĞĞºÅ£¬´æÈëÖ¸Õë
+	std::vector<Node_2D*> pNodeTable;// å°†IDä½œä¸ºè¡Œå·ï¼Œå­˜å…¥æŒ‡é’ˆ
 	std::vector<Element_2D*> pElementTable;
 	std::vector<Edge_2D*> pEdgeTable;// pEdgeTable[edges[i].ID] = &(edges[i]);
 
-	bool hasInitElementXY = false;// ÒÑ¾­³õÊ¼»¯µ¥ÔªÖĞĞÄ×ø±ê
-	bool hasInitEdgeLengths = false;// ÒÑ¾­³õÊ¼»¯edgesµÄlength, refLength
+	bool hasInitElementXY = false;// å·²ç»åˆå§‹åŒ–å•å…ƒä¸­å¿ƒåæ ‡
+	bool hasInitEdgeLengths = false;// å·²ç»åˆå§‹åŒ–edgesçš„length, refLength
 
 public:
 	//static FVM_2D* getInstance();
 	static FVM_2D* getInstance();
-	
-	// Çó½â
-	//void solve_CPU2(std::string suffix_out, std::string suffix_info);
-	// ¼ì²é·Ç·¨Öµ
-	bool isNan();
-	// ÊÇ·ñ´ïµ½ÎÈÌ¬
-	bool isStable(std::vector<Element_2D> old);
 
 
-	// ³õÊ¼»¯pNodeTable¡£¸ù¾İnodes½«ID×÷ÎªĞĞºÅ£¬´æÈëÖ¸Õë
+	// åˆå§‹åŒ–pNodeTableã€‚æ ¹æ®nodeså°†IDä½œä¸ºè¡Œå·ï¼Œå­˜å…¥æŒ‡é’ˆ
 	void iniPNodeTable(int maxnodeID);
-	// ³õÊ¼»¯edgesµÄID, nodes, pElement_L, pElement_R£¬²¢¼ÆËãµ¥ÔªÃæ»ı£¬´æ½øµ¥Ôªarea¡£ĞëÔÚ¶ÁÈ¡µ¥ÔªºÍ½ÚµãºóÁ¢¿Ìµ÷ÓÃ
+	// åˆå§‹åŒ–edgesçš„ID, nodes, pElement_L, pElement_Rï¼Œå¹¶è®¡ç®—å•å…ƒé¢ç§¯ï¼Œå­˜è¿›å•å…ƒareaã€‚é¡»åœ¨è¯»å–å•å…ƒå’ŒèŠ‚ç‚¹åç«‹åˆ»è°ƒç”¨
 	void iniEdges();
-	// ±»ÉÏÊöº¯Êıµ÷ÓÃ¡£²Ù×÷edges£¬Ìí¼Ó»òÍêÉÆedgeĞÅÏ¢¡£Ìí¼Ó£ºID,nodes,Element_L£¬ÍêÉÆ£ºElement_R
+	// è¢«ä¸Šè¿°å‡½æ•°è°ƒç”¨ã€‚æ“ä½œedgesï¼Œæ·»åŠ æˆ–å®Œå–„edgeä¿¡æ¯ã€‚æ·»åŠ ï¼šID,nodes,Element_Lï¼Œå®Œå–„ï¼šElement_R
 	void iniEdges_registerSingle(int n0, int n1, Element_2D* pE);
-	// ³õÊ¼»¯pEdgeTable¡£¸ù¾İedges½«ID×÷ÎªĞĞºÅ£¬´æÈëÖ¸Õë
+	// åˆå§‹åŒ–pEdgeTableã€‚æ ¹æ®edgeså°†IDä½œä¸ºè¡Œå·ï¼Œå­˜å…¥æŒ‡é’ˆ
 	void iniPEdgeTable();
-	// ³õÊ¼»¯pElementTable
+	// åˆå§‹åŒ–pElementTable
 	void iniPElementTable(int maxelementID);
-	// ³õÊ¼»¯elementsµÄ×ø±êxy¡¢pEdges
+	// åˆå§‹åŒ–elementsçš„åæ ‡xyã€pEdges
 	void iniElement_xy_pEdges();
-	// ³õÊ¼»¯nodesµÄÁÚ¾Óµ¥Ôª
+	// åˆå§‹åŒ–nodesçš„é‚»å±…å•å…ƒ
 	void iniNode_neighborElements();
-	// ³õÊ¼»¯edgesµÄlength¡¢refLength£¬´æÈëedge£¬·ÀÖ¹ÖØ¸´¼ÆËã
+	// åˆå§‹åŒ–edgesçš„lengthã€refLengthï¼Œå­˜å…¥edgeï¼Œé˜²æ­¢é‡å¤è®¡ç®—
 	void iniEdges_lengths();
 
-	// ËÑÑ°edges£¬¸ù¾İ½ÚµãIDÅĞ¶ÏedgeÊÇ·ñ´æÔÚ£¬²»´æÔÚÔòreturn nullptr¡£²»Çø·Ön0, n1ÏÈºó
+	// æœå¯»edgesï¼Œæ ¹æ®èŠ‚ç‚¹IDåˆ¤æ–­edgeæ˜¯å¦å­˜åœ¨ï¼Œä¸å­˜åœ¨åˆ™return nullptrã€‚ä¸åŒºåˆ†n0, n1å…ˆå
 	Edge_2D* getEdgeByNodeIDs(int n0, int n1);
-	// ¸ù¾İ½ÚµãID·µ»ØNodeÖ¸Õë
+	// æ ¹æ®èŠ‚ç‚¹IDè¿”å›NodeæŒ‡é’ˆ
 	Node_2D* getNodeByID(int ID);
 
 private:
-	void iniElement_xy_pEdges_parallel();
 
 };
 

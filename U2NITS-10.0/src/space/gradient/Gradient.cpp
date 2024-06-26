@@ -57,12 +57,11 @@ inline void get_U_linear(myfloat x, myfloat y, myfloat& U_dist, myint i_e, const
 
 void LimiterBarth(GPU::ElementFieldSoA& elementField_host, GPU::ElementSoA& element_host, GPU::NodeSoA& node_host) {
 	/*
-	函数目的：修正梯度
+	Barth限制器，用于修正梯度
 	对于二维非结构网格，要保证三角形顶点处U不超过相邻单元U
 	公式参见论文 The design and application of upwind schemes on unstructured meshes
 
-	OpenMP
-	创建8个线程后，确实CPU占用达到56%，然而计算速度反而下降了，从138.036变为124.603step/s
+	创建8个OpenMP线程后，确实CPU占用达到56%，然而计算速度反而下降了，从138.036变为124.603step/s
 	*/
 //#pragma omp parallel for num_threads(4)
 	for (myint iElement = 0; iElement < element_host.num_element; iElement++) {
@@ -114,7 +113,6 @@ void LimiterBarth(GPU::ElementFieldSoA& elementField_host, GPU::ElementSoA& elem
 	}
 }
 
-
 void U2NITS::Space::Gradient::Gradient(GPU::ElementSoA& element_host, GPU::NodeSoA& node_host, GPU::EdgeSoA& edge_host, GPU::ElementFieldSoA& elementField_host) {
 	/*
 	虽然对于最小二乘，节点相对值U_node_relative已经计算，限制器中无需再计算
@@ -158,7 +156,6 @@ void U2NITS::Space::Gradient::Gradient(GPU::ElementSoA& element_host, GPU::NodeS
 		is_called_first_time = false;
 	}
 }
-
 
 void U2NITS::Space::Gradient::GradientLeastSquare_2(GPU::ElementSoA& element_host, GPU::ElementFieldSoA& elementField_host, GPU::NodeSoA& node_host) {
 

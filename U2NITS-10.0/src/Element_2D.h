@@ -1,4 +1,4 @@
-#ifndef ELEMENT_2D_H
+ï»¿#ifndef ELEMENT_2D_H
 #define ELEMENT_2D_H
 #include "Node_2D.h"
 
@@ -6,56 +6,34 @@ class FVM_2D;
 class Edge_2D;
 
 class Element_2D {
-	//Èı½ÇĞÎµ¥ÔªÓÃÆÕÍ¨ÊıÖµ»ı·Ö£¬²»ÓÃ¸ßË¹»ı·Ö
-	//ËÄ±ßĞÎµ¥Ôª
+	//ä¸‰è§’å½¢å•å…ƒç”¨æ™®é€šæ•°å€¼ç§¯åˆ†ï¼Œä¸ç”¨é«˜æ–¯ç§¯åˆ†
+	//å››è¾¹å½¢å•å…ƒ
 public:
-	//½á¹¹ĞÅÏ¢
+	//ç»“æ„ä¿¡æ¯
 	int ID = -1;
-	int node_num = 3;//µ¥ÔªÀàĞÍ
-	int nodes[4]{-1,-1,-1,-1};//node ID Ö®ËùÒÔÓÃID¶ø²»ÊÇÖ¸Õë£¬ÊÇÒòÎª¶ÁÈ¡ÎÄ¼şÊÇÖ±½Ó¶ÁµÄElementID-NodeID-NodeID-NodeID
-	Edge_2D* pEdges[4]{};//ÒÑ¾­ÔÚ¶ÁÈ¡ÎÄ¼şÊ±³õÊ¼»¯£¬·ÅĞÄÓÃ
-	//Êı¾İĞÅÏ¢
-	myfloat x = 0;//µ¥ÔªÖĞĞÄ×ø±ê¡£Ê¹ÓÃÇ°Îñ±Øcalxy!
-	myfloat y = 0;//µ¥ÔªÖĞĞÄ×ø±ê
+	int node_num = 3;//å•å…ƒç±»å‹
+	int nodes[4]{-1,-1,-1,-1};//node ID ä¹‹æ‰€ä»¥ç”¨IDè€Œä¸æ˜¯æŒ‡é’ˆï¼Œæ˜¯å› ä¸ºè¯»å–æ–‡ä»¶æ˜¯ç›´æ¥è¯»çš„ElementID-NodeID-NodeID-NodeID
+	Edge_2D* pEdges[4]{};//å·²ç»åœ¨è¯»å–æ–‡ä»¶æ—¶åˆå§‹åŒ–ï¼Œæ”¾å¿ƒç”¨
+	//æ•°æ®ä¿¡æ¯
+	myfloat x = 0;//å•å…ƒä¸­å¿ƒåæ ‡ã€‚ä½¿ç”¨å‰åŠ¡å¿…calxy!
+	myfloat y = 0;//å•å…ƒä¸­å¿ƒåæ ‡
 	myfloat area = 0.0;
-	myfloat U[4] = { 1,0,0,1.1e5 / 0.4 };//ÊØºãÁ¿¦Ñ,¦Ñu,¦Ñv,¦ÑE
+	myfloat U[4] = { 1,0,0,1.1e5 / 0.4 };//å®ˆæ’é‡Ï,Ïu,Ïv,ÏE
 	myfloat Ux[4] = { 0,0,0,0 };//
 	myfloat Uy[4] = { 0,0,0,0 };//
-	myfloat Flux[4]{};//4¸öÊØºãÁ¿µÄÊıÖµÍ¨Á¿¡£Ã¿´Î¼Ó¼õÇ°ÒªÇåÁã
-	//¸½¼ÓĞÅÏ¢
-	myfloat deltaeig;//Roe¸ñÊ½¼ÆËãÍ¨Á¿Ê±ÓÃµ½¡£Ã¿Ò»ÂÖĞèÇåÁã
+	myfloat Flux[4]{};//4ä¸ªå®ˆæ’é‡çš„æ•°å€¼é€šé‡ã€‚æ¯æ¬¡åŠ å‡å‰è¦æ¸…é›¶
 
-	//static Eigen::MatrixXi si_ti;//¶¥µãµÄ²ÎÊı×ø±ê
-	//static Eigen::MatrixXd GaussPointMatrix;//¶¥µãµÄ²ÎÊı×ø±ê
+
 	int GPUID = -1;
 
 public:
-	//¼ÆËãÃæ»ı ²æ³Ë·¨¼ÆËãÈı½ÇĞÎÃæ»ı
+	//è®¡ç®—é¢ç§¯ å‰ä¹˜æ³•è®¡ç®—ä¸‰è§’å½¢é¢ç§¯
 	myfloat calArea(FVM_2D*);
-	//Ñ°ÕÒÏàÁÚµ¥Ôª£¬·µ»ØÖ¸ÕëÊı×é£¬Êı×é´óĞ¡Îª3£¬ÔªËØ°´edgeË³ĞòÅÅÁĞ£¬¿ÉÄÜÎªnullptr
+	//å¯»æ‰¾ç›¸é‚»å•å…ƒï¼Œè¿”å›æŒ‡é’ˆæ•°ç»„ï¼Œæ•°ç»„å¤§å°ä¸º3ï¼Œå…ƒç´ æŒ‰edgeé¡ºåºæ’åˆ—ï¼Œå¯èƒ½ä¸ºnullptr
 	std::vector<Element_2D*> findNeighbor();
-	//Ñ°ÕÒÏàÁÚµ¥Ôª£¬·µ»ØÖ¸ÕëÊı×é£¬ÌŞ³ı¿ÕÖ¸Õë
+	//å¯»æ‰¾ç›¸é‚»å•å…ƒï¼Œè¿”å›æŒ‡é’ˆæ•°ç»„ï¼Œå‰”é™¤ç©ºæŒ‡é’ˆ
 	std::vector<Element_2D*> findNeighbor_withoutNullptr();
-	//¼ÆËãµ½×î½üÁÚ¾ÓµÄ¾àÀë
-	myfloat calDistanceFromNearestNeighbor(FVM_2D* f);
-	//[Î´Ê¹ÓÃ]¼ÆËãUx¡¢Uy£¬²¢½øĞĞÏŞÖÆ
-	void updateSlope_Barth(FVM_2D* f);
-	//Ìİ¶ÈÏŞÖÆÆ÷¡£ĞŞÕıUx¡¢Uy£¬·ÀÖ¹¹ı´ó
-	void restructor_in_updateSlope_Barth(FVM_2D* f);
-	//(ÖØ¹¹)¸ù¾İµ¥Ôª·Ö²¼º¯Êı£¬¼ÆËãÄ³µãU¡£Ê¹ÓÃÏßĞÔ·Ö²¼Ç°£¬Ğë±£Ö¤UxUyÊÇ×îĞÂµÄ
-	void get_U(myfloat xpoint, myfloat ypoint, myfloat* _U);
-	Eigen::Vector4d get_U(myfloat xpoint, myfloat ypoint);
-	//¼ÆËãÈÎÒâµãµÄ·ÇÊØºãÁ¿U2¡£ÏßĞÔ²åÖµ
-									//Î´Íê³É
-	//ÊØºãÁ¿×ªËÙ¶È
-	std::vector<myfloat> U2uv(const Eigen::Vector4d& U_);
-	//[old]Éú³É±ß½çÔª
-	void generateElementEdge(FVM_2D* f);
-	//[old]×Óº¯Êı£¬ÓÃÓÚ×¢²áÄ³Ìõ±ß
-	void generateElementEdge_registerSingle(FVM_2D* f, int ID_0, int ID_1, int iEdge);
-	myfloat calLambda(const myfloat gamma);
-	//¼ÆËã¦«
-	myfloat calLambdaFlux(FVM_2D* f);
+	
 };
 
 #endif

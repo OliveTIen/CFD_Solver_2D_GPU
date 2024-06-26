@@ -1,4 +1,4 @@
-#ifndef NODE_2D_H
+ï»¿#ifndef NODE_2D_H
 #define NODE_2D_H
 #include "head.h"
 
@@ -10,15 +10,10 @@ public:
 	int ID = -1;
 	myfloat x = 0;
 	myfloat y = 0;
-	std::vector<Element_2D*> neighborElements;//ÁÚ¾Óµ¥Ôª¡£Í¨³£Îª3~7¸ö
+	std::vector<Element_2D*> neighborElements;//é‚»å±…å•å…ƒã€‚é€šå¸¸ä¸º3~7ä¸ª
 
-	int GPUID = -1; //GPU±àºÅ
+	int GPUID = -1; //GPUç¼–å·
 
-public:
-	//// ¼ÆËã½Úµãº¯ÊıÖµ¡£È¡ÁÚ¾Óµ¥ÔªµÄ·Ö²¼º¯ÊıµÄÆ½¾ùÖµ
-	//std::vector<myfloat> calNodeValue() const;
-	// ¼ÆËã½Úµãº¯ÊıÖµ¡£È¡ÁÚ¾Óµ¥ÔªµÄ·Ö²¼º¯ÊıµÄÆ½¾ùÖµ
-	void calNodeValue(myfloat res[4])const;
 };
 
 #endif

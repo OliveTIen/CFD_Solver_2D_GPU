@@ -1,4 +1,4 @@
-﻿﻿
+﻿﻿﻿
 
 # 基于GPU的二维非结构网格CFD求解器
 
@@ -85,10 +85,10 @@
 - cpptoml：文件解析库，用于解析toml类型的控制参数文件。它只有一个文件`cpptoml.h`，因此使用时可以直接包含，无需添加到解决方案中。
 - AMatrix：矩阵运算库。它包含`.cpp`文件，因此需要添加到解决方案中。
   该库在`U2NITS-10.0\src\space\Reconstructor.cpp`中被函数`Reconstructor::Element_T3_updateSlope_Barth`使用。
-- eigen：矩阵运算库。由于目前没用到大型稀疏矩阵计算，为性能考虑，我尽可能避免使用eigen库，然而以前遗留代码仍然部分使用了eigen
 
 `U2NITS-10.0/src/include`目录中还有其他依赖库，这些库是曾经使用过但现在不再需要的，主要包括：
 
+- eigen：矩阵运算库。目前没用到大型稀疏矩阵计算，已移除eigen库
 - rapidjson
 - easyloggingpp
 - stdgpu
@@ -182,9 +182,10 @@ time_advance = 3101             # 3101-显式单步推进，3103-RK3。GPU模式
 flag_reconstruct = 3002         # 3001-常量重构 3002-线性重构 3003-MUSCL插值
 flag_gradient = 2               # 1-最小二乘 2-GreenGauss。GPU模式下只能用GreenGauss
 flux_conservation_scheme = 2002 # 2001-LocalLaxFriedrichs, 2002-Roe
-flux_limiter = 1                # 0-none 1-barth 2-minmod 3-vanleer
+flux_limiter = 1                # 0-none 1-barth 2-minmod 3-vanleer 目前只支持barth限制器
 
 ```
+虽然看起来参数很多，但真正需要改的就只有
 
 ## 初边值条件
 
@@ -246,7 +247,31 @@ shock_y = 0
 shock_angle_degree = 60# 直线与x轴夹角
 ```
 
+# 代码说明
 
+(更新中)
+
+`src`目录中有一些文件是以前的遗留代码，它们位于`src`根目录，并没有用子文件夹包裹起来：
+
+```
+BoundaryManager_2D.cpp
+BoundaryManager_2D.h
+Edge_2D.cpp
+Edge_2D.h
+Element_2D.cpp
+Element_2D.h
+FVM_2D.cpp
+FVM_2D.h
+head.h
+Node_2D.cpp
+Node_2D.h
+```
+
+现在它们现在所起的作用就是在读取网格文件时组装数据，然后通过OldDataConverter(位于`src/solvers/OldDataConverter.h`)转换数据结构，传递到当前的新系统。
+
+> 该项目继承自我以前写的欧拉求解器`FVM_2D`。当时我是用的动态数组`std::vector`存储，且使用的Array of Structure(AoS)结构。但是现在我需要改为Structure of Array以更好适配GPU，因此需要用OldDataConverter进行转换。
+>
+> 现在这些遗留代码就是一坨屎山，严重影响了读取网格的速度。然而俗话说得好，屎山能运行就尽量不要动它，所以我把这座山包装了一下，与其他模块隔离
 
 # 其他知识
 
@@ -300,6 +325,7 @@ UNITS项目参见 `D:\tgl\Local\THUnits-Interface-UNITs\codes_UNITS_old\UNITs-v3
 
 2024-01-14
 新增toml格式文件读取（以前还自己造了个轮子，看来白造了），放在Include中
+
 > 转换工具 https://tooltt.com/json2toml/
 发现书籍：重构:改善现有代码的设计
 不到万不得已不需要重构。或者先把最常用的重构了，一次重构一点
@@ -509,14 +535,17 @@ PS：在排查error 701时，系统学习了CUDA编程的基础知识，包括�
 GPU程序性能瓶颈为内存拷贝和释放，占用50%以上时间。为避免每次都拷贝，需要把calculate dt放在GPU上完成，这就涉及到规约运算
 cuda-samples有两个项目是关于规约的，其中reductionMultiBlockCG是单文件项目，可以先看一看
 
-(05-15)已经学习了GPU规约算法。计划：
+2024-05-15
+已经学习了GPU规约算法。计划：
 在gpuSolver中添加数据结构，命名为elementFieldDt，存储与dt相关的物理量，例如每个单元的dt，计算dt所用的中间变量
 改造成GPU代码，
 
-(05-16)出现cuda error 13: invalid device symbol。跟规约程序对比后，将GPU::Math::reduce_device的最后一个参数取消使用，而直接
+2024-05-16
+出现cuda error 13: invalid device symbol。跟规约程序对比后，将GPU::Math::reduce_device的最后一个参数取消使用，而直接
 在函数体内从GPU::Math::p_operator_min复制到目标p_func_host
 
-(05-17)无法将float *[4]转换为const float *[] (无法将 float ** 转化为 (const float) * *)
+2024-05-17
+无法将float *[4]转换为const float *[] (无法将 float ** 转化为 (const float) * *)
 const float * * p 表示该指针的指向可以修改，指向的内容可以修改，指向再指向的内容不可修改
 const float * const * p 表示该指针的指向不可修改，指向的内容可以修改，指向再指向的内容不可修改
 const float const * * p 两个const位于float两侧，只相当于一个const，因此等价于const float * * p
@@ -573,3 +602,6 @@ cuda error the provided PTX was compiled with an unsupported toolchain
 
 2024-05-28
 如果发现绿色波浪线所描述的错误与实际不一致(明明错误已经解决但波浪线不消失)，可以删除"BROWSE.VC-1166caf"(位于`D:\Documents\VisualStudio_Temp`)
+
+2024-06-26
+移除了Eigen库。发现编译出的软件体积从6M锐减为3M。

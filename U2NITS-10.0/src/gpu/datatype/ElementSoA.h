@@ -1,12 +1,12 @@
-#ifndef _ELEMENT_SOA_H_
+ï»¿#ifndef _ELEMENT_SOA_H_
 #define _ELEMENT_SOA_H_
 
 #include "DefineType.h"
 #include "../Env.h"
 /*
-ElementSoAÖĞÓĞÁ½ÖÖÊı¾İ£¬Ò»ÖÖÊÇ»ù±¾²»±äµÄÊı¾İ£¬ÈçID¡¢½Úµã¡¢±ß¡¢ÁÚ¾ÓµÈ£¬
-ÁíÒ»ÖÖÊÇ±ä»¯µÄÊı¾İ£¬ÈçU¡¢Ux¡¢Uy¡¢FluxµÈ¡£
-±ä»¯µÄÊı¾İĞèÒªÔÚhostºÍdeviceÖ®¼äÍ¬²½£¬Òò´ËĞèÒªÓÃµ½cudaMemcpy¡£
+ElementSoAä¸­æœ‰ä¸¤ç§æ•°æ®ï¼Œä¸€ç§æ˜¯åŸºæœ¬ä¸å˜çš„æ•°æ®ï¼Œå¦‚IDã€èŠ‚ç‚¹ã€è¾¹ã€é‚»å±…ç­‰ï¼Œ
+å¦ä¸€ç§æ˜¯å˜åŒ–çš„æ•°æ®ï¼Œå¦‚Uã€Uxã€Uyã€Fluxç­‰ã€‚
+å˜åŒ–çš„æ•°æ®éœ€è¦åœ¨hostå’Œdeviceä¹‹é—´åŒæ­¥ï¼Œå› æ­¤éœ€è¦ç”¨åˆ°cudaMemcpyã€‚
 
 
 */
@@ -18,8 +18,8 @@ namespace GPU {
 
 		myint* ID;
 		myint* nodes[4];
-		myint* edges[4];// faces¡£Èı½ÇĞÎµ¥Ôª£¬µÚ4Ìõ±ßÈ¡-1
-		myint* neighbors[4];// ÁÚ¾Óµ¥Ôª£¬°´edgesË³ĞòÅÅÁĞ£»-1±íÊ¾ÎŞÁÚ¾Ó£»ÖÜÆÚ±ß½çÒÀÈ»ÊÇ-1
+		myint* edges[4];// facesã€‚ä¸‰è§’å½¢å•å…ƒï¼Œç¬¬4æ¡è¾¹å–-1
+		myint* neighbors[4];// é‚»å±…å•å…ƒï¼ŒæŒ‰edgesé¡ºåºæ’åˆ—ï¼›-1è¡¨ç¤ºæ— é‚»å±…ï¼›å‘¨æœŸè¾¹ç•Œä¾ç„¶æ˜¯-1
 		myfloat* xy[2];
 		myfloat* volume;
 		//myfloat* y;
@@ -108,23 +108,22 @@ namespace GPU {
 /*
 
 public:
-	//½á¹¹ĞÅÏ¢
+	//ç»“æ„ä¿¡æ¯
 	myint ID = -1;
-	myint node_num = 3;//µ¥ÔªÀàĞÍ
-	myint nodes[4]{-1,-1,-1,-1};//node ID Ö®ËùÒÔÓÃID¶ø²»ÊÇÖ¸Õë£¬ÊÇÒòÎª¶ÁÈ¡ÎÄ¼şÊÇÖ±½Ó¶ÁµÄElementID-NodeID-NodeID-NodeID
-	Edge_2D* pEdges[4]{};//ÒÑ¾­ÔÚ¶ÁÈ¡ÎÄ¼şÊ±³õÊ¼»¯£¬·ÅĞÄÓÃ
-	//Êı¾İĞÅÏ¢
-	double x = 0;//µ¥ÔªÖĞĞÄ×ø±ê¡£Ê¹ÓÃÇ°Îñ±Øcalxy!
-	double y = 0;//µ¥ÔªÖĞĞÄ×ø±ê
-	double U[4] = { 1,0,0,1.1e5 / 0.4 };//ÊØºãÁ¿¦Ñ,¦Ñu,¦Ñv,¦ÑE
+	myint node_num = 3;//å•å…ƒç±»å‹
+	myint nodes[4]{-1,-1,-1,-1};//node ID ä¹‹æ‰€ä»¥ç”¨IDè€Œä¸æ˜¯æŒ‡é’ˆï¼Œæ˜¯å› ä¸ºè¯»å–æ–‡ä»¶æ˜¯ç›´æ¥è¯»çš„ElementID-NodeID-NodeID-NodeID
+	Edge_2D* pEdges[4]{};//å·²ç»åœ¨è¯»å–æ–‡ä»¶æ—¶åˆå§‹åŒ–ï¼Œæ”¾å¿ƒç”¨
+	//æ•°æ®ä¿¡æ¯
+	double x = 0;//å•å…ƒä¸­å¿ƒåæ ‡ã€‚ä½¿ç”¨å‰åŠ¡å¿…calxy!
+	double y = 0;//å•å…ƒä¸­å¿ƒåæ ‡
+	double U[4] = { 1,0,0,1.1e5 / 0.4 };//å®ˆæ’é‡Ï,Ïu,Ïv,ÏE
 	double Ux[4] = { 0,0,0,0 };//
 	double Uy[4] = { 0,0,0,0 };//
-	double Flux[4]{};//4¸öÊØºãÁ¿µÄÊıÖµÍ¨Á¿¡£Ã¿´Î¼Ó¼õÇ°ÒªÇåÁã
-	//¸½¼ÓĞÅÏ¢
-	double deltaeig;//Roe¸ñÊ½¼ÆËãÍ¨Á¿Ê±ÓÃµ½¡£Ã¿Ò»ÂÖĞèÇåÁã
+	double Flux[4]{};//4ä¸ªå®ˆæ’é‡çš„æ•°å€¼é€šé‡ã€‚æ¯æ¬¡åŠ å‡å‰è¦æ¸…é›¶
+	//é™„åŠ ä¿¡æ¯
+	double deltaeig;//Roeæ ¼å¼è®¡ç®—é€šé‡æ—¶ç”¨åˆ°ã€‚æ¯ä¸€è½®éœ€æ¸…é›¶
 
-	//static Eigen::MatrixXi si_ti;//¶¥µãµÄ²ÎÊı×ø±ê
-	//static Eigen::MatrixXd GaussPointMatrix;//¶¥µãµÄ²ÎÊı×ø±ê
+
 	myint GPUID = -1;
 
 */

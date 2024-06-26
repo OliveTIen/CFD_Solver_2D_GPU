@@ -2,12 +2,17 @@
 #define LIMITER_H
 #include <iostream>
 #include "../gpu/datatype/DefineType.h"
+/*
+[别删]
+这是遗留代码。部分限制器(barth)已经转移至Gradient.cpp中
+TVD还没转移
+如果删了的话，以后再写TVDLimiter又要重新查一遍
+*/
+
 class Element_2D;
 class Limiter {
 	
 public:
-	static void modifySlope_Barth(Element_2D* pE);
-	static myfloat BAP(myfloat* a, int n, int n_wbap);
 	static myfloat TVDlimiter(myfloat var1, myfloat var2, myfloat epsm,
 		int lim_type);
 

@@ -24,6 +24,7 @@
 
 
 void WinGui::init() {
+    if (!m_enabled)return;
     m_control = new Control();
     m_scene = new Scene();
 
@@ -88,6 +89,7 @@ void WinGui::init() {
 
 
 void WinGui::render() {
+    if (!m_enabled)return;
     auto& control = *m_control;
     float current_time = static_cast<float>(glfwGetTime());
     control.deltaTime = current_time - control.lastTime;
@@ -108,6 +110,8 @@ void WinGui::render() {
 }
 
 void WinGui::cleanup() {
+    if (!m_enabled)return;
+
     m_scene->cleanup();
 
     // cleanup imgui
@@ -430,5 +434,6 @@ void WinGui::buttons_ColorTest() {
 
 
 bool WinGui::windowShouldClose() {
+    if (!m_enabled)return true;
     return glfwWindowShouldClose(m_window);
 }

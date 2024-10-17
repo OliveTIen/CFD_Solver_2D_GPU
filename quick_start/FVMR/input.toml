@@ -2,6 +2,7 @@
 
 
 [render]
+show_gui = true
 enable_print = true
 enable_write_file = false
 range_1 = 0

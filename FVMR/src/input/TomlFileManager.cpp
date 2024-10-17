@@ -1,4 +1,4 @@
-#include "TomlFileManager.h"
+ï»¿#include "TomlFileManager.h"
 #include "../global/GlobalPara.h"
 #include <iostream>
 #include "../output/LogWriter.h"
@@ -11,7 +11,7 @@
 #include "FieldInitializer.h"
 #include "../drivers/CDriver.h"
 
-// ÀàÖ¸Õë
+// ç±»æŒ‡é’ˆ
 TomlFileManager* TomlFileManager::classPointer = nullptr;
 
 TomlFileManager* TomlFileManager::getInstance() {
@@ -21,13 +21,13 @@ TomlFileManager* TomlFileManager::getInstance() {
     return classPointer;
 }
 
-// CPP¶ÁÈ¡TOMLÎÄ¼ş¸ñÊ½µÄ·½·¨ https://blog.csdn.net/jiaostyle/article/details/125695972
+// CPPè¯»å–TOMLæ–‡ä»¶æ ¼å¼çš„æ–¹æ³• https://blog.csdn.net/jiaostyle/article/details/125695972
 void TomlFileManager::readTomlFile(std::string fullFilePath) {
-    // ¶ÔÓÚOptionalValue£¬²»Ó¦¸ÃÓÃÒì³£´¦Àí£¬ÒòÎªthrow»áÖĞ¶ÏtryºóÃæµÄ´úÂë£¬
-    // µ¼ÖÂºóÃæµÄ±äÁ¿Ã»ÓĞ±»³õÊ¼»¯
+    // å¯¹äºOptionalValueï¼Œä¸åº”è¯¥ç”¨å¼‚å¸¸å¤„ç†ï¼Œå› ä¸ºthrowä¼šä¸­æ–­tryåé¢çš„ä»£ç ï¼Œ
+    // å¯¼è‡´åé¢çš„å˜é‡æ²¡æœ‰è¢«åˆå§‹åŒ–
     try {
-        m_tree = cpptoml::parse_file(fullFilePath);// ÈôÎÄ¼şÂ·¾¶´íÎó£¬»òÕßÄÚÈİÆ´Ğ´´íÎó£¬ÔòÅ×³öÒì³£
-        // ×ªglobalpara
+        m_tree = cpptoml::parse_file(fullFilePath);// è‹¥æ–‡ä»¶è·¯å¾„é”™è¯¯ï¼Œæˆ–è€…å†…å®¹æ‹¼å†™é”™è¯¯ï¼Œåˆ™æŠ›å‡ºå¼‚å¸¸
+        // è½¬globalpara
         treeToGlobalParameter();
         //handleConflictingInputs();
     }
@@ -49,11 +49,11 @@ inline double get_velocity_magnitude(myfloat* ruvp) {
     return sqrt(u * u + v * v);
 }
 
-// »ñÈ¡²Î¿¼À´Á÷²ÎÊı
+// è·å–å‚è€ƒæ¥æµå‚æ•°
 void get_reference_value_according_to_initialType(myfloat& rho_ref, myfloat& U_ref, myfloat& L_ref, int initial_type) {
     /*
-    ¶ÔÓÚ¼¤²¨¹ÜºÍË«ÂíºÕ·´Éä£¬È¡inletºÍoutletµÄËÙ¶È´óÕß×÷ÎªÀ´Á÷²ÎÊı
-    ÆäËûÇé¿ö£¬È¡inf×÷ÎªÀ´Á÷²ÎÊı
+    å¯¹äºæ¿€æ³¢ç®¡å’ŒåŒé©¬èµ«åå°„ï¼Œå–inletå’Œoutletçš„é€Ÿåº¦å¤§è€…ä½œä¸ºæ¥æµå‚æ•°
+    å…¶ä»–æƒ…å†µï¼Œå–infä½œä¸ºæ¥æµå‚æ•°
     */
     using namespace GlobalPara::boundaryCondition::_2D;
     if (initial_type == type_shock_tube || initial_type == type_double_mach_reflection) {
@@ -72,15 +72,15 @@ void get_reference_value_according_to_initialType(myfloat& rho_ref, myfloat& U_r
         rho_ref = inf::ruvp[0];
         U_ref = get_velocity_magnitude(inf::ruvp);
     }
-    L_ref = GlobalPara::constant::referenceArea;// ¶şÎ¬£¬ÎŞĞè¿ª¸ùºÅ
+    L_ref = GlobalPara::constant::referenceArea;// äºŒç»´ï¼Œæ— éœ€å¼€æ ¹å·
 }
 
-// ´Ótoml¶ÁÈ¡mu0ºÍRe¡£¶ÁÈ¡1¸ö£¬ÁíÒ»¸ö¸ù¾İÀ´Á÷²ÎÊı×Ô¶¯È·¶¨¡£ÒÀÀµÓÚGlobalPara::referencearea
+// ä»tomlè¯»å–mu0å’ŒReã€‚è¯»å–1ä¸ªï¼Œå¦ä¸€ä¸ªæ ¹æ®æ¥æµå‚æ•°è‡ªåŠ¨ç¡®å®šã€‚ä¾èµ–äºGlobalPara::referencearea
 void read_mu0_Re_from_config() {
     TomlFileManager* t = TomlFileManager::getInstance();
 
     myfloat rho_ref{ 1.0 }, U_ref{ 1.0 }, L_ref{ 1.0 };
-    get_reference_value_according_to_initialType(rho_ref, U_ref, L_ref, FieldInitializer::getInstance()->get_initial_type());// »ñÈ¡²Î¿¼À´Á÷²ÎÊı
+    get_reference_value_according_to_initialType(rho_ref, U_ref, L_ref, FieldInitializer::getInstance()->get_initial_type());// è·å–å‚è€ƒæ¥æµå‚æ•°
 
     bool calculate_mu0_by_Re = false;
     t->getValueIfExists("constant.calculate_mu0_by_Re", calculate_mu0_by_Re);
@@ -115,8 +115,9 @@ void TomlFileManager::treeToGlobalParameter() {
     getValue("basic.useGPU", GlobalPara::basic::useGPU);
     getValue("basic.isDebugMode", GlobalPara::basic::isDebugMode);
 
-    getValue("render.range_1", GlobalPara::render::range_1);
-    getValue("render.range_2", GlobalPara::render::range_2);
+    getValueIfExists("render.show_gui", U2NITS::CDriver::getInstance()->show_gui);
+    getValueIfExists("render.range_1", GlobalPara::render::range_1);
+    getValueIfExists("render.range_2", GlobalPara::render::range_2);
     getValueIfExists("render.enable_print", U2NITS::CDriver::getInstance()->enable_print);
     getValueIfExists("render.enable_write_file", U2NITS::CDriver::getInstance()->enable_write_file);
 
@@ -126,7 +127,7 @@ void TomlFileManager::treeToGlobalParameter() {
     getValue("constant.gamma", GlobalPara::constant::gamma);
     getValue("constant.referenceArea", GlobalPara::constant::referenceArea);
     getValueIfExists("constant.mesh_scale_factor", GlobalPara::constant::mesh_scale_factor);
-    // Ó¦ÔÚ¶ÁÈ¡referenceAreaºÍmesh_scale_factorºóĞŞÕıreferenceArea
+    // åº”åœ¨è¯»å–referenceAreaå’Œmesh_scale_factoråä¿®æ­£referenceArea
     GlobalPara::constant::referenceArea *= GlobalPara::constant::mesh_scale_factor;
 
     getValue_boundaryCondition2D("boundaryCondition.2D.inf", GlobalPara::boundaryCondition::_2D::inf::ruvp);
@@ -134,7 +135,7 @@ void TomlFileManager::treeToGlobalParameter() {
     getValue_boundaryCondition2D("boundaryCondition.2D.outlet", GlobalPara::boundaryCondition::_2D::outlet::ruvp);
 
     read_initialCondition_from_config();
-    read_mu0_Re_from_config();// Ó¦·ÅÔÚreferenceArea¡¢initial_typeºóÃæ
+    read_mu0_Re_from_config();// åº”æ”¾åœ¨referenceAreaã€initial_typeåé¢
 
     getValue("output.step_per_print", GlobalPara::output::step_per_print);
     getValue("output.step_per_output_field", GlobalPara::output::step_per_output_field);
@@ -169,12 +170,12 @@ void TomlFileManager::treeToGlobalParameter() {
 }
 
 void TomlFileManager::treeToSGlobalPara(SGlobalPara::SGlobalPara& spara) {
-    // [Î´Íê³É]½¨Òé·ÅÔÚCInput£¬ÒòÎªºóÃæSetInitialConditionÊ±»áĞŞ¸ÄGlobalPara
+    // [æœªå®Œæˆ]å»ºè®®æ”¾åœ¨CInputï¼Œå› ä¸ºåé¢SetInitialConditionæ—¶ä¼šä¿®æ”¹GlobalPara
     LogWriter::logAndPrintError("Unimplemented error @TomlFileManager::treeToSGlobalPara");
 }
 
 void TomlFileManager::handleConflictingInputs() {
-    // ´¦Àí²¿·ÖÊäÈë²ÎÊı£¬¸ù¾İMaºÍAOA¼ÆËãruvp
+    // å¤„ç†éƒ¨åˆ†è¾“å…¥å‚æ•°ï¼Œæ ¹æ®Maå’ŒAOAè®¡ç®—ruvp
     
     // ruvp 
     using namespace GlobalPara::boundaryCondition::_2D;
@@ -198,7 +199,7 @@ void TomlFileManager::handleConflictingInputs() {
 
 void TomlFileManager::getValue_boundaryCondition2D(std::string parent, myfloat ruvp[4]) {
     /*
-    ÊÂÊµÉÏinput_mode Ma AoAÎŞĞè×÷ÎªÈ«¾Ö±äÁ¿£¬ÒòÎª½ö½öÔÚÊäÈëÊ±ÓÃµ½
+    äº‹å®ä¸Šinput_mode Ma AoAæ— éœ€ä½œä¸ºå…¨å±€å˜é‡ï¼Œå› ä¸ºä»…ä»…åœ¨è¾“å…¥æ—¶ç”¨åˆ°
     */
     // eg. parent = "boundaryCondition.2D.inf"
     int input_mode = -1;

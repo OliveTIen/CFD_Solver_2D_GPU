@@ -1,6 +1,6 @@
-#ifndef _GPU_CDRIVER_H_
+ï»¿#ifndef _GPU_CDRIVER_H_
 #define _GPU_CDRIVER_H_
-// ÓÃÓÚÌæ´úFVM_2D²¿·Ö¹¦ÄÜ
+// ç”¨äºæ›¿ä»£FVM_2Déƒ¨åˆ†åŠŸèƒ½
 #include "../solvers/GPUSolver2.h"
 #include "../input/CInput.h"
 #include "../output/COutput.h"
@@ -18,11 +18,9 @@ namespace U2NITS {
 		int m_last_istep = 0;
 		double m_last_t = 0.0;
 		double m_last_snapshot_time = 0.0;
-		double m_snapshot_cold_time = 1800.0;// ±£´æ¿ìÕÕµÄÀäÈ´Ê±¼ä[Ãë]£¬Ä¬ÈÏÎª30min=1800s
+		double m_snapshot_cold_time = 1800.0;// default 30min=1800s ä¿å­˜å¿«ç…§çš„å†·å´æ—¶é—´[ç§’]ï¼Œé»˜è®¤ä¸º30min=1800s
 
 	public:
-		bool enable_print = true;
-		bool enable_write_file = true;
 		enum PauseSignal {
 			_NoSignal,
 			_EscPressed,
@@ -32,16 +30,20 @@ namespace U2NITS {
 		};
 		class SignalPack {
 		public:
-			bool b_writeContinue = false;// ĞøËã
-			bool b_writeTecplot = false;// Á÷³¡
-			bool b_writeRecovery = false;// [ÒÑÆúÓÃ]ÒòÎª²»Èç±£´æĞøËãÎÄ¼ş£¬ËùÒÔÃ»ÓÃµ½
+			bool b_writeContinue = false;// ç»­ç®—
+			bool b_writeTecplot = false;// æµåœº
+			bool b_writeRecovery = false;// [å·²å¼ƒç”¨]å› ä¸ºä¸å¦‚ä¿å­˜ç»­ç®—æ–‡ä»¶ï¼Œæ‰€ä»¥æ²¡ç”¨åˆ°
 			bool b_nanDetected = false;
-			bool b_writeHist = false;// ²Ğ²î
-			bool b_print = false;// ÆÁÄ»
-			PauseSignal pauseSignal = _NoSignal;// ÔİÍ£ĞÅºÅ
+			bool b_writeHist = false;// æ®‹å·®
+			bool b_print = false;// å±å¹•
+			PauseSignal pauseSignal = _NoSignal;// æš‚åœä¿¡å·
 		};
 
-	public:
+		// following parameters are read from "input.toml"
+		bool show_gui = true;
+		bool enable_print = true;
+		bool enable_write_file = true;
+
 		static CDriver* getInstance();
 		void start();
 		static void saveAndExit(int _Code);

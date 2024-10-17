@@ -1,4 +1,4 @@
-#include "CDriver.h"
+ï»¿#include "CDriver.h"
 #include "../legacy/FVM_2D.h"
 #include "../math/CommonValue.h"
 #include "../global/CExit.h"
@@ -22,9 +22,9 @@ void U2NITS::CDriver::start() {
 	The bottle neck of GPU code is memcpy, which takes up about 50% of 
 	the total calculation time.
 
-	GPU´úÂëÆ¿¾±ÔÚÓÚ¿½±´Õ¼ÓÃ50%Ê±¼ä
-	²»ÒªÃ¿²½¶¼device_to_host£¬Ö»ÓĞĞèÒªĞ´ÎÄ¼şÊ±²Ådevice_to_host
-	Òò´ËĞèÒª°Ñdevice_to_host·ÅÔÚsolver.updateResidualVector();Ö®Ç°
+	GPUä»£ç ç“¶é¢ˆåœ¨äºæ‹·è´å ç”¨50%æ—¶é—´
+	ä¸è¦æ¯æ­¥éƒ½device_to_hostï¼Œåªæœ‰éœ€è¦å†™æ–‡ä»¶æ—¶æ‰device_to_host
+	å› æ­¤éœ€è¦æŠŠdevice_to_hostæ”¾åœ¨solver.updateResidualVector();ä¹‹å‰
 	*/
 
 	out.console.printWelcomeInterface();
@@ -32,16 +32,17 @@ void U2NITS::CDriver::start() {
 	input.readField_1();
 	solver.allocateMemory();
 	solver.initializeData();
-	// should be put after reading config ²¿·Ö¿ØÖÆ²ÎÊıµÄÒıÓÃ¡£ĞèÒªÔÚreadConfigºóÊ¹ÓÃ£¬·ñÔòÎ´³õÊ¼»¯
+	// should be put after reading config éƒ¨åˆ†æ§åˆ¶å‚æ•°çš„å¼•ç”¨ã€‚éœ€è¦åœ¨readConfigåä½¿ç”¨ï¼Œå¦åˆ™æœªåˆå§‹åŒ–
 	const int istep_start = GlobalPara::time::istep_previous;
 	const int maxIteration = GlobalPara::output::maxIteration;
 	int istep = istep_start;// current step
 	myfloat t = GlobalPara::time::t_previous;// current physical time
 	const myfloat T = GlobalPara::time::max_physical_time;
-	double current_time = 0.0;// program running time (in seconds)µ±Ç°Ê±¼ä[Ãë](´Ó¼ÆÊ±Æ÷¿ªÊ¼ËãÆğ)
-	double pure_calculate_speed = 0.0;// time calculation costs (in seconds) µü´ú´¿¼ÆËã²¿·ÖËùÓÃÊ±¼ä
+	double current_time = 0.0;// program running time (in seconds)å½“å‰æ—¶é—´[ç§’](ä»è®¡æ—¶å™¨å¼€å§‹ç®—èµ·)
+	double pure_calculate_speed = 0.0;// time calculation costs (in seconds) è¿­ä»£çº¯è®¡ç®—éƒ¨åˆ†æ‰€ç”¨æ—¶é—´
 	double mean_speed = 0.0;
 
+	gui.set_enabled(show_gui); // same as; gui.get_enabled_ref() = show_gui;
 	gui.init();
 	// iteration
 	out.hist.setFilePath(out.getDir() + GlobalPara::basic::filename + "_hist.dat");
@@ -76,7 +77,7 @@ void U2NITS::CDriver::start() {
 			solver.setIterationStarted(true);
 		}
 
-		if(enable_print) std::cout << ".";// to show that it doesn't stucks Êä³ö¡°.¡±±íÊ¾ÕıÔÚ¼ÆËã£¬Ã»ÓĞ¿¨¶Ù
+		if(enable_print) std::cout << ".";// to show that it doesn't stucks è¾“å‡ºâ€œ.â€è¡¨ç¤ºæ­£åœ¨è®¡ç®—ï¼Œæ²¡æœ‰å¡é¡¿
 
 		double new_time = out.timer.getTime();
 		//pure_calculate_speed = 1.0 / (new_time - current_time);
@@ -88,9 +89,9 @@ void U2NITS::CDriver::start() {
 		modifySignalPack2_pause(sp, istep, maxIteration, t, T, solver.residualVector[0]);
 
 		/*
-		ĞÂ´úÂë ÈôĞèÒª´òÓ¡»òÊä³öÎÄ¼ş£¬Ôò¿½±´Éè±¸µ½Ö÷»ú
-		ĞèÒª¿½±´µÄÊı¾İ£º
-		elementField_host ¼ÆËã²Ğ²îresidualVector¡¢¼ÆËã½ÚµãÊä³öÖµnodeField_host(ÓÃÓÚtecplot)¡¢Êä³öcontinuefile/recoveryfile
+		æ–°ä»£ç  è‹¥éœ€è¦æ‰“å°æˆ–è¾“å‡ºæ–‡ä»¶ï¼Œåˆ™æ‹·è´è®¾å¤‡åˆ°ä¸»æœº
+		éœ€è¦æ‹·è´çš„æ•°æ®ï¼š
+		elementField_host è®¡ç®—æ®‹å·®residualVectorã€è®¡ç®—èŠ‚ç‚¹è¾“å‡ºå€¼nodeField_host(ç”¨äºtecplot)ã€è¾“å‡ºcontinuefile/recoveryfile
 		*/ 
 		if (GlobalPara::basic::useGPU) {
 			if (sp.b_print ||
@@ -99,10 +100,10 @@ void U2NITS::CDriver::start() {
 			}
 		}
 
-		// print ´òÓ¡²Ù×÷
+		// print æ‰“å°æ“ä½œ
 		if (enable_print && sp.b_print) {
-			solver.updateResidualVector();// ¸ù¾İelementField_host¼ÆËãresidualVector
-			// µ÷ÕûCFLÊı£¬ºóÃæ¼ÆËãdtÊ±»áÓÃµ½
+			solver.updateResidualVector();// æ ¹æ®elementField_hostè®¡ç®—residualVector
+			// è°ƒæ•´CFLæ•°ï¼Œåé¢è®¡ç®—dtæ—¶ä¼šç”¨åˆ°
 			bool apply_strategy_success = false;
 			RoutineController::getInstance()->applyStrategy(solver.residualVector[0], GlobalPara::time::CFL, istep, apply_strategy_success);
 			if (apply_strategy_success) {
@@ -118,7 +119,7 @@ void U2NITS::CDriver::start() {
 			out.console.setSolveInfo(istep, maxIteration, out.getFieldWriter()->getNumTecplotFileWritten(), current_time, t, T, solver.residualVector, GlobalPara::time::CFL, mean_speed, pure_calculate_speed);
 			out.console.print(out.console.getSolveInfo());
 		}
-		// show info ¼ÇÂ¼Çó½âËÙ¶È
+		// show info è®°å½•æ±‚è§£é€Ÿåº¦
 		if (sp.b_writeContinue || sp.b_writeTecplot) {
 			out.log.log("write field file. \n");
 			std::stringstream ss;
@@ -190,14 +191,14 @@ void U2NITS::CDriver::m_saveAndExit(int _Code) {
 
 void U2NITS::CDriver::modifySignalPack1_output(SignalPack& s, int istep, int maxIteration, double current_time) {
 
-	// force to write file in the first step µÚÒ»²½Ç¿ÖÆÊä³ö
+	// force to write file in the first step ç¬¬ä¸€æ­¥å¼ºåˆ¶è¾“å‡º
 	if (istep == 1) {
 		s.b_print = true;
 		s.b_writeTecplot = true;
 		s.b_writeHist = true;
 	}
 
-	// write file every certain steps Ã¿¸ôÒ»¶¨²½ÊıÊä³ö
+	// write file every certain steps æ¯éš”ä¸€å®šæ­¥æ•°è¾“å‡º
 	const int offset = 0;
 	if (istep % GlobalPara::output::step_per_print == offset) {
 		s.b_print = true;
@@ -212,7 +213,7 @@ void U2NITS::CDriver::modifySignalPack1_output(SignalPack& s, int istep, int max
 		s.b_writeHist = true;
 	}
 
-	// write file every certain time Ã¿¸ôÒ»¶ÎÊ±¼äÊä³ö
+	// write file every certain time æ¯éš”ä¸€æ®µæ—¶é—´è¾“å‡º
 	double duration_since_last_snapshot = current_time - m_last_snapshot_time;
 	if (duration_since_last_snapshot > m_snapshot_cold_time) {
 		s.b_writeContinue = true;
@@ -227,10 +228,12 @@ void U2NITS::CDriver::modifySignalPack2_pause(SignalPack& s, int istep, int maxI
 		s.b_writeContinue = true;
 		s.b_writeTecplot = true;
 		s.b_nanDetected = true;
-		s.b_writeRecovery = false;// do NOT write abnormal recovery file ·ÀÖ¹Ô­Õı³£µÄrecovery±»º¬ÓĞnanµÄrecovery¸²¸Ç
+		s.b_writeRecovery = false;// do NOT write abnormal recovery file é˜²æ­¢åŸæ­£å¸¸çš„recoveryè¢«å«æœ‰nançš„recoveryè¦†ç›–
 		s.pauseSignal = _NanDetected;
 	}
-	else if ((_kbhit() && _getch() == 27) || gui.windowShouldClose()) {// on "ESC" pressed
+	else if ((_kbhit() && _getch() == 27) || gui.get_enabled() && gui.windowShouldClose()) {
+		// case 1: on "ESC" pressed
+		// case 2: if gui is enabled, on gui closed
 		s.b_writeContinue = true;
 		s.pauseSignal = _EscPressed;
 		std::cout << "Stopping at step " << istep << "...\n";

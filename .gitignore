@@ -1,6 +1,9 @@
 # Last Modified on 2024-117
 
 ### By folder
+/quick_start/FVMR/*.LOG
+/quick_start/FVMR/imgui.ini
+
 # Project U2NITS
 /U2NITS-10.0/.config
 /U2NITS-10.0/output

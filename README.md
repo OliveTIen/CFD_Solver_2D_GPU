@@ -1,6 +1,6 @@
-﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿
+﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿
 
-![FVMR Logo (uncompleted)](D:\tgl\HPC\U2NITS-10.0\img\logo.png)
+![FVMR Logo (uncompleted)](doc\img\logo.png)
 
 # FVMR - a Realtime 2D Fluid Solver Based on GPU
 
@@ -86,7 +86,7 @@ For cases where the number of grids exceeds 10,000, the preprocessing (assemblin
 
 Once the initialization is complete, a progress bar will appear in the console window, indicating that the computation is ongoing, as shown in the picture below.
 
-![image-20240625133322681](D:\tgl\HPC\U2NITS-10.0\img\image-20240625133322681.png)
+![image-20240625133322681](doc\img\image-20240625133322681.png)
 
 > Text Description Below the Progress Bar:
 >

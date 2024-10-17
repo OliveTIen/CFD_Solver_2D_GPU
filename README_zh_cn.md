@@ -1,6 +1,7 @@
-﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿
+﻿<p align="center">
+<img src="doc/img/logo.png">
+</p>
 
-![FVMR Logo (uncompleted)](doc/img/logo.png)
 
 # FVMR-基于GPU的二维流体实时求解器
 
@@ -91,7 +92,10 @@ FVMR (Finite Volume Method Realtime) 是一个用C++/CUDA编写的二维流体�
 
 初始化完成后，控制台窗口会出现进度条，表示正在计算，如图所示。
 
-![image-20240625133322681](/doc/img/image-20240625133322681.png)
+
+<p align="center">
+<img src="doc/img/image-20240625133322681.png">
+</p>
 
 > 进度条下方文字说明：
 >

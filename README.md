@@ -1,4 +1,4 @@
-﻿﻿﻿
+﻿﻿﻿﻿
 
 # 基于GPU的二维非结构网格CFD求解器
 
@@ -273,11 +273,21 @@ Node_2D.h
 >
 > 现在这些遗留代码就是一坨屎山，严重影响了读取网格的速度。然而俗话说得好，屎山能运行就尽量不要动它，所以我把这座山包装了一下，与其他模块隔离
 
-# 其他知识
+# 其他
 
-## 一维激波管解析解
+## 参考资料
 
 一维激波管问题的Python解析解参考[一维激波管问题（知乎）]([一维激波管问题（本科毕业论文） - 知乎 (zhihu.com)](https://zhuanlan.zhihu.com/p/154508317))。代码位于`quick_start/1D_shocktube`下。
+
+双马赫反射问题与WENO对比，WENO来自参考文献
+
+```
+Ji Z, Liang T, Fu L. A Class of New High-order Finite-Volume TENO Schemes f
+or Hyperbolic Conservation Laws with Unstructured Meshes[J]. Journal of Scientific
+Computing, 2022,92(2):61.DOI:10.1007/s10915-022-01925-5.
+```
+
+
 
 ## Visual Studio 配置宏介绍
 
@@ -311,6 +321,14 @@ $(OutDir) = $(SolutionDir)$(Platform)\$(Configuration)\
           = D:\tgl\Local\HPC\U2NITS-10.0\x64\Debug\    # 输出目录 该目录下生成exe pdb等文件
 ```
 例如我将调试的工作目录修改为$(ProjectDir)WorkingDirectory\。设置后注意点“应用”
+
+## 一些想法
+
+目前有以下可完善方向：
+
+- 添加湍流模型。如果不是为了发明新模型的话，只需要把已有湍流模型往上套即可
+- 改造为3维。其难度比二维大得多，因为网格非常麻烦。而且计算量也涨了一个维度。
+- 流固耦合。涉及到非结构动网格。这是我比较感兴趣的地方。目前只能做小变形，即网格的拓扑不能变，不能断裂。如果做嵌套网格的话也太麻烦。
 
 # 日志
 

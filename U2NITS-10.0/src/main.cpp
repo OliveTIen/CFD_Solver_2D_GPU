@@ -2,7 +2,7 @@
 using namespace std;
 
 int main() {
-	U2NITS::CDriver::getInstance()->run_20240517();
+	U2NITS::CDriver::getInstance()->start();
 	return 0;
 }
 

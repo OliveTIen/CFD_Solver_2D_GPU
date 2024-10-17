@@ -2,7 +2,7 @@
 #include "output/LogWriter.h"
 #include "boundary_condition/BoundaryManager.h"
 #include "math/PhysicalKernel.h"
-
+#include <sstream>
 
 std::vector<int> BoundaryManager_2D::compressSeveralSequences(const std::vector<int>& ints) {
 	/*

@@ -6,7 +6,7 @@
 #include "Element_2D.h"
 #include "Edge_2D.h"
 #include "BoundaryManager_2D.h"
-#include "Solver_2D.h"
+//#include "Solver_2D.h"
 
 /*
 历史遗留代码，存储数据，仅在读取网格时使用。

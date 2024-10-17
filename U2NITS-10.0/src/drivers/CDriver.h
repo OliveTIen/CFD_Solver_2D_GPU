@@ -40,7 +40,7 @@ namespace U2NITS {
 	public:
 		static CDriver* getInstance();
 		// Ö÷Ñ­»·
-		void run_20240517();
+		void start();
 		static void saveAndExit(int _Code);
 		
 	private:

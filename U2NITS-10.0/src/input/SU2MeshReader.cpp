@@ -5,6 +5,7 @@
 #include "../output/LogWriter.h"
 #include "../global/CExit.h"
 #include "../boundary_condition/BoundaryManager.h"
+#include <sstream>
 
 void SU2MeshReader::read_mesh_and_process(std::string filePath, bool convertRectToTriangle) {
 

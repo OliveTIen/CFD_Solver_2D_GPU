@@ -5,6 +5,7 @@
 #include "RoutineController.h"
 #include "../time/CIteration.h"
 #include <chrono>
+#include <sstream>
 
 U2NITS::CDriver* U2NITS::CDriver::pCDriver = nullptr;
 
@@ -16,7 +17,7 @@ U2NITS::CDriver* U2NITS::CDriver::getInstance() {
 }
 
 
-void U2NITS::CDriver::run_20240517() {
+void U2NITS::CDriver::start() {
 	/*
 	GPU代码瓶颈在于拷贝占用50%时间
 	不要每步都device_to_host，只有需要写文件时才device_to_host

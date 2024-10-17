@@ -1,0 +1,720 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <Filter Include="imgui">
+      <UniqueIdentifier>{b337bbd4-37cc-4f8d-beb8-2f93b3f92dc6}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="imgui_backends">
+      <UniqueIdentifier>{420adaf4-294c-41ea-bd26-9140046da099}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="src">
+      <UniqueIdentifier>{68430246-9988-425a-9906-0ee100d1734a}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="src\boundary_condition">
+      <UniqueIdentifier>{1fe90e53-7033-43c9-959e-5449eebd3560}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="src\drivers">
+      <UniqueIdentifier>{9c8e0834-f514-41a0-807e-a2936eee5e41}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="src\global">
+      <UniqueIdentifier>{3f53a927-4d1d-42b0-8257-1a8ceec74c6d}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="src\gpu">
+      <UniqueIdentifier>{83a19179-4b0b-4a08-ac4e-f74c909e8b02}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="src\input">
+      <UniqueIdentifier>{87073b2a-67d5-44fc-a50a-0a8cd07bfa6e}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="src\math">
+      <UniqueIdentifier>{d369d74e-42eb-433e-ad6e-85ce310ec2a9}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="src\time">
+      <UniqueIdentifier>{52ed34e5-2bc4-40d6-abc7-3fc0bdd7f52c}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="src\output">
+      <UniqueIdentifier>{ef70def4-4b27-4c80-96f5-5529aa8cf2f8}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="src\solvers">
+      <UniqueIdentifier>{c04264d1-e16f-4ac9-9065-28da36ce0810}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="src\space">
+      <UniqueIdentifier>{3f15f50e-7995-4cdd-97ef-670ae80b7947}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="src\gpu\datatype">
+      <UniqueIdentifier>{ef14aaaf-4290-4201-aefc-7519964cb4f4}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="src\output\residual">
+      <UniqueIdentifier>{8780fffb-e01f-438a-a833-0a27e2ab8516}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="src\space\convection">
+      <UniqueIdentifier>{9b44b3bb-a875-4127-b9a9-776c96b75ff3}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="src\space\gradient">
+      <UniqueIdentifier>{b9623165-70eb-4d13-8d01-40786aaa707a}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="src\space\reconstruct">
+      <UniqueIdentifier>{686513ba-3619-42aa-bb94-453fb67f0103}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="src\space\restrict">
+      <UniqueIdentifier>{91904f11-110d-420d-9c3c-285cbb556b2f}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="src\space\viscous_flux">
+      <UniqueIdentifier>{11e74f7b-3f0c-49f7-8149-20e760ab18e4}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="src\legacy">
+      <UniqueIdentifier>{9e7e52ca-9b8a-4868-8d09-5f78c43ace11}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="src\gui">
+      <UniqueIdentifier>{87e9abff-0e0b-4b50-9150-0b372abe8e11}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="src\gui\object">
+      <UniqueIdentifier>{e8b396dd-2546-4a29-9704-7d7af97f0640}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="src\gui\sph">
+      <UniqueIdentifier>{33d83f69-381b-477f-a1e1-17634081d1a5}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="src\gui\io">
+      <UniqueIdentifier>{9e14526c-10fb-4193-a8ef-b0aeffff8c73}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="src\gui\cuda">
+      <UniqueIdentifier>{a044004c-2215-411e-aecb-ee1878ebde17}</UniqueIdentifier>
+    </Filter>
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="..\common\imgui\imconfig.h">
+      <Filter>imgui</Filter>
+    </ClInclude>
+    <ClInclude Include="..\common\imgui\imgui.h">
+      <Filter>imgui</Filter>
+    </ClInclude>
+    <ClInclude Include="..\common\imgui\imgui_internal.h">
+      <Filter>imgui</Filter>
+    </ClInclude>
+    <ClInclude Include="..\common\imgui\backends\imgui_impl_glfw.h">
+      <Filter>imgui_backends</Filter>
+    </ClInclude>
+    <ClInclude Include="..\common\imgui\backends\imgui_impl_opengl3.h">
+      <Filter>imgui_backends</Filter>
+    </ClInclude>
+    <ClInclude Include="..\common\imgui\backends\imgui_impl_opengl3_loader.h">
+      <Filter>imgui_backends</Filter>
+    </ClInclude>
+    <ClInclude Include="src\boundary_condition\BoundaryManager.h">
+      <Filter>src\boundary_condition</Filter>
+    </ClInclude>
+    <ClInclude Include="src\boundary_condition\CBoundaryDoubleShockReflect.h">
+      <Filter>src\boundary_condition</Filter>
+    </ClInclude>
+    <ClInclude Include="src\drivers\CDriver.h">
+      <Filter>src\drivers</Filter>
+    </ClInclude>
+    <ClInclude Include="src\drivers\RoutineController.h">
+      <Filter>src\drivers</Filter>
+    </ClInclude>
+    <ClInclude Include="src\global\CExit.h">
+      <Filter>src\global</Filter>
+    </ClInclude>
+    <ClInclude Include="src\global\Constexpr.h">
+      <Filter>src\global</Filter>
+    </ClInclude>
+    <ClInclude Include="src\global\CTimer.h">
+      <Filter>src\global</Filter>
+    </ClInclude>
+    <ClInclude Include="src\global\FilePathManager.h">
+      <Filter>src\global</Filter>
+    </ClInclude>
+    <ClInclude Include="src\global\GlobalPara.h">
+      <Filter>src\global</Filter>
+    </ClInclude>
+    <ClInclude Include="src\global\SGlobalPara.h">
+      <Filter>src\global</Filter>
+    </ClInclude>
+    <ClInclude Include="src\global\StringProcessor.h">
+      <Filter>src\global</Filter>
+    </ClInclude>
+    <ClInclude Include="src\global\SystemInfo.h">
+      <Filter>src\global</Filter>
+    </ClInclude>
+    <ClInclude Include="src\gpu\Env.h">
+      <Filter>src\gpu</Filter>
+    </ClInclude>
+    <ClInclude Include="src\gpu\GPUGlobalFunction.h">
+      <Filter>src\gpu</Filter>
+    </ClInclude>
+    <ClInclude Include="src\gpu\datatype\BoundarySetMap.h">
+      <Filter>src\gpu\datatype</Filter>
+    </ClInclude>
+    <ClInclude Include="src\gpu\datatype\BoundaryV2.h">
+      <Filter>src\gpu\datatype</Filter>
+    </ClInclude>
+    <ClInclude Include="src\gpu\datatype\Datatype.h">
+      <Filter>src\gpu\datatype</Filter>
+    </ClInclude>
+    <ClInclude Include="src\gpu\datatype\DefineType.h">
+      <Filter>src\gpu\datatype</Filter>
+    </ClInclude>
+    <ClInclude Include="src\gpu\datatype\DeviceData.h">
+      <Filter>src\gpu\datatype</Filter>
+    </ClInclude>
+    <ClInclude Include="src\gpu\datatype\EdgeSoA.h">
+      <Filter>src\gpu\datatype</Filter>
+    </ClInclude>
+    <ClInclude Include="src\gpu\datatype\ElementSoA.h">
+      <Filter>src\gpu\datatype</Filter>
+    </ClInclude>
+    <ClInclude Include="src\gpu\datatype\FieldSoA.h">
+      <Filter>src\gpu\datatype</Filter>
+    </ClInclude>
+    <ClInclude Include="src\gpu\datatype\Matrix_4xn.h">
+      <Filter>src\gpu\datatype</Filter>
+    </ClInclude>
+    <ClInclude Include="src\gpu\datatype\NodeSoA.h">
+      <Filter>src\gpu\datatype</Filter>
+    </ClInclude>
+    <ClInclude Include="src\input\AirParameterConverter.h">
+      <Filter>src\input</Filter>
+    </ClInclude>
+    <ClInclude Include="src\input\CInput.h">
+      <Filter>src\input</Filter>
+    </ClInclude>
+    <ClInclude Include="src\input\ContinueFileReader.h">
+      <Filter>src\input</Filter>
+    </ClInclude>
+    <ClInclude Include="src\input\FieldInitializer.h">
+      <Filter>src\input</Filter>
+    </ClInclude>
+    <ClInclude Include="src\input\GeometryReader.h">
+      <Filter>src\input</Filter>
+    </ClInclude>
+    <ClInclude Include="src\input\InpMeshReader.h">
+      <Filter>src\input</Filter>
+    </ClInclude>
+    <ClInclude Include="src\input\MaterialManager.h">
+      <Filter>src\input</Filter>
+    </ClInclude>
+    <ClInclude Include="src\input\SU2MeshReader.h">
+      <Filter>src\input</Filter>
+    </ClInclude>
+    <ClInclude Include="src\input\TecplotFileReader.h">
+      <Filter>src\input</Filter>
+    </ClInclude>
+    <ClInclude Include="src\input\TomlFileManager.h">
+      <Filter>src\input</Filter>
+    </ClInclude>
+    <ClInclude Include="src\math\BasicAlgorithm.h">
+      <Filter>src\math</Filter>
+    </ClInclude>
+    <ClInclude Include="src\math\BasicAlgorithmGPU.h">
+      <Filter>src\math</Filter>
+    </ClInclude>
+    <ClInclude Include="src\math\CommonValue.h">
+      <Filter>src\math</Filter>
+    </ClInclude>
+    <ClInclude Include="src\math\Math.h">
+      <Filter>src\math</Filter>
+    </ClInclude>
+    <ClInclude Include="src\math\MathGPU.h">
+      <Filter>src\math</Filter>
+    </ClInclude>
+    <ClInclude Include="src\math\MatrixKernel.h">
+      <Filter>src\math</Filter>
+    </ClInclude>
+    <ClInclude Include="src\math\MatrixKernelGPU.h">
+      <Filter>src\math</Filter>
+    </ClInclude>
+    <ClInclude Include="src\math\PhysicalKernel.h">
+      <Filter>src\math</Filter>
+    </ClInclude>
+    <ClInclude Include="src\math\PhysicalKernelGPU.h">
+      <Filter>src\math</Filter>
+    </ClInclude>
+    <ClInclude Include="src\math\ReduceGPU.h">
+      <Filter>src\math</Filter>
+    </ClInclude>
+    <ClInclude Include="src\math\StandardHeader.h">
+      <Filter>src\math</Filter>
+    </ClInclude>
+    <ClInclude Include="src\output\ConsolePrinter.h">
+      <Filter>src\output</Filter>
+    </ClInclude>
+    <ClInclude Include="src\output\COutput.h">
+      <Filter>src\output</Filter>
+    </ClInclude>
+    <ClInclude Include="src\output\ExactSolutionWriter.h">
+      <Filter>src\output</Filter>
+    </ClInclude>
+    <ClInclude Include="src\output\FieldWriter.h">
+      <Filter>src\output</Filter>
+    </ClInclude>
+    <ClInclude Include="src\output\HistWriter.h">
+      <Filter>src\output</Filter>
+    </ClInclude>
+    <ClInclude Include="src\output\LogWriter.h">
+      <Filter>src\output</Filter>
+    </ClInclude>
+    <ClInclude Include="src\output\residual\EnumNormType.h">
+      <Filter>src\output\residual</Filter>
+    </ClInclude>
+    <ClInclude Include="src\output\residual\Residual.h">
+      <Filter>src\output\residual</Filter>
+    </ClInclude>
+    <ClInclude Include="src\output\residual\ResidualGPU.h">
+      <Filter>src\output\residual</Filter>
+    </ClInclude>
+    <ClInclude Include="src\solvers\CEulerSolver.h">
+      <Filter>src\solvers</Filter>
+    </ClInclude>
+    <ClInclude Include="src\solvers\CSolver.h">
+      <Filter>src\solvers</Filter>
+    </ClInclude>
+    <ClInclude Include="src\solvers\GPUSolver2.h">
+      <Filter>src\solvers</Filter>
+    </ClInclude>
+    <ClInclude Include="src\solvers\OldDataConverter.h">
+      <Filter>src\solvers</Filter>
+    </ClInclude>
+    <ClInclude Include="src\solvers\SolverDataGetter.h">
+      <Filter>src\solvers</Filter>
+    </ClInclude>
+    <ClInclude Include="src\space\Flux.h">
+      <Filter>src\space</Filter>
+    </ClInclude>
+    <ClInclude Include="src\space\FluxGPU.h">
+      <Filter>src\space</Filter>
+    </ClInclude>
+    <ClInclude Include="src\space\Limiter.h">
+      <Filter>src\space</Filter>
+    </ClInclude>
+    <ClInclude Include="src\space\Reconstructor.h">
+      <Filter>src\space</Filter>
+    </ClInclude>
+    <ClInclude Include="src\space\RiemannSolver.h">
+      <Filter>src\space</Filter>
+    </ClInclude>
+    <ClInclude Include="src\space\convection\Convection.h">
+      <Filter>src\space\convection</Filter>
+    </ClInclude>
+    <ClInclude Include="src\space\convection\ConvectionGPU.h">
+      <Filter>src\space\convection</Filter>
+    </ClInclude>
+    <ClInclude Include="src\space\convection\LocalLaxFriedrichs.h">
+      <Filter>src\space\convection</Filter>
+    </ClInclude>
+    <ClInclude Include="src\space\convection\LocalLaxFriedrichsGPU.h">
+      <Filter>src\space\convection</Filter>
+    </ClInclude>
+    <ClInclude Include="src\space\convection\Roe.h">
+      <Filter>src\space\convection</Filter>
+    </ClInclude>
+    <ClInclude Include="src\space\convection\RoeGPU.h">
+      <Filter>src\space\convection</Filter>
+    </ClInclude>
+    <ClInclude Include="src\space\gradient\Gradient.h">
+      <Filter>src\space\gradient</Filter>
+    </ClInclude>
+    <ClInclude Include="src\space\gradient\GradientGPU.h">
+      <Filter>src\space\gradient</Filter>
+    </ClInclude>
+    <ClInclude Include="src\space\gradient\GreenGauss.h">
+      <Filter>src\space\gradient</Filter>
+    </ClInclude>
+    <ClInclude Include="src\space\reconstruct\MUSCL.h">
+      <Filter>src\space\reconstruct</Filter>
+    </ClInclude>
+    <ClInclude Include="src\space\restrict\Restrict.h">
+      <Filter>src\space\restrict</Filter>
+    </ClInclude>
+    <ClInclude Include="src\space\restrict\RestrictGPU.h">
+      <Filter>src\space\restrict</Filter>
+    </ClInclude>
+    <ClInclude Include="src\space\viscous_flux\ViscousFlux.h">
+      <Filter>src\space\viscous_flux</Filter>
+    </ClInclude>
+    <ClInclude Include="src\space\viscous_flux\ViscousFluxGPU.h">
+      <Filter>src\space\viscous_flux</Filter>
+    </ClInclude>
+    <ClInclude Include="src\time\CalculateDt.h">
+      <Filter>src\time</Filter>
+    </ClInclude>
+    <ClInclude Include="src\time\CalculateDtGPU.h">
+      <Filter>src\time</Filter>
+    </ClInclude>
+    <ClInclude Include="src\time\CIteration.h">
+      <Filter>src\time</Filter>
+    </ClInclude>
+    <ClInclude Include="src\time\Evolve.h">
+      <Filter>src\time</Filter>
+    </ClInclude>
+    <ClInclude Include="src\time\EvolveGPU.h">
+      <Filter>src\time</Filter>
+    </ClInclude>
+    <ClInclude Include="src\legacy\BoundaryManager_2D.h">
+      <Filter>src\legacy</Filter>
+    </ClInclude>
+    <ClInclude Include="src\legacy\Edge_2D.h">
+      <Filter>src\legacy</Filter>
+    </ClInclude>
+    <ClInclude Include="src\legacy\Element_2D.h">
+      <Filter>src\legacy</Filter>
+    </ClInclude>
+    <ClInclude Include="src\legacy\FVM_2D.h">
+      <Filter>src\legacy</Filter>
+    </ClInclude>
+    <ClInclude Include="src\legacy\head.h">
+      <Filter>src\legacy</Filter>
+    </ClInclude>
+    <ClInclude Include="src\legacy\Node_2D.h">
+      <Filter>src\legacy</Filter>
+    </ClInclude>
+    <ClInclude Include="resource.h" />
+    <ClInclude Include="src\gui\Camera.h">
+      <Filter>src\gui</Filter>
+    </ClInclude>
+    <ClInclude Include="src\gui\Control.h">
+      <Filter>src\gui</Filter>
+    </ClInclude>
+    <ClInclude Include="src\gui\Scene.h">
+      <Filter>src\gui</Filter>
+    </ClInclude>
+    <ClInclude Include="src\gui\util.h">
+      <Filter>src\gui</Filter>
+    </ClInclude>
+    <ClInclude Include="src\gui\WinGui.h">
+      <Filter>src\gui</Filter>
+    </ClInclude>
+    <ClInclude Include="src\gui\object\Cube.h">
+      <Filter>src\gui\object</Filter>
+    </ClInclude>
+    <ClInclude Include="src\gui\object\Line.h">
+      <Filter>src\gui\object</Filter>
+    </ClInclude>
+    <ClInclude Include="src\gui\object\Object.h">
+      <Filter>src\gui\object</Filter>
+    </ClInclude>
+    <ClInclude Include="src\gui\object\ShaderBasic.h">
+      <Filter>src\gui\object</Filter>
+    </ClInclude>
+    <ClInclude Include="src\gui\object\ShaderCube.h">
+      <Filter>src\gui\object</Filter>
+    </ClInclude>
+    <ClInclude Include="src\gui\object\ShaderLine.h">
+      <Filter>src\gui\object</Filter>
+    </ClInclude>
+    <ClInclude Include="src\gui\sph\ParticleSystem.h">
+      <Filter>src\gui\sph</Filter>
+    </ClInclude>
+    <ClInclude Include="src\gui\sph\ShaderParticle.h">
+      <Filter>src\gui\sph</Filter>
+    </ClInclude>
+    <ClInclude Include="src\gui\io\ConsoleProxy.h">
+      <Filter>src\gui\io</Filter>
+    </ClInclude>
+    <ClInclude Include="src\gui\io\GridDataAdapter.h">
+      <Filter>src\gui\io</Filter>
+    </ClInclude>
+    <ClInclude Include="src\gui\io\typeDefine.h">
+      <Filter>src\gui\io</Filter>
+    </ClInclude>
+    <ClInclude Include="src\gui\io\UGridReader.h">
+      <Filter>src\gui\io</Filter>
+    </ClInclude>
+    <ClInclude Include="src\gui\cuda\CudaGrid.h">
+      <Filter>src\gui\cuda</Filter>
+    </ClInclude>
+    <ClInclude Include="src\gui\object\Grid.h">
+      <Filter>src\gui\object</Filter>
+    </ClInclude>
+    <ClInclude Include="src\gui\cuda\CudaGrid_kernels.cuh">
+      <Filter>src\gui\cuda</Filter>
+    </ClInclude>
+    <ClInclude Include="src\gui\cuda\StructColorMap.h">
+      <Filter>src\gui\cuda</Filter>
+    </ClInclude>
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="..\common\imgui\imgui.cpp">
+      <Filter>imgui</Filter>
+    </ClCompile>
+    <ClCompile Include="..\common\imgui\imgui_demo.cpp">
+      <Filter>imgui</Filter>
+    </ClCompile>
+    <ClCompile Include="..\common\imgui\imgui_draw.cpp">
+      <Filter>imgui</Filter>
+    </ClCompile>
+    <ClCompile Include="..\common\imgui\imgui_tables.cpp">
+      <Filter>imgui</Filter>
+    </ClCompile>
+    <ClCompile Include="..\common\imgui\imgui_widgets.cpp">
+      <Filter>imgui</Filter>
+    </ClCompile>
+    <ClCompile Include="..\common\imgui\backends\imgui_impl_glfw.cpp">
+      <Filter>imgui_backends</Filter>
+    </ClCompile>
+    <ClCompile Include="..\common\imgui\backends\imgui_impl_opengl3.cpp">
+      <Filter>imgui_backends</Filter>
+    </ClCompile>
+    <ClCompile Include="src\main.cpp">
+      <Filter>src</Filter>
+    </ClCompile>
+    <ClCompile Include="src\boundary_condition\BoundaryManager.cpp">
+      <Filter>src\boundary_condition</Filter>
+    </ClCompile>
+    <ClCompile Include="src\boundary_condition\CBoundaryDoubleShockReflect.cpp">
+      <Filter>src\boundary_condition</Filter>
+    </ClCompile>
+    <ClCompile Include="src\drivers\CDriver.cpp">
+      <Filter>src\drivers</Filter>
+    </ClCompile>
+    <ClCompile Include="src\drivers\RoutineController.cpp">
+      <Filter>src\drivers</Filter>
+    </ClCompile>
+    <ClCompile Include="src\global\CExit.cpp">
+      <Filter>src\global</Filter>
+    </ClCompile>
+    <ClCompile Include="src\global\FilePathManager.cpp">
+      <Filter>src\global</Filter>
+    </ClCompile>
+    <ClCompile Include="src\global\GlobalPara.cpp">
+      <Filter>src\global</Filter>
+    </ClCompile>
+    <ClCompile Include="src\global\StringProcessor.cpp">
+      <Filter>src\global</Filter>
+    </ClCompile>
+    <ClCompile Include="src\global\SystemInfo.cpp">
+      <Filter>src\global</Filter>
+    </ClCompile>
+    <ClCompile Include="src\gpu\datatype\BoundaryV2.cpp">
+      <Filter>src\gpu\datatype</Filter>
+    </ClCompile>
+    <ClCompile Include="src\input\AirParameterConverter.cpp">
+      <Filter>src\input</Filter>
+    </ClCompile>
+    <ClCompile Include="src\input\CInput.cpp">
+      <Filter>src\input</Filter>
+    </ClCompile>
+    <ClCompile Include="src\input\ContinueFileReader.cpp">
+      <Filter>src\input</Filter>
+    </ClCompile>
+    <ClCompile Include="src\input\FieldInitializer.cpp">
+      <Filter>src\input</Filter>
+    </ClCompile>
+    <ClCompile Include="src\input\GeometryReader.cpp">
+      <Filter>src\input</Filter>
+    </ClCompile>
+    <ClCompile Include="src\input\InpMeshReader.cpp">
+      <Filter>src\input</Filter>
+    </ClCompile>
+    <ClCompile Include="src\input\MaterialManager.cpp">
+      <Filter>src\input</Filter>
+    </ClCompile>
+    <ClCompile Include="src\input\SU2MeshReader.cpp">
+      <Filter>src\input</Filter>
+    </ClCompile>
+    <ClCompile Include="src\input\TecplotFileReader.cpp">
+      <Filter>src\input</Filter>
+    </ClCompile>
+    <ClCompile Include="src\input\TomlFileManager.cpp">
+      <Filter>src\input</Filter>
+    </ClCompile>
+    <ClCompile Include="src\math\PhysicalKernel.cpp">
+      <Filter>src\math</Filter>
+    </ClCompile>
+    <ClCompile Include="src\output\ConsolePrinter.cpp">
+      <Filter>src\output</Filter>
+    </ClCompile>
+    <ClCompile Include="src\output\COutput.cpp">
+      <Filter>src\output</Filter>
+    </ClCompile>
+    <ClCompile Include="src\output\ExactSolutionWriter.cpp">
+      <Filter>src\output</Filter>
+    </ClCompile>
+    <ClCompile Include="src\output\FieldWriter.cpp">
+      <Filter>src\output</Filter>
+    </ClCompile>
+    <ClCompile Include="src\output\HistWriter.cpp">
+      <Filter>src\output</Filter>
+    </ClCompile>
+    <ClCompile Include="src\output\LogWriter.cpp">
+      <Filter>src\output</Filter>
+    </ClCompile>
+    <ClCompile Include="src\output\residual\Residual.cpp">
+      <Filter>src\output\residual</Filter>
+    </ClCompile>
+    <ClCompile Include="src\solvers\CEulerSolver.cpp">
+      <Filter>src\solvers</Filter>
+    </ClCompile>
+    <ClCompile Include="src\solvers\CSolver.cpp">
+      <Filter>src\solvers</Filter>
+    </ClCompile>
+    <ClCompile Include="src\solvers\GPUSolver2.cpp">
+      <Filter>src\solvers</Filter>
+    </ClCompile>
+    <ClCompile Include="src\solvers\OldDataConverter.cpp">
+      <Filter>src\solvers</Filter>
+    </ClCompile>
+    <ClCompile Include="src\solvers\SolverDataGetter.cpp">
+      <Filter>src\solvers</Filter>
+    </ClCompile>
+    <ClCompile Include="src\space\Flux.cpp">
+      <Filter>src\space</Filter>
+    </ClCompile>
+    <ClCompile Include="src\space\Limiter.cpp">
+      <Filter>src\space</Filter>
+    </ClCompile>
+    <ClCompile Include="src\space\Reconstructor.cpp">
+      <Filter>src\space</Filter>
+    </ClCompile>
+    <ClCompile Include="src\space\RiemannSolver.cpp">
+      <Filter>src\space</Filter>
+    </ClCompile>
+    <ClCompile Include="src\space\convection\LocalLaxFriedrichs.cpp">
+      <Filter>src\space\convection</Filter>
+    </ClCompile>
+    <ClCompile Include="src\space\convection\Roe.cpp">
+      <Filter>src\space\convection</Filter>
+    </ClCompile>
+    <ClCompile Include="src\space\gradient\Gradient.cpp">
+      <Filter>src\space\gradient</Filter>
+    </ClCompile>
+    <ClCompile Include="src\space\gradient\GreenGauss.cpp">
+      <Filter>src\space\gradient</Filter>
+    </ClCompile>
+    <ClCompile Include="src\space\restrict\Restrict.cpp">
+      <Filter>src\space\restrict</Filter>
+    </ClCompile>
+    <ClCompile Include="src\space\viscous_flux\ViscousFlux.cpp">
+      <Filter>src\space\viscous_flux</Filter>
+    </ClCompile>
+    <ClCompile Include="src\time\CalculateDt.cpp">
+      <Filter>src\time</Filter>
+    </ClCompile>
+    <ClCompile Include="src\time\CIteration.cpp">
+      <Filter>src\time</Filter>
+    </ClCompile>
+    <ClCompile Include="src\time\Evolve.cpp">
+      <Filter>src\time</Filter>
+    </ClCompile>
+    <ClCompile Include="src\legacy\BoundaryManager_2D.cpp">
+      <Filter>src\legacy</Filter>
+    </ClCompile>
+    <ClCompile Include="src\legacy\Edge_2D.cpp">
+      <Filter>src\legacy</Filter>
+    </ClCompile>
+    <ClCompile Include="src\legacy\Element_2D.cpp">
+      <Filter>src\legacy</Filter>
+    </ClCompile>
+    <ClCompile Include="src\legacy\FVM_2D.cpp">
+      <Filter>src\legacy</Filter>
+    </ClCompile>
+    <ClCompile Include="src\gui\Camera.cpp">
+      <Filter>src\gui</Filter>
+    </ClCompile>
+    <ClCompile Include="src\gui\Control.cpp">
+      <Filter>src\gui</Filter>
+    </ClCompile>
+    <ClCompile Include="src\gui\glad.c">
+      <Filter>src\gui</Filter>
+    </ClCompile>
+    <ClCompile Include="src\gui\Scene.cpp">
+      <Filter>src\gui</Filter>
+    </ClCompile>
+    <ClCompile Include="src\gui\WinGui.cpp">
+      <Filter>src\gui</Filter>
+    </ClCompile>
+    <ClCompile Include="src\gui\object\Cube.cpp">
+      <Filter>src\gui\object</Filter>
+    </ClCompile>
+    <ClCompile Include="src\gui\object\Line.cpp">
+      <Filter>src\gui\object</Filter>
+    </ClCompile>
+    <ClCompile Include="src\gui\object\ShaderCube.cpp">
+      <Filter>src\gui\object</Filter>
+    </ClCompile>
+    <ClCompile Include="src\gui\sph\ParticleSystem.cpp">
+      <Filter>src\gui\sph</Filter>
+    </ClCompile>
+    <ClCompile Include="src\gui\io\ConsoleProxy.cpp">
+      <Filter>src\gui\io</Filter>
+    </ClCompile>
+    <ClCompile Include="src\gui\io\GridDataAdapter.cpp">
+      <Filter>src\gui\io</Filter>
+    </ClCompile>
+    <ClCompile Include="src\gui\io\UGridReader.cpp">
+      <Filter>src\gui\io</Filter>
+    </ClCompile>
+    <ClCompile Include="src\gui\cuda\CudaGrid.cpp">
+      <Filter>src\gui\cuda</Filter>
+    </ClCompile>
+    <ClCompile Include="src\gui\object\Grid.cpp">
+      <Filter>src\gui\object</Filter>
+    </ClCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <CudaCompile Include="src\gpu\GPUGlobalFunction.cu">
+      <Filter>src\gpu</Filter>
+    </CudaCompile>
+    <CudaCompile Include="src\gpu\datatype\BoundarySetMap.cu">
+      <Filter>src\gpu\datatype</Filter>
+    </CudaCompile>
+    <CudaCompile Include="src\gpu\datatype\DeviceData.cu">
+      <Filter>src\gpu\datatype</Filter>
+    </CudaCompile>
+    <CudaCompile Include="src\gpu\datatype\EdgeSoA.cu">
+      <Filter>src\gpu\datatype</Filter>
+    </CudaCompile>
+    <CudaCompile Include="src\gpu\datatype\ElementSoA.cu">
+      <Filter>src\gpu\datatype</Filter>
+    </CudaCompile>
+    <CudaCompile Include="src\gpu\datatype\FieldSoA.cu">
+      <Filter>src\gpu\datatype</Filter>
+    </CudaCompile>
+    <CudaCompile Include="src\gpu\datatype\NodeSoA.cu">
+      <Filter>src\gpu\datatype</Filter>
+    </CudaCompile>
+    <CudaCompile Include="src\math\BasicAlgorithmGPU.cu">
+      <Filter>src\math</Filter>
+    </CudaCompile>
+    <CudaCompile Include="src\math\PhysicalKernelGPU.cu">
+      <Filter>src\math</Filter>
+    </CudaCompile>
+    <CudaCompile Include="src\math\ReduceGPU.cu">
+      <Filter>src\math</Filter>
+    </CudaCompile>
+    <CudaCompile Include="src\output\residual\ResidualGPU.cu">
+      <Filter>src\output\residual</Filter>
+    </CudaCompile>
+    <CudaCompile Include="src\space\FluxGPU.cu">
+      <Filter>src\space</Filter>
+    </CudaCompile>
+    <CudaCompile Include="src\space\convection\LocalLaxFriedrichsGPU.cu">
+      <Filter>src\space\convection</Filter>
+    </CudaCompile>
+    <CudaCompile Include="src\space\convection\RoeGPU.cu">
+      <Filter>src\space\convection</Filter>
+    </CudaCompile>
+    <CudaCompile Include="src\space\gradient\GradientGPU.cu">
+      <Filter>src\space\gradient</Filter>
+    </CudaCompile>
+    <CudaCompile Include="src\space\restrict\RestrictGPU.cu">
+      <Filter>src\space\restrict</Filter>
+    </CudaCompile>
+    <CudaCompile Include="src\space\viscous_flux\ViscousFluxGPU.cu">
+      <Filter>src\space\viscous_flux</Filter>
+    </CudaCompile>
+    <CudaCompile Include="src\time\CalculateDtGPU.cu">
+      <Filter>src\time</Filter>
+    </CudaCompile>
+    <CudaCompile Include="src\time\EvolveGPU.cu">
+      <Filter>src\time</Filter>
+    </CudaCompile>
+    <CudaCompile Include="src\gui\cuda\CudaGrid_kernels.cu">
+      <Filter>src\gui\cuda</Filter>
+    </CudaCompile>
+    <CudaCompile Include="src\gui\cuda\StructColorMap.cu">
+      <Filter>src\gui\cuda</Filter>
+    </CudaCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <ResourceCompile Include="Resource.rc" />
+  </ItemGroup>
+</Project>

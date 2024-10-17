@@ -7,6 +7,8 @@ Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "U2NITS-10.0", "U2NITS-10.0\
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "TestCode", "TestCode\TestCode.vcxproj", "{8AED8ADE-95B4-4686-8F8E-93C2A55EBEE8}"
 EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "FVMR", "FVMR\FVMR.vcxproj", "{300E3923-BE89-42F0-B1FD-CEEAA3E88B07}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|x64 = Debug|x64
@@ -21,6 +23,10 @@ Global
 		{8AED8ADE-95B4-4686-8F8E-93C2A55EBEE8}.Debug|x64.Build.0 = Debug|x64
 		{8AED8ADE-95B4-4686-8F8E-93C2A55EBEE8}.Release|x64.ActiveCfg = Release|x64
 		{8AED8ADE-95B4-4686-8F8E-93C2A55EBEE8}.Release|x64.Build.0 = Release|x64
+		{300E3923-BE89-42F0-B1FD-CEEAA3E88B07}.Debug|x64.ActiveCfg = Debug|x64
+		{300E3923-BE89-42F0-B1FD-CEEAA3E88B07}.Debug|x64.Build.0 = Debug|x64
+		{300E3923-BE89-42F0-B1FD-CEEAA3E88B07}.Release|x64.ActiveCfg = Release|x64
+		{300E3923-BE89-42F0-B1FD-CEEAA3E88B07}.Release|x64.Build.0 = Release|x64
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

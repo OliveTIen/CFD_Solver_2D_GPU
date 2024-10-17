@@ -1,25 +1,34 @@
-# issue
-./fix-issue
+# Last Modified on 2024-117
 
-# Env and Exe Folder
-/.vs
-/.idea
-/x64
-
-# Project
-/TestCode
-
+### By folder
+# Project U2NITS
 /U2NITS-10.0/.config
 /U2NITS-10.0/output
 /U2NITS-10.0/release_factory
 /U2NITS-10.0/WorkingDirectory
+/U2NITS-10.0/working_directory
 /U2NITS-10.0/x64
 
-/U2NITs-10.1/workingDirectory
-/U2NITs-10.1/x64
-/U2NITs-10.1
-/U2NITs-10.1.rar
+# Project FVMR
+/FVMR/release_pack
+/FVMR/x64
 
+# Project TestCode
+/TestCode
+
+# Private Documents
+/doc/fix-issue
+/doc/uncompleted
+/doc/unused_code
+
+# IDE Cache
+/.vs
+/.idea
+
+# Compile Cache
+/x64
+
+### By Type
 # Prerequisites
 *.d
 
@@ -36,20 +45,20 @@
 # Compiled Dynamic libraries
 *.so
 *.dylib
-*.dll
+# *.dll
 
-# Fortran module files
-*.mod
-*.smod
+# # Fortran module files
+# *.mod
+# *.smod
 
-# Compiled Static libraries
-*.lai
-*.la
-*.a
-*.lib
+# # Compiled Static libraries
+# *.lai
+# *.la
+# *.a
+# *.lib
 
-# Executables
-*.exe
-*.out
-*.app
+# # Executables
+# *.exe
+# *.out
+# *.app
 

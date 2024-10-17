@@ -1,0 +1,12 @@
+Prerequisites:
+/img - OpenGL textures
+/shader - OpenGL shaders
+/input.toml - Input Parameter File
+/*.su2 - Input Grid File
+
+
+依赖文件：
+/img - OpenGL贴图
+/shader - OpenGL着色器
+/input.toml - 输入参数
+/*.su2 - 网格

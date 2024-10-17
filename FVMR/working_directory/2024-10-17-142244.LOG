@@ -1,0 +1,60 @@
+[14:22:44 Warning] Using VS Profiler. Please remove '/Profile' option on release.
+[14:22:44 Info] 2024/10/17 14:22:44
+[14:22:44 Info] parameter "constant.mesh_scale_factor" uses default value: 1
+[14:22:44 Warning] No input_mode at boundaryCondition.2D.inf. Will use default.
+[14:22:44 Info] parameter "initialCondition.shockTube.shock_x" uses default value: 0
+[14:22:44 Info] parameter "initialCondition.shockTube.shock_y" uses default value: 0
+[14:22:44 Info] parameter "initialCondition.shockTube.shock_normal_x" uses default value: 1
+[14:22:44 Info] parameter "initialCondition.shockTube.shock_normal_y" uses default value: 0
+[14:22:44 Info] modify_mu0_by_Re_using_config: calculate_mu0_by_Re=1, Re=6.500000e+06, mu0=0.000000e+00
+[14:22:44 Info] parameter "output.start_output_field" uses default value: 0
+[14:22:44 Info] parameter "output.outputScheme_volume_preset" uses default value: 2
+[14:22:44 Info] parameter "output.outputScheme_boundary_preset" uses default value: 1
+[14:22:44 Info] parameter "time.strategy" uses default value: 0
+[14:22:44 Info] time strategy: null
+[14:22:44 Info] dimension: 2D
+[14:22:44 Info] equation: Euler
+[14:22:44 Info] platform: GPU(device)
+[14:22:44 Info] mesh file: shocktube_100.su2
+[14:22:44 Info] Mesh file: D:\tgl\HPC\U2NITS-10.0\FVMR\working_directory\shocktube_100.su2
+[14:22:44 Info] Initiate pNodeTable, pElementTable, pEdgeTable.5674 elements, 2956 nodes.
+[14:22:44 Info] Calculate Element xy, edge length
+[14:22:44 Info] Initialize boundary condition
+[14:22:44 Info] InitialCondition = Shock Tube
+[14:22:44 Info] BoundaryCondition:
+inlet::ruvp	{1.000000,0.000000,0.000000,1.000000}
+outlet::ruvp	{0.125000,0.000000,0.000000,0.100000}
+inf::ruvp	{0.000000,0.000000,0.000000,0.000000}
+[14:22:45 Info] device num: 1; active device: 0,name: NVIDIA GeForce RTX 3050 Laptop GPU,compute capability: 8.6
+[14:22:46 Debug] GPU device already set. @GPU::GPUSolver2::setGPUDevice() D:\tgl\HPC\U2NITS-10.0\FVMR\src\solvers\GPUSolver2.cpp 
+[14:22:47 Info] write field file. 
+[14:22:47 Info] step = 1	residual_rho = 20.7896	CFL = 2.5	mean speed = 1.80832 step/s	pure calculate speed = 657.895 step/s
+[14:22:49 Info] write field file. 
+[14:22:49 Info] step = 100	residual_rho = 3.5477	CFL = 2.5	mean speed = 37.092 step/s	pure calculate speed = 1042.75 step/s
+[14:22:50 Info] write field file. 
+[14:22:50 Info] step = 200	residual_rho = 3.12342	CFL = 2.5	mean speed = 45.84 step/s	pure calculate speed = 1071.81 step/s
+[14:22:52 Info] write field file. 
+[14:22:52 Info] step = 300	residual_rho = 3.41047	CFL = 2.5	mean speed = 49.7512 step/s	pure calculate speed = 1067.24 step/s
+[14:22:54 Info] write field file. 
+[14:22:54 Info] step = 400	residual_rho = 3.34794	CFL = 2.5	mean speed = 51.9683 step/s	pure calculate speed = 1108.65 step/s
+[14:22:55 Info] write field file. 
+[14:22:55 Info] step = 500	residual_rho = 3.57614	CFL = 2.5	mean speed = 53.4017 step/s	pure calculate speed = 2178.65 step/s
+[14:22:57 Info] write field file. 
+[14:22:57 Info] step = 600	residual_rho = 3.07145	CFL = 2.5	mean speed = 54.3872 step/s	pure calculate speed = 361.795 step/s
+[14:22:59 Info] write field file. 
+[14:22:59 Info] step = 700	residual_rho = 3.07145	CFL = 2.5	mean speed = 55.1094 step/s	pure calculate speed = 159.821 step/s
+[14:23:00 Info] write field file. 
+[14:23:00 Info] step = 800	residual_rho = 3.07145	CFL = 2.5	mean speed = 55.687 step/s	pure calculate speed = 342.231 step/s
+[14:23:02 Info] write field file. 
+[14:23:02 Info] step = 900	residual_rho = 3.07145	CFL = 2.5	mean speed = 56.1342 step/s	pure calculate speed = 331.016 step/s
+[14:23:04 Info] write field file. 
+[14:23:04 Info] step = 1000	residual_rho = 3.07145	CFL = 2.5	mean speed = 56.4908 step/s	pure calculate speed = 182.916 step/s
+[14:23:04 Info] 
+  Time used: 	0:00:17	(Remain: 0:00:00 s)
+  Step: 	1000 	/1000
+  Mean speed: 	56.4908	 step/s	  Pure speed: 	182.916	 step/s
+  Output file num: 	0
+  res_rho: 	3.071452e+00	CFL: 2.5
+  Physical time: 	2.25579 s	/2.25579 s
+Press ESC to end Computation
+[14:23:04 Info] Computation finished

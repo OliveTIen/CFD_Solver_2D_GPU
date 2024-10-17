@@ -1,119 +1,154 @@
-﻿﻿﻿﻿﻿﻿﻿﻿
+﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿
 
-# FVMR-基于GPU的二维流体实时求解器
+![FVMR Logo (uncompleted)](D:\tgl\HPC\U2NITS-10.0\img\logo.png)
+
+# FVMR - a Realtime 2D Fluid Solver Based on GPU
 
 [TOC]
 
-英文名：~~2D Unstructured-Grid CFD Solver Based on GPU~~ Finite Volume Method Realtime
+## Introduction
 
-简介：该求解器能够计算简单二维N-S方程层流流动问题，使用非结构网格(三角网格)，并且已经对无粘通量求解器(Euler求解器)进行了算例验证。求解器可采用CPU或GPU计算，GPU计算部分采用CUDA编写。
+[README in Chinese](./README_zh_cn.md)
 
-视频：[【本科毕设】手搓流体求解器，并用GPU实现](https://www.bilibili.com/video/BV1dw3gerE2N/) 
+FVMR (Finite Volume Method Realtime) is a 2D fluid solver written in C++/CUDA, based on the finite volume method and unstructured grids, capable of real-time visualization of solution results. This repository contains the project source code and example grids. The project runs on the Windows platform.
 
-![](doc/img/neuvillette.mp4)
-
-注：（2024-10-17）**添加了FVMR项目，旧项目U2NITS-10.0不再维护**。此README文档**正在更新中**。
-
-> FVMR是在U2NITS-10.0基础上开发的，具有OpenGL实时渲染功能的求解器
-
-## 版本说明
-
-### FVMR
-
-2024年10月17日发布。添加了实时渲染界面
-
-### U2NITS-10.0
-
-2024年6月25日发布。第一款GPU程序
-
-## 开始
-
-如果想直接使用，请下载`U2NITS-10.0\quick_start`目录（里面可执行程序和示例文件），并跳转到[使用](#使用)部分。
-
-### 前置条件
-
-编译所需条件：
-
-下载并安装 [CUDA Toolkit 12.3](https://developer.nvidia.com/cuda-downloads) 。系统要求和安装指南请参见 [Linux Installation Guide](http://docs.nvidia.com/cuda/cuda-installation-guide-linux/) 和 [Windows Installation Guide](http://docs.nvidia.com/cuda/cuda-installation-guide-microsoft-windows/index.html).。
-
-下载并安装 Visual Studio Community 2022。
-
-下载项目源码。理论上所有环境已经配置好了，可以直接编译、生成exe文件。
-
-### 使用
-
-将U2NITS-10.0.exe复制到`U2NITS-10.0/quick_start`的示例目录。双击运行，出现控制台窗口，程序会读取控制参数和网格。
-
-对于网格数超过1万的情况，前处理（组装边、初始化流场）会比较慢，有时候需要几分钟时间，请耐心等待。
-
-> 应确保exe文件（`U2NITS-10.0.exe`）、控制参数文件（`input.toml`）和对应`.su2`网格文件位于同一目录下。
+> Note: (2024-10-17) **Added the FVMR project (located in `/FVMR`), the old project U2NITS-10.0 is no longer maintained.** The README file is based on the new project.
 >
-> 如果程序无法运行，一般是CUDA和显卡驱动版本不匹配问题。
+> This README document **is under updates**. 
+
+**Full Name:** Finite Volume Method Realtime
+
+**Features:**
+
+- CPU/GPU computation of 2D inviscid problems (experimentally validated)
+- CPU/GPU computation of 2D Navier-Stokes equations for laminar flow problems (not fully validated, accuracy questionable)
+- OpenGL real-time rendering. A simple OpenGL rendering framework
+- ~~Experimental platform for physics engines~~ Cloth simulation, SPH simulation, etc.
+
+**How to Write a Solver:**
+
+(TODO)
+
+**Videos:**
+
+- [【Undergraduate Thesis】Handcrafted Fluid Solver implemented on GPU](https://www.bilibili.com/video/BV1dw3gerE2N/) 
+- [GPU Real-time Rendering of FVM Solver](https://www.bilibili.com/video/BV19D1BYHEWW/)
+
+**Version Notes:**
+
+- FVMR
+
+		Released on October 17, 2024. Added real-time rendering interface.
+
+- U2NITS-10.0
+
+		Released on June 25, 2024. Converted the program to GPU version.
+
+## Installation
+
+If you want to use it directly, please download the `/quick_start` directory (which includes executable files and example files), and jump to the [Quick Start](#Quick Start) section.
+
+### Prerequisites
+
+Requirements for compilation:
+
+1. Download and install [CUDA Toolkit 12.3](https://developer.nvidia.com/cuda-downloads). For system requirements and installation guidelines, please refer to the [Linux Installation Guide](http://docs.nvidia.com/cuda/cuda-installation-guide-linux/) and the [Windows Installation Guide](http://docs.nvidia.com/cuda/cuda-installation-guide-microsoft-windows/index.html).
+   
+2. Download and install Visual Studio Community 2022.
+
+3. Download the project source code. Theoretically, all environments should be configured, and you can directly compile and generate the exe file.
+
+## Quick Start
+
+FVMR: Open `/quick_start/FVMR` and run `FVMR.exe`.
+
+> Before running, make sure the file `input.toml` contains the option [render]:
 >
-> 如果程序闪退，可以检查新生成的`LOG`日志文件，查找是否有`Error`信息，可能是因为输入参数不符合要求导致的。
+> ````toml
+> [render]
+> enable_print = true     # print progress in console
+> enable_write_file = false # write file
+> range_1 = 0          # colorbar lower limit
+> range_2 = 1          # colorbar upper limit
+> ````
+
+U2NITS-10.0: Copy `U2NITS-10.0.exe` to the example directory in `U2NITS-10.0/quick_start`. Double-click to run it; a console window will appear, and the program will read the control parameters and grid.
+
+For cases where the number of grids exceeds 10,000, the preprocessing (assembling edges and initializing the flow field) may be slow and sometimes take a few minutes, please be patient.
+
+> Ensure that the exe file (`U2NITS-10.0.exe`), control parameter file (`input.toml`), and corresponding `.su2` grid files are in the same directory.
 >
-> 关于参数设置，参见：[控制参数说明](#控制参数说明)
-
-初始化完成后，控制台窗口会出现进度条，表示正在计算，如图所示。
-
-![image-20240625133322681](/doc/img/image-20240625133322681.png)
-
-> 进度条下方文字说明：
+> If the program fails to run, it is usually due to a mismatch between the CUDA and graphics driver versions.
 >
-> - Mean speed: 计算总平均速度，包含输出文件耗时
-> - Pure speed: 纯计算部分速度。它显示了当前迭代步的计算部分的瞬时速度，随时间波动较大
+> If the program crashes unexpectedly, you can check the newly generated `LOG` file for any `Error` messages, which may indicate that the input parameters do not meet the requirements.
+>
+> For parameter settings, refer to: [Control Parameter Description](#控制参数说明).
 
-按[ESC]可以终止计算，下次可以续算。
+Once the initialization is complete, a progress bar will appear in the console window, indicating that the computation is ongoing, as shown in the picture below.
 
-计算完成后，用tecplot打开流场文件(.dat)即可。共有三种输出文件
+![image-20240625133322681](D:\tgl\HPC\U2NITS-10.0\img\image-20240625133322681.png)
 
-- 流场。例如`ivortex[0001].dat`。
-- 线图。例如`ivortex_hist.dat`。在翼型/圆柱绕流中，用来描述升阻力变化
-- 边界。例如`ivortex_tec_boundary.dat`。在翼型计算中，可以用来查看压力分布
+> Text Description Below the Progress Bar:
+>
+> - Mean speed: Computes the overall average speed, including the time spent on output files.
+> - Pure speed: The speed of the pure computation part. It shows the instantaneous speed of the computation part for the current iteration step, which fluctuates greatly over time.
 
-其中线图和边界bug比较多。例如我在计算阻力时仅积分了压力，没有考虑摩擦阻力，因此升阻力系数曲线仅适用于无粘流动。
+Press [ESC] to terminate the calculation, and you can resume next time.
 
-此外还有续算文件(`pause_ivertex[3351].dat`)。当控制参数中`continue=true`时，程序会搜索目录中所有以`pause_`开头的文件，并在其中取方括号中的数值最大的文件，进行续算。`recovery_`开头的文件和`pause_`开头的文件类似，一般用不到，如果要使用，需要改名为`pause_`开头的文件。
+After the calculation is completed, open the flow field file (.dat) with Tecplot. There are three types of output files:
 
-### Quick Start文件目录
+- Flow field, for example, `ivortex[0001].dat`.
+- Line graph, for example, `ivortex_hist.dat`. Used to describe the changes in lift and drag in airfoil/cylinder flow.
+- Boundary data, for example, `ivortex_tec_boundary.dat`. In airfoil computations, it can be used to check pressure distribution.
 
-`quick_start`文件目录示例：
+Among them, line graphs and boundaries have many bugs. For instance, when calculating drag, I only integrated pressure without considering frictional drag, so the lift-to-drag coefficient curve is only applicable to inviscid flows.
 
-- 2D_Neuvillette_shock：激波冲击那维莱特问题
-  - pw是pointwise文件，用于输出.su2网格
-  - su2是网格文件
-  - lay是tecplot样式文件，sty是tecplot的frame样式文件
+Additionally, there are continuation files (`pause_ivertex[3351].dat`). When the control parameter `continue=true`, the program will search the directory for all files starting with `pause_`, and take the file with the highest number within the brackets for continuation. Files starting with `recovery_` are similar to those starting with `pause_` but are generally not needed; if you want to use them, you'll need to rename them to start with `pause_`.
 
+## Documentation
 
+### Third-Party Dependencies
 
-## 第三方依赖
+The third-party dependencies are located in `/common`, which include:
 
-第三方依赖已包含进项目目录`U2NITS-10.0/src/include`中，均为头文件形式，无需静态库或动态库。依赖项目列表如下：
+- **Unused**: boost/pfr. Reflection
+- **Unused**: Eigen. Matrix computation
+- gl. OpenGL library
+- imgui. UI library
+- **Unused**: lua
+- **Unused**: rttr. Reflection
+- **Unused**: For convenient reading of lua
+- toml. Input file parsing
 
-- cpptoml：文件解析库，用于解析toml类型的控制参数文件。它只有一个文件`cpptoml.h`，因此使用时可以直接包含，无需添加到解决方案中。
-- AMatrix：矩阵运算库。它包含`.cpp`文件，因此需要添加到解决方案中。
-  该库在`U2NITS-10.0\src\space\Reconstructor.cpp`中被函数`Reconstructor::Element_T3_updateSlope_Barth`使用。
+### Third-Party Dependencies (Old Project)
 
-`U2NITS-10.0/src/include`目录中还有其他依赖库，这些库是曾经使用过但现在不再需要的，主要包括：
+> This section pertains to the old project `U2NITS-10.0`.
 
-- eigen：矩阵运算库。目前没用到大型稀疏矩阵计算，已移除eigen库
+The third-party dependencies are included in the project directory `U2NITS-10.0/src/include` as header files, requiring no static or dynamic libraries. The list of dependencies is as follows:
+
+- cpptoml: A file parsing library used for parsing toml-type control parameter files. It consists of a single file `cpptoml.h`; thus, it can be directly included without needing to be added to the solution.
+- AMatrix: A matrix computation library. It includes `.cpp` files and must be added to the solution. This library is used by the function `Reconstructor::Element_T3_updateSlope_Barth` in `U2NITS-10.0/src/space/Reconstructor.cpp`.
+
+The `U2NITS-10.0/src/include` directory also contains other dependency libraries that were previously used but are no longer needed, which mainly include:
+
+- eigen: Matrix computation library. Currently, large sparse matrix calculations are not used, so the eigen library has been removed.
 - rapidjson
 - easyloggingpp
 - stdgpu
 
-# 控制参数说明
+### Control Parameter Description
 
-## 总览
+#### Overview
 
-控制参数命名为`input.toml`，为toml类型文件。
+The control parameters are named `input.toml`, which is a toml type file.
 
-> 如果程序找不到`input.toml`文件，会询问`.toml`文件的位置，此时可以手动输入文件名，例如`test.toml`或者省略后缀`test`。
+> If the program cannot find the `input.toml` file, it will prompt for the location of a `.toml` file, where you can manually enter the file name, such as `test.toml` or omit the suffix and just enter `test`.
 
-toml类型类似json，它用方括号表示当前父节点，下方列出所有子节点的键值对。
+The toml format is similar to JSON, using square brackets to denote the current parent node, with key-value pairs of all child nodes listed below.
 
-> 控制参数的读取原理参见`TomlFileManager.cpp`中的函数`TomlFileManager::treeToGlobalParameter()`
+> For the reading principle of control parameters, refer to the function `TomlFileManager::treeToGlobalParameter()` in `TomlFileManager.cpp`.
 
-以`U2NITS-10.0/quick_start/Neuvillette_shock/input.toml`为例介绍各参数
+The following provides an example of the parameters in `/quick_start/U2NITS-10.0/Neuvillette_shock/input.toml`:
 
 ```toml
 # 20240625
@@ -121,26 +156,26 @@ toml类型类似json，它用方括号表示当前父节点，下方列出所有
 # 
 
 [basic]
-continue = true                 # 是否续算。true-续算，false-覆盖之前输出结果
-dimension = 2                   # 维度。只能填2
-filename = "neuvillette"        # 网格文件名
-meshFileType = "su2"            # 网格文件后缀名，只能填su2
+continue = true                 # Whether to continue computation. true-continuous, false-overwrite previous output results
+dimension = 2                   # Dimension. Must be 2
+filename = "neuvillette"        # Mesh file name
+meshFileType = "su2"            # Mesh file extension, must fill su2
 useGPU = 1                      # 0-CPU 1-GPU
-isDebugMode = false             # 调试模式。设为true，则会在读取输入参数失败时输出调试结果
+isDebugMode = false             # Debug mode. If set to true, debug results will be output when reading input parameters fails
 
 [constant]
-T0 = 288.16                     # 海平面温度参考
-p0 = 101325.0                   # 海平面压力参考
-Re = 6.5e6                      # 雷诺数
-Pr = 0.73                       # 普朗特数。计算粘性系数时会用到
-gamma = 1.4                     # 比热比
-referenceArea = 1               # (三维算例)参考面积，或(二维算例)参考弦长。在求压力系数时会用到
-calculate_mu0_by_Re = true      # 根据Re计算粘度系数
+T0 = 288.16                     # Sea level temperature reference
+p0 = 101325.0                   # Sea level pressure reference
+Re = 6.5e6                      # Reynolds number
+Pr = 0.73                       # Prandtl number. Used when calculating viscosity coefficient
+gamma = 1.4                     # Ratio of specific heats
+referenceArea = 1               # (3D case) Reference area, or (2D case) Reference chord length, used when calculating pressure coefficients
+calculate_mu0_by_Re = true      # Calculate viscosity coefficient based on Re
 
 [initialCondition]
-type = 3                        # 1-inf均匀流 2-等熵涡 3-激波管 4-双马赫反射
+type = 3                        # 1-infinite uniform flow 2-isentropic vortex 3-shock tube 4-double Mach reflection
 
-[initialCondition.shockTube]    # 仅在"3-激波管"模式下有效
+[initialCondition.shockTube]    # Effective only in "3-shock tube" mode
 shock_x = 0                     
 shock_y = 0.5                   
 shock_normal_x = 0
@@ -161,13 +196,13 @@ v = 0
 p = 1
 
 [output]
-step_per_print = 50             # 进度条刷新频率。例如50步刷新1次
-step_per_output_field = 100     # 流场文件输出频率。输出文件名为`neuvillette[0001].dat`
-step_per_output_hist = 100      # 线图文件输出频率。输出文件名为`neuvillette_hist.dat`
-maxIteration = 12000            # 最大迭代步数，用于终止
-tolerace_residual = 1e-7        # 残差低于此值认为达到稳态
+step_per_print = 50             # Progress bar refresh frequency. E.g., refresh once every 50 steps
+step_per_output_field = 100     # Flow field output frequency. Output file name will be `neuvillette[0001].dat`
+step_per_output_hist = 100      # Line graph output frequency. Output file name will be `neuvillette_hist.dat`
+maxIteration = 12000            # Maximum number of iterations, used for termination
+tolerace_residual = 1e-7        # Residual below this value considered steady state
 
-[output.output_var]             # 输出哪些变量
+[output.output_var]             # Which variables to output
 rho = true
 u = true
 v = true
@@ -176,90 +211,86 @@ p = true
 [physicsModel]
 equation = 2                    # 1-Euler, 2-NS
 
-
 [time]
-is_steady = 0                   # 0-非定常 1-定常。目前定常容易发散，只能用非定常
-is_explicit = 1                 # 0-隐式   1-显式。目前只能用显式
-CFL = 2.5                       # CFL数，非定常模式下使用
-CFL_steady = 0.8                # CFL数，定常模式下使用
-max_physical_time = 2.255788    # 最大物理时间，用于终止
-time_advance = 3101             # 3101-显式单步推进，3103-RK3。GPU模式下RK3未开发完成
-
+is_steady = 0                   # 0-unsteady 1-steady. Currently, steady state easily diverges, only unsteady can be used
+is_explicit = 1                 # 0-implicit   1-explicit. Currently, only explicit can be used
+CFL = 2.5                       # CFL number, used in unsteady mode
+CFL_steady = 0.8                # CFL number, used in steady mode
+max_physical_time = 2.255788    # Maximum physical time, used for termination
+time_advance = 3101             # 3101-explicit single step, 3103-RK3. RK3 not fully developed in GPU mode
 
 [inviscid_flux_method]
-flag_reconstruct = 3002         # 3001-常量重构 3002-线性重构 3003-MUSCL插值
-flag_gradient = 2               # 1-最小二乘 2-GreenGauss。GPU模式下只能用GreenGauss
+flag_reconstruct = 3002         # 3001-constant reconstruction 3002-linear reconstruction 3003-MUSCL interpolation
+flag_gradient = 2               # 1-least squares 2-GreenGauss. Can only use GreenGauss in GPU mode
 flux_conservation_scheme = 2002 # 2001-LocalLaxFriedrichs, 2002-Roe
-flux_limiter = 1                # 0-none 1-barth 2-minmod 3-vanleer 目前只支持barth限制器
-
+flux_limiter = 1                # 0-none 1-barth 2-minmod 3-vanleer Only barth limiter currently supported
 ```
-虽然看起来参数很多，但真正需要改的就只有
 
-## 初边值条件
+#### Initial and Boundary Conditions
 
-下面介绍边界和内部场的初始化。
+This section discusses the initialization of boundary and internal fields.
 
-边界条件初始化一般根据.su2中的边界类型确定。
+Boundary condition initialization is generally determined by the boundary types defined in the `.su2` file.
 
-用pointwise导出.su2文件时，需要设置边界名称，程序会根据名称设置边界条件，多个名称可以对应到一种边界，对应关系如下
+When exporting a `.su2` file using Pointwise, you need to set the boundary names; the program will set the boundary conditions based on these names. Multiple names can correspond to a single boundary, as shown below:
 
-- 固壁：wall, obstacle, airfoil, foil
-- 滑移壁：wall_nonViscous, wall_slippery, slippery, slippery_wall
-- 入口：inlet
-- 出口：outlet
-- 远场：inf, infinity, far, farfield
-- 对称：symmetry
-- 周期：periodic
-- 双马赫反射的动态边界(随时间变化)：dsr
+- Solid wall: wall, obstacle, airfoil, foil
+- Slip wall: wall_nonViscous, wall_slippery, slippery, slippery_wall
+- Inlet: inlet
+- Outlet: outlet
+- Far field: inf, infinity, far, farfield
+- Symmetry: symmetry
+- Periodic: periodic
+- Dynamic boundary for double Mach reflection (time-dependent): dsr
 
-> 1.该部分源码位于函数`BoundaryManager::boundaryNameToType(std::string boundaryName)`
+> 1. This part of the source code is located in the function `BoundaryManager::boundaryNameToType(std::string boundaryName)`
 >
-> 2.入口、出口、远场实际上都是按照远场来计算，不过边界参数可以不同。目前还没完成给定密度流量或给定压力的入口条件。
+> 2. Inlet, outlet, and far field are all computed based on the far field, but the boundary parameters can differ. The conditions for specified density flow or specified pressure at the inlet have not yet been completed.
 
-对于**入口、出口、远场边界条件**，应该在控制参数中添加`[boundaryCondition.2D.inlet]`、`[boundaryCondition.2D.outlet]`、`[boundaryCondition.2D.inf]`选项，并给定参数值，求解器在计算边界时会使用这些值来计算边界单元值。有四种给定参数值的方法(需要设置对应的`input_mode`)，例如可以给定马赫数、攻角(`input_mode=1`)，也可以给定原始变量值，还可以给定守恒量值。
+For **inlet, outlet, and far field boundary conditions**, you should add the options `[boundaryCondition.2D.inlet]`, `[boundaryCondition.2D.outlet]`, `[boundaryCondition.2D.inf]` in the control parameters and provide parameter values. The solver will use these values to compute the boundary cell values during the calculation. There are four methods for setting the parameter values (the corresponding `input_mode` needs to be set), for example, you can specify the Mach number and angle of attack (`input_mode=1`), or you can specify raw variable values, as well as conservation variable values.
 
-**对称边界**尚未开发完善，不建议使用。在无粘求解器中它按照无滑移壁面处理。
+**Symmetry boundaries** are not fully developed, and their use is not recommended. They are treated as non-slip wall surfaces in non-viscous solvers.
 
-**周期边界**比较特殊，用pointwise导出后，还需要手动修改边界名称，因为pointwise会自动将相同名称的边界合并。
+**Periodic boundaries** are special; after exporting from Pointwise, you need to manually modify the boundary names, as Pointwise automatically merges boundaries with the same name.
 
-**双马赫反射边界**对网格尺寸和控制参数都有固定要求，具体参照`quick_start/2D_double_shock_reflect`中的示例文件。
+**Double Mach reflection boundaries** have specific requirements for mesh size and control parameters. Please refer to the example files in `quick_start/2D_double_shock_reflect`.
 
-> 双马赫反射的dsr边界会在每个时刻计算哪些边界位于激波左侧，激波左侧的边界元赋值为inlet参数，右侧的赋值为outlet参数。由于该计算中激波移动速度是固定死的，因此要求激波必须是60°角，且Inlet、outlet参数都不能随便改。
+> The dsr boundary for double Mach reflection will calculate which boundaries are located to the left of the shock at each moment. The boundary elements to the left of the shock will be assigned inlet parameters, while those to the right will be assigned outlet parameters. Since the shock speed is fixed in this calculation, the shock must be at a 60° angle, and the Inlet and outlet parameters cannot be arbitrarily modified.
 >
-> 双马赫反射算例要求底部壁面为无滑移壁面。
+> The double Mach reflection case requires the bottom wall surface to be a non-slip wall surface.
 
-内部场的初始化主要由`[initialCondition]`决定，它分为四种。
+The initialization of internal fields is primarily determined by `[initialCondition]`, which is categorized into four types:
 
-- 1-inf：全场用inf初始化
-- 2-等熵涡：全场用inf叠加等熵涡初始化
-- 3-激波管：根据激波位置，对激波两侧分别用inlet和outlet初始化
-- 4-双马赫反射：根据激波位置，对激波两侧分别用inlet和outlet初始化
+- 1-infinite: The entire field is initialized with inf
+- 2-Isentropic vortex: The entire field is initialized with inf and superimposed with an isentropic vortex
+- 3-Shock tube: According to the shock position, the regions on both sides of the shock are initialized with inlet and outlet values
+- 4-Double Mach reflection: According to the shock position, the regions on both sides of the shock are initialized with inlet and outlet values
 
-文件用UTF-8格式保存
+Files should be saved in UTF-8 format.
 
-> 初始化代码可参考`FieldInitializer::setInitialAndBoundaryCondition()`
+> For initialization code, refer to `FieldInitializer::setInitialAndBoundaryCondition()`
 
 ```toml
-# 仅在"3-激波管"模式下有效。用点+法向量确定一条直线
-# 如果不指定，默认x=0,y=0,normal_x=1,normal_y=0
+# Effective only in "3-shock tube" mode. Defines a line using point + normal vector
+# If not specified, defaults to x=0, y=0, normal_x=1, normal_y=0
 [initialCondition.shockTube]    
 shock_x = 0                     
 shock_y = 0.5                   
-shock_normal_x = 0# 直线法向量。法向量从inlet侧指向outlet侧
+shock_normal_x = 0 # Normal vector of the line. The normal vector points from the inlet side to the outlet side
 shock_normal_y = 1
 
-# 仅在"4-双马赫反射"模式下有效。用点斜式确定一条直线
+# Effective only in "4-double Mach reflection" mode. Defines a line using the point-slope form
 [initialCondition.doubleShockReflection]
 shock_x = 0.6
 shock_y = 0 
-shock_angle_degree = 60# 直线与x轴夹角
+shock_angle_degree = 60 # Angle between the line and the x-axis
 ```
 
-# 代码说明
+### Code Description
 
-(更新中)
+(Updating)
 
-`src`目录中有一些文件是以前的遗留代码，它们位于`src`根目录，并没有用子文件夹包裹起来：
+The `/FVMR/src/legacy` directory contains older legacy code.
 
 ```
 BoundaryManager_2D.cpp
@@ -275,66 +306,12 @@ Node_2D.cpp
 Node_2D.h
 ```
 
-现在它们现在所起的作用就是在读取网格文件时组装数据，然后通过OldDataConverter(位于`src/solvers/OldDataConverter.h`)转换数据结构，传递到当前的新系统。
+Currently, their role is to assemble data when reading the mesh file. They are called by `SU2MeshReader`, converted by `OldDataConverter`, and passed to the current new system `GPU::GPUSolver2`.
 
-> 该项目继承自我以前写的欧拉求解器`FVM_2D`。当时我是用的动态数组`std::vector`存储，且使用的Array of Structure(AoS)结构。但是现在我需要改为Structure of Array以更好适配GPU，因此需要用OldDataConverter进行转换。
+> This project is inherited from my previous Euler solver `FVM_2D`. At that time, I used dynamic arrays `std::vector` for storage, employing an Array of Structure (AoS) layout. However, I now need to switch to a Structure of Array to better accommodate the GPU, requiring the use of OldDataConverter for conversion.
 >
-> 现在这些遗留代码就是一坨屎山，严重影响了读取网格的速度。然而俗话说得好，屎山能运行就尽量不要动它，所以我把这座山包装了一下，与其他模块隔离
+> Right now, this legacy code is a complete mess, seriously affecting the speed of mesh reading. However, if this mess can run, it is recommended to avoid altering it for the time being.
 
-# 其他
+## Communication
 
-## 参考资料
-
-一维激波管问题的Python解析解参考[一维激波管问题（知乎）]([一维激波管问题（本科毕业论文） - 知乎 (zhihu.com)](https://zhuanlan.zhihu.com/p/154508317))。代码位于`quick_start/1D_shocktube`下。
-
-双马赫反射问题与WENO对比，WENO来自参考文献
-
-```
-Ji Z, Liang T, Fu L. A Class of New High-order Finite-Volume TENO Schemes f
-or Hyperbolic Conservation Laws with Unstructured Meshes[J]. Journal of Scientific
-Computing, 2022,92(2):61.DOI:10.1007/s10915-022-01925-5.
-```
-
-
-
-## Visual Studio 配置宏介绍
-
-在设置VS项目属性时，可采用宏来简化路径
-
-来源：https://blog.csdn.net/qianniulaoren/article/details/133160383
-也可以在项目属性中点击任意项-编辑，展开宏，以进行浏览。
-如果在常规的浏览中找不到，可以在调试的浏览中找
-```
-$(TargetDir)                                           # 目标输出文件所在的目录
-$(TargetName) = U2NITS-10.0                            # 目标的名称
-$(TargetExt) = .exe                                    # 目标的扩展名
-$(TargetFileName) = $(TargetName)$(TargetExt)          # 目标输出文件名，包括扩展名
-$(TargetPath) = $(TargetDir)$(TargetFileName)                      
-
-$(SolutionDir) = D:\tgl\Local\HPC\U2NITS-10.0\         # 解决方案目录，即主目录
-$(SolutionName) = U2NITS-10.0
-$(SolutionExt) = .sln
-$(SolutionFileName) = $(SolutionName)$(SolutionExt)    # .sln文件全名
-$(SolutionPath) = $(SolutionDir)$(SolutionFileName)    # .sln文件全路径
-
-$(Platform) = x64                                      # 解决方案平台名称，如x86、x64
-$(Configuration) = Debug                               # 当前的编译配置名称，如Release、Debug
-$(IntDir) = $(Platform)\$(Configuration) = x64\Debug\  # 编译器使用的中间目录，产出obj文件
-
-$(ProjectName) = U2NITS-10.0                           # 当前工程名称
-$(ProjectDir) = $(SolutionDir)$(ProjectName)\
-              = D:\tgl\Local\HPC\U2NITS-10.0\U2NITS-10.0\ # 项目目录
-
-$(OutDir) = $(SolutionDir)$(Platform)\$(Configuration)\
-          = D:\tgl\Local\HPC\U2NITS-10.0\x64\Debug\    # 输出目录 该目录下生成exe pdb等文件
-```
-例如我将调试的工作目录修改为$(ProjectDir)WorkingDirectory\。设置后注意点“应用”
-
-## 一些想法
-
-目前有以下可完善方向：
-
-- 添加湍流模型。如果不是为了发明新模型的话，只需要把已有湍流模型往上套即可
-- 改造为3维。其难度比二维大得多，因为网格非常麻烦。而且计算量也涨了一个维度。
-- 流固耦合。涉及到非结构动网格。这是我比较感兴趣的地方。目前只能做小变形，即网格的拓扑不能变，不能断裂。如果做嵌套网格的话也太麻烦。
-
+- GitHub Issues: Bug reports, feature requests, install issues, RFCs, thoughts, etc.

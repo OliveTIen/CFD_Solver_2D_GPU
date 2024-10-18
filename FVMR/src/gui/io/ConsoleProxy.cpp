@@ -24,7 +24,7 @@ void ConsoleProxy::setCursorPosition(COORD p) {
 }
 
 void ConsoleProxy::clearDisplay(COORD p1, COORD p2) {
-	// reference: [Console coding 控制台窗口图形界面编程](https://blog.51cto.com/dlican/3745102)
+	// reference: [Console coding 鎺у埗鍙扮獥鍙ｅ浘褰㈢晫闈㈢紪绋媇(https://blog.51cto.com/dlican/3745102)
 	COORD p_old = getCursorPosition();
 	CONSOLE_SCREEN_BUFFER_INFO consoleScreenBufferInfo;
 	GetConsoleScreenBufferInfo(GetStdHandle(STD_OUTPUT_HANDLE), &consoleScreenBufferInfo);

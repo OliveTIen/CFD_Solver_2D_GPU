@@ -10,7 +10,7 @@
 #include "SU2MeshReader.h"
 
 static void jointVectors(std::vector<int>& accepter, const std::vector<int>& giver) {
-	// Æ´½ÓÊı×é
+	// æ‹¼æ¥æ•°ç»„
 	for (int i = 0; i < giver.size(); i++) {
 		accepter.push_back(giver[i]);
 	}
@@ -18,32 +18,32 @@ static void jointVectors(std::vector<int>& accepter, const std::vector<int>& giv
 
 int ContinueFileReader::readContinueFile_1() {
 	/*
-	Ñ°ÕÒµ±Ç°Ä¿Â¼ÏÂÊÇ·ñÓĞÃûÎª¡°pause_¡±µÄÎÄ¼ş£¬ÈôÓĞ£¬Ôò¶ÁÈ¡£¬ÈôÎŞ£¬Ôò·µ»Ø-1
-	±ØĞë·µ»ØÒ»¸öÖµ£¬Èç¹û·µ»Ø-1£¬Ôò³¢ÊÔ´ÓÍ·¿ªÊ¼
+	å¯»æ‰¾å½“å‰ç›®å½•ä¸‹æ˜¯å¦æœ‰åä¸ºâ€œpause_â€çš„æ–‡ä»¶ï¼Œè‹¥æœ‰ï¼Œåˆ™è¯»å–ï¼Œè‹¥æ— ï¼Œåˆ™è¿”å›-1
+	å¿…é¡»è¿”å›ä¸€ä¸ªå€¼ï¼Œå¦‚æœè¿”å›-1ï¼Œåˆ™å°è¯•ä»å¤´å¼€å§‹
 	*/
 
 	FVM_2D* pFVM2D = FVM_2D::getInstance();
 
 	std::string m_path = FilePathManager::getInstance()->getOutputDirectory();
-	std::vector<std::string> files = FilePathManager::getInstance()->getFiles(m_path);//filesÎª×Ö·û´®ÏòÁ¿£¬´æ´¢ÁËÂ·¾¶ÏÂËùÓĞÎÄ¼şÃû
+	std::vector<std::string> files = FilePathManager::getInstance()->getFiles(m_path);//filesä¸ºå­—ç¬¦ä¸²å‘é‡ï¼Œå­˜å‚¨äº†è·¯å¾„ä¸‹æ‰€æœ‰æ–‡ä»¶å
 	int index_maxNstep = -1;
-	//ËÑÑ°ÊÇ·ñÓĞpause_filename[xxx].datÎÄ¼ş£¬ÈôÓĞ£¬ÔòÕÒxxx×î´óµÄ
+	//æœå¯»æ˜¯å¦æœ‰pause_filename[xxx].datæ–‡ä»¶ï¼Œè‹¥æœ‰ï¼Œåˆ™æ‰¾xxxæœ€å¤§çš„
 	int maxNstep = 0;
-	int tmp_index = 0;//ÓÃÓÚÖ¸Ê¾"[", "]"
+	int tmp_index = 0;//ç”¨äºæŒ‡ç¤º"[", "]"
 	std::string tmp_str;
 	for (int i = 0; i < files.size(); i++) {
-		//ËÑÑ°ÒÔpause_filename¿ªÍ·µÄÎÄ¼şÃû
+		//æœå¯»ä»¥pause_filenameå¼€å¤´çš„æ–‡ä»¶å
 		std::string str_match = "pause_" + GlobalPara::basic::filename;
 		if (files[i].substr(0, int(str_match.size())) == str_match) {
-			//ÌŞ³ı"pause_filename["
-			int pre_length = int(str_match.size() + 1);//"pause_filename["µÄ³¤¶È
+			//å‰”é™¤"pause_filename["
+			int pre_length = int(str_match.size() + 1);//"pause_filename["çš„é•¿åº¦
 			std::string str = files[i].substr(pre_length);
-			//ÌŞ³ı"].dat"
-			int post_length = 5;//"].dat"µÄ³¤¶È
+			//å‰”é™¤"].dat"
+			int post_length = 5;//"].dat"çš„é•¿åº¦
 			for (int i = 0; i < post_length; i++) {
 				str.pop_back();
 			}
-			//½«xxx´æÈënum
+			//å°†xxxå­˜å…¥num
 			int num = std::stoi(str);
 			if (num > maxNstep) {
 				index_maxNstep = i;
@@ -51,7 +51,7 @@ int ContinueFileReader::readContinueFile_1() {
 			}
 		}
 	}
-	//ÈôÎŞ£¬Ôò·µ»Ø-1
+	//è‹¥æ— ï¼Œåˆ™è¿”å›-1
 	if (index_maxNstep == -1) {
 		return -1;
 	}
@@ -66,9 +66,9 @@ int ContinueFileReader::readContinueFile_1() {
 	int maxnodeID = 1;
 	int maxedgeID = 1;
 	int maxelementID = 1;
-	int iline_set = 0;//ÁÙÊ±±äÁ¿£¬ÓÃÓÚ¼ÇÂ¼¶ÁÈ¡setÊ±¾­¹ıÁË¶àÉÙĞĞ
-	std::vector<std::vector<int>> edges_of_all_sets;//ÁÙÊ±±äÁ¿£¬´æ´¢¸÷setµÄedgeID
-	const int bufferLength = 600;//!!!Ğ¡ĞÄ³¤¶È²»¹»
+	int iline_set = 0;//ä¸´æ—¶å˜é‡ï¼Œç”¨äºè®°å½•è¯»å–setæ—¶ç»è¿‡äº†å¤šå°‘è¡Œ
+	std::vector<std::vector<int>> edges_of_all_sets;//ä¸´æ—¶å˜é‡ï¼Œå­˜å‚¨å„setçš„edgeID
+	const int bufferLength = 600;//!!!å°å¿ƒé•¿åº¦ä¸å¤Ÿ
 	char buffer[bufferLength];
 	std::string tLine;
 	std::vector<std::string> tWords;
@@ -86,7 +86,7 @@ int ContinueFileReader::readContinueFile_1() {
 		if (tWords.size() == 0) {
 			nNullRow++;
 			continue;
-		}//¿ÕĞĞ£¬Ç¿ÆÈ¿ªÊ¼ÏÂÒ»´ÎÑ­»·£¬·ÀÖ¹tWords[0]ÄÚ´æ´íÎó
+		}//ç©ºè¡Œï¼Œå¼ºè¿«å¼€å§‹ä¸‹ä¸€æ¬¡å¾ªç¯ï¼Œé˜²æ­¢tWords[0]å†…å­˜é”™è¯¯
 		else {
 			if (tWords[0] == "t")state = 0;
 			if (tWords[0] == "nodes:")state = 1;
@@ -100,7 +100,7 @@ int ContinueFileReader::readContinueFile_1() {
 			GlobalPara::time::t_previous = std::stod(tWords[0]);
 			GlobalPara::time::istep_previous = (int)std::stod(tWords[1]);
 			if (tWords.size() == 3) {
-				GlobalPara::time::CFL = std::stod(tWords[2]);// ¶ÁÈ¡ÉÏ´Î±£´æµÄCFL
+				GlobalPara::time::CFL = std::stod(tWords[2]);// è¯»å–ä¸Šæ¬¡ä¿å­˜çš„CFL
 			}
 		}
 		else if (state == 1 && tWords[0].substr(0, 1) != "n") {//nodes: ID, x, y
@@ -129,20 +129,20 @@ int ContinueFileReader::readContinueFile_1() {
 			if (tWords.size() >= 2 && !isdigit(tWords[1][0])) {
 				/*
 				"1 inf"
-				1.vBoundarySetsĞÂÔöÌõÄ¿¡¢¸ÃÌõÄ¿µÄ²¿·Ö³õÊ¼»¯
-				2.edges_of_all_setsĞÂÔöÌõÄ¿
+				1.vBoundarySetsæ–°å¢æ¡ç›®ã€è¯¥æ¡ç›®çš„éƒ¨åˆ†åˆå§‹åŒ–
+				2.edges_of_all_setsæ–°å¢æ¡ç›®
 				*/
-				//setµÄID,name³õÊ¼»¯
+				//setçš„ID,nameåˆå§‹åŒ–
 				VirtualBoundarySet_2D vb;
 				vb.ID = (int)std::stod(tWords[0]);
 				vb.name = tWords[1];
 				pFVM2D->boundaryManager.boundaries.push_back(vb);
-				//edges_of_all_setsĞÂÔöÌõÄ¿
+				//edges_of_all_setsæ–°å¢æ¡ç›®
 				edges_of_all_sets.push_back(std::vector<int>());
 			}
 			else {
-				// 1.edges_of_all_setsµÄ³õÊ¼»¯
-				// ÒıÓÃ×îºóÒ»¸öBoundarySet
+				// 1.edges_of_all_setsçš„åˆå§‹åŒ–
+				// å¼•ç”¨æœ€åä¸€ä¸ªBoundarySet
 				std::vector<int>& edges_of_current_set = edges_of_all_sets[edges_of_all_sets.size() - 1];
 				std::vector<int> intVector = StringProcessor::stringVector_2_intVector(tWords);
 				jointVectors(edges_of_current_set, intVector);
@@ -159,32 +159,32 @@ int ContinueFileReader::readContinueFile_1() {
 
 int ContinueFileReader::readContinueFile_2_unused_addUxUy() {
 	/*
-	Ñ°ÕÒµ±Ç°Ä¿Â¼ÏÂÊÇ·ñÓĞÃûÎª¡°pause_¡±µÄÎÄ¼ş£¬ÈôÓĞ£¬Ôò¶ÁÈ¡£¬ÈôÎŞ£¬Ôò·µ»Ø-1
-	¸ü¸ÄÈÕÖ¾£º20240405Ìí¼ÓÁËUx Uy
+	å¯»æ‰¾å½“å‰ç›®å½•ä¸‹æ˜¯å¦æœ‰åä¸ºâ€œpause_â€çš„æ–‡ä»¶ï¼Œè‹¥æœ‰ï¼Œåˆ™è¯»å–ï¼Œè‹¥æ— ï¼Œåˆ™è¿”å›-1
+	æ›´æ”¹æ—¥å¿—ï¼š20240405æ·»åŠ äº†Ux Uy
 	*/
 
 	FVM_2D* pFVM2D = FVM_2D::getInstance();
 
 	std::string m_path = FilePathManager::getInstance()->getOutputDirectory();
-	std::vector<std::string> files = FilePathManager::getInstance()->getFiles(m_path);//filesÎª×Ö·û´®ÏòÁ¿£¬´æ´¢ÁËÂ·¾¶ÏÂËùÓĞÎÄ¼şÃû
+	std::vector<std::string> files = FilePathManager::getInstance()->getFiles(m_path);//filesä¸ºå­—ç¬¦ä¸²å‘é‡ï¼Œå­˜å‚¨äº†è·¯å¾„ä¸‹æ‰€æœ‰æ–‡ä»¶å
 	int index_maxNstep = -1;
-	//ËÑÑ°ÊÇ·ñÓĞpause_filename[xxx].datÎÄ¼ş£¬ÈôÓĞ£¬ÔòÕÒxxx×î´óµÄ
+	//æœå¯»æ˜¯å¦æœ‰pause_filename[xxx].datæ–‡ä»¶ï¼Œè‹¥æœ‰ï¼Œåˆ™æ‰¾xxxæœ€å¤§çš„
 	int maxNstep = 0;
-	int tmp_index = 0;//ÓÃÓÚÖ¸Ê¾"[", "]"
+	int tmp_index = 0;//ç”¨äºæŒ‡ç¤º"[", "]"
 	std::string tmp_str;
 	for (int i = 0; i < files.size(); i++) {
-		//ËÑÑ°ÒÔpause_filename¿ªÍ·µÄÎÄ¼şÃû
+		//æœå¯»ä»¥pause_filenameå¼€å¤´çš„æ–‡ä»¶å
 		std::string str_match = "pause_" + GlobalPara::basic::filename;
 		if (files[i].substr(0, int(str_match.size())) == str_match) {
-			//ÌŞ³ı"pause_filename["
-			int pre_length = int(str_match.size() + 1);//"pause_filename["µÄ³¤¶È
+			//å‰”é™¤"pause_filename["
+			int pre_length = int(str_match.size() + 1);//"pause_filename["çš„é•¿åº¦
 			std::string str = files[i].substr(pre_length);
-			//ÌŞ³ı"].dat"
-			int post_length = 5;//"].dat"µÄ³¤¶È
+			//å‰”é™¤"].dat"
+			int post_length = 5;//"].dat"çš„é•¿åº¦
 			for (int i = 0; i < post_length; i++) {
 				str.pop_back();
 			}
-			//½«xxx´æÈënum
+			//å°†xxxå­˜å…¥num
 			int num = std::stoi(str);
 			if (num > maxNstep) {
 				index_maxNstep = i;
@@ -192,7 +192,7 @@ int ContinueFileReader::readContinueFile_2_unused_addUxUy() {
 			}
 		}
 	}
-	//ÈôÎŞ£¬Ôò·µ»Ø-1
+	//è‹¥æ— ï¼Œåˆ™è¿”å›-1
 	if (index_maxNstep == -1)return -1;
 	std::ifstream infile(m_path + files[index_maxNstep]);
 	if (!infile) {
@@ -205,9 +205,9 @@ int ContinueFileReader::readContinueFile_2_unused_addUxUy() {
 	int maxnodeID = 1;
 	int maxedgeID = 1;
 	int maxelementID = 1;
-	int iline_set = 0;//ÁÙÊ±±äÁ¿£¬ÓÃÓÚ¼ÇÂ¼¶ÁÈ¡setÊ±¾­¹ıÁË¶àÉÙĞĞ
-	std::vector<std::vector<int>> edges_of_all_sets;//ÁÙÊ±±äÁ¿£¬´æ´¢¸÷setµÄedgeID
-	const int bufferLength = 600;//!!!Ğ¡ĞÄ³¤¶È²»¹»
+	int iline_set = 0;//ä¸´æ—¶å˜é‡ï¼Œç”¨äºè®°å½•è¯»å–setæ—¶ç»è¿‡äº†å¤šå°‘è¡Œ
+	std::vector<std::vector<int>> edges_of_all_sets;//ä¸´æ—¶å˜é‡ï¼Œå­˜å‚¨å„setçš„edgeID
+	const int bufferLength = 600;//!!!å°å¿ƒé•¿åº¦ä¸å¤Ÿ
 	char buffer[bufferLength];
 	std::string tLine;
 	std::vector<std::string> tWords;
@@ -225,7 +225,7 @@ int ContinueFileReader::readContinueFile_2_unused_addUxUy() {
 		if (tWords.size() == 0) {
 			nNullRow++;
 			continue;
-		}//¿ÕĞĞ£¬Ç¿ÆÈ¿ªÊ¼ÏÂÒ»´ÎÑ­»·£¬·ÀÖ¹tWords[0]ÄÚ´æ´íÎó
+		}//ç©ºè¡Œï¼Œå¼ºè¿«å¼€å§‹ä¸‹ä¸€æ¬¡å¾ªç¯ï¼Œé˜²æ­¢tWords[0]å†…å­˜é”™è¯¯
 		else {
 			if (tWords[0] == "t")state = 0;
 			if (tWords[0] == "nodes:")state = 1;
@@ -273,20 +273,20 @@ int ContinueFileReader::readContinueFile_2_unused_addUxUy() {
 			if (!isdigit(tWords[1][0])) {
 				/*
 				"1 inf"
-				1.vBoundarySetsĞÂÔöÌõÄ¿¡¢¸ÃÌõÄ¿µÄ²¿·Ö³õÊ¼»¯
-				2.edges_of_all_setsĞÂÔöÌõÄ¿
+				1.vBoundarySetsæ–°å¢æ¡ç›®ã€è¯¥æ¡ç›®çš„éƒ¨åˆ†åˆå§‹åŒ–
+				2.edges_of_all_setsæ–°å¢æ¡ç›®
 				*/
-				//setµÄID,name³õÊ¼»¯
+				//setçš„ID,nameåˆå§‹åŒ–
 				VirtualBoundarySet_2D vb;
 				vb.ID = (int)std::stod(tWords[0]);
 				vb.name = tWords[1];
 				pFVM2D->boundaryManager.boundaries.push_back(vb);
-				//edges_of_all_setsĞÂÔöÌõÄ¿
+				//edges_of_all_setsæ–°å¢æ¡ç›®
 				edges_of_all_sets.push_back(std::vector<int>());
 			}
 			else {
-				// 1.edges_of_all_setsµÄ³õÊ¼»¯
-				// ÒıÓÃ×îºóÒ»¸öBoundarySet
+				// 1.edges_of_all_setsçš„åˆå§‹åŒ–
+				// å¼•ç”¨æœ€åä¸€ä¸ªBoundarySet
 				std::vector<int>& edges_of_current_set = edges_of_all_sets[edges_of_all_sets.size() - 1];
 				std::vector<int> intVector = StringProcessor::stringVector_2_intVector(tWords);
 				jointVectors(edges_of_current_set, intVector);
@@ -308,25 +308,25 @@ std::string tryFindPauseFilePath() {
 	*/
 	FVM_2D* pFVM2D = FVM_2D::getInstance();
 	std::string output_dir = FilePathManager::getInstance()->getOutputDirectory();
-	std::vector<std::string> files = FilePathManager::getInstance()->getFiles(output_dir);//filesÎª×Ö·û´®ÏòÁ¿£¬´æ´¢ÁËÂ·¾¶ÏÂËùÓĞÎÄ¼şÃû
+	std::vector<std::string> files = FilePathManager::getInstance()->getFiles(output_dir);//filesä¸ºå­—ç¬¦ä¸²å‘é‡ï¼Œå­˜å‚¨äº†è·¯å¾„ä¸‹æ‰€æœ‰æ–‡ä»¶å
 	int index_maxNstep = -1;
-	//ËÑÑ°ÊÇ·ñÓĞpause_filename[xxx].datÎÄ¼ş£¬ÈôÓĞ£¬ÔòÕÒxxx×î´óµÄ
+	//æœå¯»æ˜¯å¦æœ‰pause_filename[xxx].datæ–‡ä»¶ï¼Œè‹¥æœ‰ï¼Œåˆ™æ‰¾xxxæœ€å¤§çš„
 	int maxNstep = 0;
-	int tmp_index = 0;//ÓÃÓÚÖ¸Ê¾"[", "]"
+	int tmp_index = 0;//ç”¨äºæŒ‡ç¤º"[", "]"
 	std::string tmp_str;
 	for (int i = 0; i < files.size(); i++) {
-		//ËÑÑ°ÒÔpause_filename¿ªÍ·µÄÎÄ¼şÃû
+		//æœå¯»ä»¥pause_filenameå¼€å¤´çš„æ–‡ä»¶å
 		std::string str_match = "pause_" + GlobalPara::basic::filename;
 		if (files[i].substr(0, int(str_match.size())) == str_match) {
-			//ÌŞ³ı"pause_filename["
-			int pre_length = int(str_match.size() + 1);//"pause_filename["µÄ³¤¶È
+			//å‰”é™¤"pause_filename["
+			int pre_length = int(str_match.size() + 1);//"pause_filename["çš„é•¿åº¦
 			std::string str = files[i].substr(pre_length);
-			//ÌŞ³ı"].dat"
-			int post_length = 5;//"].dat"µÄ³¤¶È
+			//å‰”é™¤"].dat"
+			int post_length = 5;//"].dat"çš„é•¿åº¦
 			for (int i = 0; i < post_length; i++) {
 				str.pop_back();
 			}
-			//½«xxx´æÈënum
+			//å°†xxxå­˜å…¥num
 			int num = std::stoi(str);
 			if (num > maxNstep) {
 				index_maxNstep = i;
@@ -334,7 +334,7 @@ std::string tryFindPauseFilePath() {
 			}
 		}
 	}
-	//ÈôÎŞ£¬Ôò·µ»Ø¿Õ
+	//è‹¥æ— ï¼Œåˆ™è¿”å›ç©º
 	if (index_maxNstep == -1) {
 		return "";
 	}
@@ -356,7 +356,7 @@ int read_1_1(int& maxnodeID, int& maxelementID, std::vector<SU2MeshReader::Simpl
 	std::cout << "Continue from: " << pause_file_path << std::endl;
 
 	int state = -1;//1-Node, 2-Element
-	const int bufferLength = 600;//!!!Ğ¡ĞÄ³¤¶È²»¹»
+	const int bufferLength = 600;//!!!å°å¿ƒé•¿åº¦ä¸å¤Ÿ
 	char buffer[bufferLength];
 	std::string tLine;
 	std::vector<std::string> tWords;
@@ -374,7 +374,7 @@ int read_1_1(int& maxnodeID, int& maxelementID, std::vector<SU2MeshReader::Simpl
 		if (tWords.size() == 0) {
 			nNullRow++;
 			continue;
-		}//¿ÕĞĞ£¬Ç¿ÆÈ¿ªÊ¼ÏÂÒ»´ÎÑ­»·£¬·ÀÖ¹tWords[0]ÄÚ´æ´íÎó
+		}//ç©ºè¡Œï¼Œå¼ºè¿«å¼€å§‹ä¸‹ä¸€æ¬¡å¾ªç¯ï¼Œé˜²æ­¢tWords[0]å†…å­˜é”™è¯¯
 		else {
 			if (tWords[0] == "t")state = 0;
 			if (tWords[0] == "nodes:")state = 1;
@@ -388,7 +388,7 @@ int read_1_1(int& maxnodeID, int& maxelementID, std::vector<SU2MeshReader::Simpl
 			GlobalPara::time::t_previous = std::stod(tWords[0]);
 			GlobalPara::time::istep_previous = (int)std::stod(tWords[1]);
 			if (tWords.size() == 3) {
-				GlobalPara::time::CFL = std::stod(tWords[2]);// ¶ÁÈ¡ÉÏ´Î±£´æµÄCFL
+				GlobalPara::time::CFL = std::stod(tWords[2]);// è¯»å–ä¸Šæ¬¡ä¿å­˜çš„CFL
 			}
 		}
 		else if (state == 1 && tWords[0].substr(0, 1) != "n") {//nodes: ID, x, y
@@ -414,12 +414,12 @@ int read_1_1(int& maxnodeID, int& maxelementID, std::vector<SU2MeshReader::Simpl
 		}
 		else if (state == 4 && tWords[0].substr(0, 1) != "b") {//boundaries: ID, name, edgeIDs
 			if (tWords.size() >= 2 && !isdigit(tWords[1][0])) {
-				// ÈôÓĞÖÁÉÙ2¸ö´Ê£¬µÚ2¸öµ¥´Ê²»ÊÇÊı×Ö£¬ËµÃ÷ÊÇboundary name£¬Òª¶ÁÈ¡name
+				// è‹¥æœ‰è‡³å°‘2ä¸ªè¯ï¼Œç¬¬2ä¸ªå•è¯ä¸æ˜¯æ•°å­—ï¼Œè¯´æ˜æ˜¯boundary nameï¼Œè¦è¯»å–name
 				tmp_boudaries.push_back(SU2MeshReader::SimpleBoundary(tWords[2]));
 			}
 			else {
-				// ·ñÔò£¬ËµÃ÷ÊÇedgeĞòºÅ£¬Òò´Ëµ±Ç°boundaryÌí¼ÓÒ»¸ö±ß
-				// SU2ÊÇ´Ó0¿ªÊ¼£¬Òª+1¡£continue fileÊÇ´Ó1¿ªÊ¼£¬²»ÓÃ+1
+				// å¦åˆ™ï¼Œè¯´æ˜æ˜¯edgeåºå·ï¼Œå› æ­¤å½“å‰boundaryæ·»åŠ ä¸€ä¸ªè¾¹
+				// SU2æ˜¯ä»0å¼€å§‹ï¼Œè¦+1ã€‚continue fileæ˜¯ä»1å¼€å§‹ï¼Œä¸ç”¨+1
 				SU2MeshReader::SimpleBoundary& tmp_currentBoundary = tmp_boudaries[tmp_boudaries.size() - 1];
 				tmp_currentBoundary.edges.push_back(SU2MeshReader::SimpleEdge(
 					std::stoi(tWords[1]) + 0, std::stoi(tWords[2]) + 0
@@ -440,8 +440,8 @@ void process_1_1(int maxNodeID, int maxElementID, std::vector<SU2MeshReader::Sim
 
 int ContinueFileReader::readContinueFile_1_1() {
 	/*
-	Ñ°ÕÒµ±Ç°Ä¿Â¼ÏÂÊÇ·ñÓĞÃûÎª¡°pause_¡±µÄÎÄ¼ş£¬ÈôÓĞ£¬Ôò¶ÁÈ¡£¬ÈôÎŞ£¬Ôò·µ»Ø-1
-	±ØĞë·µ»ØÒ»¸öÖµ£¬Èç¹û·µ»Ø-1£¬Ôò³¢ÊÔ´ÓÍ·¿ªÊ¼
+	å¯»æ‰¾å½“å‰ç›®å½•ä¸‹æ˜¯å¦æœ‰åä¸ºâ€œpause_â€çš„æ–‡ä»¶ï¼Œè‹¥æœ‰ï¼Œåˆ™è¯»å–ï¼Œè‹¥æ— ï¼Œåˆ™è¿”å›-1
+	å¿…é¡»è¿”å›ä¸€ä¸ªå€¼ï¼Œå¦‚æœè¿”å›-1ï¼Œåˆ™å°è¯•ä»å¤´å¼€å§‹
 	*/
 	int maxnodeID = 1;
 	int maxelementID = 1;
@@ -458,28 +458,28 @@ void ContinueFileReader::process(int maxnodeID, int maxelementID, std::vector<st
 
 	FVM_2D* pFVM2D = FVM_2D::getInstance();
 	LogWriter::logAndPrint("Initiate pNodeTable, pElementTable, pEdgeTable\n");
-	pFVM2D->iniPNodeTable(maxnodeID);// ĞèÒªÏÈ½¨Á¢nodesÊı×é£¬ÖªµÀÃ¿¸önodeµÄID¡£ÒÀÀµÓÚnodes
-	pFVM2D->iniPElementTable(maxelementID);// ĞèÒªÏÈ½¨Á¢elementsÊı×é£¬ÖªµÀÃ¿¸öelementµÄID¡£ÒÀÀµÓÚelements
-	pFVM2D->iniEdges();// ×é×°edges
-	pFVM2D->iniPEdgeTable();// ½¨Á¢pEdgesÊı×é¡£ĞèÒªÏÈ½¨Á¢edgesÊı×é£¬ÖªµÀÃ¿¸öedgeµÄID¡£ÒÀÀµÓÚedges£¬ĞèÒª·ÅÔÚiniEdges()ºóÃæ
+	pFVM2D->iniPNodeTable(maxnodeID);// éœ€è¦å…ˆå»ºç«‹nodesæ•°ç»„ï¼ŒçŸ¥é“æ¯ä¸ªnodeçš„IDã€‚ä¾èµ–äºnodes
+	pFVM2D->iniPElementTable(maxelementID);// éœ€è¦å…ˆå»ºç«‹elementsæ•°ç»„ï¼ŒçŸ¥é“æ¯ä¸ªelementçš„IDã€‚ä¾èµ–äºelements
+	pFVM2D->iniEdges();// ç»„è£…edges
+	pFVM2D->iniPEdgeTable();// å»ºç«‹pEdgesæ•°ç»„ã€‚éœ€è¦å…ˆå»ºç«‹edgesæ•°ç»„ï¼ŒçŸ¥é“æ¯ä¸ªedgeçš„IDã€‚ä¾èµ–äºedgesï¼Œéœ€è¦æ”¾åœ¨iniEdges()åé¢
 	pFVM2D->iniNode_neighborElements();
 	LogWriter::logAndPrint("Calculate Element xy, edge length\n");
 	pFVM2D->iniElement_xy_pEdges();
 	pFVM2D->iniEdges_lengths();
 
 	LogWriter::logAndPrint("Initialize boundary condition\n");
-	// ³õÊ¼»¯boundaryManager.boundariesµÄpEdges£¬µ«²»³õÊ¼»¯pEdgeËùÖ¸µÄedgeµÄsetIDµÈĞÅÏ¢£¬¸Ã²¿·Ö¹¤×÷Áô¸øºóÃæº¯Êı
-	// Ç°ÖÃÌõ¼ş£ºĞèÒª³õÊ¼»¯pEdgeTable
+	// åˆå§‹åŒ–boundaryManager.boundariesçš„pEdgesï¼Œä½†ä¸åˆå§‹åŒ–pEdgeæ‰€æŒ‡çš„edgeçš„setIDç­‰ä¿¡æ¯ï¼Œè¯¥éƒ¨åˆ†å·¥ä½œç•™ç»™åé¢å‡½æ•°
+	// å‰ç½®æ¡ä»¶ï¼šéœ€è¦åˆå§‹åŒ–pEdgeTable
 	if (pFVM2D->pEdgeTable.size() == 0) {
 		LogWriter::logAndPrint("Error: uninitialized pEdgeTable. (BoundaryManager_2D::iniBoundarySetPEdges)\n");
 		throw "uninitialized pEdgeTable";
 	}
 	else {
-		//³õÊ¼»¯boundaryManager.boundariesµÄÃ¿¸ösetµÄpEdges
+		//åˆå§‹åŒ–boundaryManager.boundariesçš„æ¯ä¸ªsetçš„pEdges
 		for (int iset = 0; iset < edges_of_all_sets.size(); iset++) {
-			std::vector<int>& edgeIDs = edges_of_all_sets[iset];//µÚisetÌõsetµÄedgeIDs
-			for (int iw = 0; iw < edgeIDs.size(); iw++) {//µÚisetÌõsetµÄµÚiw¸öedge
-				//ÔÚf->pEdgeTableÖĞ£¬¸ù¾İedgeID²éÑ¯pEdge£¬Íê³É³õÊ¼»¯
+			std::vector<int>& edgeIDs = edges_of_all_sets[iset];//ç¬¬isetæ¡setçš„edgeIDs
+			for (int iw = 0; iw < edgeIDs.size(); iw++) {//ç¬¬isetæ¡setçš„ç¬¬iwä¸ªedge
+				//åœ¨f->pEdgeTableä¸­ï¼Œæ ¹æ®edgeIDæŸ¥è¯¢pEdgeï¼Œå®Œæˆåˆå§‹åŒ–
 				int edge_ID = edgeIDs[iw];
 				Edge_2D* pE = pFVM2D->pEdgeTable[edge_ID];
 				pFVM2D->boundaryManager.boundaries[iset].pEdges.push_back(pE);
@@ -487,8 +487,8 @@ void ContinueFileReader::process(int maxnodeID, int maxelementID, std::vector<st
 		}
 	}
 
-	// ÉèÖÃedgesÖĞµÄsetID£¬ÉèÖÃboundaryManager.boundariesµÄtype
-	// Ç°ÖÃÌõ¼ş£ºÓĞedgesÏòÁ¿£¬ÓĞboundariesÏòÁ¿£¬ÇÒboundariesÓĞname¡¢pEdges¡¢ID
+	// è®¾ç½®edgesä¸­çš„setIDï¼Œè®¾ç½®boundaryManager.boundariesçš„type
+	// å‰ç½®æ¡ä»¶ï¼šæœ‰edgeså‘é‡ï¼Œæœ‰boundarieså‘é‡ï¼Œä¸”boundariesæœ‰nameã€pEdgesã€ID
 	pFVM2D->boundaryManager.iniBoundaryEdgeSetID_and_iniBoundaryType(pFVM2D);
 
 }

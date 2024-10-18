@@ -1,4 +1,4 @@
-﻿#ifndef EDGE_2D_H
+#ifndef EDGE_2D_H
 #define EDGE_2D_H
 #include "head.h"
 

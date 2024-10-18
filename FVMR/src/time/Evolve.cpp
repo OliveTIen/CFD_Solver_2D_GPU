@@ -11,9 +11,9 @@
 
 void U2NITS::Time::evolve_explicit_globaltimestep(myfloat dt, GPU::ElementSoA& element_host, GPU::NodeSoA& node_host, GPU::EdgeSoA& edge_host, GPU::ElementFieldSoA& elementField_host) {
 
-    // ¼ÆËã²ĞÖµ¡£dU/dt = f(t,U)ÓÒ¶ËÏî
+    // è®¡ç®—æ®‹å€¼ã€‚dU/dt = f(t,U)å³ç«¯é¡¹
     calculateFunctionF(element_host, node_host, edge_host, elementField_host);
-    // Ê±¼äÍÆ½ø
+    // æ—¶é—´æ¨è¿›
     for (int i = 0; i < 4; i++) {
         for (int j = 0; j < element_host.num_element; j++) {
             elementField_host.U[i][j] += dt * elementField_host.Flux[i][j];
@@ -24,25 +24,25 @@ void U2NITS::Time::evolve_explicit_globaltimestep(myfloat dt, GPU::ElementSoA& e
 
 void U2NITS::Time::evolve_rk3_globaltimestep(myfloat dt, GPU::ElementSoA& element_host, GPU::NodeSoA& node_host, GPU::EdgeSoA& edge_host, GPU::ElementFieldSoA& yn) {
     /*
-    ÊıÖµÇó½â³£Î¢·Ö·½³Ì dU/dt = f(t,U)£¬ÓÒ¶ËÏî¼´residual
-    MATLAB´úÂëÈçÏÂ
+    æ•°å€¼æ±‚è§£å¸¸å¾®åˆ†æ–¹ç¨‹ dU/dt = f(t,U)ï¼Œå³ç«¯é¡¹å³residual
+    MATLABä»£ç å¦‚ä¸‹
     function [ynp1] = rk3(xn,yn,f,h)
-        % ÊıÖµÇó½â³£Î¢·Ö·½³Ìdy/dx = f(x,y)
-        % ÊäÈë£ºµ±Ç°x y£¬º¯Êıf£¬²½³¤h=dx
-        % Êä³ö£ºÏÂÒ»²½x
+        % æ•°å€¼æ±‚è§£å¸¸å¾®åˆ†æ–¹ç¨‹dy/dx = f(x,y)
+        % è¾“å…¥ï¼šå½“å‰x yï¼Œå‡½æ•°fï¼Œæ­¥é•¿h=dx
+        % è¾“å‡ºï¼šä¸‹ä¸€æ­¥x
         k1=f(xn,yn);
         k2=f(xn+0.5*h,yn+0.5*h*k1);
         k3=f(xn+h, yn-h*k1+2*h*k2);
         ynp1 = yn + h/6*(k1+4*k2+k3);
     end
-    ÊÂÊµÉÏ¼ÆËãfÊ±ÎŞĞè¿¼ÂÇxn
-    ÒÔºó¿ÉÄÜ»á¸üĞÂÌİ¶È£¬Òò´Ë»¹ÊÇ°ÑFieldSoA×÷ÎªÒ»¸öÕûÌå¸´ÖÆ¡£ËäÈ»Ä¿Ç°Ìİ¶È¶à¸´ÖÆÁË¼¸·İ£¬ÓÃ²»ÉÏ¡£
-    Èç¹ûÃ¿Ò»Ğ¡²½¶¼Òª¸üĞÂÌİ¶È£¬ÄÇÃ´¾ÍĞèÒª°ÑÇ°ÃæÇóÌİ¶ÈµÄ²¿·Ö·Å½øcalculateFunctionFÖĞ
+    äº‹å®ä¸Šè®¡ç®—fæ—¶æ— éœ€è€ƒè™‘xn
+    ä»¥åå¯èƒ½ä¼šæ›´æ–°æ¢¯åº¦ï¼Œå› æ­¤è¿˜æ˜¯æŠŠFieldSoAä½œä¸ºä¸€ä¸ªæ•´ä½“å¤åˆ¶ã€‚è™½ç„¶ç›®å‰æ¢¯åº¦å¤šå¤åˆ¶äº†å‡ ä»½ï¼Œç”¨ä¸ä¸Šã€‚
+    å¦‚æœæ¯ä¸€å°æ­¥éƒ½è¦æ›´æ–°æ¢¯åº¦ï¼Œé‚£ä¹ˆå°±éœ€è¦æŠŠå‰é¢æ±‚æ¢¯åº¦çš„éƒ¨åˆ†æ”¾è¿›calculateFunctionFä¸­
     */
 
     CBoundaryDoubleShockReflect* pCDS = CBoundaryDoubleShockReflect::getInstance();
     int num = element_host.num_element;
-    GPU::ElementFieldSoA yn1, yn2, yn3;// k1´æ´¢ÓÚyn1.Flux£¬yn1´æ´¢ÓÚyn1.U
+    GPU::ElementFieldSoA yn1, yn2, yn3;// k1å­˜å‚¨äºyn1.Fluxï¼Œyn1å­˜å‚¨äºyn1.U
     yn1.alloc(num);
     yn2.alloc(num);
     yn3.alloc(num);
@@ -57,7 +57,7 @@ void U2NITS::Time::evolve_rk3_globaltimestep(myfloat dt, GPU::ElementSoA& elemen
 
     yn1.copyfrom(yn);
     pCDS->set_dt(0.0);
-    calculateFunctionF(element_host, node_host, edge_host, yn1);// k1£¬´æÈëyn1.Flux
+    calculateFunctionF(element_host, node_host, edge_host, yn1);// k1ï¼Œå­˜å…¥yn1.Flux
 
     yn2.copyfrom(yn);
     for (int i = 0; i < 4; i++) {
@@ -77,7 +77,7 @@ void U2NITS::Time::evolve_rk3_globaltimestep(myfloat dt, GPU::ElementSoA& elemen
     pCDS->set_dt(0.5 * dt);
     calculateFunctionF(element_host, node_host, edge_host, yn3);// k3
 
-    // Çóynp1£¬´æÈëyn
+    // æ±‚ynp1ï¼Œå­˜å…¥yn
     const myfloat dt_on_6 = dt / 6.0;
     for (int i = 0; i < 4; i++) {
         for (int j = 0; j < num; j++) {
@@ -96,13 +96,13 @@ void U2NITS::Time::evolve_rk3_globaltimestep(myfloat dt, GPU::ElementSoA& elemen
 }
 
 void U2NITS::Time::calculateFunctionF(GPU::ElementSoA& element, GPU::NodeSoA& node, GPU::EdgeSoA& edge, GPU::ElementFieldSoA& ynp) {
-    // ¼ÆËã³£Î¢·Ö·½³ÌµÄÓÒ¶ËÏîf=f(t,U)¡£ÓëÊ±¼äÎŞ¹Ø£¬Òò´Ë¼ò»¯Îªf(U)
+    // è®¡ç®—å¸¸å¾®åˆ†æ–¹ç¨‹çš„å³ç«¯é¡¹f=f(t,U)ã€‚ä¸æ—¶é—´æ— å…³ï¼Œå› æ­¤ç®€åŒ–ä¸ºf(U)
 
-    // ¸ù¾İU¼ÆËãUx¡¢Uy£¬¼´ÖØ¹¹
+    // æ ¹æ®Uè®¡ç®—Uxã€Uyï¼Œå³é‡æ„
     U2NITS::Space::Gradient::Gradient(element, node, edge, ynp);
-    // ¸ù¾İUºÍUx¡¢Uy¼ÆËãÍ¨Á¿£¬´æÈëynp.Flux
+    // æ ¹æ®Uå’ŒUxã€Uyè®¡ç®—é€šé‡ï¼Œå­˜å…¥ynp.Flux
     U2NITS::Space::Flux::calculateFluxHost(element, edge, ynp);
-    // ³ËÒÔÌå»ı¸ºµ¹Êı£¬µÃµ½ÓÒ¶ËÏîf£¬´æÈëynp.Flux
+    // ä¹˜ä»¥ä½“ç§¯è´Ÿå€’æ•°ï¼Œå¾—åˆ°å³ç«¯é¡¹fï¼Œå­˜å…¥ynp.Flux
     for (int ie = 0; ie < element.num_element; ie++) {
         myfloat minus_one_on_volume = -1.0 / element.volume[ie];
         for (int j = 0; j < 4; j++) {
@@ -113,9 +113,9 @@ void U2NITS::Time::calculateFunctionF(GPU::ElementSoA& element, GPU::NodeSoA& no
 
 
 void U2NITS::Time::evolve_explicit_localtimestep(GPU::ElementSoA& element_host, GPU::NodeSoA& node_host, GPU::EdgeSoA& edge_host, GPU::ElementFieldSoA& elementField_host, GPU::ElementFieldVariable_dt& elementFieldVariable_dt_host) {
-    // ¼ÆËã²ĞÖµ(Î»ÓÚFlux)
+    // è®¡ç®—æ®‹å€¼(ä½äºFlux)
     calculateFunctionF(element_host, node_host, edge_host, elementField_host);
-    // Ê±¼äÍÆ½ø
+    // æ—¶é—´æ¨è¿›
     for (myint j = 0; j < element_host.num_element; j++) {
         for (int i = 0; i < 4; i++) {
             elementField_host.U[i][j] += elementFieldVariable_dt_host.alphaC[j] * elementField_host.Flux[i][j];

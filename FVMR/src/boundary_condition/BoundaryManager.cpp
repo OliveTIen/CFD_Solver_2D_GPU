@@ -13,10 +13,10 @@ U2NITS::BoundaryManager* U2NITS::BoundaryManager::getInstance() {
 }
 
 int U2NITS::BoundaryManager::boundaryNameToType(std::string boundaryName) {
-	// Ô´×Ô BoundaryManager_2D::getBoundaryTypeByName
-	// ÊäÈëstd::string£¬Êä³öint£¨²ÎÕÕGlobalPara£©
-	// Ó¦¿¼ÂÇ×Ö·û´®Æ¥Åä/¹Ø¼ü´Ê¼ì²âËã·¨¡£ÀıÈçÇ°×ºÊ÷£¨Trie£©¿ÉÒÔÓ¦ÓÃÓÚ×Ô¶¯²¹È«µÈ
-	// ±ß½çÃû³Æ×ª±ß½çÀàĞÍ ÄÚ²¿ÊÇ-1
+	// æºè‡ª BoundaryManager_2D::getBoundaryTypeByName
+	// è¾“å…¥std::stringï¼Œè¾“å‡ºintï¼ˆå‚ç…§GlobalParaï¼‰
+	// åº”è€ƒè™‘å­—ç¬¦ä¸²åŒ¹é…/å…³é”®è¯æ£€æµ‹ç®—æ³•ã€‚ä¾‹å¦‚å‰ç¼€æ ‘ï¼ˆTrieï¼‰å¯ä»¥åº”ç”¨äºè‡ªåŠ¨è¡¥å…¨ç­‰
+	// è¾¹ç•Œåç§°è½¬è¾¹ç•Œç±»å‹ å†…éƒ¨æ˜¯-1
 	int bType = -1;
 	if (boundaryName == "wall" || boundaryName == "obstacle" || boundaryName == "airfoil" || boundaryName == "foil") {
 		if (GlobalPara::physicsModel::equation == _EQ_euler)bType = _BC_wall_nonViscous;
@@ -32,7 +32,7 @@ int U2NITS::BoundaryManager::boundaryNameToType(std::string boundaryName) {
 	else if (boundaryName == "dsr")bType = _BC_doubleShockReflect;
 	else if (boundaryName == "symmetry")bType = _BC_symmetry;
 	else if (boundaryName.substr(0, 8) == "periodic") {//periodic_x
-		int x = std::stoi(boundaryName.substr(boundaryName.size() - 1, 1));//È¡×îºóÒ»¸ö×Ö·û
+		int x = std::stoi(boundaryName.substr(boundaryName.size() - 1, 1));//å–æœ€åä¸€ä¸ªå­—ç¬¦
 		bType = _BC_periodic_0 + x;//_BC_periodic_x = _BC_periodic_0 + x
 	}
 	else {

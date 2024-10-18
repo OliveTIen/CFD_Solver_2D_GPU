@@ -28,31 +28,27 @@ namespace GlobalPara {
 		extern myfloat range_2;
 	}
 
-	//ÎÄ¼şÀà
+	//æ–‡ä»¶ç±»
 	namespace basic {
 		extern int dimension;
 		extern bool _continue;
 		extern std::string filename;
 		extern std::string meshFileType;
-		extern int useGPU;// ±ØĞëÓĞextern£¬·ñÔò±¨´í¡°ÖØ¶¨Òå¡±
+		extern int useGPU;// å¿…é¡»æœ‰externï¼Œå¦åˆ™æŠ¥é”™â€œé‡å®šä¹‰â€
 		extern bool isDebugMode;
 	}
-	//namespace space {
-	//	extern int flag_reconstruct;// ÖØ¹¹·½·¨¡£[todo]ÓëÍ¨Á¿¹¹Ôì·½·¨Ò×»ìÏı£¬fun3dÖĞÎ´ÕÒµ½´ËÑ¡Ïî
-	//	extern int flag_gradient;
-	//}
 	namespace time {
 		extern bool is_steady;
 		extern bool is_explicit;
 
 		extern myfloat CFL;
 		extern myfloat CFL_steady;
-		extern myfloat max_physical_time;// ×î´óÎïÀíÊ±¼ä£¬¿ØÖÆÖÕÖ¹¼ÆËã
-		extern int time_advance;// Ê±¼äÍÆ½ø·½Ê½
+		extern myfloat max_physical_time;// æœ€å¤§ç‰©ç†æ—¶é—´ï¼Œæ§åˆ¶ç»ˆæ­¢è®¡ç®—
+		extern int time_advance;// æ—¶é—´æ¨è¿›æ–¹å¼
 
-		// ÒÔÏÂÊı¾İ´ÓContinueFileÖĞ¶ÁÈ¡£¬²»ÊÇToml
-		extern myfloat t_previous;// ĞøËãÊ±µÄÆğÊ¼Ê±¼ä ´ÓreadContineFile()ÖĞ¶ÁÈ¡
-		extern int istep_previous;// ĞøËãÊ±µÄÆğÊ¼²½£¬Ä¬ÈÏÎª0 ´ÓreadContineFile()ÖĞ¶ÁÈ¡
+		// ä»¥ä¸‹æ•°æ®ä»ContinueFileä¸­è¯»å–ï¼Œä¸æ˜¯Toml
+		extern myfloat t_previous;// ç»­ç®—æ—¶çš„èµ·å§‹æ—¶é—´ ä»readContineFile()ä¸­è¯»å–
+		extern int istep_previous;// ç»­ç®—æ—¶çš„èµ·å§‹æ­¥ï¼Œé»˜è®¤ä¸º0 ä»readContineFile()ä¸­è¯»å–
 	}
 	namespace physicsModel {
 		extern int equation;//"equation:1-Eluer,2-NS": 1
@@ -92,10 +88,10 @@ namespace GlobalPara {
 		extern myfloat tolerace_residual;
 	}
 	namespace inviscid_flux_method {
-		extern int flux_conservation_scheme;// ÎŞÕ³Í¨Á¿ ÊØºã¸ñÊ½ ÓÃÓÚÇó½âÀèÂüÎÊÌâ LLF Roe
+		extern int flux_conservation_scheme;// æ— ç²˜é€šé‡ å®ˆæ’æ ¼å¼ ç”¨äºæ±‚è§£é»æ›¼é—®é¢˜ LLF Roe
 		//extern int flux_construction_lhs;
-		extern int flux_limiter;// Í¨Á¿ÏŞÖÆÆ÷
-		extern int flag_reconstruct;// ÖØ¹¹·½·¨¡£[todo]ÓëÍ¨Á¿¹¹Ôì·½·¨Ò×»ìÏı£¬fun3dÖĞÎ´ÕÒµ½´ËÑ¡Ïî
+		extern int flux_limiter;// é€šé‡é™åˆ¶å™¨
+		extern int flag_reconstruct;// é‡æ„æ–¹æ³•
 		extern int flag_gradient;
 
 	}

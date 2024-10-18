@@ -16,18 +16,18 @@ CBoundaryDoubleShockReflect* CBoundaryDoubleShockReflect::getInstance() {
 
 bool CBoundaryDoubleShockReflect::isUpStreamOfShock_forElement(double x, double y) {
 	/*
-	¹¦ÄÜ£º¸üĞÂË«ÂíºÕ·´ÉäµÄÉÏ±ß½ç
-	ÊäÈë£º×ø±ê
-	Êä³ö£ºÊÇ·ñÎ»ÓÚ¼¤²¨ÉÏÓÎ
+	åŠŸèƒ½ï¼šæ›´æ–°åŒé©¬èµ«åå°„çš„ä¸Šè¾¹ç•Œ
+	è¾“å…¥ï¼šåæ ‡
+	è¾“å‡ºï¼šæ˜¯å¦ä½äºæ¿€æ³¢ä¸Šæ¸¸
 	*/
-	// Ğ±¼¤²¨·¨ÏòÁ¿
+	// æ–œæ¿€æ³¢æ³•å‘é‡
 	double angle_rad = shock_angle_degree * U2NITS::Math::PI / 180.0;
 	double norm_x = -sin(angle_rad);
 	double norm_y = cos(angle_rad);
-	// ´ıÇóµãÊ¸¾¶
+	// å¾…æ±‚ç‚¹çŸ¢å¾„
 	double r_x = x - shock_x;
 	double r_y = y - shock_y;
-	// Ê¸¾¶Óë·¨ÏòÁ¿µã»ı´óÓÚ0£¬ÔòÎªÉÏÓÎ
+	// çŸ¢å¾„ä¸æ³•å‘é‡ç‚¹ç§¯å¤§äº0ï¼Œåˆ™ä¸ºä¸Šæ¸¸
 	return (r_x * norm_x + r_y * norm_y > 0);
 
 }
@@ -36,11 +36,11 @@ bool CBoundaryDoubleShockReflect::isUpStreamOfShock_forElement(double x, double 
 bool CBoundaryDoubleShockReflect::isUpStreamOfShock_atBoundary(double x, double y) {
 	/*
 	https://zhuanlan.zhihu.com/p/630069961
-	¸Ã·½·¨½öÊÊºÏ±ß½ç
-	xy±ß½çÔª×ø±ê£¬tÎïÀíÊ±¼ä£¬shock_xÒªÇóÊÇ¼¤²¨
-	±¾À´¹«Ê½ÊÇ x < 1/6 + (1 + 20 * t)/sqrt3£¬ÆäÖĞ1/6ÊÇ¼¤²¨Óë½»µãµÄ³õÊ¼ºá×ø±ê£¬1ÊÇ
-	Óò¸ß¶È
-	´Ë´¦ÒªÇóyÊÇÇøÓò¶¥²¿µÄy×ø±ê
+	è¯¥æ–¹æ³•ä»…é€‚åˆè¾¹ç•Œ
+	xyè¾¹ç•Œå…ƒåæ ‡ï¼Œtç‰©ç†æ—¶é—´ï¼Œshock_xè¦æ±‚æ˜¯æ¿€æ³¢
+	æœ¬æ¥å…¬å¼æ˜¯ x < 1/6 + (1 + 20 * t)/sqrt3ï¼Œå…¶ä¸­1/6æ˜¯æ¿€æ³¢ä¸äº¤ç‚¹çš„åˆå§‹æ¨ªåæ ‡ï¼Œ1æ˜¯
+	åŸŸé«˜åº¦
+	æ­¤å¤„è¦æ±‚yæ˜¯åŒºåŸŸé¡¶éƒ¨çš„yåæ ‡
 	*/
 	double t_RK = get_t_plus_dt();
 	double right = shock_x + (y + shock_speed * t_RK) / sqrt3;

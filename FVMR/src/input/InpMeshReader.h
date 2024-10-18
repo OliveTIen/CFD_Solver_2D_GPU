@@ -1,19 +1,19 @@
 #ifndef INP_MESH_READER
 #define INP_MESH_READER
 #include <string>
-// ¸ÃÀàÓÃÓÚ°ü×°¶ÁÈ¡Íø¸ñµÄ²Ù×÷£¬¼õÉÙFVM_2D´úÂëµÄÓ·Ö×³Ì¶È
+// è¯¥ç±»ç”¨äºåŒ…è£…è¯»å–ç½‘æ ¼çš„æ“ä½œï¼Œå‡å°‘FVM_2Dä»£ç çš„è‡ƒè‚¿ç¨‹åº¦
 class InpMeshReader {
 
 public:
-	// ¶ÁÈ¡inpÍø¸ñÊı¾İ£¬³õÊ¼»¯Íø¸ñ±äÁ¿
+	// è¯»å–inpç½‘æ ¼æ•°æ®ï¼Œåˆå§‹åŒ–ç½‘æ ¼å˜é‡
 	static int readGmeshFile(std::string filepath);
 	// [todo]
 	static int readGmeshFile_2(std::string filepath);
-	// [ÒÑ·ÏÆú]
+	// [å·²åºŸå¼ƒ]
 	static int readSU2File(std::string suffix);
 
 public:
-	// [ÒÑ·ÏÆú]
+	// [å·²åºŸå¼ƒ]
 	class SU2 {
 	public:
 		enum State {

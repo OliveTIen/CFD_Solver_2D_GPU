@@ -20,14 +20,14 @@ private:
 	static std::ofstream m_logFile;
 	static std::string m_logFilePath;
 	static bool m_hasInitilized;
-	static LogLevel m_logLevel;// ²Î¿¼Êä³ö¼¶±ğ
+	static LogLevel m_logLevel;// å‚è€ƒè¾“å‡ºçº§åˆ«
 	static LogLevel m_coutLevel;
 	static std::string enumToString(LogLevel level);
 	static std::string enumToStringWithBracket(LogLevel level);
 
 public:
 	//static void setLogPath(std::string fullFilePath) { m_fullFilePath = fullFilePath; }
-	//app 1-ĞøĞ´ 0-¸²¸Ç ĞëÔÚfilename³õÊ¼»¯ºóÊ¹ÓÃ
+	//app 1-ç»­å†™ 0-è¦†ç›– é¡»åœ¨filenameåˆå§‹åŒ–åä½¿ç”¨
 	static void log(std::string content, LogLevel logLevel = Info);
 	static void print(std::string content, LogLevel coutLevel = Info);
 	static void logAndPrint(std::string content, LogLevel logLevel = Info, LogLevel coutLevel = Info);

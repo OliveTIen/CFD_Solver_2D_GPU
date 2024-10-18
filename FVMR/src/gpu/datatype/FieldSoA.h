@@ -9,10 +9,10 @@
 namespace GPU {
 	struct ReduceHelper {
 	public:
-		// ¼ÆËã¹æÔ¼²Ù×÷ÖĞdev_outputÊı×é³¤¶È
+		// è®¡ç®—è§„çº¦æ“ä½œä¸­dev_outputæ•°ç»„é•¿åº¦
 		static myint get_dev_output_length(myint n);
 
-		// »ñÈ¡´óÓÚµÈÓÚnµÄ×îĞ¡µÄ2µÄÃİ´Î·½
+		// è·å–å¤§äºç­‰äºnçš„æœ€å°çš„2çš„å¹‚æ¬¡æ–¹
 		static myint get_next_power_2_number(myint n);
 	};
 
@@ -26,7 +26,7 @@ namespace GPU {
 		myfloat* Uy[4];
 		myfloat* Flux[4];
 
-		// 2024-05-16 Ìí¼ÓcalculateDtGPUºó£¬ruvpÔÚhostºÍdevice¾ù´æÔÚ
+		// 2024-05-16 æ·»åŠ calculateDtGPUåï¼Œruvpåœ¨hostå’Œdeviceå‡å­˜åœ¨
 		myfloat* ruvp[4];
 		myfloat* Uold[4];
 
@@ -100,7 +100,7 @@ namespace GPU {
 		}
 	};
 
-	// ÃæÊØºãÁ¿ ´ıÍê³É
+	// é¢å®ˆæ’é‡ å¾…å®Œæˆ
 	struct EdgeFieldSoA {
 
 		myint num_edge;
@@ -132,12 +132,12 @@ namespace GPU {
 	};
 
 	/*
-	ÓÃÓÚÊä³öTecplotÎÄ¼şµÄ³¡±äÁ¿¡£
-	ruvp²ÉÓÃ´«Í³µÄallocºÍfree£¬ÒòÎªÒ»¶¨»áÊä³öµ½Á÷³¡
-	µ«ÆäËû±äÁ¿Òª¸ù¾İconfigÈ·¶¨ÊÇ·ñÊä³ö£¬Òò´ËÓÃ¶¯Ì¬Êı×é
+	ç”¨äºè¾“å‡ºTecplotæ–‡ä»¶çš„åœºå˜é‡ã€‚
+	ruvpé‡‡ç”¨ä¼ ç»Ÿçš„allocå’Œfreeï¼Œå› ä¸ºä¸€å®šä¼šè¾“å‡ºåˆ°æµåœº
+	ä½†å…¶ä»–å˜é‡è¦æ ¹æ®configç¡®å®šæ˜¯å¦è¾“å‡ºï¼Œå› æ­¤ç”¨åŠ¨æ€æ•°ç»„
 
-	³õÊ¼»¯Ê±£¬FieldWriter¸ù¾İÆäOutputSchemeÈ·¶¨vector´óĞ¡
-	²Î¼ûFieldWriter::allocDataUsingOutputScheme
+	åˆå§‹åŒ–æ—¶ï¼ŒFieldWriteræ ¹æ®å…¶OutputSchemeç¡®å®švectorå¤§å°
+	å‚è§FieldWriter::allocDataUsingOutputScheme
 	*/
 	struct NodeFieldSoA {
 	public:
@@ -187,8 +187,8 @@ namespace GPU {
 
 	struct OutputNodeFieldSoA {
 	public:
-		bool b_ruvp_allocated = false;// ruvpÊÇ·ñÒÑ¾­ÉêÇëÄÚ´æ
-		bool b_all_allocated = false;// ´ıÊä³öµÄ±äÁ¿Êı×éÊÇ·ñÒÑÉêÇëÄÚ´æ
+		bool b_ruvp_allocated = false;// ruvpæ˜¯å¦å·²ç»ç”³è¯·å†…å­˜
+		bool b_all_allocated = false;// å¾…è¾“å‡ºçš„å˜é‡æ•°ç»„æ˜¯å¦å·²ç”³è¯·å†…å­˜
 		myint num_node = 0;
 
 		myfloat* ruvp[4]{nullptr, nullptr, nullptr, nullptr};
@@ -197,7 +197,7 @@ namespace GPU {
 
 
 	public:
-		// ÉêÇëruvp×ÊÔ´£¬Ê¹ÓÃÇ°Ó¦ÅĞ¶ÏÊÇ·ñÖØ¸´ÉêÇë¡£ÓÉÓÚLogWriter²»ÊÊºÏ·ÅÔÚÍ·ÎÄ¼ş£¬Ó¦°ÑÅĞ¶Ï·ÅÔÚcallerÖĞ
+		// ç”³è¯·ruvpèµ„æºï¼Œä½¿ç”¨å‰åº”åˆ¤æ–­æ˜¯å¦é‡å¤ç”³è¯·ã€‚ç”±äºLogWriterä¸é€‚åˆæ”¾åœ¨å¤´æ–‡ä»¶ï¼Œåº”æŠŠåˆ¤æ–­æ”¾åœ¨callerä¸­
 		void alloc_ruvp(myint _num_node) {
 			num_node = _num_node;
 			for (int i = 0; i < 4; i++) {
@@ -214,10 +214,10 @@ namespace GPU {
 	};
 
 	struct ElementFieldVariable_dt {
-		myint num_element = 0;// hostÄ£Ê½ÏÂalphaCµÄ³¤¶È
-		myint num_reduce = 0;// ¹æÔ¼µÄÊı×é³¤¶È£¬¼´deviceÄ£Ê½ÏÂalphaCµÄ³¤¶È£¬È¡×î½üµÄ´óÓÚnum_elementµÄ2µÄÃİ
-		myfloat* alphaC = nullptr;// ÊÇÁÙÊ±±äÁ¿£¬¼È´æ´¢alphaC£¬ÓÖ´æ´¢dt
-		myfloat* dev_output = nullptr;// ÓÃÓÚ¹æÔ¼²Ù×÷µÄÁÙÊ±±äÁ¿¡£½öÔÚdeviceÄ£Ê½ÖĞÉêÇëÄÚ´æ£¬hostÄ£Ê½½ûÖ¹Ê¹ÓÃ
+		myint num_element = 0;// hostæ¨¡å¼ä¸‹alphaCçš„é•¿åº¦
+		myint num_reduce = 0;// è§„çº¦çš„æ•°ç»„é•¿åº¦ï¼Œå³deviceæ¨¡å¼ä¸‹alphaCçš„é•¿åº¦ï¼Œå–æœ€è¿‘çš„å¤§äºnum_elementçš„2çš„å¹‚
+		myfloat* alphaC = nullptr;// æ˜¯ä¸´æ—¶å˜é‡ï¼Œæ—¢å­˜å‚¨alphaCï¼Œåˆå­˜å‚¨dt
+		myfloat* dev_output = nullptr;// ç”¨äºè§„çº¦æ“ä½œçš„ä¸´æ—¶å˜é‡ã€‚ä»…åœ¨deviceæ¨¡å¼ä¸­ç”³è¯·å†…å­˜ï¼Œhostæ¨¡å¼ç¦æ­¢ä½¿ç”¨
 
 		void alloc(myint _num_element) {
 			num_element = _num_element;

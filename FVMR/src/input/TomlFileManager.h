@@ -10,7 +10,7 @@
 
 class TomlFileManager {
 private:
-	// ³ÉÔ±±äÁ¿
+	// æˆå‘˜å˜é‡
 	static TomlFileManager* classPointer;
 	std::shared_ptr<cpptoml::table>m_tree = nullptr;
 	bool has_getValueFailed = false;
@@ -19,36 +19,36 @@ public:
 	static TomlFileManager* getInstance();
 	void readTomlFile(std::string fullFilePath);
 	
-	// ½Ó¿Ú£¬Óöµ½´íÎó»á±¨´íÍË³ö
+	// æ¥å£ï¼Œé‡åˆ°é”™è¯¯ä¼šæŠ¥é”™é€€å‡º
 	template <typename T_type>
-	void getValueOrExit(std::string key, T_type& value_to_be_changed);// ±ØÑ¡
+	void getValueOrExit(std::string key, T_type& value_to_be_changed);// å¿…é€‰
 
-	// ÒÔÏÂº¯Êı£¬ÈôÓöµ½´íÎó²»»áÁ¢¿ÌÍË³ö£¬Ö»ÊÇ½«has_getValueFailedÖÃÎªtrue
+	// ä»¥ä¸‹å‡½æ•°ï¼Œè‹¥é‡åˆ°é”™è¯¯ä¸ä¼šç«‹åˆ»é€€å‡ºï¼Œåªæ˜¯å°†has_getValueFailedç½®ä¸ºtrue
 	template <typename T_type>
-	void getValueOnCondition(std::string key, T_type& value_to_be_changed, bool condition);// condition==true£¬Ôò±ØÑ¡£¬·ñÔò¿ÉÑ¡
+	void getValueOnCondition(std::string key, T_type& value_to_be_changed, bool condition);// condition==trueï¼Œåˆ™å¿…é€‰ï¼Œå¦åˆ™å¯é€‰
 	template <typename T_type>
-	void getValue(std::string key, T_type& value_to_be_changed);// ±ØÑ¡
+	void getValue(std::string key, T_type& value_to_be_changed);// å¿…é€‰
 	template <typename T_type>
-	void getValueIfExists(std::string key, T_type& value_to_be_changed);// ¿ÉÑ¡
+	void getValueIfExists(std::string key, T_type& value_to_be_changed);// å¯é€‰
 	
 
 private:
 	TomlFileManager() {};
-	// m_tree×ª»¯ÎªÈ«¾Ö±äÁ¿
+	// m_treeè½¬åŒ–ä¸ºå…¨å±€å˜é‡
 	void treeToGlobalParameter();
 	// [todo]
 	void treeToSGlobalPara(SGlobalPara::SGlobalPara& spara);
-	// Í³Ò»Ïà»¥Ã¬¶ÜµÄÊäÈë
+	// ç»Ÿä¸€ç›¸äº’çŸ›ç›¾çš„è¾“å…¥
 	void handleConflictingInputs();
 	void getValue_boundaryCondition2D(std::string parent, myfloat ruvp[4]);
 
-	// treeÊÇ·ñ°üº¬key¡£ÊäÈë²ÎÊıÒÔ"."·Ö¸ô²ã¼¶
+	// treeæ˜¯å¦åŒ…å«keyã€‚è¾“å…¥å‚æ•°ä»¥"."åˆ†éš”å±‚çº§
 	bool treeContainsKey(std::string key) { return m_tree->contains_qualified(key); }
-	// ´òÓ¡treeÊÇ·ñ°üº¬key
+	// æ‰“å°treeæ˜¯å¦åŒ…å«key
 	void printTreeContainsKeyOrNot(std::string key);
-	// ´òÓ¡tree
+	// æ‰“å°tree
 	void printTree() { std::cout << *m_tree << std::endl; }
-	// ¼ì²âhas_getValueFailedÊÇ·ñÎªtrue²¢ÍË³ö
+	// æ£€æµ‹has_getValueFailedæ˜¯å¦ä¸ºtrueå¹¶é€€å‡º
 	void ifFailedThenExit();
 	
 	template <typename T_type>
@@ -59,25 +59,25 @@ template<typename T_type>
 inline void TomlFileManager::getValueOrigin(std::string key, T_type& value_to_be_changed) {
 
 	bool failed = false;
-	// Èç¹ûÊÇboolÀàĞÍ
+	// å¦‚æœæ˜¯boolç±»å‹
 	if (std::is_same<T_type, bool>::value) {
-		// ³¢ÊÔ¶ÁÈ¡×Ö·û´®'bool'£¨²»´øÒıºÅ£©
+		// å°è¯•è¯»å–å­—ç¬¦ä¸²'bool'ï¼ˆä¸å¸¦å¼•å·ï¼‰
 		cpptoml::option<bool> valueBool = m_tree->get_qualified_as<bool>(key);
 		if (valueBool) {
 			value_to_be_changed = *valueBool;
 		}
-		// Èç¹ûÎŞ·¨¶ÁÈ¡×Ö·û´®'bool'£¬Ôò°´intÀàĞÍ¶ÁÈ¡Êı×Ö
+		// å¦‚æœæ— æ³•è¯»å–å­—ç¬¦ä¸²'bool'ï¼Œåˆ™æŒ‰intç±»å‹è¯»å–æ•°å­—
 		else {
 			cpptoml::option<int> valueInt = m_tree->get_qualified_as<int>(key);
 			if (valueInt) {
-				value_to_be_changed = (bool)*valueInt;// int×ª»»Îªbool¡£¼´Ê¹ÔÚtomlTreeÖĞ´æ´¢µÄvalueIntÊÇintÀàĞÍµÄ2»ò-1£¬µ«ÓÉÓÚvalue_to_be_changedÊÇboolÀàĞÍ£¬Òò´ËÒşÊ½×ª»»Îª1
+				value_to_be_changed = (bool)*valueInt;// intè½¬æ¢ä¸ºboolã€‚å³ä½¿åœ¨tomlTreeä¸­å­˜å‚¨çš„valueIntæ˜¯intç±»å‹çš„2æˆ–-1ï¼Œä½†ç”±äºvalue_to_be_changedæ˜¯boolç±»å‹ï¼Œå› æ­¤éšå¼è½¬æ¢ä¸º1
 			}
 			else {
 				failed = true;
 			}
 		}
 	}
-	// cpptoml²»Ê¶±ğfloat¸ñÊ½£¬Ó¦°´ÕÕdouble¶ÁÈ¡
+	// cpptomlä¸è¯†åˆ«floatæ ¼å¼ï¼Œåº”æŒ‰ç…§doubleè¯»å–
 	else if (std::is_same<T_type, float>::value) {
 		cpptoml::option<double> valueDouble = m_tree->get_qualified_as<double>(key);
 		if (valueDouble) {
@@ -87,7 +87,7 @@ inline void TomlFileManager::getValueOrigin(std::string key, T_type& value_to_be
 			failed = true;
 		}
 	}
-	// Èç¹ûÊÇÆäËûÀàĞÍ£¬Õı³£¶ÁÈ¡
+	// å¦‚æœæ˜¯å…¶ä»–ç±»å‹ï¼Œæ­£å¸¸è¯»å–
 	else {
 		cpptoml::option<T_type> valueOther = m_tree->get_qualified_as<T_type>(key);
 		if (valueOther) {
@@ -115,11 +115,11 @@ inline void TomlFileManager::getValueOnCondition(std::string key, T_type& value_
 		getValueOrigin<T_type>(key, value_to_be_changed);
 	}
 	else {
-		if (condition) {// Èç¹ûÓĞÌõ¼ş£¬Ôò±ØÑ¡£¬Òò´Ë»á±¨´í
+		if (condition) {// å¦‚æœæœ‰æ¡ä»¶ï¼Œåˆ™å¿…é€‰ï¼Œå› æ­¤ä¼šæŠ¥é”™
 			LogWriter::logAndPrintError("Required parameter \"" + key + "\" doesn't exist.\n");
 			has_getValueFailed = true;
 		}
-		else {// ÎŞÌõ¼ş£¬Ôò¿ÉÑ¡£¬Òò´Ë²»»á±¨´í
+		else {// æ— æ¡ä»¶ï¼Œåˆ™å¯é€‰ï¼Œå› æ­¤ä¸ä¼šæŠ¥é”™
 			//LogWriter::log("Parameter \"" + key + "\" uses default value.\n", LogWriter::Info);
 
 			std::stringstream ss;
@@ -143,7 +143,7 @@ inline void TomlFileManager::getValueOrExit(std::string key, T_type& value_to_be
 	}
 }
 
-// ¿ÉÑ¡²ÎÊı¡£tomlÎÄ¼şÖĞ¿ÉÒÔÓĞ£¬¿ÉÒÔÃ»ÓĞ
+// å¯é€‰å‚æ•°ã€‚tomlæ–‡ä»¶ä¸­å¯ä»¥æœ‰ï¼Œå¯ä»¥æ²¡æœ‰
 template<typename T_type>
 inline void TomlFileManager::getValueIfExists(std::string key, T_type& value_to_be_changed) {
 	getValueOnCondition(key, value_to_be_changed, false);

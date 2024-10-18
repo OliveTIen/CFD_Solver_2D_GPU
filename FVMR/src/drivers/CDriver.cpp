@@ -1,4 +1,10 @@
-﻿#include "CDriver.h"
+/*!
+ * \file CDriver.cpp
+ * \brief 
+ *
+ */
+
+#include "CDriver.h"
 #include "../legacy/FVM_2D.h"
 #include "../math/CommonValue.h"
 #include "../global/CExit.h"
@@ -16,7 +22,12 @@ U2NITS::CDriver* U2NITS::CDriver::getInstance() {
 	return pCDriver;
 }
 
-
+/// <summary>
+/// #### Call
+/// - @ref WinGui::init <br>
+/// - @ref CIteration::iteration_device (iteration on GPU)<br>
+/// - @ref CIteration::iteration_host
+/// </summary>
 void U2NITS::CDriver::start() {
 	/*
 	The bottle neck of GPU code is memcpy, which takes up about 50% of 
@@ -62,7 +73,7 @@ void U2NITS::CDriver::start() {
 		auto iteration_start = std::chrono::system_clock::now();
 
 		if (GlobalPara::basic::useGPU) {
-			CIteration::iteration_device_20240517(t, T, &solver);
+			CIteration::iteration_device(t, T, &solver);
 		}
 		else {
 			CIteration::iteration_host(t, T, &solver);

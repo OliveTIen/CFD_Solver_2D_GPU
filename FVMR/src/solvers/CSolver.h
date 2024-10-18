@@ -1,5 +1,5 @@
 /*
-¾ßÓĞÕı½»ÊôĞÔµÄÀà£¬ÊÊºÏÓÃÇÅ½ÓÄ£Ê½
+å…·æœ‰æ­£äº¤å±æ€§çš„ç±»ï¼Œé€‚åˆç”¨æ¡¥æ¥æ¨¡å¼
 */
 
 #ifndef _CSOLVER_H_
@@ -22,20 +22,20 @@ namespace U2NITS {
 #endif // !_CSOLVER_H_
 
 /*
-²½Öè£º£¨ÓÅ»¯ºó£©
-¶ÁÈ¡ÅäÖÃ£¨¿ØÖÆ²ÎÊı£© FileReader.readConfig()
-³õÊ¼»¯Á÷³¡£º¶ÁÈ¡ĞøËãÎÄ¼ş / ¶ÁÈ¡Íø¸ñÎÄ¼ş + ³õÊ¼»¯ FileReader.readField()
-Êä³ö³õÊ¼ĞÅÏ¢£¨³ÌĞòĞÅÏ¢¡¢±ß½ç²ÎÊıµÈ£©ConsolePrinter.updateScreen()
-Êä³ö²Ğ²îÎÄ¼şÍ· FileIOManager.writeHistFileHead()
-¼ÆÊ±Æ÷¿ªÊ¼
-³õÊ¼»¯×ÊÔ´£¨GPUÄÚ´æ£©Solver.initialize()
-µü´ú¿ªÊ¼
-¸üĞÂ²¿·ÖÊı¾İ£¨ÎÄ¼şÃû£©
-¼ÆËã£¨Á÷³¡£© Solver.iterate()
-¼ÆËã£¨²Ğ²î£©½öĞèÊä³öÊ±¼ÆËã Solver.updateResidual()
-¸üĞÂÊä³öĞÅÏ¢£¨°üÀ¨¼ÇÂ¼ÏÂÒ»´Î¹â±êÎ»ÖÃ¡¢Êä³ö½ø¶È£©ConsolePrinter.updateScreen()
-Êä³öÎÄ¼ş£¨Á÷³¡¡¢²Ğ²î£©FileWriter.write()
-ÅĞ¶ÏÊÇ·ñÌø³öÑ­»·£¨ÖÕÖ¹£©this->checkStop()
-Êä³ö½áÊøĞÅÏ¢£¨ÌáÊ¾´Ê£©ConsolePrinter.updateScreen()
-ÊÍ·Å×ÊÔ´ Solver.finalize()
+æ­¥éª¤ï¼šï¼ˆä¼˜åŒ–åï¼‰
+è¯»å–é…ç½®ï¼ˆæ§åˆ¶å‚æ•°ï¼‰ FileReader.readConfig()
+åˆå§‹åŒ–æµåœºï¼šè¯»å–ç»­ç®—æ–‡ä»¶ / è¯»å–ç½‘æ ¼æ–‡ä»¶ + åˆå§‹åŒ– FileReader.readField()
+è¾“å‡ºåˆå§‹ä¿¡æ¯ï¼ˆç¨‹åºä¿¡æ¯ã€è¾¹ç•Œå‚æ•°ç­‰ï¼‰ConsolePrinter.updateScreen()
+è¾“å‡ºæ®‹å·®æ–‡ä»¶å¤´ FileIOManager.writeHistFileHead()
+è®¡æ—¶å™¨å¼€å§‹
+åˆå§‹åŒ–èµ„æºï¼ˆGPUå†…å­˜ï¼‰Solver.initialize()
+è¿­ä»£å¼€å§‹
+æ›´æ–°éƒ¨åˆ†æ•°æ®ï¼ˆæ–‡ä»¶åï¼‰
+è®¡ç®—ï¼ˆæµåœºï¼‰ Solver.iterate()
+è®¡ç®—ï¼ˆæ®‹å·®ï¼‰ä»…éœ€è¾“å‡ºæ—¶è®¡ç®— Solver.updateResidual()
+æ›´æ–°è¾“å‡ºä¿¡æ¯ï¼ˆåŒ…æ‹¬è®°å½•ä¸‹ä¸€æ¬¡å…‰æ ‡ä½ç½®ã€è¾“å‡ºè¿›åº¦ï¼‰ConsolePrinter.updateScreen()
+è¾“å‡ºæ–‡ä»¶ï¼ˆæµåœºã€æ®‹å·®ï¼‰FileWriter.write()
+åˆ¤æ–­æ˜¯å¦è·³å‡ºå¾ªç¯ï¼ˆç»ˆæ­¢ï¼‰this->checkStop()
+è¾“å‡ºç»“æŸä¿¡æ¯ï¼ˆæç¤ºè¯ï¼‰ConsolePrinter.updateScreen()
+é‡Šæ”¾èµ„æº Solver.finalize()
 */

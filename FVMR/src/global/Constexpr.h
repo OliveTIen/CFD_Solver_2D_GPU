@@ -2,50 +2,50 @@
 #define _CONSTEXPRS_H_
 
 constexpr auto _NULL = 0;
-// Êä³öÊı¾İ 1-999
+// è¾“å‡ºæ•°æ® 1-999
 constexpr auto _OUT_u = 1;
 constexpr auto _OUT_v = 2;
 constexpr auto _OUT_rho = 4;
 constexpr auto _OUT_p = 8;
 constexpr auto _OUT_T = 16;
 constexpr auto _OUT_Unon_all = 101;
-// ·½³ÌÀàĞÍ 1001-1999
-constexpr auto _EQ_convective = 1001;//¶ÔÁ÷À©É¢·½³Ì
-constexpr auto _EQ_euler = 1;//Å·À­·½³Ì
+// æ–¹ç¨‹ç±»å‹ 1001-1999
+constexpr auto _EQ_convective = 1001;//å¯¹æµæ‰©æ•£æ–¹ç¨‹
+constexpr auto _EQ_euler = 1;//æ¬§æ‹‰æ–¹ç¨‹
 constexpr auto _EQ_NS = 2;
-// Çó½âÆ÷ÀàĞÍ 2001-2999
-constexpr auto _SOL_LocalLaxFriedrichs = 2001;//ÀèÂüÇó½âÆ÷ Local Lax-Friedrichs;
+// æ±‚è§£å™¨ç±»å‹ 2001-2999
+constexpr auto _SOL_LocalLaxFriedrichs = 2001;//é»æ›¼æ±‚è§£å™¨ Local Lax-Friedrichs;
 constexpr auto _SOL_Roe = 2002;
-// ÖØ¹¹·½Ê½ 3001-3099
-constexpr auto _REC_constant = 3001;//³£Á¿ÖØ¹¹
-constexpr auto _REC_linear = 3002;  //ÏßĞÔÖØ¹¹
+// é‡æ„æ–¹å¼ 3001-3099
+constexpr auto _REC_constant = 3001;//å¸¸é‡é‡æ„
+constexpr auto _REC_linear = 3002;  //çº¿æ€§é‡æ„
 constexpr auto _REC_MUSCL = 3003;   //MUSCL
-// Ìİ¶È
-constexpr auto _GRA_leastSquare = 1;// ×îĞ¡¶ş³ËÇóÌİ¶È
-constexpr auto _GRA_greenGauss = 2;// GreenGaussÇóÌİ¶È
-// Ê±¼äÍÆ½ø·½Ê½ 3101-3199 evolution
-constexpr auto _EVO_explicit = 3101;//ÏÔÊ½Ê±¼äÍÆ½ø
+// æ¢¯åº¦
+constexpr auto _GRA_leastSquare = 1;// æœ€å°äºŒä¹˜æ±‚æ¢¯åº¦
+constexpr auto _GRA_greenGauss = 2;// GreenGaussæ±‚æ¢¯åº¦
+// æ—¶é—´æ¨è¿›æ–¹å¼ 3101-3199 evolution
+constexpr auto _EVO_explicit = 3101;//æ˜¾å¼æ—¶é—´æ¨è¿›
 constexpr auto _EVO_rk3 = 3103;//RK3
 constexpr auto _EVO_rk5 = 3105;
-// ÏŞÖÆÆ÷ 4001-4999 limiter
+// é™åˆ¶å™¨ 4001-4999 limiter
 constexpr auto _LIM_none = 0;
 constexpr auto _LIM_barth = 1;
 constexpr auto _LIM_minmod = 2;
 constexpr auto _LIM_vanleer = 3;
-// µ¥ÔªÀàĞÍ 5001-5999
-constexpr auto _ELE_D2 = 5001;//2½ÚµãÏß¶ÎÔª
-constexpr auto _ELE_T3 = 5101;//3½ÚµãÈı½ÇÔª
-constexpr auto _ELE_Q4 = 5102;//4½ÚµãËÄ±ßÔª
-// ±ß½çÀàĞÍ 6001-6999
-constexpr auto _BC_wall_nonViscous = 6001;//¹Ì±Ú£¬ÎŞÕ³(ÓĞ»¬ÒÆ)
-constexpr auto _BC_wall_adiabat = 6002;//¹Ì±Ú£¬ÎŞ»¬ÒÆ£¬¾øÈÈ
-constexpr auto _BC_wall_isothermal = 6003;//¹Ì±Ú£¬ÎŞ»¬ÒÆ£¬µÈÎÂ
-constexpr auto _BC_inlet = 6011;//Èë¿Ú
-constexpr auto _BC_outlet = 6012;//³ö¿Ú
-constexpr auto _BC_inf = 6013;//Ô¶³¡±ß½ç
-constexpr auto _BC_doubleShockReflect = 6014;// Ë«ÂíºÕ·´ÉäÌØÊâ±ß½ç
-constexpr auto _BC_symmetry = 6021;//¶Ô³Æ±ß½ç
-constexpr auto _BC_periodic_0 = 6100;//ÖÜÆÚ±ß½ç
+// å•å…ƒç±»å‹ 5001-5999
+constexpr auto _ELE_D2 = 5001;//2èŠ‚ç‚¹çº¿æ®µå…ƒ
+constexpr auto _ELE_T3 = 5101;//3èŠ‚ç‚¹ä¸‰è§’å…ƒ
+constexpr auto _ELE_Q4 = 5102;//4èŠ‚ç‚¹å››è¾¹å…ƒ
+// è¾¹ç•Œç±»å‹ 6001-6999
+constexpr auto _BC_wall_nonViscous = 6001;//å›ºå£ï¼Œæ— ç²˜(æœ‰æ»‘ç§»)
+constexpr auto _BC_wall_adiabat = 6002;//å›ºå£ï¼Œæ— æ»‘ç§»ï¼Œç»çƒ­
+constexpr auto _BC_wall_isothermal = 6003;//å›ºå£ï¼Œæ— æ»‘ç§»ï¼Œç­‰æ¸©
+constexpr auto _BC_inlet = 6011;//å…¥å£
+constexpr auto _BC_outlet = 6012;//å‡ºå£
+constexpr auto _BC_inf = 6013;//è¿œåœºè¾¹ç•Œ
+constexpr auto _BC_doubleShockReflect = 6014;// åŒé©¬èµ«åå°„ç‰¹æ®Šè¾¹ç•Œ
+constexpr auto _BC_symmetry = 6021;//å¯¹ç§°è¾¹ç•Œ
+constexpr auto _BC_periodic_0 = 6100;//å‘¨æœŸè¾¹ç•Œ
 constexpr auto _BC_periodic_1 = 6101;
 constexpr auto _BC_periodic_2 = 6102;
 constexpr auto _BC_periodic_3 = 6103;

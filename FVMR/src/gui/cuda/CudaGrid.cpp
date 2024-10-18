@@ -129,7 +129,7 @@ void CudaGrid::update(float dt) {
         Get_Gradient(dt);
 
         // Update X by gradient.
-        // ±éÀúµã£¬Ê©¼Ó¶¯Á¿ºÍÖØÁ¦ Momentum and Gravity
+        // éå†ç‚¹ï¼Œæ–½åŠ åŠ¨é‡å’Œé‡åŠ› Momentum and Gravity
         for (int i = 0; i < X.size(); i++) {
             float hessian_inv = 1.0f / (dt2_inv * mass + 4 * spring_k);
             X[i] -= hessian_inv * G[i];
@@ -258,7 +258,7 @@ void CudaGrid::initRenderingData_UnstructuredGrid() {
 
     // indices of line and triangle
     //// an edge contains two points, and a triangle contains three edges
-    // »æÖÆÊ±°´ÕÕÃ¿Á½¸öµã×é³ÉÒ»Ìõ±ßÀ´»æÖÆ
+    // ç»˜åˆ¶æ—¶æŒ‰ç…§æ¯ä¸¤ä¸ªç‚¹ç»„æˆä¸€æ¡è¾¹æ¥ç»˜åˆ¶
     // 1--2    12,23; 31,12
     // | /
     // |/
@@ -342,7 +342,7 @@ void CudaGrid::Get_Gradient(float dt) {
 
 
     for (int i = 0; i < X.size(); i++) {
-        G[i] = dt2_inv * mass * (X[i] - X_hat[i]);// momentum; ¶¯Á¿(¹ßĞÔÁ¦) 
+        G[i] = dt2_inv * mass * (X[i] - X_hat[i]);// momentum; åŠ¨é‡(æƒ¯æ€§åŠ›) 
         G[i] -= gravity_vector;// gravity
     }
 
@@ -418,7 +418,7 @@ glm::vec3 CudaGrid::getColor(const GPU::ColorMap& colormap, float input) {
     if (input < 0.0f) input = 0.0f;
     if (input > 1.0f) input = 1.0f;
 
-    // ²éÕÒÇø¼ä
+    // æŸ¥æ‰¾åŒºé—´
     for (size_t i = 0; i < colormap.num_control_point - 1; ++i) {
         if (input >= colormap.data[i].w && input <= colormap.data[i + 1].w) {
             // get current interval data
@@ -429,7 +429,7 @@ glm::vec3 CudaGrid::getColor(const GPU::ColorMap& colormap, float input) {
 
             float normalizedInput = (input - t0) / (t1 - t0);
 
-            // Catmull-Rom interpolation Èı´Î²åÖµ
+            // Catmull-Rom interpolation ä¸‰æ¬¡æ’å€¼
             glm::vec3 color =
                 (1 - normalizedInput) * (1 - normalizedInput) * (1 - normalizedInput) * color0 +
                 3 * (1 - normalizedInput) * (1 - normalizedInput) * normalizedInput * (color0 + color1) / 2.0f +

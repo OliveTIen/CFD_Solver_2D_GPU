@@ -2,29 +2,29 @@
 #define MATH_COMMON_VALUE_H
 #include "../gpu/dataType/DefineType.h"
 
-// Common±»MathºÍMathGPU¹²ÓÃ
+// Commonè¢«Mathå’ŒMathGPUå…±ç”¨
 namespace U2NITS {
 	namespace Math {
 		/*
-		float(32Î»¸¡µã)
-		²Î¼û csappP72 »ò https://zhuanlan.zhihu.com/p/656543002
-		×îĞ¡·Ç¹æ¸ñ»¯Êı = 1.4e-45
-		×î´ó·Ç¹æ¸ñ»¯ÊıÂÔĞ¡ÓÚ×îĞ¡¹æ¸ñ»¯Êı ¡Ö 1.2e-38
-		×îĞ¡¹æ¸ñ»¯Êı = 1.2e-38
-		×î´ó¹æ¸ñ»¯Êı = 3.4e38
+		float(32ä½æµ®ç‚¹)
+		å‚è§ csappP72 æˆ– https://zhuanlan.zhihu.com/p/656543002
+		æœ€å°éè§„æ ¼åŒ–æ•° = 1.4e-45
+		æœ€å¤§éè§„æ ¼åŒ–æ•°ç•¥å°äºæœ€å°è§„æ ¼åŒ–æ•° â‰ˆ 1.2e-38
+		æœ€å°è§„æ ¼åŒ–æ•° = 1.2e-38
+		æœ€å¤§è§„æ ¼åŒ–æ•° = 3.4e38
 		*/
-		constexpr myfloat PI = 3.1415926535897;        // Ô²ÖÜÂÊ
-		constexpr myfloat EPSILON_FLOAT_UN = 1e-44;    // float×îĞ¡·Ç¹æ¸ñ»¯¸¡µãÊı unnormalized
-		constexpr myfloat EPSILON_FLOAT_NORMAL = 1e-37;// float×îĞ¡¹æ¸ñ»¯¸¡µãÊı normalized
+		constexpr myfloat PI = 3.1415926535897;        // åœ†å‘¨ç‡
+		constexpr myfloat EPSILON_FLOAT_UN = 1e-44;    // floatæœ€å°éè§„æ ¼åŒ–æµ®ç‚¹æ•° unnormalized
+		constexpr myfloat EPSILON_FLOAT_NORMAL = 1e-37;// floatæœ€å°è§„æ ¼åŒ–æµ®ç‚¹æ•° normalized
 		constexpr myfloat BIG_FLOAT_NORMAL = 1e38;
 
 		constexpr myfloat EPSILON = 1e-10;
 		constexpr myfloat BIG = 1e10;
 
 		namespace Physics {
-			constexpr myfloat RHO_MAX = 300;// ÃÜ¶È×î´óÖµ
+			constexpr myfloat RHO_MAX = 300;// å¯†åº¦æœ€å¤§å€¼
 			constexpr myfloat RHO_MIN = EPSILON;
-			constexpr myfloat P_ATMOSPHERE = 101325;// ´óÆøÑ¹
+			constexpr myfloat P_ATMOSPHERE = 101325;// å¤§æ°”å‹
 			constexpr myfloat P_MAX = 400 * P_ATMOSPHERE;
 			constexpr myfloat P_MIN = EPSILON;
 

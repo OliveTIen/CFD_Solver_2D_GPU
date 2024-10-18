@@ -6,7 +6,7 @@
 
 namespace U2NITS {
 	/**
-	* 旧数据类型到新数据的转换
+	* 鏃ф暟鎹被鍨嬪埌鏂版暟鎹殑杞崲
 	* 
 	*/
 	class OldDataConverter {

@@ -4,7 +4,7 @@
 #include "EnumNormType.h"
 namespace GPU {
 	namespace Output {
-		// δ���
+		// Î´Íê³É
 		void get_residual_device(const GPU::ElementFieldSoA& elementField_device, myfloat* residual_device, U2NITS::Output::NormType NORM_TYPE);
 	}
 }

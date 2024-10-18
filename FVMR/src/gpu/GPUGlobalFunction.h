@@ -30,7 +30,7 @@ namespace GPU {
 		int max_threads;
 		cudaError_t status;
 
-		status = cudaGetDevice(&dev_num);// 当前活动设备
+		status = cudaGetDevice(&dev_num);// 褰撳墠娲诲姩璁惧
 		check_cudaError(status, "Error querying device number.");
 
 		status = cudaDeviceGetAttribute(&max_threads, cudaDevAttrMaxThreadsPerBlock, dev_num);

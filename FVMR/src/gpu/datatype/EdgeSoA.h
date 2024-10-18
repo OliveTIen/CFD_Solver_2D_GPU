@@ -8,20 +8,20 @@ namespace GPU {
 	// structure of array
 	struct EdgeSoA {
 	public:
-		myint num_edge = 0;// ½ö¿ÉCPU¶ÁÈ¡
+		myint num_edge = 0;// ä»…å¯CPUè¯»å–
 		myint* ID;
 		myint* nodes[2];
-		myint* setID;// ´æ´¢±ß½çÀàĞÍID¡£ËäÈ»±ß½ç²»»á³¬¹ı21ÒÚÖÖ£¬µ«ÎªÁËÄÚ´æ¶ÔÆë£¬È«²¿ÓÃmyint
-		myint* periodicPair;// ÖÜÆÚ±ß½ç¶ÔÓ¦pairµÄID¡£ÆÕÍ¨±ß½çÄ¬ÈÏÊÇ-1
-		myint* elementL;// ×óµ¥ÔªID¡£ÈÎºÎedgeÒ»¶¨ÓĞ×óµ¥Ôª£¬Òò´ËÒ»¶¨²»ÊÇ-1
-		myint* elementR;// ÓÒµ¥ÔªID¡£±ß½çedgeµÄÓÒµ¥ÔªÒ»°ãÊÇ-1£¬ÖÜÆÚ±ß½ç³ıÍâ
+		myint* setID;// å­˜å‚¨è¾¹ç•Œç±»å‹IDã€‚è™½ç„¶è¾¹ç•Œä¸ä¼šè¶…è¿‡21äº¿ç§ï¼Œä½†ä¸ºäº†å†…å­˜å¯¹é½ï¼Œå…¨éƒ¨ç”¨myint
+		myint* periodicPair;// å‘¨æœŸè¾¹ç•Œå¯¹åº”pairçš„IDã€‚æ™®é€šè¾¹ç•Œé»˜è®¤æ˜¯-1
+		myint* elementL;// å·¦å•å…ƒIDã€‚ä»»ä½•edgeä¸€å®šæœ‰å·¦å•å…ƒï¼Œå› æ­¤ä¸€å®šä¸æ˜¯-1
+		myint* elementR;// å³å•å…ƒIDã€‚è¾¹ç•Œedgeçš„å³å•å…ƒä¸€èˆ¬æ˜¯-1ï¼Œå‘¨æœŸè¾¹ç•Œé™¤å¤–
 		myfloat* length;
-		myfloat* distanceOfElements;// Á½²àµ¥ÔªÖĞĞÄ¾àÀë
-		myfloat* xy[2];// ±ß×ø±ê
-		myfloat* normal[2];// ±ß·¨ÏòÁ¿(¹éÒ»»¯)
+		myfloat* distanceOfElements;// ä¸¤ä¾§å•å…ƒä¸­å¿ƒè·ç¦»
+		myfloat* xy[2];// è¾¹åæ ‡
+		myfloat* normal[2];// è¾¹æ³•å‘é‡(å½’ä¸€åŒ–)
 
 	public:
-		// ÉêÇëÄÚ´æ ³õÊ¼»¯·ÅÔÚºóÃæ£¬ÒòÎªºóÃæ±»¸²¸Ç£¬³õÊ¼»¯Ã»ÓĞÒâÒå
+		// ç”³è¯·å†…å­˜ åˆå§‹åŒ–æ”¾åœ¨åé¢ï¼Œå› ä¸ºåé¢è¢«è¦†ç›–ï¼Œåˆå§‹åŒ–æ²¡æœ‰æ„ä¹‰
 		void alloc(myint num) {
 			num_edge = num;
 
@@ -56,7 +56,7 @@ namespace GPU {
 			delete[] normal[1];
 			num_edge = 0;
 		}
-		// cuda ÉêÇëÄÚ´æ
+		// cuda ç”³è¯·å†…å­˜
 		void cuda_alloc(myint num) {
 			num_edge = num;
 

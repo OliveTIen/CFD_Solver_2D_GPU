@@ -4,8 +4,8 @@
 #include <map>
 #include "../gpu/dataType/Datatype.h"
 /*
-- ÔøÓöµ½ÒÉÄÑÎÊÌâ£º×ÜÊÇ±¨´í"²»ÔÊÐíÊ¹ÓÃ²»ÍêÕûµÄÀàÐÍ"£¬Ô­À´ÊÇElementSoAÇ°Íü¼Ç¼Ó"GPU::"
-- 20240421 ·Ç±ØÒª²»±©Â¶½Ó¿Ú¡£¾Ö²¿º¯Êý½ö¶¨ÒåÔÚcppÎÄ¼þÖÐ
+- æ›¾é‡åˆ°ç–‘éš¾é—®é¢˜ï¼šæ€»æ˜¯æŠ¥é”™"ä¸å…è®¸ä½¿ç”¨ä¸å®Œæ•´çš„ç±»åž‹"ï¼ŒåŽŸæ¥æ˜¯ElementSoAå‰å¿˜è®°åŠ "GPU::"
+- 20240421 éžå¿…è¦ä¸æš´éœ²æŽ¥å£ã€‚å±€éƒ¨å‡½æ•°ä»…å®šä¹‰åœ¨cppæ–‡ä»¶ä¸­
 */
 
 namespace U2NITS {

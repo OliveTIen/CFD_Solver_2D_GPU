@@ -13,97 +13,97 @@
 #include "../gpu/datatype/EdgeSoA.h"
 #include "../gpu/datatype/BoundaryV2.h"
 /*
-Ò»¸öÃ»ÓĞÊı¾İµÄÀà£¬Èç¹ûÈ«²¿ÊÇ¾²Ì¬³ÉÔ±º¯Êı£¬ÄÇÃ´ËüÓëÃüÃû¿Õ¼äµÄĞ§¹ûÏàÍ¬¡£
+ä¸€ä¸ªæ²¡æœ‰æ•°æ®çš„ç±»ï¼Œå¦‚æœå…¨éƒ¨æ˜¯é™æ€æˆå‘˜å‡½æ•°ï¼Œé‚£ä¹ˆå®ƒä¸å‘½åç©ºé—´çš„æ•ˆæœç›¸åŒã€‚
 */
 
 class FieldWriter {
 private:
-	// ²Î¿¼ÎïÀíÁ¿¡£È«³¡¹²ÓÃµÄÊı¾İ£¬²»ĞèÒªÃ¿¸ö½Úµã¶¼¼ÆËãÒ»±é
+	// å‚è€ƒç‰©ç†é‡ã€‚å…¨åœºå…±ç”¨çš„æ•°æ®ï¼Œä¸éœ€è¦æ¯ä¸ªèŠ‚ç‚¹éƒ½è®¡ç®—ä¸€é
 	struct ReferenceData {
-		myfloat p_inf = 0.0;// À´Á÷Ñ¹Á¦
-		myfloat p_dynamic_inf = 0.0;// À´Á÷¶¯Ñ¹
+		myfloat p_inf = 0.0;// æ¥æµå‹åŠ›
+		myfloat p_dynamic_inf = 0.0;// æ¥æµåŠ¨å‹
 
-		std::vector<myfloat> CD_vector;// ¸÷edgeSetµÄ×èÁ¦
-		std::vector<myfloat> CL_vector;// ¸÷edgeSetµÄÉıÁ¦
+		std::vector<myfloat> CD_vector;// å„edgeSetçš„é˜»åŠ›
+		std::vector<myfloat> CL_vector;// å„edgeSetçš„å‡åŠ›
 
-		// ¸üĞÂ²Î¿¼Êı¾İµÄÀ´Á÷Ñ¹Á¦ºÍ¶¯Ñ¹¡£Ã¿´ÎÊä³ötecplotÇ°Òªµ÷ÓÃÒ»´Î
+		// æ›´æ–°å‚è€ƒæ•°æ®çš„æ¥æµå‹åŠ›å’ŒåŠ¨å‹ã€‚æ¯æ¬¡è¾“å‡ºtecplotå‰è¦è°ƒç”¨ä¸€æ¬¡
 		void update_farfield();
-		// ¼ÆËã¸÷edgeSetµÄÉı×èÁ¦£¬´æÈëm_referenceData
+		// è®¡ç®—å„edgeSetçš„å‡é˜»åŠ›ï¼Œå­˜å…¥m_referenceData
 		void calculate_edgeSet_force(GPU::EdgeSoA& edge_host, GPU::OutputNodeFieldSoA& output_node_field, GPU::BoundaryV2& boundary_host_new);
 	};
 	struct HistData {
 	public:
-		int iteration = 0;// µü´ú²½Êı
-		myfloat physical_time = 0.0;// ÎïÀíÊ±¼ä
-		std::vector<myfloat> residual;// ÊØºãÁ¿²Ğ²î
-		myfloat CD_wall;// wall±ß½çµÄ×èÁ¦ÏµÊı¡£xÕı·½Ïò
-		myfloat CL_wall;// wall±ß½çµÄÉıÁ¦ÏµÊı¡£yÕı·½Ïò
-		// ÉèÖÃËùÓĞÊı¾İ
+		int iteration = 0;// è¿­ä»£æ­¥æ•°
+		myfloat physical_time = 0.0;// ç‰©ç†æ—¶é—´
+		std::vector<myfloat> residual;// å®ˆæ’é‡æ®‹å·®
+		myfloat CD_wall;// wallè¾¹ç•Œçš„é˜»åŠ›ç³»æ•°ã€‚xæ­£æ–¹å‘
+		myfloat CL_wall;// wallè¾¹ç•Œçš„å‡åŠ›ç³»æ•°ã€‚yæ­£æ–¹å‘
+		// è®¾ç½®æ‰€æœ‰æ•°æ®
 		void update(int _iteration, myfloat _physical_time, const std::vector<myfloat>& _res, ReferenceData& referenceData, GPU::BoundaryV2& boundary_host_new);
 		void update(int _iteration, myfloat _physical_time, const myfloat _res[4], ReferenceData& referenceData, GPU::BoundaryV2& boundary_host_new);
-		// ÉèÖÃwallÉı×èÁ¦ÏµÊı
+		// è®¾ç½®wallå‡é˜»åŠ›ç³»æ•°
 		void set_CDCL_wall(ReferenceData& referenceData, GPU::BoundaryV2& boundary_host_new);
 	};
 
-	// Êä³ö·½°¸Ô¤Éè
+	// è¾“å‡ºæ–¹æ¡ˆé¢„è®¾
 	enum OutputSchemePresetEnum {
-		type_ruvp, // ×î»ù±¾Êı¾İruvp
+		type_ruvp, // æœ€åŸºæœ¬æ•°æ®ruvp
 		type_ruvp_Cp,
 		type_ruvp_Ma,
 		type_full
 	};
 public:
-	// Êä³ö·½°¸
+	// è¾“å‡ºæ–¹æ¡ˆ
 	class FieldOutputScheme {
 	public:
-		int preset = 0;// Ô¤Éè
+		int preset = 0;// é¢„è®¾
 		bool rho = true;
 		bool u = true;
 		bool v = true;
 		bool p = true;
-		bool Cp = true;//Ñ¹Á¦ÏµÊı
+		bool Cp = true;//å‹åŠ›ç³»æ•°
 		bool Ma = true;
 		
 		FieldOutputScheme(int _preset) {
 			preset = _preset;
 			updateBoolDataByPreset();
 		}
-		// ÓÃÔ¤Éè¸üĞÂÆäËû²¼¶ûÖµ
+		// ç”¨é¢„è®¾æ›´æ–°å…¶ä»–å¸ƒå°”å€¼
 		void updateBoolDataByPreset();
-		// Êä³ö±äÁ¿Ãû
+		// è¾“å‡ºå˜é‡å
 		std::string get_variable_names();
-		// Êä³ö±äÁ¿Öµ£¬½«½Úµã±äÁ¿Öµ×ª»»Îªstring£¬ÓÃ¿Õ¸ñ·Ö¸ô£¬²»´ø»»ĞĞ·û
+		// è¾“å‡ºå˜é‡å€¼ï¼Œå°†èŠ‚ç‚¹å˜é‡å€¼è½¬æ¢ä¸ºstringï¼Œç”¨ç©ºæ ¼åˆ†éš”ï¼Œä¸å¸¦æ¢è¡Œç¬¦
 		std::string get_variable_value_string(myint nodeID, GPU::NodeSoA& node_host, GPU::OutputNodeFieldSoA& output_node_field);
 	};
 	class HistOutputScheme {
 	public:
 
-		// Êä³ö±äÁ¿Ãû
+		// è¾“å‡ºå˜é‡å
 		std::string get_variable_names();
 		std::string get_variable_value_string(HistData& histData);
 	};
 
 private:
-	static FieldWriter* p_instance;// µ¥ÀıÖ¸Õë
+	static FieldWriter* p_instance;// å•ä¾‹æŒ‡é’ˆ
 
-	int m_numTecplotFileWritten = 0;// ÒÑÊä³öÁ÷³¡ÎÄ¼şÊı
-	bool m_initialized = false;// ÊÇ·ñÒÑ³õÊ¼»¯
-	bool m_called_write_tecplot_hist_file = false;// ÊÇ·ñÒÑµ÷ÓÃwrite tecplot hist file¡£Ä¬ÈÏÎªfalse
-	FieldOutputScheme m_outputScheme_volume = FieldOutputScheme(type_ruvp_Ma);// ÌåÁ÷³¡Êı¾İÊä³ö·½°¸
-	FieldOutputScheme m_outputScheme_boundary = FieldOutputScheme(type_ruvp_Cp);// ±íÃæÁ÷³¡Êı¾İÊä³ö·½°¸
-	HistOutputScheme m_outputScheme_hist;// Êä³ö·½°¸¡£´ıÍê³É
+	int m_numTecplotFileWritten = 0;// å·²è¾“å‡ºæµåœºæ–‡ä»¶æ•°
+	bool m_initialized = false;// æ˜¯å¦å·²åˆå§‹åŒ–
+	bool m_called_write_tecplot_hist_file = false;// æ˜¯å¦å·²è°ƒç”¨write tecplot hist fileã€‚é»˜è®¤ä¸ºfalse
+	FieldOutputScheme m_outputScheme_volume = FieldOutputScheme(type_ruvp_Ma);// ä½“æµåœºæ•°æ®è¾“å‡ºæ–¹æ¡ˆ
+	FieldOutputScheme m_outputScheme_boundary = FieldOutputScheme(type_ruvp_Cp);// è¡¨é¢æµåœºæ•°æ®è¾“å‡ºæ–¹æ¡ˆ
+	HistOutputScheme m_outputScheme_hist;// è¾“å‡ºæ–¹æ¡ˆã€‚å¾…å®Œæˆ
 
-	ReferenceData m_referenceData;// ²Î¿¼Êı¾İ£¬ÎïÀíÁ¿
+	ReferenceData m_referenceData;// å‚è€ƒæ•°æ®ï¼Œç‰©ç†é‡
 	HistData m_histData;
 	
 private:
 	FieldWriter() {};
 	
 public:
-	// »ñÈ¡µ±Ç°ÊµÀı
+	// è·å–å½“å‰å®ä¾‹
 	static FieldWriter* getInstance();
 
-	// ³õÊ¼»¯Êä³ö·½°¸£¬Ö»ÔÚreadConfigÊ±µ÷ÓÃ
+	// åˆå§‹åŒ–è¾“å‡ºæ–¹æ¡ˆï¼Œåªåœ¨readConfigæ—¶è°ƒç”¨
 	void initialize_outputScheme_usingConfig();
 
 	void write_tecplot_volume_file(
@@ -140,22 +140,22 @@ public:
 		GPU::ElementSoA& elements,
 		myfloat* elementField_U[4]);
 
-	// ÒÑÊä³öµÄÎÄ¼şÊıÁ¿
+	// å·²è¾“å‡ºçš„æ–‡ä»¶æ•°é‡
 	int getNumTecplotFileWritten() {
 		return m_numTecplotFileWritten;
 	}
 
-	// ¸ù¾İÊä³ö·½°¸ÉêÇëÄÚ´æ£¬°üÀ¨ruvpºÍÆäËû±äÁ¿¡£Ö»±»GPUSolver2µÄallocateHostMemoryµ÷ÓÃ
+	// æ ¹æ®è¾“å‡ºæ–¹æ¡ˆç”³è¯·å†…å­˜ï¼ŒåŒ…æ‹¬ruvpå’Œå…¶ä»–å˜é‡ã€‚åªè¢«GPUSolver2çš„allocateHostMemoryè°ƒç”¨
 	void allocNodeFieldDataUsingOutputScheme(GPU::OutputNodeFieldSoA& nodeField, myint num_node);
-	// ÊÍ·ÅoutputNodeFieldµÄÊÖ¶¯ÉêÇëµÄ¶ÑÄÚ´æruvp¡£Ö»±»GPUSolver2µ÷ÓÃ
+	// é‡Šæ”¾outputNodeFieldçš„æ‰‹åŠ¨ç”³è¯·çš„å †å†…å­˜ruvpã€‚åªè¢«GPUSolver2è°ƒç”¨
 	void freeNodeFieldData(GPU::OutputNodeFieldSoA& nodeField);
-	// ¸üĞÂnodeField
+	// æ›´æ–°nodeField
 	void update_nodeField();
-	// ¸üĞÂnodeField.ruvp¡£½«¸ñĞÄÊı¾İelement_vruvp×ª»¯Îª¸ñµãÊı¾İnodeFieldµÄruvp
+	// æ›´æ–°nodeField.ruvpã€‚å°†æ ¼å¿ƒæ•°æ®element_vruvpè½¬åŒ–ä¸ºæ ¼ç‚¹æ•°æ®nodeFieldçš„ruvp
 private:
-	// ¸ù¾İelementField.ruvpÇónodeField.ruvp
+	// æ ¹æ®elementField.ruvpæ±‚nodeField.ruvp
 	void update_nodeField_ruvp(GPU::ElementSoA& element, GPU::OutputNodeFieldSoA& nodeField, myfloat* element_vruvp[4]);
-	// ¼ÆËãnodeFieldÆäËû³¡±äÁ¿¡£Éı×èÁ¦²Î¼ûwrite_tecplot_boundary_file£¬Òª±éÀú±ß½çedge¶ø²»ÊÇÈ«³¡node
+	// è®¡ç®—nodeFieldå…¶ä»–åœºå˜é‡ã€‚å‡é˜»åŠ›å‚è§write_tecplot_boundary_fileï¼Œè¦éå†è¾¹ç•Œedgeè€Œä¸æ˜¯å…¨åœºnode
 	void update_nodeField_other_variables(GPU::OutputNodeFieldSoA& nodeField);
 	
 };

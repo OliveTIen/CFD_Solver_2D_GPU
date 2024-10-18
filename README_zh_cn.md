@@ -1,4 +1,4 @@
-﻿<p align="center">
+﻿﻿<p align="center">
 <img src="doc/img/logo.png">
 </p>
 
@@ -128,6 +128,8 @@ FVMR (Finite Volume Method Realtime) 是一个用C++/CUDA编写的二维流体�
 
 
 ## 文档
+
+[Doxygen](doc/doxygen/html/index.html)
 
 ### 第三方依赖
 

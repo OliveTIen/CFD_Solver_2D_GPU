@@ -33,26 +33,26 @@ void GPU::ElementFieldVariable_dt::cuda_memcpy(ElementFieldVariable_dt* dst, con
 	cudaMemcpy(dst->alphaC, src->alphaC, num * sizeof(myfloat), kind);
 }
 
-// ¼ÆËã¹æÔ¼²Ù×÷ÖĞdev_outputÊı×é³¤¶È
+// è®¡ç®—è§„çº¦æ“ä½œä¸­dev_outputæ•°ç»„é•¿åº¦
 
 myint GPU::ReduceHelper::get_dev_output_length(myint n) {
 	/*
-	¹æÔ¼²Ù×÷ÒªÇóÊäÈëÊı×é³¤¶Èn²¹ÆëÎª2µÄÃİ´Î·½£¬·ñÔòÄ³Ò»²½¹æÔ¼»á³öÏÖÆæÊı£¬µ¼ÖÂÄ©Î²ÔªËØÃ»ÓĞ²ÎÓë¹æÔ¼
-	¶ÔÓÚÇó×îĞ¡Öµ£¬¿ÉÒÔ²¹½Ï´óµÄÊı
+	è§„çº¦æ“ä½œè¦æ±‚è¾“å…¥æ•°ç»„é•¿åº¦nè¡¥é½ä¸º2çš„å¹‚æ¬¡æ–¹ï¼Œå¦åˆ™æŸä¸€æ­¥è§„çº¦ä¼šå‡ºç°å¥‡æ•°ï¼Œå¯¼è‡´æœ«å°¾å…ƒç´ æ²¡æœ‰å‚ä¸è§„çº¦
+	å¯¹äºæ±‚æœ€å°å€¼ï¼Œå¯ä»¥è¡¥è¾ƒå¤§çš„æ•°
 	*/
-	myint block_threads = GPU::get_max_threads_per_block();// Ã¿¸öblockµÄÏß³ÌÊı
-	myint threads_needed = n / 2;// n¸öÔªËØ£¬µÚ1´Î¹æÔ¼ĞèÒªn/2¸öÏß³Ì
+	myint block_threads = GPU::get_max_threads_per_block();// æ¯ä¸ªblockçš„çº¿ç¨‹æ•°
+	myint threads_needed = n / 2;// nä¸ªå…ƒç´ ï¼Œç¬¬1æ¬¡è§„çº¦éœ€è¦n/2ä¸ªçº¿ç¨‹
 	myint blocks = threads_needed / block_threads + (threads_needed % block_threads > 0 ? 1 : 0);
 	return blocks;
 }
 
-// »ñÈ¡´óÓÚµÈÓÚoriginal_numµÄ×îĞ¡µÄ2µÄÃİ´Î·½
+// è·å–å¤§äºç­‰äºoriginal_numçš„æœ€å°çš„2çš„å¹‚æ¬¡æ–¹
 
 myint GPU::ReduceHelper::get_next_power_2_number(myint n) {
 	/*
-	µ±ÊäÈë2,147,483,647Ê±£¬next_pow2×îÖÕ»áÔö´óµ½1,073,741,824£¬È»ºó±ä³É-2,147,483,648£¬ÔÙ³ËÒÔ2±ä³É0£¬µ¼ÖÂËÀÑ­»·
-	Òò´ËĞèÒªÅĞ¶ÏmyintµÄ×î´óÖµ
-	size of int: 4£¬Òò´Ë×î´ó=2^(4*8)-1=2,147,483,647
+	å½“è¾“å…¥2,147,483,647æ—¶ï¼Œnext_pow2æœ€ç»ˆä¼šå¢å¤§åˆ°1,073,741,824ï¼Œç„¶åå˜æˆ-2,147,483,648ï¼Œå†ä¹˜ä»¥2å˜æˆ0ï¼Œå¯¼è‡´æ­»å¾ªç¯
+	å› æ­¤éœ€è¦åˆ¤æ–­myintçš„æœ€å¤§å€¼
+	size of int: 4ï¼Œå› æ­¤æœ€å¤§=2^(4*8)-1=2,147,483,647
 	size of long: 4
 	size of int*: 8
 	size of long long: 8

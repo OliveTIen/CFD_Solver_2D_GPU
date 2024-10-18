@@ -3,9 +3,9 @@
 #include <string>
 #include <vector>
 /*
-Ä¿Ç°²»ÏëÓÃÀà£¬Ö»ÓÃ¾²Ì¬º¯Êı
-ÏÈÖ»¿¼ÂÇÒ»ÖÖ²ÄÁÏ¡£ºóĞø»áÓÃvector
-[×¢Òâ]ºóÃæĞŞ¸ÄÎªGPU³ÌĞòÊ±£¬GPU´«²ÎÊ±£¬SDeviceParaÒª´«×îĞÂµÄmu
+ç›®å‰ä¸æƒ³ç”¨ç±»ï¼Œåªç”¨é™æ€å‡½æ•°
+å…ˆåªè€ƒè™‘ä¸€ç§ææ–™ã€‚åç»­ä¼šç”¨vector
+[æ³¨æ„]åé¢ä¿®æ”¹ä¸ºGPUç¨‹åºæ—¶ï¼ŒGPUä¼ å‚æ—¶ï¼ŒSDeviceParaè¦ä¼ æœ€æ–°çš„mu
 */
 
 class MaterialManager {
@@ -13,12 +13,12 @@ private:
 	struct FluidMaterial {
 	public:
 		std::string name = "air";
-		double mu0 = 17.9e-6; // ¶¯Á¦Õ³ĞÔÏµÊı²Î¿¼Öµ
+		double mu0 = 17.9e-6; // åŠ¨åŠ›ç²˜æ€§ç³»æ•°å‚è€ƒå€¼
 		FluidMaterial(std::string _name, double _mu0_dynamic_viscosity) {
 			name = _name;
 			mu0 = _mu0_dynamic_viscosity;
 		}
-		// ¸ø¶¨²Î¿¼ÃÜ¶Èrho¡¢²Î¿¼ËÙ¶Èu¡¢²Î¿¼³¤¶ÈL¡¢À×ÅµÊıRe£¬¼ÆËãmu0²¢´æ´¢
+		// ç»™å®šå‚è€ƒå¯†åº¦rhoã€å‚è€ƒé€Ÿåº¦uã€å‚è€ƒé•¿åº¦Lã€é›·è¯ºæ•°Reï¼Œè®¡ç®—mu0å¹¶å­˜å‚¨
 		FluidMaterial(std::string _name, double rho, double u, double L, double Re) {
 			name = _name;
 			mu0 = rho * u * L / Re;
@@ -36,7 +36,7 @@ private:
 public:
 	static MaterialManager* getInstance();
 	void addMaterial(FluidMaterial material);
-	// ·µ»Ø³£ÒıÓÃ£¬²»¿É×÷Îª×óÖµ£¬²»¿É±»ĞŞ¸Ä
+	// è¿”å›å¸¸å¼•ç”¨ï¼Œä¸å¯ä½œä¸ºå·¦å€¼ï¼Œä¸å¯è¢«ä¿®æ”¹
 	const FluidMaterial& getMaterial(size_t index = 0);
 	void initialize_using_config(double rho_ref, double U_ref, double L_ref);
 };

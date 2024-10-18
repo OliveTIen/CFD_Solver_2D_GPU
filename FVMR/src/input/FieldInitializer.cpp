@@ -21,7 +21,7 @@ FieldInitializer* FieldInitializer::getInstance() {
 
 void FieldInitializer::setInitialAndBoundaryCondition() {
 
-	// ÉèÖÃ³õÊ¼ºÍ±ß½çÌõ¼ş
+	// è®¾ç½®åˆå§‹å’Œè¾¹ç•Œæ¡ä»¶
 	auto& elements = FVM_2D::getInstance()->elements;
 	switch (m_initial_type) {
 	case type_uniform_flow:
@@ -74,8 +74,8 @@ void FieldInitializer::read_initial_type_from_config() {
 }
 void FieldInitializer::initialize_using_config() {
 	/*
-	ÓÃTomlFileManagerÌá¹©µÄAPI³õÊ¼»¯m_initial_type
-	¶ÔÓÚË«ÂíºÕ·´Éä£¬»¹ÒªÇó¶ÁÈ¡¼¤²¨Î»ÖÃ¡¢½Ç¶È²ÎÊı
+	ç”¨TomlFileManageræä¾›çš„APIåˆå§‹åŒ–m_initial_type
+	å¯¹äºåŒé©¬èµ«åå°„ï¼Œè¿˜è¦æ±‚è¯»å–æ¿€æ³¢ä½ç½®ã€è§’åº¦å‚æ•°
 	*/
 	TomlFileManager* t = TomlFileManager::getInstance();
 	read_initial_type_from_config();
@@ -89,7 +89,7 @@ void FieldInitializer::initialize_using_config() {
 	}
 
 	/*
-	[to do]ÏÂÃæÓ¦ÒÆ¶¯µ½CBoundaryDoubleShockReflect::initialize_using_config
+	[to do]ä¸‹é¢åº”ç§»åŠ¨åˆ°CBoundaryDoubleShockReflect::initialize_using_config
 	*/
 	if (m_initial_type == type_double_mach_reflection) {
 		myfloat shock_x = 0;
@@ -127,7 +127,7 @@ void FieldInitializer::printCondition(std::string initialConditionName) {
 }
 
 void FieldInitializer::setInitialUniform() {
-	// ¾ùÔÈ³¡
+	// å‡åŒ€åœº
 	auto& elements = FVM_2D::getInstance()->elements;
 	using namespace GlobalPara::boundaryCondition::_2D;
 	for (int ie = 0; ie < elements.size(); ie++) {
@@ -154,8 +154,8 @@ void FieldInitializer::setInitialIsentropicVortex() {
 	constexpr myfloat PI = U2NITS::Math::PI;
 	constexpr myfloat two_pi = 2.0 * PI;
 	constexpr myfloat pi2 = PI * PI;
-	myfloat c_du = chi / two_pi;// du±í´ïÊ½µÄÏµÊı£¬ÕıÊı£¬ÓëÎĞÇ¿¶ÈÓĞ¹Ø
-	myfloat c_dT = ga1 * chi2 / (8. * gamma * pi2);// dT±í´ïÊ½µÄÏµÊı£¬ÕıÊı£¬ÓëÎĞÇ¿¶ÈÓĞ¹Ø
+	myfloat c_du = chi / two_pi;// duè¡¨è¾¾å¼çš„ç³»æ•°ï¼Œæ­£æ•°ï¼Œä¸æ¶¡å¼ºåº¦æœ‰å…³
+	myfloat c_dT = ga1 * chi2 / (8. * gamma * pi2);// dTè¡¨è¾¾å¼çš„ç³»æ•°ï¼Œæ­£æ•°ï¼Œä¸æ¶¡å¼ºåº¦æœ‰å…³
 
 	for (Element_2D& e: FVM_2D::getInstance()->elements) {
 		myfloat dx = e.x - xc;
@@ -178,8 +178,8 @@ void FieldInitializer::setInitialIsentropicVortex() {
 
 void FieldInitializer::setInitialShockTube() {
 	/*
-	±éÀúµ¥Ôª£¬Èç¹ûÎ»ÓÚ¼¤²¨inlet·½Î»£¬ÔòÓÃinletÖµ³õÊ¼»¯
-	¼¤²¨¹Ü¾«È·½â²Î¿¼ÂÛÎÄshock_tube£¨https://zhuanlan.zhihu.com/p/154508317£©£¬¼ûD:\tgl\Local\CFD\shock_tube_code
+	éå†å•å…ƒï¼Œå¦‚æœä½äºæ¿€æ³¢inletæ–¹ä½ï¼Œåˆ™ç”¨inletå€¼åˆå§‹åŒ–
+	æ¿€æ³¢ç®¡ç²¾ç¡®è§£å‚è€ƒè®ºæ–‡shock_tubeï¼ˆhttps://zhuanlan.zhihu.com/p/154508317ï¼‰ï¼Œè§D:\tgl\Local\CFD\shock_tube_code
 	*/
 	auto& elements = FVM_2D::getInstance()->elements;
 	using namespace GlobalPara::boundaryCondition::_2D;
@@ -188,7 +188,7 @@ void FieldInitializer::setInitialShockTube() {
 	double shock_normal_x = m_shock_normal_x;
 	double shock_normal_y = m_shock_normal_y;
 	
-	// ¹éÒ»»¯·½ÏòÏòÁ¿
+	// å½’ä¸€åŒ–æ–¹å‘å‘é‡
 	if (shock_normal_x == 0.0 && shock_normal_y == 0.0) {
 		shock_normal_x = 1.0;
 	}
@@ -201,10 +201,10 @@ void FieldInitializer::setInitialShockTube() {
 			if (x < shock_x)return true;
 			else return false;
 		}
-		double rx = x - shock_x;// Ê¸¾¶
+		double rx = x - shock_x;// çŸ¢å¾„
 		double ry = y - shock_y;
 		double dot = rx * shock_normal_x + ry * shock_normal_y;
-		if (dot > 0)return false;// µã»ı´óÓÚ0£¬ÔòÎ»ÓÚ³ö¿Ú·½Ïò(outlet)
+		if (dot > 0)return false;// ç‚¹ç§¯å¤§äº0ï¼Œåˆ™ä½äºå‡ºå£æ–¹å‘(outlet)
 		else return true;
 	};
 
@@ -222,14 +222,14 @@ void FieldInitializer::setInitialShockTube() {
 }
 
 void FieldInitializer::setInitialDoubleShockReflection() {
-	// Ë«ÂíºÕ·´Éä³õÊ¼Öµ²ÎÕÕ https://zhuanlan.zhihu.com/p/630069961
-	// ¼¤²¨Ö±ÏßÓÉµãĞ±Ê½(x,y,angle)È·¶¨
+	// åŒé©¬èµ«åå°„åˆå§‹å€¼å‚ç…§ https://zhuanlan.zhihu.com/p/630069961
+	// æ¿€æ³¢ç›´çº¿ç”±ç‚¹æ–œå¼(x,y,angle)ç¡®å®š
 
 
 	constexpr bool isDebug = false;
 	if (isDebug) {
 
-		// ¼ÇÂ¼±ß½ç²ÎÊı
+		// è®°å½•è¾¹ç•Œå‚æ•°
 		auto writeBoundaryCondition = [](myfloat* inlet_ruvp, myfloat* outlet_ruvp, myfloat* inf_ruvp, const int num_ruvp)->void {
 			std::string str;
 			str += "BoundaryCondition:\n";
@@ -263,8 +263,8 @@ void FieldInitializer::setInitialTecplotFile() {
 	LogWriter::logAndPrintError("unimplemented.\n");
 	exit(-1);
 	/*
-	2024-05-27´ú°ì
-	¼ÌĞøÍê³ÉTecplotFileReader
+	2024-05-27ä»£åŠ
+	ç»§ç»­å®ŒæˆTecplotFileReader
 	
 	*/
 }

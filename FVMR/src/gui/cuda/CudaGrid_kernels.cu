@@ -81,7 +81,7 @@ __global__ void accumulateElementDataToNodeData_k(float* element_data, float* no
     thread id: element id
     element_data: array, length = num_element
     node_data: array,  length = num_node
-    todo: Ã»ÓÐ±£Ö¤¼Ó·¨µÄÔ­×ÓÐÔ£¬ÇóºÍ»á³öÎÊÌâ
+    todo: æ²¡æœ‰ä¿è¯åŠ æ³•çš„åŽŸå­æ€§ï¼Œæ±‚å’Œä¼šå‡ºé—®é¢˜
     */
     const int iElement = blockIdx.x * blockDim.x + threadIdx.x;
     if (iElement >= element_device.num_element || iElement < 0) return;
@@ -168,8 +168,8 @@ __global__ void divideVerticesColor_k(float* vertices, GPU::NodeSoA node_device)
 
 float2 getDeviceValueRange(myfloat* dev_input) {
     /*
-    »ñÈ¡Êý×éµÄ×î´ó¡¢×îÐ¡Öµ¡£ÊäÈëÊý×é³¤¶È±ØÐëÎªnum_element£¬ÒòÎªÁÙÊ±Êý×é´óÐ¡ÓÐÏÞ
-    ¹æÔ¼ÔËËã¡£´Ë´¦½èÓÃelementFieldVariable_dt_deviceµÄÁÙÊ±Êý×édev_output´æ´¢¹æÔ¼½á¹û
+    èŽ·å–æ•°ç»„çš„æœ€å¤§ã€æœ€å°å€¼ã€‚è¾“å…¥æ•°ç»„é•¿åº¦å¿…é¡»ä¸ºnum_elementï¼Œå› ä¸ºä¸´æ—¶æ•°ç»„å¤§å°æœ‰é™
+    è§„çº¦è¿ç®—ã€‚æ­¤å¤„å€Ÿç”¨elementFieldVariable_dt_deviceçš„ä¸´æ—¶æ•°ç»„dev_outputå­˜å‚¨è§„çº¦ç»“æžœ
     */
     myfloat out_min{}, out_max{};
     

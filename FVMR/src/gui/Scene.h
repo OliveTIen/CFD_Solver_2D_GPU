@@ -8,13 +8,16 @@
 #include "Control.h"
 
 class Object;
+/// <summary>
+/// a Scene containing objects for simulation and rendering
+/// </summary>
 class Scene {
 public:
 	std::map<std::string, std::vector<Object*>> objectLists;
 	
 	void init(Control* control);
 	void update();
-	void render() const;
+	void render() const;///< render all objects
 	void cleanup();
 
 private:

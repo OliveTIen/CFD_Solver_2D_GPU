@@ -1,4 +1,4 @@
-﻿#pragma once
+#pragma once
 // imgui
 #include "imgui.h"
 #include "imgui_impl_glfw.h"
@@ -7,15 +7,18 @@
 #include "Control.h"
 #include "Scene.h"
 
+/// <summary>
+/// an OpenGL window with imgui controls.
+/// </summary>
 class WinGui {
 public:
-	void init();
-	void render();
+	void init();///< init opengl window and imgui controls
+	void render();///< render scene and controls by calling @ref Scene::render and ImGui::Render()
 	void cleanup();
 	bool windowShouldClose();
 	void set_enabled(bool b) { m_enabled = b; }
 	bool get_enabled() { return m_enabled; }
-	bool& get_enabled_ref() { return m_enabled; }// 返回引用，可从外部修改私有成员
+	bool& get_enabled_ref() { return m_enabled; }///< a handle to modify private member 返回引用，可从外部修改私有成员
 
 private:
 	GLFWwindow* m_window = nullptr;

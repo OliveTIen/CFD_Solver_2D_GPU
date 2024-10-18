@@ -4,7 +4,7 @@
 __global__ void GPU::Math::vector_weighted_divide_kernel(myint length, myfloat* v1, const myfloat* v2, myfloat weight) {
     int i = blockDim.x * blockIdx.x + threadIdx.x;
     if (i < length) {
-        v1[i] /= weight * v2[i];// ÔËËãÓÅÏÈ¼¶ ÏÈËãÓÒ²à³Ë·¨£¬ºóËã*=»ò/=
+        v1[i] /= weight * v2[i];// è¿ç®—ä¼˜å…ˆçº§ å…ˆç®—å³ä¾§ä¹˜æ³•ï¼ŒåŽç®—*=æˆ–/=
     }
 }
 
@@ -38,7 +38,7 @@ __global__ void assign_elements_in_array_device_kernel(myint start, myint end, m
 }
 
 void GPU::Math::assign_elements_in_array_device(myint start, myint end, myfloat* arr_dev, myfloat value) {
-    // ¸øÊý×éÖ¸¶¨·¶Î§[start, end)µÄÔªËØ¸³Öµ
+    // ç»™æ•°ç»„æŒ‡å®šèŒƒå›´[start, end)çš„å…ƒç´ èµ‹å€¼
     myint num = end - start;
     if (num == 0)return;
     int block_size = GPU::get_max_threads_per_block();
@@ -48,6 +48,6 @@ void GPU::Math::assign_elements_in_array_device(myint start, myint end, myfloat*
 	assign_elements_in_array_device_kernel <<<grid, block>>> (start, end, arr_dev, value);
 }
 
-// deviceº¯ÊýÖ¸Õë
+// deviceå‡½æ•°æŒ‡é’ˆ
 __device__ func_bin_myfloat GPU::Math::p_operator_min = operator_min;
 __device__ func_bin_myfloat GPU::Math::p_operator_max = operator_max;

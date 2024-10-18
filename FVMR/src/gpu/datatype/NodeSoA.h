@@ -3,8 +3,8 @@
 
 #include "DefineType.h"
 #include "../Env.h"
-// ������ṩ�����������ͣ���ʼ�����ͷš������Ȳ��������ṩ�κμ��㺯����
-// ��ʵ�����ݺͷ����ķ��롣���㹦�ܼ�
+// 该类仅提供基本数据类型，初始化、释放、拷贝等操作，不提供任何计算函数，
+// 以实现数据和方法的分离。计算功能见
 namespace GPU {
 	struct NodeSoA {
 	public:

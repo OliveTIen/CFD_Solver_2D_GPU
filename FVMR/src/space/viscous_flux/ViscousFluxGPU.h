@@ -11,16 +11,16 @@ namespace GPU {
 
 		/*
 		https://www.cfd-online.com/Wiki/Sutherland%27s_law
-		C1ÊÇ³£Êı£¬¿ÉÒÔÌáÇ°ËãºÃ
+		C1æ˜¯å¸¸æ•°ï¼Œå¯ä»¥æå‰ç®—å¥½
 
 		mu0			T0		S
-		1.716e-5	273.15	110.4 ÕâÊÇÍøÕ¾¸øµÄ²ÎÊı
-		1.789e-5	288.16	      ÕâÊÇº£Æ½Ãæ²ÎÊı from US standard atmosphere
+		1.716e-5	273.15	110.4 è¿™æ˜¯ç½‘ç«™ç»™çš„å‚æ•°
+		1.789e-5	288.16	      è¿™æ˜¯æµ·å¹³é¢å‚æ•° from US standard atmosphere
 
 		C1 = mu0 / pow(T0, 1.5) * (T0 + S)
 		mu = C1 * pow(T, 1.5) / (T + S)
-		°´ÍøÕ¾²ÎÊı¼ÆËãµÃµ½½á¹û C1 = 1.45793e-06£¬¸úÍøÕ¾½á¹ûÎÇºÏ
-		UNITsÖĞ, Csthlnd = 117.0/T_inf, origianl.orgÖĞT_inf=690
+		æŒ‰ç½‘ç«™å‚æ•°è®¡ç®—å¾—åˆ°ç»“æœ C1 = 1.45793e-06ï¼Œè·Ÿç½‘ç«™ç»“æœå»åˆ
+		æŸç»“æ„ç¨‹åºä¸­, Csthlnd = 117.0/T_inf, origianl.orgä¸­T_inf=690
 		*/
 
 		__host__ __device__ inline myfloat get_Sutherland_C1_host_device(myfloat S, myfloat mu0, myfloat T0) {

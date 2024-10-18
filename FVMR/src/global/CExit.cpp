@@ -8,7 +8,7 @@ void CExit::saveAndExit(int _Code) {
 
 void CExit::pressAnyKeyToExit() {
 
-	rewind(stdin);// Çå¿Õ»º³åÇø£¬·ñÔò»áÁ¢¿ÌÍË³ö
+	rewind(stdin);// æ¸…ç©ºç¼“å†²åŒºï¼Œå¦åˆ™ä¼šç«‹åˆ»é€€å‡º
 	exit(pressAnyKeyToContinue());
 }
 
@@ -23,8 +23,8 @@ int CExit::pressEnterToContinue() {
 
 int CExit::pressAnyKeyToContinue() {
 
-	//// ÒÑÆúÓÃ¡£²âÊÔÊ§°Ü¡£²»ĞĞ¡£Ö»ÓĞÊäÈëenter²ÅÆğ×÷ÓÃ
-	//int c = 256;// char×î´ó²»³¬¹ı127
+	//// å·²å¼ƒç”¨ã€‚æµ‹è¯•å¤±è´¥ã€‚ä¸è¡Œã€‚åªæœ‰è¾“å…¥enteræ‰èµ·ä½œç”¨
+	//int c = 256;// charæœ€å¤§ä¸è¶…è¿‡127
 	//printf("Press any key to continue... ");
 	//fflush(stdout);
 	//do c = getchar(); while ((c == 256));

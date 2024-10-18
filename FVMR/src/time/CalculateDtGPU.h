@@ -3,13 +3,34 @@
 #include "../gpu/datatype/DataType.h"
 
 namespace GPU {
+	/** @brief namespace time	*/
 	namespace Time {
-		// ¼ÆËãÈ«¾ÖÊ±¼ä²½³¤£¬´æÈëelementFieldVariable_dt_device.dev_output[0]
+		
+		/** @brief get global time step. 
+		* è®¡ç®—å…¨å±€æ—¶é—´æ­¥é•¿ï¼Œå­˜å…¥elementFieldVariable_dt_device.dev_output[0]
+		* @details å…ˆè®¡ç®—å±€éƒ¨æ—¶é—´æ­¥é•¿ï¼Œç„¶åå–æœ€å°å€¼<br>
+		* æ³¨æ„reduce_deviceä¸­nå¿…é¡»ä¸º2çš„å¹‚ï¼Œç”¨num_reduceè€Œä¸æ˜¯num_element
+		* @param[in] gamma gamma
+		* @param[in] Re Reynold number
+		* @param[in] Pr Prantl number
+		* @param[in] CFL Courant number
+		* @param[in] Rcpcv specific heat ratio
+		*
+		*/
 		void get_global_dt_device(
 			myfloat gamma, myfloat Re, myfloat Pr, myfloat CFL, myfloat Rcpcv, GPU::ElementFieldVariable_dt& elementFieldVariable_dt_device,
 			GPU::ElementSoA& element_device, GPU::EdgeSoA& edge_device, GPU::ElementFieldSoA& elementField_device, int physicsModel_equation
 		);
-		// ¼ÆËã¾Ö²¿Ê±¼ä²½³¤£¬´æÈë´æÈëelementFieldVariable_dt_device.alphaC
+
+		/** @brief get local time step.
+		* è®¡ç®—å±€éƒ¨æ—¶é—´æ­¥é•¿ï¼Œå­˜å…¥elementFieldVariable_dt_device.alphaC
+		* @param[in] gamma gamma
+		* @param[in] Re Reynold number
+		* @param[in] Pr Prantl number
+		* @param[in] CFL Courant number
+		* @param[in] Rcpcv specific heat ratio
+		*
+		*/
 		void get_local_dt_device(
 			myfloat gamma, myfloat Re, myfloat Pr, myfloat CFL, myfloat Rcpcv, GPU::ElementFieldVariable_dt& elementFieldVariable_dt_device,
 			GPU::ElementSoA& element_device, GPU::EdgeSoA& edge_device, GPU::ElementFieldSoA& elementField_device, int physicsModel_equation

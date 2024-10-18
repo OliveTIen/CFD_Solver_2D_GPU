@@ -1,4 +1,4 @@
-﻿<p align="center">
+﻿﻿<p align="center">
 <img src="doc/img/logo.png">
 </p>
 
@@ -110,6 +110,8 @@ Among them, line graphs and boundaries have many bugs. For instance, when calcul
 Additionally, there are continuation files (`pause_ivertex[3351].dat`). When the control parameter `continue=true`, the program will search the directory for all files starting with `pause_`, and take the file with the highest number within the brackets for continuation. Files starting with `recovery_` are similar to those starting with `pause_` but are generally not needed; if you want to use them, you'll need to rename them to start with `pause_`.
 
 ## Documentation
+
+[Doxygen](doc/doxygen/html/index.html)
 
 ### Third-Party Dependencies
 

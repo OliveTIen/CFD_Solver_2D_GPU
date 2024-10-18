@@ -3,40 +3,40 @@
 
 
 myfloat Limiter::TVDlimiter(myfloat var1, myfloat var2, myfloat epsm, int lim_type) {
-    // ²ÎÕÕUNITs Space\UTIL_interpolate.F90
+    // å‚ç…§ Space\UTIL_interpolate.F90
     myfloat ka = 1.0 / 3.0;
     myfloat result{};
     switch (lim_type) {
-    case 0:// ÏßĞÔ²åÖµ£¬ÎŞÏŞÖÆÆ÷£¬µÍËÙÁ÷¶¯
+    case 0:// çº¿æ€§æ’å€¼ï¼Œæ— é™åˆ¶å™¨ï¼Œä½é€ŸæµåŠ¨
     {
         result = 0.5 * ((1.0 - ka) * var2 + (1.0 + ka) * var1);
         break;
     }
 
-    case 1:// ¶ş½×smoothÏŞÖÆÆ÷£¬ÑÇ¿ç³¬
+    case 1:// äºŒé˜¶smoothé™åˆ¶å™¨ï¼Œäºšè·¨è¶…
     {
         myfloat smooth = (2. * var1 * var2 + epsm) / (var1 * var1 + var2 * var2 + epsm);
         result = ((1. + ka * smooth) * var1 + (1. - ka * smooth) * var2) * smooth / 2.;
         break;
     }
 
-    case 2:// ¶ş½×Vanleer£¬ÑÇ¿ç³¬¸ß³¬
+    case 2:// äºŒé˜¶Vanleerï¼Œäºšè·¨è¶…é«˜è¶…
     {
         myfloat r = 0.0;
         if (abs(var2) > epsm * epsm) r = var1 / var2;
-        result = (r + abs(r)) / (1. + abs(r)) * var2;// v1v2ÒìºÅÊ±Îª0£¬Í¬ºÅÊ±Îª2*v1*v2/(v1+v2)
+        result = (r + abs(r)) / (1. + abs(r)) * var2;// v1v2å¼‚å·æ—¶ä¸º0ï¼ŒåŒå·æ—¶ä¸º2*v1*v2/(v1+v2)
         break;
     }
 
-    case 3://¶ş½×mod-smooth»ìºÏ,³¬¡¢¸ß³¬
+    case 3://äºŒé˜¶mod-smoothæ··åˆ,è¶…ã€é«˜è¶…
     {
         myfloat smooth = (2. * var1 * var2 + epsm * epsm) / (var1 * var1 + var2 * var2 + epsm * epsm);
         result = ((1. + ka * smooth) * var1 + (1. - ka * smooth) * var2) * smooth / 2. * 0.5 * abs(sgn(var1) + sgn(var2));
-        // fortranÖĞsign(a,b)=È¡Ç°ÃæÊıµÄ¾ø¶ÔÖµ£¬È¡ºóÃæÊıµÄ·ûºÅ
+        // fortranä¸­sign(a,b)=å–å‰é¢æ•°çš„ç»å¯¹å€¼ï¼Œå–åé¢æ•°çš„ç¬¦å·
         break;
     }
 
-    case 4://¶ş½×minmod,¸ÃÏŞÖÆÆ÷²»¹â»¬£¬²»½¨ÒéÓëRoeÕâÖÖFDSÀàÍ¨Á¿Çó½âÆ÷ÅäºÏÊ¹ÓÃ£¬½¨ÒéÓëAUSMÀà¡¢Steger-Warming¡¢VanleerµÈÅäºÏÊ¹ÓÃ
+    case 4://äºŒé˜¶minmod,è¯¥é™åˆ¶å™¨ä¸å…‰æ»‘ï¼Œä¸å»ºè®®ä¸Roeè¿™ç§FDSç±»é€šé‡æ±‚è§£å™¨é…åˆä½¿ç”¨ï¼Œå»ºè®®ä¸AUSMç±»ã€Steger-Warmingã€Vanleerç­‰é…åˆä½¿ç”¨
     {
         myfloat r = 0.0;
         if (abs(var2) > epsm * epsm) r = var1 / var2;

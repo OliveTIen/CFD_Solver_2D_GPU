@@ -1,4 +1,4 @@
-﻿#ifndef NODE_2D_H
+#ifndef NODE_2D_H
 #define NODE_2D_H
 #include "head.h"
 

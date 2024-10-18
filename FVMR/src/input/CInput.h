@@ -10,7 +10,7 @@ namespace U2NITS {
 		void readConfig();
 		void readField_1();
 
-		// [todo]直接读取到GPU::ElementSoA等，不经过FVM_2D
+		// [todo]鐩存帴璇诲彇鍒癎PU::ElementSoA绛夛紝涓嶇粡杩嘑VM_2D
 		void readField_2_unused();
 
 	private:

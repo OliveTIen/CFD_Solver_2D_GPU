@@ -6,21 +6,21 @@
 #include "../global/GlobalPara.h"
 #include "../math/Math.h"
 
-// µ¥ÔªalphaC¹éÁã£¬È»ºó¼ÆËãedgeµÄalpha£¬¼Ó¼õµ½µ¥ÔªalphaC
+// å•å…ƒalphaCå½’é›¶ï¼Œç„¶åè®¡ç®—edgeçš„alphaï¼ŒåŠ å‡åˆ°å•å…ƒalphaC
 void update_alphaC_host(myfloat gamma, myfloat Pr, myfloat Rcpcv, myfloat* alphaC, myfloat sutherland_C1,
 	GPU::ElementSoA& element, GPU::EdgeSoA& edge, GPU::ElementFieldSoA& elementField, int physicsModel_equation) {
 
 	const myfloat value_1 = (U2NITS::Math::max)(4.0 / 3.0, gamma / Pr);
 	auto& element_vruvp = elementField.ruvp;
 
-	// µ¥ÔªalphaC¹éÁã
+	// å•å…ƒalphaCå½’é›¶
 	const myint num_element = element.num_element;
 	for (myint i = 0; i < num_element; i++) {
 		alphaC[i] = 0.0;
 	}
-	// ¼ÆËãedgeµÄalpha£¬¼Ó¼õµ½µ¥ÔªalphaC
+	// è®¡ç®—edgeçš„alphaï¼ŒåŠ å‡åˆ°å•å…ƒalphaC
 	for (myint i = 0; i < edge.num_edge; i++) {
-		// ¼ÆËãedgeÊØºãÁ¿£¬·ÖÎªÄÚ²¿edgeºÍ±ß½çedgeÁ½ÖÖÇé¿ö
+		// è®¡ç®—edgeå®ˆæ’é‡ï¼Œåˆ†ä¸ºå†…éƒ¨edgeå’Œè¾¹ç•Œedgeä¸¤ç§æƒ…å†µ
 		myint elementL = edge.elementL[i];
 		myint elementR = edge.elementR[i];
 		myfloat rho, u, v, p;
@@ -41,7 +41,7 @@ void update_alphaC_host(myfloat gamma, myfloat Pr, myfloat Rcpcv, myfloat* alpha
 			CExit::saveAndExit(-1);
 		}
 
-		// ¼ÆËãedgeµÄÎŞÕ³alpha£¬¼Ó¼õµ½Á½²àµ¥ÔªalphaC
+		// è®¡ç®—edgeçš„æ— ç²˜alphaï¼ŒåŠ å‡åˆ°ä¸¤ä¾§å•å…ƒalphaC
 		myfloat dx = edge.normal[0][i] * edge.length[i];
 		myfloat dy = edge.normal[1][i] * edge.length[i];
 		const myfloat length = edge.length[i];
@@ -51,7 +51,7 @@ void update_alphaC_host(myfloat gamma, myfloat Pr, myfloat Rcpcv, myfloat* alpha
 		alphaC[elementL] += alpha;
 		if (elementR != -1)alphaC[elementR] += alpha;
 
-		// ¼ÆËãedgeµÄÓĞÕ³alphaVis£¬¼Ó¼õµ½Á½²àµ¥ÔªalphaC¡£Õ³ĞÔ»áÔö¼ÓCFLÎÈ¶¨ĞÔ
+		// è®¡ç®—edgeçš„æœ‰ç²˜alphaVisï¼ŒåŠ å‡åˆ°ä¸¤ä¾§å•å…ƒalphaCã€‚ç²˜æ€§ä¼šå¢åŠ CFLç¨³å®šæ€§
 		if (physicsModel_equation == _EQ_NS) {
 			myfloat temperature = p / Rcpcv / rho;
 			myfloat mu_laminar = GPU::Space::get_mu_using_Sutherland_air_host_device(temperature, sutherland_C1);
@@ -63,19 +63,19 @@ void update_alphaC_host(myfloat gamma, myfloat Pr, myfloat Rcpcv, myfloat* alpha
 	}
 }
 
-// ÓÃµ¥Ôª¸÷×ÔµÄalphaC¼ÆËãdt£¬¼ÆËã½á¹ûÈÔ´æÈëalphaCÊı×é
+// ç”¨å•å…ƒå„è‡ªçš„alphaCè®¡ç®—dtï¼Œè®¡ç®—ç»“æœä»å­˜å…¥alphaCæ•°ç»„
 void get_local_dt_using_alphaC_CFL_volume_host(myfloat* alphaC, const myfloat* volume, myfloat CFL, myint array_size) {
 	for (myint i = 0; i < array_size; i++) {
 		alphaC[i] = CFL * volume[i] / alphaC[i];
 	}
 }
 
-// ±éÀúµ¥Ôª£¬¸÷×ÔÓÃalphaC¼ÆËã¸÷×ÔµÄdt£¬×îºóÈ¡×îĞ¡Öµ
+// éå†å•å…ƒï¼Œå„è‡ªç”¨alphaCè®¡ç®—å„è‡ªçš„dtï¼Œæœ€åå–æœ€å°å€¼
 myfloat get_minimus_dt_by_alphaC(myfloat* alphaC, const myfloat* volume, myfloat CFL, myint num_element) {
 	/*
-	Èç¹ûÒª¸ÄÔì³ÉGPU´úÂëµÄ»°£¬Îª½ÚÊ¡´æ´¢¿Õ¼ä£¬¿ÉÒÔ¾ÍÓÃalphaC´æ´¢dt
-	¼´ alphaC[i] = CFL * volume[i] / alphaC[i]
-	È»ºó¶ÔalphaC½øĞĞ¹æÔ¼£¬Æä×îĞ¡Öµ¾ÍÊÇ´ıÇóµÄdt
+	å¦‚æœè¦æ”¹é€ æˆGPUä»£ç çš„è¯ï¼Œä¸ºèŠ‚çœå­˜å‚¨ç©ºé—´ï¼Œå¯ä»¥å°±ç”¨alphaCå­˜å‚¨dt
+	å³ alphaC[i] = CFL * volume[i] / alphaC[i]
+	ç„¶åå¯¹alphaCè¿›è¡Œè§„çº¦ï¼Œå…¶æœ€å°å€¼å°±æ˜¯å¾…æ±‚çš„dt
 	*/
 	myfloat dt = 1e10;
 	for (myint i = 0; i < num_element; i++) {
@@ -87,11 +87,11 @@ myfloat get_minimus_dt_by_alphaC(myfloat* alphaC, const myfloat* volume, myfloat
 myfloat U2NITS::Time::get_global_dt_host(myfloat gamma, myfloat Pr, myfloat CFL, myfloat Rcpcv, GPU::ElementFieldVariable_dt& elementFieldVariable_dt_host,
 	GPU::ElementSoA& element, GPU::EdgeSoA& edge, GPU::ElementFieldSoA& elementField, int physicsModel_equation) {
 	/*
-	Í³Ò»Ê±¼ä²½³¤£¬ÓÃÓÚ·Ç¶¨³£
-	²Î¿¼CFD Pinciples and Applications P175£¬ÒÔ¼°laminar-WangQ´úÂë Timestep.f90
+	ç»Ÿä¸€æ—¶é—´æ­¥é•¿ï¼Œç”¨äºéå®šå¸¸
+	å‚è€ƒCFD Pinciples and Applications P175ï¼Œä»¥åŠlaminar-WangQä»£ç  Timestep.f90
 
-	Ê×ÏÈ±éÀúedge£¬¼ÆËãÍ¨Á¿alpha£¬¼Ó¼õµ½×óÓÒµ¥ÔªµÄalphaC
-	È»ºó±éÀúµ¥Ôª£¬¸÷×ÔÓÃalphaC¼ÆËã¸÷×ÔµÄdt£¬×îºóÈ¡×îĞ¡Öµ
+	é¦–å…ˆéå†edgeï¼Œè®¡ç®—é€šé‡alphaï¼ŒåŠ å‡åˆ°å·¦å³å•å…ƒçš„alphaC
+	ç„¶åéå†å•å…ƒï¼Œå„è‡ªç”¨alphaCè®¡ç®—å„è‡ªçš„dtï¼Œæœ€åå–æœ€å°å€¼
 	*/
 
 	myfloat sutherland_C1 = GPU::Space::get_Sutherland_C1_host_device(GPU::Space::S_Sutherland, GlobalPara::constant::mu0, GlobalPara::constant::T0);
@@ -102,7 +102,7 @@ myfloat U2NITS::Time::get_global_dt_host(myfloat gamma, myfloat Pr, myfloat CFL,
 }
 
 myfloat U2NITS::Time::get_global_dt_host_0529beta(myfloat gamma, myfloat Pr, myfloat CFL, myfloat Rcpcv, GPU::ElementFieldVariable_dt& elementFieldVariable_dt_host, GPU::ElementSoA& element, GPU::EdgeSoA& edge, GPU::ElementFieldSoA& elementField, int physicsModel_equation) {
-	// ²âÊÔÖĞ beta°æ£¬¸úGPU±£³ÖÒ»ÖÂ
+	// æµ‹è¯•ä¸­ betaç‰ˆï¼Œè·ŸGPUä¿æŒä¸€è‡´
 	
 	myfloat sutherland_C1 = GPU::Space::get_Sutherland_C1_host_device(GPU::Space::S_Sutherland, GlobalPara::constant::mu0, GlobalPara::constant::T0);
 	update_alphaC_host(gamma, Pr, Rcpcv, elementFieldVariable_dt_host.alphaC, sutherland_C1, element, edge, elementField, physicsModel_equation);
@@ -115,10 +115,10 @@ myfloat U2NITS::Time::get_global_dt_host_0529beta(myfloat gamma, myfloat Pr, myf
 void U2NITS::Time::calculateLocalTimeStep_async_Euler_kernel(myfloat& dt, myfloat gamma, myfloat Re, myfloat Pr, myfloat CFL, myfloat R, myint iElement, GPU::ElementSoA& element, GPU::EdgeSoA& edge, myfloat* element_vruvp[4]) {
 
 	/*
-	[½öÍê³ÉÎŞÕ³Í¨Á¿]
-	¼ÆËã±¾µØÊ±¼ä²½£¬Òì²½Ä£Ê½
-	Òì²½Ä£Ê½£ºµ¥Ôª¼ÆËã¸÷×ÔµÄÍ¨Á¿£¬²»´æÔÚ¹æÔ¼ÇóºÍ¡£ÓÅµãÊÇ±ãÓÚ²¢ĞĞ¡¢Õ¼ÓÃ¿Õ¼äĞ¡£¬È±µãÊÇÓĞÖØ¸´¼ÆËã(Ã¿¸öÃæ±»¼ÆËã2±é)
-	ÁíÒ»ÖÖÄ£Ê½ÊÇÏÈ¼ÆËãËùÓĞ±ßµÄÍ¨Á¿£¬´æÆğÀ´£¬È»ºó·Ö±ğ¼Ó¼õµ½¶ÔÓ¦µ¥Ôª¡£ÔÚ¶Ôµ¥Ôª¼Ó¼õÊ±£¬Éæ¼°µ½Êı¾İ¾ºÕù
+	[ä»…å®Œæˆæ— ç²˜é€šé‡]
+	è®¡ç®—æœ¬åœ°æ—¶é—´æ­¥ï¼Œå¼‚æ­¥æ¨¡å¼
+	å¼‚æ­¥æ¨¡å¼ï¼šå•å…ƒè®¡ç®—å„è‡ªçš„é€šé‡ï¼Œä¸å­˜åœ¨è§„çº¦æ±‚å’Œã€‚ä¼˜ç‚¹æ˜¯ä¾¿äºå¹¶è¡Œã€å ç”¨ç©ºé—´å°ï¼Œç¼ºç‚¹æ˜¯æœ‰é‡å¤è®¡ç®—(æ¯ä¸ªé¢è¢«è®¡ç®—2é)
+	å¦ä¸€ç§æ¨¡å¼æ˜¯å…ˆè®¡ç®—æ‰€æœ‰è¾¹çš„é€šé‡ï¼Œå­˜èµ·æ¥ï¼Œç„¶ååˆ†åˆ«åŠ å‡åˆ°å¯¹åº”å•å…ƒã€‚åœ¨å¯¹å•å…ƒåŠ å‡æ—¶ï¼Œæ¶‰åŠåˆ°æ•°æ®ç«äº‰
 	*/
 
 	bool ifViscous = false;
@@ -137,7 +137,7 @@ void U2NITS::Time::calculateLocalTimeStep_async_Euler_kernel(myfloat& dt, myfloa
 		if (iEdge == -1) {
 			continue;
 		}
-		// ½çÃæÖµ£¬È¡Á½²àµ¥Ôª¾ùÖµ¡£Èç¹ûÖ»ÓĞÒ»²àµ¥Ôª£¬ÔòÈ¡Ò»²àÖµ
+		// ç•Œé¢å€¼ï¼Œå–ä¸¤ä¾§å•å…ƒå‡å€¼ã€‚å¦‚æœåªæœ‰ä¸€ä¾§å•å…ƒï¼Œåˆ™å–ä¸€ä¾§å€¼
 		myint elementL = edge.elementL[iEdge];
 		myint elementR = edge.elementR[iEdge];
 		myfloat rho = element_vruvp[0][elementL];
@@ -154,17 +154,17 @@ void U2NITS::Time::calculateLocalTimeStep_async_Euler_kernel(myfloat& dt, myfloa
 			v *= 0.5;
 			p *= 0.5;
 		}
-		// ·¨ÏòËÙ¶È´óĞ¡
+		// æ³•å‘é€Ÿåº¦å¤§å°
 		myfloat nx = edge.normal[0][iEdge];
 		myfloat ny = edge.normal[1][iEdge];
 		myfloat normalVelocityMagnitude = Math::abs(u * nx + v * ny);
-		// ÉùËÙ
+		// å£°é€Ÿ
 		myfloat soundSpeed = sqrt(gamma * p / rho);
 		myfloat faceArea = edge.length[iEdge];
-		// µ¥Ôª¶ÔÁ÷Í¨Á¿Æ×°ë¾¶Ö®ºÍ
+		// å•å…ƒå¯¹æµé€šé‡è°±åŠå¾„ä¹‹å’Œ
 		lambdaConvective += (normalVelocityMagnitude + soundSpeed) * faceArea;
 
-		if (ifViscous) {// ²ÎÕÕ¡¶CFDPA¡·P175¹«Ê½6.21
+		if (ifViscous) {// å‚ç…§ã€ŠCFDPAã€‹P175å…¬å¼6.21
 			throw "unimplemented";
 
 			//myfloat a1 = Math::max(_4_3 / rho, gamma / rho);

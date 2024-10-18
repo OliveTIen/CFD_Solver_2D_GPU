@@ -3,8 +3,8 @@
 
 void U2NITS::Space::LocalLaxFriedrichs(const myfloat* UL, const myfloat* UR, const myfloat nx, const myfloat ny, const myfloat length, myfloat* flux, myfloat gamma) {
 
-    //¹¦ÄÜ£ºÎŞÕ³Í¨Á¿ÀèÂüÇó½âÆ÷¡£¸ù¾İULURµÈ²ÎÊı£¬½øĞĞ×ø±ê±ä»»£¬¼ÆËãÎŞÕ³ÊıÖµÍ¨Á¿flux
-    //Êä³ö£ºflux
+    //åŠŸèƒ½ï¼šæ— ç²˜é€šé‡é»æ›¼æ±‚è§£å™¨ã€‚æ ¹æ®ULURç­‰å‚æ•°ï¼Œè¿›è¡Œåæ ‡å˜æ¢ï¼Œè®¡ç®—æ— ç²˜æ•°å€¼é€šé‡flux
+    //è¾“å‡ºï¼šflux
     
     myfloat ruvpL[4], ruvpR[4];
     U2NITS::Math::U2ruvp_host(UL, ruvpL, gamma);
@@ -18,7 +18,7 @@ void U2NITS::Space::LocalLaxFriedrichs(const myfloat* UL, const myfloat* UR, con
     myfloat vR = ruvpR[2];
     myfloat pR = ruvpR[3];
 
-    //×ø±ê±ä»» ×ª»¯Îª×¼Ò»Î¬
+    //åæ ‡å˜æ¢ è½¬åŒ–ä¸ºå‡†ä¸€ç»´
     myfloat unL = nx * uL + ny * vL;
     myfloat unR = nx * uR + ny * vR;
 
@@ -36,8 +36,8 @@ void U2NITS::Space::LocalLaxFriedrichs(const myfloat* UL, const myfloat* UR, con
     myfloat hr = pR * gamma / (rR * (gamma - 1.)) + 0.5 * (uR * uR + vR * vR);
     FnR[3] = rR * unR * hr;
 
-    //ÎŞÕ³ÊıÖµÍ¨Á¿ Roe-PikeÀèÂüÇó½âÆ÷ ÍõÇ¬ÂÛÎÄP31
-    // ÊØºã¸ñÊ½£ºLocal Lax-Friedrichs¸ñÊ½
+    //æ— ç²˜æ•°å€¼é€šé‡ Roe-Pikeé»æ›¼æ±‚è§£å™¨ ç‹ä¹¾è®ºæ–‡P31
+    // å®ˆæ’æ ¼å¼ï¼šLocal Lax-Friedrichsæ ¼å¼
     myfloat lambdaMax = (Math::max)(Math::abs(unL) + sqrt(gamma * pL / rL), Math::abs(unR) + sqrt(gamma * pR / rR));
     for (int i = 0; i < 4; i++) {
         flux[i] = 0.5 * (FnL[i] + FnR[i] - lambdaMax * (UR[i] - UL[i]));

@@ -8,24 +8,24 @@
 
 class StringProcessor {
 public:
-	//// ×Ö·û´®Êı×é×ª»»
-	// ×Ö·û´®Êı×é×ªintÊı×é
+	//// å­—ç¬¦ä¸²æ•°ç»„è½¬æ¢
+	// å­—ç¬¦ä¸²æ•°ç»„è½¬intæ•°ç»„
 	static std::vector<int> stringVector_2_intVector(std::vector<std::string> words);
 
-	//// ×Ö·û´®×ª»»
-	// ×Ö·û´®×ª×Ö·û´®Êı×é¡£°´¿Õ¸ñºÍÖÆ±í·û·Ö¸î
+	//// å­—ç¬¦ä¸²è½¬æ¢
+	// å­—ç¬¦ä¸²è½¬å­—ç¬¦ä¸²æ•°ç»„ã€‚æŒ‰ç©ºæ ¼å’Œåˆ¶è¡¨ç¬¦åˆ†å‰²
 	static std::vector<std::string> splitString(std::string tLine);
 
-	//// ×Ö·û´®ĞŞ¸Ä
-	// ×Ö·û´®ÖĞ'='Ìæ»»Îª" = " Ô´×ÔCFD-bighw
+	//// å­—ç¬¦ä¸²ä¿®æ”¹
+	// å­—ç¬¦ä¸²ä¸­'='æ›¿æ¢ä¸º" = " æºè‡ªCFD-bighw
 	static std::string replaceCharInString(std::string word, char oldChar = '=', std::string newChar = " = ");
-	// É¾³ıflag¼°ÆäºóÃæµÄ×Ö·û
+	// åˆ é™¤flagåŠå…¶åé¢çš„å­—ç¬¦
 	static std::string deleteCommentByChar(std::string word, char flag = '%');
 
-	//// ×Ö·û´®Éú³É
-	// Ê±¼ä×ª×Ö·û´®¡£ÊäÈë£ºÃë£¬Êä³ö£ºÊ±:·Ö:Ãë
+	//// å­—ç¬¦ä¸²ç”Ÿæˆ
+	// æ—¶é—´è½¬å­—ç¬¦ä¸²ã€‚è¾“å…¥ï¼šç§’ï¼Œè¾“å‡ºï¼šæ—¶:åˆ†:ç§’
 	static std::string timeFormat(int dt);
-	// doubleÊı×é×ª×Ö·û´®¡£Êı×é×ª»¯Îª{}±íÊ¾µÄĞÎÊ½
+	// doubleæ•°ç»„è½¬å­—ç¬¦ä¸²ã€‚æ•°ç»„è½¬åŒ–ä¸º{}è¡¨ç¤ºçš„å½¢å¼
 	static std::string doubleArray_2_string(myfloat* U, int length);
 
 };

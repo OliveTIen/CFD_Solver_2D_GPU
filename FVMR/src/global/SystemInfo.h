@@ -5,7 +5,7 @@
 class SystemInfo {
 public:
 	static std::string getCurrentDateTime();
-	// È¥³ı·Ç·¨×Ö·û":"µÈ£¬ÊÊºÏÓÃ×÷ÎÄ¼şÃû
+	// å»é™¤éæ³•å­—ç¬¦":"ç­‰ï¼Œé€‚åˆç”¨ä½œæ–‡ä»¶å
 	static std::string getCurrentDateTime_suitableForFileName();
 
 	static std::string getCurrentTime();

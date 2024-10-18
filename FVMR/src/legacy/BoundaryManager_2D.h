@@ -5,88 +5,88 @@
 #include "Edge_2D.h"
 
 /*
-¸ÃÀàµÄÄ¿µÄÊÇÍ¨¹ıpEdge¿ìËÙ²éÕÒpEdgeËùÊôµÄ±ß½çÀàĞÍ¡£
-²éÑ¯·½Ê½ÊÇÏÈ¸ù¾İpEdge²éÑ¯setID£¬ÔÙ¸ù¾İsetID²éÑ¯setµÄÀàĞÍ
-Ã¿¸öpEdge¶¼ÓĞÒ»¸ösetID£¬¼´ËùÊô±ß¼¯ºÏµÄID
-ËùÓĞ±ßµÄ¼¯ºÏÓÉ
+è¯¥ç±»çš„ç›®çš„æ˜¯é€šè¿‡pEdgeå¿«é€ŸæŸ¥æ‰¾pEdgeæ‰€å±çš„è¾¹ç•Œç±»å‹ã€‚
+æŸ¥è¯¢æ–¹å¼æ˜¯å…ˆæ ¹æ®pEdgeæŸ¥è¯¢setIDï¼Œå†æ ¹æ®setIDæŸ¥è¯¢setçš„ç±»å‹
+æ¯ä¸ªpEdgeéƒ½æœ‰ä¸€ä¸ªsetIDï¼Œå³æ‰€å±è¾¹é›†åˆçš„ID
+æ‰€æœ‰è¾¹çš„é›†åˆç”±
 
-Ã÷È·¼¸¸ö¸ÅÄî£º
-Node ½Úµã£¬°üº¬×ø±êĞÅÏ¢
-Element µ¥Ôª£¬°üº¬½ÚµãID
-Edge µ¥ÔªµÄ±ß¡£ÈıÎ¬Çé¿öÎªÃæ
-Boundary ±ß½ç£¬°üº¬Ò»ÏµÁĞpEdge¡£Ïàµ±ÓÚ±ß¼¯ºÏEdgeSet
+æ˜ç¡®å‡ ä¸ªæ¦‚å¿µï¼š
+Node èŠ‚ç‚¹ï¼ŒåŒ…å«åæ ‡ä¿¡æ¯
+Element å•å…ƒï¼ŒåŒ…å«èŠ‚ç‚¹ID
+Edge å•å…ƒçš„è¾¹ã€‚ä¸‰ç»´æƒ…å†µä¸ºé¢
+Boundary è¾¹ç•Œï¼ŒåŒ…å«ä¸€ç³»åˆ—pEdgeã€‚ç›¸å½“äºè¾¹é›†åˆEdgeSet
 
 */
 
 class FVM_2D;
 
-//ĞéÄâ±ßµ¥Ôª¡£ÔÚ×î³õ¶ÁÈ¡inp±ß½çÔªÊ±×÷Îª»º´æ
+//è™šæ‹Ÿè¾¹å•å…ƒã€‚åœ¨æœ€åˆè¯»å–inpè¾¹ç•Œå…ƒæ—¶ä½œä¸ºç¼“å­˜
 class VirtualEdge_2D {
 public:
 	int nodes[2]{};
 };
 
-// ĞéÄâ±ß½ç¼¯ºÏ£¬ÊÇ¶ÔÒ»Ìõ±ßµÄ³éÏó±íÊ¾
+// è™šæ‹Ÿè¾¹ç•Œé›†åˆï¼Œæ˜¯å¯¹ä¸€æ¡è¾¹çš„æŠ½è±¡è¡¨ç¤º
 class VirtualBoundarySet_2D {
 public:
-	int ID = -1;     // ´Ó1¿ªÊ¼¡£push_backÖ®Ç°×Ô¶¯¸³ID£¬µÈÓÚÊı×éÖ¸±ê+1¡£
-	std::string name;// ĞèÒª±£Áô£¬ÒòÎªwriteContinueFileÖĞĞèÒªÊä³ö
-	int type = -1;   // ±ß½çÀàĞÍ ²Î¼ûhead.h _BC_xxx¡£ÓÉname·­Òë¶øÀ´
+	int ID = -1;     // ä»1å¼€å§‹ã€‚push_backä¹‹å‰è‡ªåŠ¨èµ‹IDï¼Œç­‰äºæ•°ç»„æŒ‡æ ‡+1ã€‚
+	std::string name;// éœ€è¦ä¿ç•™ï¼Œå› ä¸ºwriteContinueFileä¸­éœ€è¦è¾“å‡º
+	int type = -1;   // è¾¹ç•Œç±»å‹ å‚è§head.h _BC_xxxã€‚ç”±nameç¿»è¯‘è€Œæ¥
 	
-	int startID;     // ÁÙÊ±±äÁ¿£¬½ö³õÊ¼»¯Ê±ÓĞÒâÒå
-	int endID;       // ÁÙÊ±±äÁ¿£¬½ö³õÊ¼»¯Ê±ÓĞÒâÒå
+	int startID;     // ä¸´æ—¶å˜é‡ï¼Œä»…åˆå§‹åŒ–æ—¶æœ‰æ„ä¹‰
+	int endID;       // ä¸´æ—¶å˜é‡ï¼Œä»…åˆå§‹åŒ–æ—¶æœ‰æ„ä¹‰
 
 	std::vector<Edge_2D*> pEdges;
 
 public:
-	//²éÑ¯pEdgeÊÇ·ñÔÚpEdgesÖĞ£¬ÈôÊÇ£¬Ôò·µ»ØÖ¸±ê(´Ó0¿ªÊ¼)£¬·ñÔò·µ»Ø-1
+	//æŸ¥è¯¢pEdgeæ˜¯å¦åœ¨pEdgesä¸­ï¼Œè‹¥æ˜¯ï¼Œåˆ™è¿”å›æŒ‡æ ‡(ä»0å¼€å§‹)ï¼Œå¦åˆ™è¿”å›-1
 	int getEdgeIndex(Edge_2D* pEdge);
 };
 
-// ±ß½ç¹ÜÀíÆ÷
+// è¾¹ç•Œç®¡ç†å™¨
 class BoundaryManager_2D {
 public:
 	struct PeriodPair {
 	public:
 		int bType = -1;
-		int setID_0 = -1;//´Ó1¿ªÊ¼
+		int setID_0 = -1;//ä»1å¼€å§‹
 		int setID_1 = -1;
 	public:
 		
 	};
 
-	// ±ß½ç¼¯ºÏÊı×é
+	// è¾¹ç•Œé›†åˆæ•°ç»„
 	std::vector<VirtualBoundarySet_2D> boundaries;
-	// ÖÜÆÚ±ß½çÊı×é
-	std::vector<PeriodPair> periodPairs;//ÓÃÀ´¼ì²éÖÜÆÚ±ß½çÍêÕûĞÔ
+	// å‘¨æœŸè¾¹ç•Œæ•°ç»„
+	std::vector<PeriodPair> periodPairs;//ç”¨æ¥æ£€æŸ¥å‘¨æœŸè¾¹ç•Œå®Œæ•´æ€§
 
 
 public:
-	//½«ints°´ÕÕÁ¬ĞøĞÔ·Ö¸î³ÉÈô¸ÉÊı×é¡£Êä³ö£º1Ê×£¬1Î²£¬2Ê×£¬2Î²£¬...
+	//å°†intsæŒ‰ç…§è¿ç»­æ€§åˆ†å‰²æˆè‹¥å¹²æ•°ç»„ã€‚è¾“å‡ºï¼š1é¦–ï¼Œ1å°¾ï¼Œ2é¦–ï¼Œ2å°¾ï¼Œ...
 	static std::vector<int> compressSeveralSequences(const std::vector<int>& ints);
 
 	VirtualBoundarySet_2D* findSetByID(int ID);
-	//¸ù¾İBoundarySetµÄnameµÃµ½type£»¸ø±ß½çedge´òÉÏsetID±êÇ©
+	//æ ¹æ®BoundarySetçš„nameå¾—åˆ°typeï¼›ç»™è¾¹ç•Œedgeæ‰“ä¸ŠsetIDæ ‡ç­¾
 	void iniBoundaryEdgeSetID_and_iniBoundaryType(FVM_2D* f);
-	//³õÊ¼»¯Ô¶³¡±ß½çµÄruvp
+	//åˆå§‹åŒ–è¿œåœºè¾¹ç•Œçš„ruvp
 	void ini_infBoundary_ruvp();
-	//[debug]Ô¶³¡±ß½çµ¥ÔªÊØºãÁ¿Ç¿ÖÆ¸³Öµ 0-Ma,AOA 101-[debug]ÉèÖÃÌØ¶¨Öµ
+	//[debug]è¿œåœºè¾¹ç•Œå•å…ƒå®ˆæ’é‡å¼ºåˆ¶èµ‹å€¼ 0-Ma,AOA 101-[debug]è®¾ç½®ç‰¹å®šå€¼
 	void setBoundaryElementU(int tag = 0);
 
-	//¸ù¾İsetIDµÃµ½¶ÔÓ¦µÄ±ß½çÖ¸Õë
+	//æ ¹æ®setIDå¾—åˆ°å¯¹åº”çš„è¾¹ç•ŒæŒ‡é’ˆ
 	VirtualBoundarySet_2D* getBoundarySetByID(const int setID);
 
-	//ÖÜÆÚ±ß½ç
-	//¼ì²éÖÜÆÚ±ß½çÍêÕûĞÔ
+	//å‘¨æœŸè¾¹ç•Œ
+	//æ£€æŸ¥å‘¨æœŸè¾¹ç•Œå®Œæ•´æ€§
 	void checkPeriodPairs();
-	//ÕÒµ½ÓëÖ®Åä¶ÔµÄset¡£½öÏŞÓÚÖÜÆÚ±ß½ç
+	//æ‰¾åˆ°ä¸ä¹‹é…å¯¹çš„setã€‚ä»…é™äºå‘¨æœŸè¾¹ç•Œ
 	VirtualBoundarySet_2D* getPairByID_periodicBoundary(const int setID);
-	//ÕÒµ½Ä³edgeµÄĞéÄâpElement_R¡£½öÏŞÓÚÖÜÆÚ±ß½ç
+	//æ‰¾åˆ°æŸedgeçš„è™šæ‹ŸpElement_Rã€‚ä»…é™äºå‘¨æœŸè¾¹ç•Œ
 	Element_2D* get_pElement_R_periodic(Edge_2D* pEdge);
-	//ÕÒµ½Ä³edge¶ÔÓ¦µÄedge¡£½öÏŞÓÚÖÜÆÚ±ß½ç
+	//æ‰¾åˆ°æŸedgeå¯¹åº”çš„edgeã€‚ä»…é™äºå‘¨æœŸè¾¹ç•Œ
 	Edge_2D* get_pairEdge_periodic(Edge_2D* pEdge);
 
-	//ÕÒµ½×î´óºÍ×îĞ¡×ø±ê
+	//æ‰¾åˆ°æœ€å¤§å’Œæœ€å°åæ ‡
 };
 
 #endif

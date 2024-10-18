@@ -1,4 +1,4 @@
-﻿#include <fstream>
+#include <fstream>
 #include "UGridReader.h"
 
 using namespace GUI;

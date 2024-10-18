@@ -21,7 +21,7 @@ void GPU::ElementSoA::cuda_memcpy(ElementSoA* dist, const ElementSoA* src, cudaM
 }
 /*
 
-	ÐèÒª¸´ÖÆµÄ±äÁ¿£º
+	éœ€è¦å¤åˆ¶çš„å˜é‡ï¼š
 		int num_element;
 
 		int* ID;
@@ -35,7 +35,7 @@ void GPU::ElementSoA::cuda_memcpy(ElementSoA* dist, const ElementSoA* src, cudaM
 		REAL* Uy[4];
 		REAL* Flux[4];
 
-	º¯Êý²ÎÕÕ£º
+	å‡½æ•°å‚ç…§ï¼š
 	int num_edge = src->num_edge;
 	cudaMemcpy(dist->ID, src->ID, num_edge * sizeof(int), kind);
 	cudaMemcpy(dist->nodes[0], src->nodes[0], num_edge * sizeof(int), kind);

@@ -2,7 +2,7 @@
 #define EXACT_SOLUTION_WRITER_H
 
 
-// 不属于U2NITS体系，无需加namespace
+// 涓嶅睘浜嶶2NITS浣撶郴锛屾棤闇�鍔爊amespace
 class ExactSolutionWriter {
 public:
 	static void calculateShockTube1D();

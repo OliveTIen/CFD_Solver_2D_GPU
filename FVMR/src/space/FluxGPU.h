@@ -3,13 +3,13 @@
 
 #include "../gpu/datatype/Datatype.h"
 #include <map>
-// __host__: Ö÷»úº¯Êı£¬ÓÉÖ÷»úº¯Êıµ÷ÓÃ¡£ÊÇÄ¬ÈÏÖµ
-// __global__: Éè±¸º¯Êı£¬ÓÉÖ÷»úº¯Êıµ÷ÓÃ£¬ÇÒµ÷ÓÃÊ±ÒªÖ¸Ã÷<<<>>>
-// __device__: Éè±¸º¯Êı£¬ÓÉÉè±¸º¯Êıµ÷ÓÃ
+// __host__: ä¸»æœºå‡½æ•°ï¼Œç”±ä¸»æœºå‡½æ•°è°ƒç”¨ã€‚æ˜¯é»˜è®¤å€¼
+// __global__: è®¾å¤‡å‡½æ•°ï¼Œç”±ä¸»æœºå‡½æ•°è°ƒç”¨ï¼Œä¸”è°ƒç”¨æ—¶è¦æŒ‡æ˜<<<>>>
+// __device__: è®¾å¤‡å‡½æ•°ï¼Œç”±è®¾å¤‡å‡½æ•°è°ƒç”¨
 
 namespace GPU {
 	namespace Space {
-		// Î´Íê³É
+		// æœªå®Œæˆ
 		namespace Flux {
 			void calculateFluxDevice_2(ElementSoA& element_device, EdgeSoA& edge_device, ElementFieldSoA& elementField_device);
 		}

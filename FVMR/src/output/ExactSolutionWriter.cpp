@@ -2,5 +2,5 @@
 #include <iostream>
 
 void ExactSolutionWriter::calculateShockTube1D() {
-	// 精确解参照Python代码
+	// 绮剧‘瑙ｅ弬鐓ython浠ｇ爜
 }

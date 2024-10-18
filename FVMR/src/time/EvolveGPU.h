@@ -6,9 +6,18 @@
 
 namespace GPU {
 	namespace Time {
-		// µ¥²½ÍÆ½ø£¬È«¾ÖÊ±¼ä²½³¤
+		/** @brief get global time step. 
+		* å•æ­¥æ¨è¿›ï¼Œå…¨å±€æ—¶é—´æ­¥é•¿
+		* @param[in] dt time step
+		* @details
+		* - @ref calculateFunctionF_device - calculate flux
+        * - @ref GPU::Math::vector_weighted_add_kernel - time advance
+		*/
 		void evolve_explicit_globaltimestep_device(myfloat dt, GPU::ElementSoA& element_device, GPU::NodeSoA& node_device, GPU::EdgeSoA& edge_device, GPU::ElementFieldSoA& elementField_device);
-		// µ¥²½ÍÆ½ø£¬¾Ö²¿Ê±¼ä²½³¤¡£ĞèÒªdtÊı×é(Î»ÓÚelementFieldVariable_dt_device.alphaC)
+		/** @brief get local time step.
+		* å•æ­¥æ¨è¿›ï¼Œå±€éƒ¨æ—¶é—´æ­¥é•¿.éœ€è¦dtæ•°ç»„(ä½äºelementFieldVariable_dt_device.alphaC)
+		* @param[in] elementFieldVariable_dt_device time step
+		*/
 		void evolve_explicit_localtimestep_device(GPU::ElementSoA& element_device, GPU::NodeSoA& node_device, GPU::EdgeSoA& edge_device, GPU::ElementFieldSoA& elementField_device, GPU::ElementFieldVariable_dt& elementFieldVariable_dt_device);
 
 	}

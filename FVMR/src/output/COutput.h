@@ -14,12 +14,12 @@ namespace U2NITS {
 	private:
 		std::string basicFileName;
 		std::string outputPathWithSlash;
-		bool initialized = false;// ÉÏÊöÁ½¸östringÊÇ·ñ³õÊ¼»¯
+		bool initialized = false;// ä¸Šè¿°ä¸¤ä¸ªstringæ˜¯å¦åˆå§‹åŒ–
 
 	public:
-		std::string tecplotFilePath;// Á÷³¡Êä³ö
+		std::string tecplotFilePath;// æµåœºè¾“å‡º
 		std::string tecplotBoundaryFilePath;
-		std::string continueFilePath;// ĞøËã
+		std::string continueFilePath;// ç»­ç®—
 		std::string continueFilePath_nan;
 		std::string recoveryFilePath;
 		std::string tecplot_hist_path;

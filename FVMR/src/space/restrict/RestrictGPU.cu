@@ -7,14 +7,14 @@ __global__ void modifyElementFieldU2d_device_kernel(GPU::ElementSoA element, GPU
     myint iElement = blockDim.x * blockIdx.x + threadIdx.x;
     if (iElement >= element.num_element) return;
 
-    // ÊØºãÁ¿×ªÔ­Ê¼±äÁ¿
+    // å®ˆæ’é‡è½¬åŸå§‹å˜é‡
     myfloat U[4]{};
     myfloat ruvp[4]{};
     for (int i = 0; i < 4; i++) {
         U[i] = elementField.U[i][iElement];
     }
     GPU::Math::U2ruvp_device(U, ruvp, gamma);
-    // ¼ì²âÊÇ·ñĞèÒªĞŞÕı(NaN¡¢Ô½½ç)
+    // æ£€æµ‹æ˜¯å¦éœ€è¦ä¿®æ­£(NaNã€è¶Šç•Œ)
     bool need_modification = false;
     for (int i = 0; i < 4; i++) {
         if (isnan(ruvp[i])) {
@@ -22,17 +22,17 @@ __global__ void modifyElementFieldU2d_device_kernel(GPU::ElementSoA element, GPU
         }
     }
     if (GPU::Space::Restrict::outOfRange_device(ruvp))need_modification = true;
-    // ÈôĞèÒªĞŞÕı£¬ÔòÈ¡ÁÚ¾ÓÆ½¾ùÖµ
+    // è‹¥éœ€è¦ä¿®æ­£ï¼Œåˆ™å–é‚»å±…å¹³å‡å€¼
     if (need_modification) {
-		bool volumeWeight = true;// Ìå»ı¼ÓÈ¨
+		bool volumeWeight = true;// ä½“ç§¯åŠ æƒ
 		if (volumeWeight) {
 
-			// ÇóÁÚ¾Ó¸öÊıºÍÁÚ¾ÓUÖ®ºÍ
+			// æ±‚é‚»å±…ä¸ªæ•°å’Œé‚»å±…Uä¹‹å’Œ
 			int numOfValidNeighbor = 0;
 			myfloat Usum[4]{};
 			myfloat volumeSum = 0.0;
 			for (int i = 0; i < 4; i++) {
-				// -1±íÊ¾ÎŞÁÚ¾Ó£»ÖÜÆÚ±ß½çÒÀÈ»ÊÇ-1
+				// -1è¡¨ç¤ºæ— é‚»å±…ï¼›å‘¨æœŸè¾¹ç•Œä¾ç„¶æ˜¯-1
 				int neighborID = element.neighbors[i][iElement];
 				if (neighborID == -1) {
 					continue;
@@ -49,18 +49,18 @@ __global__ void modifyElementFieldU2d_device_kernel(GPU::ElementSoA element, GPU
 				//exit(-1);
 				return;
 			}
-			// ÓÃÁÚ¾ÓUÆ½¾ùÖµ¸üĞÂµ¥ÔªÖµ£¬Ìå»ı¼ÓÈ¨Æ½¾ù
+			// ç”¨é‚»å±…Uå¹³å‡å€¼æ›´æ–°å•å…ƒå€¼ï¼Œä½“ç§¯åŠ æƒå¹³å‡
 			for (int jVar = 0; jVar < 4; jVar++) {
 				elementField.U[jVar][iElement] = Usum[jVar] / volumeSum;
 			}
 		}
-		else {// ËãÊõÆ½¾ù
+		else {// ç®—æœ¯å¹³å‡
 
-			// ÇóÁÚ¾Ó¸öÊıºÍÁÚ¾ÓUÖ®ºÍ
+			// æ±‚é‚»å±…ä¸ªæ•°å’Œé‚»å±…Uä¹‹å’Œ
 			int numOfValidNeighbor = 0;
 			myfloat Usum[4]{};
 			for (int i = 0; i < 4; i++) {
-				// -1±íÊ¾ÎŞÁÚ¾Ó£»ÖÜÆÚ±ß½çÒÀÈ»ÊÇ-1
+				// -1è¡¨ç¤ºæ— é‚»å±…ï¼›å‘¨æœŸè¾¹ç•Œä¾ç„¶æ˜¯-1
 				int neighborID = element.neighbors[i][iElement];
 				if (neighborID == -1) {
 					continue;
@@ -75,7 +75,7 @@ __global__ void modifyElementFieldU2d_device_kernel(GPU::ElementSoA element, GPU
 				//exit(-1);
 				return;
 			}
-			// ÓÃÁÚ¾ÓUÆ½¾ùÖµ¸üĞÂµ¥ÔªÖµ
+			// ç”¨é‚»å±…Uå¹³å‡å€¼æ›´æ–°å•å…ƒå€¼
 			for (int jVar = 0; jVar < 4; jVar++) {
 				elementField.U[jVar][iElement] = Usum[jVar] / numOfValidNeighbor;
 			}

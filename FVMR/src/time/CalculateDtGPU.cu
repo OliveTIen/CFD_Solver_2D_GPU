@@ -6,17 +6,17 @@
 #include "../gpu/GPUGlobalFunction.h"
 #include "../math/ReduceGPU.h"
 
-// update_alphaC_deviceµÄºËº¯Êı
+// update_alphaC_deviceçš„æ ¸å‡½æ•°
 __global__ void update_alphaC_device_kernel(myfloat gamma, myfloat Pr, myfloat Rcpcv, myfloat* alphaC, myfloat sutherland_C1,
 	GPU::ElementSoA element, GPU::EdgeSoA edge, GPU::ElementFieldSoA elementField, int physicsModel_equation) {
 
-	// »ñÈ¡id£¬ÅĞ¶ÏÊÇ·ñÓĞĞ§
+	// è·å–idï¼Œåˆ¤æ–­æ˜¯å¦æœ‰æ•ˆ
 	const myint iEdge = blockIdx.x * blockDim.x + threadIdx.x;
 	if (iEdge >= edge.num_edge || iEdge < 0) return;
 	auto& i = iEdge;
 	auto& element_vruvp = elementField.ruvp;
 
-	// ¼ÆËãedgeÊØºãÁ¿£¬·ÖÎªÄÚ²¿edgeºÍ±ß½çedgeÁ½ÖÖÇé¿ö
+	// è®¡ç®—edgeå®ˆæ’é‡ï¼Œåˆ†ä¸ºå†…éƒ¨edgeå’Œè¾¹ç•Œedgeä¸¤ç§æƒ…å†µ
 	const myfloat value_1 = (GPU::Math::max)(4.0 / 3.0, gamma / Pr);
 	myint elementL = edge.elementL[i];
 	myint elementR = edge.elementR[i];
@@ -38,7 +38,7 @@ __global__ void update_alphaC_device_kernel(myfloat gamma, myfloat Pr, myfloat R
 		//exit(-1); do nothing
 	}
 
-	// ¼ÆËãedgeµÄÎŞÕ³alpha£¬¼Ó¼õµ½Á½²àµ¥ÔªalphaC
+	// è®¡ç®—edgeçš„æ— ç²˜alphaï¼ŒåŠ å‡åˆ°ä¸¤ä¾§å•å…ƒalphaC
 	myfloat dx = edge.normal[0][i] * edge.length[i];
 	myfloat dy = edge.normal[1][i] * edge.length[i];
 	const myfloat length = edge.length[i];
@@ -48,7 +48,7 @@ __global__ void update_alphaC_device_kernel(myfloat gamma, myfloat Pr, myfloat R
 	alphaC[elementL] += alpha;
 	if (elementR != -1)alphaC[elementR] += alpha;
 
-	// ¼ÆËãedgeµÄÓĞÕ³alphaVis£¬¼Ó¼õµ½Á½²àµ¥ÔªalphaC¡£Õ³ĞÔ»áÔö¼ÓCFLÎÈ¶¨ĞÔ
+	// è®¡ç®—edgeçš„æœ‰ç²˜alphaVisï¼ŒåŠ å‡åˆ°ä¸¤ä¾§å•å…ƒalphaCã€‚ç²˜æ€§ä¼šå¢åŠ CFLç¨³å®šæ€§
 	if (physicsModel_equation == _EQ_NS) {
 		myfloat temperature = p / Rcpcv / rho;
 		myfloat mu_laminar = GPU::Space::get_mu_using_Sutherland_air_host_device(temperature, sutherland_C1);
@@ -59,17 +59,17 @@ __global__ void update_alphaC_device_kernel(myfloat gamma, myfloat Pr, myfloat R
 	}
 }
 
-// µ¥ÔªalphaC¹éÁã£¬È»ºó¼ÆËãedgeµÄalpha£¬¼Ó¼õµ½µ¥ÔªalphaC
+// å•å…ƒalphaCå½’é›¶ï¼Œç„¶åè®¡ç®—edgeçš„alphaï¼ŒåŠ å‡åˆ°å•å…ƒalphaC
 void update_alphaC_device(myfloat gamma, myfloat Pr, myfloat Rcpcv, myfloat* alphaC, myfloat sutherland_C1, 
 	GPU::ElementSoA& element, GPU::EdgeSoA& edge, GPU::ElementFieldSoA& elementField, int physicsModel_equation) {
 
 	const myfloat value_1 = (GPU::Math::max)(4.0 / 3.0, gamma / Pr);
 
-	// µ¥ÔªalphaC¹éÁã
+	// å•å…ƒalphaCå½’é›¶
 	cudaMemset(alphaC, 0, element.num_element * sizeof(myfloat));
 	getLastCudaError("clear_element_alphaC_device failed.");
 
-	// ¼ÆËãedgeµÄalpha£¬¼Ó¼õµ½µ¥ÔªalphaC
+	// è®¡ç®—edgeçš„alphaï¼ŒåŠ å‡åˆ°å•å…ƒalphaC
 	int block_size = GPU::get_max_threads_per_block();
 	int grid_size = (edge.num_edge + block_size - 1) / block_size;
 	dim3 block(block_size, 1, 1);
@@ -79,10 +79,10 @@ void update_alphaC_device(myfloat gamma, myfloat Pr, myfloat Rcpcv, myfloat* alp
 	
 }
 
-// ÓÃµ¥Ôª¸÷×ÔµÄalphaC¼ÆËãdt£¬¼ÆËã½á¹ûÈÔ´æÈëalphaCÊı×é
+// ç”¨å•å…ƒå„è‡ªçš„alphaCè®¡ç®—dtï¼Œè®¡ç®—ç»“æœä»å­˜å…¥alphaCæ•°ç»„
 void get_local_dt_using_alphaC_CFL_volume_device(myfloat* alphaC, const myfloat* volume, myfloat CFL, myint length) {
 	/*
-	¼ÆËã dt £¬°Ñ½á¹û´æÈëalphaCÊı×é£¬¼´alphaC = CFL*volume/alphaC£¬Ê¹ÓÃkernel: ¡°´øÈ¨µÄÏòÁ¿µ¹Êı¡±
+	è®¡ç®— dt ï¼ŒæŠŠç»“æœå­˜å…¥alphaCæ•°ç»„ï¼Œå³alphaC = CFL*volume/alphaCï¼Œä½¿ç”¨kernel: â€œå¸¦æƒçš„å‘é‡å€’æ•°â€
 	*/
 	int block_size = GPU::get_max_threads_per_block();
 	int grid_size = (length + block_size - 1) / block_size;
@@ -92,12 +92,9 @@ void get_local_dt_using_alphaC_CFL_volume_device(myfloat* alphaC, const myfloat*
 	getLastCudaError("get_local_dt_using_alphaC_CFL_volume_device failed.");
 }
 
-void GPU::Time::get_global_dt_device(myfloat gamma, myfloat Re, myfloat Pr, myfloat CFL, myfloat Rcpcv, GPU::ElementFieldVariable_dt& elementFieldVariable_dt_device, GPU::ElementSoA& element, GPU::EdgeSoA& edge, GPU::ElementFieldSoA& elementField, int physicsModel_equation) {
-	/*
-	ÏÈ¼ÆËã¾Ö²¿Ê±¼ä²½³¤£¬È»ºóÈ¡×îĞ¡Öµ
-	×¢Òâreduce_deviceÖĞn±ØĞëÎª2µÄÃİ£¬ÓÃnum_reduce¶ø²»ÊÇnum_element
-	*/
 
+
+void GPU::Time::get_global_dt_device(myfloat gamma, myfloat Re, myfloat Pr, myfloat CFL, myfloat Rcpcv, GPU::ElementFieldVariable_dt& elementFieldVariable_dt_device, GPU::ElementSoA& element, GPU::EdgeSoA& edge, GPU::ElementFieldSoA& elementField, int physicsModel_equation) {
 	myfloat sutherland_C1 = GPU::Space::get_Sutherland_C1_host_device(GPU::Space::S_Sutherland, GlobalPara::constant::mu0, GlobalPara::constant::T0);
 	update_alphaC_device(gamma, Pr, Rcpcv, elementFieldVariable_dt_device.alphaC, sutherland_C1, element, edge, elementField, physicsModel_equation);
 	get_local_dt_using_alphaC_CFL_volume_device(elementFieldVariable_dt_device.alphaC, element.volume, CFL, element.num_element);

@@ -4,23 +4,23 @@
 void U2NITS::Output::get_residual_host(const GPU::ElementFieldSoA& elementField_host, myfloat* residual_host, NormType NORM_TYPE) {
 	/*
 	20240411
-	Ö±½Ó½«ÓÒ¶ËÏî×÷Îª²Ğ²î
+	ç›´æ¥å°†å³ç«¯é¡¹ä½œä¸ºæ®‹å·®
 	20240517
-	Èç¹ûÒª¸ÄÔì³ÉGPU£¬Éæ¼°µ½¹æÔ¼ÎÊÌâ¡£ÏÈÔÚGPU¹æÔ¼ºÃ£¬È»ºó½«×îÖÕ½á¹û¿½±´µ½host
+	å¦‚æœè¦æ”¹é€ æˆGPUï¼Œæ¶‰åŠåˆ°è§„çº¦é—®é¢˜ã€‚å…ˆåœ¨GPUè§„çº¦å¥½ï¼Œç„¶åå°†æœ€ç»ˆç»“æœæ‹·è´åˆ°host
 	*/
 	const myint numElements = elementField_host.num;
 
 	for (int i = 0; i < 4; i++) {
 		myfloat norm = 0;
 		switch (NORM_TYPE) {
-		case normType_1:// ¾ø¶ÔÖµÖ®ºÍ
+		case normType_1:// ç»å¯¹å€¼ä¹‹å’Œ
 			for (myint j = 0; j < numElements; j++) {
 				myfloat flux = U2NITS::Math::abs(elementField_host.Flux[i][j]);
 				norm += flux;
 			}
 
 			break;
-		case normType_2:// Æ½·½Ö®ºÍÔÙ¿ª·½
+		case normType_2:// å¹³æ–¹ä¹‹å’Œå†å¼€æ–¹
 			for (myint j = 0; j < numElements; j++) {
 				myfloat flux = U2NITS::Math::abs(elementField_host.Flux[i][j]);
 				norm += flux * flux;
@@ -28,7 +28,7 @@ void U2NITS::Output::get_residual_host(const GPU::ElementFieldSoA& elementField_
 			norm = sqrt(norm);
 
 			break;
-		case normType_infinity:// ×î´óÖµ
+		case normType_infinity:// æœ€å¤§å€¼
 			for (myint j = 0; j < numElements; j++) {
 				myfloat flux = U2NITS::Math::abs(elementField_host.Flux[i][j]);
 				norm = U2NITS::Math::max(norm, flux);

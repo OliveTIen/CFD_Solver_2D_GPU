@@ -82,7 +82,7 @@ void GPU::GPUSolver2::allocateHostMemory(const int num_node, const int num_eleme
 		LogWriter::logAndPrintError("Has allocated host memory.\n");
 		CExit::saveAndExit(-1);
 	}
-	// ÉêÇëhostÄÚ´æ
+	// ç”³è¯·hostå†…å­˜
 	this->node_host.alloc(num_node);
 	//this->nodeField_host.alloc(num_node);
 	this->element_host.alloc(num_element);
@@ -97,13 +97,13 @@ void GPU::GPUSolver2::allocateHostMemory(const int num_node, const int num_eleme
 	FieldWriter::getInstance()->allocNodeFieldDataUsingOutputScheme(this->outputNodeField, num_node);
 	this->elementFieldVariable_dt_host.alloc(num_element);
 
-	// ¸üĞÂ×´Ì¬
+	// æ›´æ–°çŠ¶æ€
 	hostMemoryAllocated = true;
 }
 
 void GPU::GPUSolver2::allocateDeviceMemory(const int num_node, const int num_element, const int num_edge, const int num_boundary) {
 	if (deviceMemoryAllocated) {
-		LogWriter::logAndPrintError("Has allocated device memory£¬cannot allocate twice. @GPUSolver2::allocateDeviceMemory\n");
+		LogWriter::logAndPrintError("Has allocated device memoryï¼Œcannot allocate twice. @GPUSolver2::allocateDeviceMemory\n");
 		CExit::saveAndExit(-1);
 	}
 
@@ -111,9 +111,9 @@ void GPU::GPUSolver2::allocateDeviceMemory(const int num_node, const int num_ele
 	if (!hasSetGPUDevice) {
 		setGPUDevice();
 	}
-	// ÉêÇëdeviceÄÚ´æ
+	// ç”³è¯·deviceå†…å­˜
 	try {
-		// Ë«Ïò¿½±´Êı¾İ
+		// åŒå‘æ‹·è´æ•°æ®
 		node_device.cuda_alloc(num_node);
 		//nodeField_device.cuda_alloc(num_node);
 		element_device.cuda_alloc(num_element);
@@ -122,12 +122,12 @@ void GPU::GPUSolver2::allocateDeviceMemory(const int num_node, const int num_ele
 		edgeField_device.cuda_alloc(num_edge);
 		boundary_device.cuda_alloc(num_boundary);
 
-		// ½ö´«ÈëGPUµÄÊı¾İ
-		using namespace GlobalPara::boundaryCondition::_2D;// usingÓĞ×÷ÓÃÓò£¬²»ÓÃµ£ĞÄ»ìÏı
+		// ä»…ä¼ å…¥GPUçš„æ•°æ®
+		using namespace GlobalPara::boundaryCondition::_2D;// usingæœ‰ä½œç”¨åŸŸï¼Œä¸ç”¨æ‹…å¿ƒæ··æ·†
 		//infPara_device = new GPU::DGlobalPara(inf::ruvp, inlet::ruvp, outlet::ruvp, 4
 		//	, &GlobalPara::constant::R, &GlobalPara::constant::gamma, &GlobalPara::inviscid_flux_method::flux_conservation_scheme);
 
-		// ×¢Òâ£ºÄ¿Ç°mu0²»ÊÇ×îĞÂµÄ²ÎÊı
+		// æ³¨æ„ï¼šç›®å‰mu0ä¸æ˜¯æœ€æ–°çš„å‚æ•°
 		sDevicePara.initialize(
 			GlobalPara::constant::T0, GlobalPara::constant::p0, GlobalPara::constant::c0, GlobalPara::constant::gamma, U2NITS::Math::EPSILON, GlobalPara::constant::Re, GlobalPara::constant::Pr, GlobalPara::constant::mu0,
 			GlobalPara::inviscid_flux_method::flag_reconstruct, GlobalPara::inviscid_flux_method::flag_gradient,
@@ -136,14 +136,14 @@ void GPU::GPUSolver2::allocateDeviceMemory(const int num_node, const int num_ele
 		);
 
 		elementFieldVariable_dt_device.cuda_alloc(num_element);
-		// ½«alphaCÖĞÎªÁË¹æÔ¼¶ø²¹ÆëµÄÔªËØ½øĞĞ¸³Öµ¡£¹æÔ¼ÊÇÈ¡×îĞ¡Öµ£¬Òò´Ë²¹ÆëµÄÔªËØÈ¡½Ï´óµÄÖµ
+		// å°†alphaCä¸­ä¸ºäº†è§„çº¦è€Œè¡¥é½çš„å…ƒç´ è¿›è¡Œèµ‹å€¼ã€‚è§„çº¦æ˜¯å–æœ€å°å€¼ï¼Œå› æ­¤è¡¥é½çš„å…ƒç´ å–è¾ƒå¤§çš„å€¼
 		GPU::Math::assign_elements_in_array_device(num_element, elementFieldVariable_dt_device.num_reduce, elementFieldVariable_dt_device.alphaC, U2NITS::Math::BIG_FLOAT_NORMAL);
 
-		// ¸üĞÂ×´Ì¬
+		// æ›´æ–°çŠ¶æ€
 		deviceMemoryAllocated = true;
 	}
 	catch (const char* e) {
-		// ! Òì³£´¦ÀíÎ´Íê³É
+		// ! å¼‚å¸¸å¤„ç†æœªå®Œæˆ
 		std::cout << e << std::endl;
 		cudaError_t error = cudaError_t::cudaErrorDeviceUninitialized;
 		exit(-1);
@@ -174,7 +174,7 @@ void GPU::GPUSolver2::initializeHostData_byOldData() {
 		exit(-1);
 	}
 
-	// ÓÃFVM_2D¾ÉÊı¾İ³õÊ¼»¯hostÊı¾İ
+	// ç”¨FVM_2Dæ—§æ•°æ®åˆå§‹åŒ–hostæ•°æ®
 	U2NITS::OldDataConverter oldDataConverter(FVM_2D::getInstance(), this);
 	oldDataConverter.Convert_FVM2D_to_HostData();
 
@@ -198,7 +198,7 @@ void GPU::GPUSolver2::initializeOtherHostData() {
 }
 
 void GPU::GPUSolver2::initializeDeviceData_byHostData() {
-	// ½«Ö÷»ú¸´ÖÆµ½Éè±¸
+	// å°†ä¸»æœºå¤åˆ¶åˆ°è®¾å¤‡
 	if (!GlobalPara::basic::useGPU) {
 		LogWriter::logAndPrintError("useGPU = false. @initializeDeviceData_byHostData.\n");
 		exit(-1);
@@ -216,12 +216,12 @@ void GPU::GPUSolver2::initializeDeviceData_byHostData() {
 		exit(-1);
 	}
 
-	host_to_device();// ¸´ÖÆhostÊı¾İµ½device
+	host_to_device();// å¤åˆ¶hostæ•°æ®åˆ°device
 	deviceDataInitialized = true;
 }
 
 void GPU::GPUSolver2::device_to_host() {
-	// ½«device¶ËµÄÊı¾İ¸´ÖÆµ½host¶Ë
+	// å°†deviceç«¯çš„æ•°æ®å¤åˆ¶åˆ°hostç«¯
 	GPU::NodeSoA::cuda_memcpy(&node_host, &node_device, cudaMemcpyDeviceToHost);
 	GPU::ElementSoA::cuda_memcpy(&element_host, &element_device, cudaMemcpyDeviceToHost);
 	GPU::ElementFieldSoA::cuda_memcpy(&elementField_host, &elementField_device, cudaMemcpyDeviceToHost);
@@ -230,7 +230,7 @@ void GPU::GPUSolver2::device_to_host() {
 }
 
 void GPU::GPUSolver2::host_to_device() {
-	// ½«host¶ËµÄÊı¾İ¸´ÖÆµ½device¶Ë
+	// å°†hostç«¯çš„æ•°æ®å¤åˆ¶åˆ°deviceç«¯
 	GPU::NodeSoA::cuda_memcpy(&node_device, &node_host, cudaMemcpyHostToDevice);
 	GPU::ElementSoA::cuda_memcpy(&element_device, &element_host, cudaMemcpyHostToDevice);
 	GPU::ElementFieldSoA::cuda_memcpy(&elementField_device, &elementField_host, cudaMemcpyHostToDevice);
@@ -250,7 +250,7 @@ void GPU::GPUSolver2::freeHostMemory() {
 		LogWriter::logAndPrintError("cannot free host memory.\n");
 		exit(-1);
 	}
-	// host host/deviceË«ÏòÊı¾İ
+	// host host/deviceåŒå‘æ•°æ®
 	this->node_host.free();
 	//this->nodeField_host.free();
 	this->element_host.free();
@@ -258,14 +258,14 @@ void GPU::GPUSolver2::freeHostMemory() {
 	this->edge_host.free();
 	this->edgeField_host.free();
 	this->boundary_host.free();
-	// host hostÊı¾İ
+	// host hostæ•°æ®
 	for (int j = 0; j < 4; j++) {
 		delete[] element_vruvp[j];
 		delete[] element_U_old[j];
 	}
 	FieldWriter::getInstance()->freeNodeFieldData(this->outputNodeField);
 	this->elementFieldVariable_dt_host.free();
-	// ¸üĞÂ×´Ì¬
+	// æ›´æ–°çŠ¶æ€
 	hostMemoryAllocated = false;
 }
 
@@ -274,7 +274,7 @@ void GPU::GPUSolver2::freeDeviceMemory() {
 		LogWriter::logAndPrintError("cannot free device memory.\n");
 		exit(-1);
 	}
-	// Ë«ÏòÊı¾İ
+	// åŒå‘æ•°æ®
 	this->node_device.cuda_free();
 	//this->nodeField_device.cuda_free();
 	this->element_device.cuda_free();
@@ -283,11 +283,11 @@ void GPU::GPUSolver2::freeDeviceMemory() {
 	this->edgeField_device.cuda_free();
 	this->boundary_device.cuda_free();
 
-	// device Êı¾İ
+	// device æ•°æ®
 	//delete this->infPara_device;
 	this->elementFieldVariable_dt_device.cuda_free();
 
-	// ¸üĞÂ×´Ì¬
+	// æ›´æ–°çŠ¶æ€
 	deviceMemoryAllocated = false;
 }
 
@@ -327,7 +327,7 @@ void GPU::GPUSolver2::setGPUDevice() {
 
 
 void GPU::GPUSolver2::initialize_nodeHost(void* _pFVM2D_, int num_node) {
-	// ³õÊ¼»¯node_host
+	// åˆå§‹åŒ–node_host
 	FVM_2D* pFVM2D = (FVM_2D*)_pFVM2D_;
 	//#pragma omp parallel for
 	for (int i = 0; i < num_node; i++) {
@@ -341,10 +341,10 @@ void GPU::GPUSolver2::initialize_nodeHost(void* _pFVM2D_, int num_node) {
 
 void GPU::GPUSolver2::initialize_elementHost(void* _pFVM2D_, int num_element) {
 	/*
-	¼ÙÉèÊÇÈı½ÇĞÎ
+	å‡è®¾æ˜¯ä¸‰è§’å½¢
 	*/
 
-	// ³õÊ¼»¯element_hostºÍelementAdjacent
+	// åˆå§‹åŒ–element_hostå’ŒelementAdjacent
 	FVM_2D* pFVM2D = (FVM_2D*)_pFVM2D_;
 	const int nodePerElement = 3;
 	const int nValue = 4;
@@ -353,8 +353,8 @@ void GPU::GPUSolver2::initialize_elementHost(void* _pFVM2D_, int num_element) {
 
 		Element_2D& element_i = pFVM2D->elements[i];
 		// ID xy volume
-		// ×¢ÒâvolumeÊÇÓÃµÄÒÔÇ°µÄº¯Êı¼ÆËã£¬Èç¹ûÒªÖØĞÂ¶ÁÈ¡µÄ»°£¬xy volumeĞèÒª·ÅÔÚºóÃæ£¬ÒòÎª
-		// nodeÉĞÎ´È«²¿³õÊ¼»¯
+		// æ³¨æ„volumeæ˜¯ç”¨çš„ä»¥å‰çš„å‡½æ•°è®¡ç®—ï¼Œå¦‚æœè¦é‡æ–°è¯»å–çš„è¯ï¼Œxy volumeéœ€è¦æ”¾åœ¨åé¢ï¼Œå› ä¸º
+		// nodeå°šæœªå…¨éƒ¨åˆå§‹åŒ–
 		element_host.ID[i] = element_i.GPUID;
 		element_host.xy[0][i] = element_i.x;
 		element_host.xy[1][i] = element_i.y;
@@ -386,7 +386,7 @@ void GPU::GPUSolver2::initialize_elementHost(void* _pFVM2D_, int num_element) {
 }
 
 void GPU::GPUSolver2::initialize_edgeHost(void* _pFVM2D_, int num_edge) {
-	// ³õÊ¼»¯edge_host
+	// åˆå§‹åŒ–edge_host
 	FVM_2D* pFVM2D = (FVM_2D*)_pFVM2D_;
 	//#pragma omp parallel for
 	for (int i = 0; i < num_edge; i++) {
@@ -406,12 +406,12 @@ void GPU::GPUSolver2::initialize_edgeHost(void* _pFVM2D_, int num_edge) {
 		edge_host.length[i] = edge_i.length;
 		edge_host.distanceOfElements[i] = edge_i.refLength;
 
-		// ¼ÆËã±ß½ç×ø±ê£¬µÈÓÚ½Úµã×ø±êÆ½¾ùÖµ
+		// è®¡ç®—è¾¹ç•Œåæ ‡ï¼Œç­‰äºèŠ‚ç‚¹åæ ‡å¹³å‡å€¼
 		int tmpNodeID0 = edge_host.nodes[0][i];// node ID
 		int tmpNodeID1 = edge_host.nodes[1][i];
 		edge_host.xy[0][i] = (node_host.xy[0][tmpNodeID0] + node_host.xy[0][tmpNodeID1]) / 2.0;
 		edge_host.xy[1][i] = (node_host.xy[1][tmpNodeID0] + node_host.xy[1][tmpNodeID1]) / 2.0;
-		// ¼ÆËãnormal
+		// è®¡ç®—normal
 		//edge_i.getDirectionN(edge_host.normal[0][i], edge_host.normal[1][i]);
 		myfloat dx = node_host.xy[0][tmpNodeID1] - node_host.xy[0][tmpNodeID0];
 		myfloat dy = node_host.xy[1][tmpNodeID1] - node_host.xy[1][tmpNodeID0];
@@ -426,28 +426,28 @@ void GPU::GPUSolver2::initialize_boundary(void* _pFVM2D_) {
 
 	FVM_2D* pFVM2D = (FVM_2D*)_pFVM2D_;
 	BoundaryManager_2D& boundaryManager = pFVM2D->boundaryManager;
-	// ÖÜÆÚ±ß½ç
+	// å‘¨æœŸè¾¹ç•Œ
 	/**
-	* ÖÜÆÚ±ß½çÓĞ¶àÖÖ´¦Àí·½·¨
-	* Ò»ÖÖÊÇÔÚEdgeSoAĞÂÔö³ÉÔ±int periodicPair£¬ÓÅµãÊÇ²éÕÒ¿ì£¬È±µãÊÇÕ¼ÓÃ¿Õ¼ä´ó¡£
-	* ÁíÒ»ÖÖÊÇÓÃmap»òhashTable´æ´¢£¬µ«ÊÇÊı¾İ½á¹¹±àĞ´±È½Ï¸´ÔÓ£¬ÇÒGPUÉÏÔËĞĞ±È½ÏÂé·³£¬
-	* ÒòÎªÒªÖØĞÂ±àĞ´__device__º¯ÊıÓÃÓÚ²éÕÒ
+	* å‘¨æœŸè¾¹ç•Œæœ‰å¤šç§å¤„ç†æ–¹æ³•
+	* ä¸€ç§æ˜¯åœ¨EdgeSoAæ–°å¢æˆå‘˜int periodicPairï¼Œä¼˜ç‚¹æ˜¯æŸ¥æ‰¾å¿«ï¼Œç¼ºç‚¹æ˜¯å ç”¨ç©ºé—´å¤§ã€‚
+	* å¦ä¸€ç§æ˜¯ç”¨mapæˆ–hashTableå­˜å‚¨ï¼Œä½†æ˜¯æ•°æ®ç»“æ„ç¼–å†™æ¯”è¾ƒå¤æ‚ï¼Œä¸”GPUä¸Šè¿è¡Œæ¯”è¾ƒéº»çƒ¦ï¼Œ
+	* å› ä¸ºè¦é‡æ–°ç¼–å†™__device__å‡½æ•°ç”¨äºæŸ¥æ‰¾
 	*
-	* Ä¿Ç°GPU²ÉÓÃµÚÒ»ÖÖ·½·¨
+	* ç›®å‰GPUé‡‡ç”¨ç¬¬ä¸€ç§æ–¹æ³•
 	*/
 	for (VirtualBoundarySet_2D& boundary : boundaryManager.boundaries) {
 		int bType = boundary.type;
 		if (_BC_periodic_0 <= bType && bType <= _BC_periodic_9) {
-			// ÈôÄ³±ß½ç¼¯setÊÇÖÜÆÚ±ß½ç£¬±éÀúÆäedge
+			// è‹¥æŸè¾¹ç•Œé›†setæ˜¯å‘¨æœŸè¾¹ç•Œï¼Œéå†å…¶edge
 			for (Edge_2D* pEdge : boundary.pEdges) {
 				int edgeID = pEdge->GPUID;
 				int edgeID_pair = boundaryManager.get_pairEdge_periodic(pEdge)->GPUID;
 				int elementL_pair = this->edge_host.elementL[edgeID_pair];
-				// ÓÃpairµÄelementL¸üĞÂ×Ô¼ºµÄelementR
+				// ç”¨pairçš„elementLæ›´æ–°è‡ªå·±çš„elementR
 				this->edge_host.elementR[edgeID] = elementL_pair;
-				// ÓÃmap´æ´¢pair
+				// ç”¨mapå­˜å‚¨pair
 				edge_periodic_pair.insert(std::pair<int, int>(edgeID, edgeID_pair));
-				// ÓÃEdgeSoA³ÉÔ±´æ´¢pair
+				// ç”¨EdgeSoAæˆå‘˜å­˜å‚¨pair
 				this->edge_host.periodicPair[edgeID] = edgeID_pair;
 			}
 		}

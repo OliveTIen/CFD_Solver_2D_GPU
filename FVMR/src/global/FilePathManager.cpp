@@ -36,23 +36,23 @@ void FilePathManager::initialzeVariables() {
 
 	m_tomlFilePath = m_inputDirectory + m_TomlFileName;
 
-	// ÉèÖÃ±êÖ¾·û£¬±íÊ¾ÒÑ³õÊ¼»¯
+	// è®¾ç½®æ ‡å¿—ç¬¦ï¼Œè¡¨ç¤ºå·²åˆå§‹åŒ–
 	if_initialized = true;
 }
 
 
 std::string FilePathManager::getTomlFilePath() {
-	// ÕÒ²»µ½Ä¬ÈÏinput.toml£¬ÔòÓÃ»§ÊäÈë
-	if (_access(m_tomlFilePath.c_str(), 0) == -1) {// ¼ì²âÎÄ¼ş/Ä¿Â¼ÊÇ·ñ´æÔÚ ³É¹¦·µ»Ø0£¬Ê§°Ü·µ»Ø-1
+	// æ‰¾ä¸åˆ°é»˜è®¤input.tomlï¼Œåˆ™ç”¨æˆ·è¾“å…¥
+	if (_access(m_tomlFilePath.c_str(), 0) == -1) {// æ£€æµ‹æ–‡ä»¶/ç›®å½•æ˜¯å¦å­˜åœ¨ æˆåŠŸè¿”å›0ï¼Œå¤±è´¥è¿”å›-1
 		std::cout << "Current working directory: " << m_workingDirectory << "\n";
 		std::cout << "Cannot find toml file. Please input the file path: \n";
 		std::cin >> m_tomlFilePath;
 	}
-	// ÈÔÕÒ²»µ½£¬Ôò¼ÓÉÏ.tomlºó×ºÔÙ³¢ÊÔ
+	// ä»æ‰¾ä¸åˆ°ï¼Œåˆ™åŠ ä¸Š.tomlåç¼€å†å°è¯•
 	if (_access(m_tomlFilePath.c_str(), 0) == -1) {
 		m_tomlFilePath = m_tomlFilePath + ".toml";
 	}
-	// ÈÔÕÒ²»µ½£¬Ôò±¨´íÍË³ö
+	// ä»æ‰¾ä¸åˆ°ï¼Œåˆ™æŠ¥é”™é€€å‡º
 	if (_access(m_tomlFilePath.c_str(), 0) == -1) {
 		LogWriter::logAndPrintError("cannot find file\n");
 		exit(-1);
@@ -77,7 +77,7 @@ std::vector<std::string> FilePathManager::getFiles(std::string path) {
 }
 
 void FilePathManager::m_initializeWorkingDirectory() {
-	// »ñÈ¡¹¤×÷Ä¿Â¼
+	// è·å–å·¥ä½œç›®å½•
 	char* buffer = _getcwd(nullptr, 0);
 	if (buffer == nullptr) {
 		std::cout << "Error: getWorkingDirectory() failed.\n";
@@ -87,14 +87,14 @@ void FilePathManager::m_initializeWorkingDirectory() {
 	std::string workingDirectory(buffer);
 	workingDirectory += "\\";
 	//std::cout << "Working Directory: " << workingDirectory << std::endl;
-	free(buffer);// free²»¿ÉÉ¾ Ïê¼û https://baike.baidu.com/item/getcwd/4746955?fr=ge_ala
+	free(buffer);// freeä¸å¯åˆ  è¯¦è§ https://baike.baidu.com/item/getcwd/4746955?fr=ge_ala
 	m_workingDirectory = workingDirectory;
 }
 
 void FilePathManager::createFolderIfDoesntExist(std::string foldername) {
 	if(foldername == "") return;
-	// ¹¤×÷Ä¿Â¼ÏÂ¼ì²âÎÄ¼ş/Ä¿Â¼ÊÇ·ñ´æÔÚ
-	if (_access(foldername.c_str(), 0) == 0) {// ³É¹¦·µ»Ø0£¬Ê§°Ü·µ»Ø-1
+	// å·¥ä½œç›®å½•ä¸‹æ£€æµ‹æ–‡ä»¶/ç›®å½•æ˜¯å¦å­˜åœ¨
+	if (_access(foldername.c_str(), 0) == 0) {// æˆåŠŸè¿”å›0ï¼Œå¤±è´¥è¿”å›-1
 
 	}
 	else {

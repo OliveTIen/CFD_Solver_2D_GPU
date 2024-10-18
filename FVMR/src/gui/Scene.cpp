@@ -1,4 +1,4 @@
-﻿#include <glad/glad.h> // used by glad.c
+#include <glad/glad.h> // used by glad.c
 #include <GLFW/glfw3.h>// used by glfw3.lib
 #include <glm/glm.hpp>
 #include <glm/gtc/matrix_transform.hpp>

@@ -21,13 +21,13 @@ class RoutineController {
 		void update_time(int _time) {
 			m_last_used_time = _time;
 		}
-		// modify value ĞŞ¸Äv¡£Î´À´¿É¿¼ÂÇ½ÓÊÜlambdaº¯Êı×÷Îª²ÎÊı¡£´Ë´¦Ö»ÊÇ¶ÔÊäÈë²ÎÊı×ö³Ë·¨
+		// modify value ä¿®æ”¹vã€‚æœªæ¥å¯è€ƒè™‘æ¥å—lambdaå‡½æ•°ä½œä¸ºå‚æ•°ã€‚æ­¤å¤„åªæ˜¯å¯¹è¾“å…¥å‚æ•°åšä¹˜æ³•
 		void operate(myfloat& _value, myfloat para) const { _value *= para; }
-		// is cold time ready ÀäÈ´½áÊø£¬¿ÉÊ¹ÓÃ
+		// is cold time ready å†·å´ç»“æŸï¼Œå¯ä½¿ç”¨
 		bool is_CD_ready(int _time) const {
 			return (_time - m_last_used_time) >= m_cold_time;
 		}
-		// ÈôCDºÃÁË£¬ÔòÊ¹ÓÃ¼¼ÄÜ£¬²¢ÖØÖÃCD£¬·µ»Øtrue¡£·ñÔò·µ»Øfalse
+		// è‹¥CDå¥½äº†ï¼Œåˆ™ä½¿ç”¨æŠ€èƒ½ï¼Œå¹¶é‡ç½®CDï¼Œè¿”å›trueã€‚å¦åˆ™è¿”å›false
 		bool try_operate(myfloat& _value, int _time, myfloat para) {
 			if (is_CD_ready(_time)) {
 				operate(_value, para);
@@ -41,37 +41,37 @@ class RoutineController {
 
 
 public:
-	myfloat tolerance_max_CFL = 500;// ÔÊĞí×î´óCFL(ºóÃæ·¢ÏÖCFL»¹¿ÉÒÔÔö´ó£¬Òò´Ë¸Ã²ÎÊıÎ´Ê¹ÓÃ)
-	myfloat tolerance_min_CFL = 0.5;// ÔÊĞí×îĞ¡CFL
-	int increase_start_time = 5000;// ÔÊĞíÔö´óCFLµÄÆğÊ¼Ê±¼ä²½
-	int decrease_start_time = 1000;// ÔÊĞí¼õĞ¡CFLµÄÆğÊ¼Ê±¼ä²½
+	myfloat tolerance_max_CFL = 500;// å…è®¸æœ€å¤§CFL(åé¢å‘ç°CFLè¿˜å¯ä»¥å¢å¤§ï¼Œå› æ­¤è¯¥å‚æ•°æœªä½¿ç”¨)
+	myfloat tolerance_min_CFL = 0.5;// å…è®¸æœ€å°CFL
+	int increase_start_time = 5000;// å…è®¸å¢å¤§CFLçš„èµ·å§‹æ—¶é—´æ­¥
+	int decrease_start_time = 1000;// å…è®¸å‡å°CFLçš„èµ·å§‹æ—¶é—´æ­¥
 
 private:
-	static RoutineController* p_instance;// µ¥Àı£¬ÀàÖ¸Õë
-	int m_strategy = 0;// Ê±¼äÍÆ½ø²ßÂÔ
+	static RoutineController* p_instance;// å•ä¾‹ï¼Œç±»æŒ‡é’ˆ
+	int m_strategy = 0;// æ—¶é—´æ¨è¿›ç­–ç•¥
 
-	int m_num_of_strategy_calls = 0;// ²ßÂÔÒÑµ÷ÓÃ´ÎÊı
-	int m_current_time = 0;// µ±Ç°Ê±¼ä²½
+	int m_num_of_strategy_calls = 0;// ç­–ç•¥å·²è°ƒç”¨æ¬¡æ•°
+	int m_current_time = 0;// å½“å‰æ—¶é—´æ­¥
 	myfloat m_current_CFL = 0.8;
 	myfloat m_current_residual_rho = 1e4;
-	myfloat m_record_res_rho = 10;// ²Ğ²î
+	myfloat m_record_res_rho = 10;// æ®‹å·®
 
 	Action increase;
 	Action decrease;
 
 public:
 	static RoutineController* getInstance();
-	// ÉèÖÃÊ±¼äÍÆ½ø²ßÂÔ¡£Ö»±»TomlFileManagerµ÷ÓÃ
+	// è®¾ç½®æ—¶é—´æ¨è¿›ç­–ç•¥ã€‚åªè¢«TomlFileManagerè°ƒç”¨
 	void setStrategy(int s);
 	int getStrategy() { return m_strategy; }
-	// Ó¦ÓÃÊ±¼äÍÆ½ø²ßÂÔ£¬¶¯Ì¬µ÷ÕûCFLÊı
+	// åº”ç”¨æ—¶é—´æ¨è¿›ç­–ç•¥ï¼ŒåŠ¨æ€è°ƒæ•´CFLæ•°
 	void applyStrategy(myfloat residual_rho, myfloat& CFL, int step, bool& apply_success);
 
 private:
 	RoutineController() {};
-	// ²ßÂÔ£º¶¯Ì¬µ÷ÕûCFL
+	// ç­–ç•¥ï¼šåŠ¨æ€è°ƒæ•´CFL
 	void strategy_dynamic_CFL(myfloat& CFL, bool& apply_success);
-	// ³¢ÊÔÓÃactionĞŞ¸Ä²ÎÊıÖµ¡£ÈôÒÑÀäÈ´£¬Ôò³É¹¦£¬¸üĞÂaction¼ÆÊ±Æ÷£¬·µ»Øtrue
+	// å°è¯•ç”¨actionä¿®æ”¹å‚æ•°å€¼ã€‚è‹¥å·²å†·å´ï¼Œåˆ™æˆåŠŸï¼Œæ›´æ–°actionè®¡æ—¶å™¨ï¼Œè¿”å›true
 	bool tryApplyAction(Action& a, myfloat& value) {return a.try_operate(value, m_current_time, a.get_value());}
 	bool tryApplyAction(Action& a, myfloat& value, myfloat para) {return a.try_operate(value, m_current_time, para);}
 };

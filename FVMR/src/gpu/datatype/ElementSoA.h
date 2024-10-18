@@ -1,4 +1,4 @@
-﻿#ifndef _ELEMENT_SOA_H_
+#ifndef _ELEMENT_SOA_H_
 #define _ELEMENT_SOA_H_
 
 #include "DefineType.h"

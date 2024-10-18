@@ -5,7 +5,7 @@
 class SU2MeshReader {
 public:
 
-	// ×´Ì¬¡£¶ÁÈ¡Íø¸ñÊ±£¬¶ÁÈ¡µ½Ä³Ò»Î»ÖÃ£¬»áÓĞÌØ¶¨×´Ì¬
+	// çŠ¶æ€ã€‚è¯»å–ç½‘æ ¼æ—¶ï¼Œè¯»å–åˆ°æŸä¸€ä½ç½®ï¼Œä¼šæœ‰ç‰¹å®šçŠ¶æ€
 	enum State {
 		state_START,
 		state_NDIME,
@@ -17,14 +17,14 @@ public:
 		state_NMARK_data,
 	};
 
-	// ´æ´¢Á½¸ö½Úµã
+	// å­˜å‚¨ä¸¤ä¸ªèŠ‚ç‚¹
 	class SimpleEdge {
 	public:
 		int nodeIDs[2]{-1,-1};
 		SimpleEdge() {};
 		SimpleEdge(int nodeID_1, int nodeID_2) { nodeIDs[0] = nodeID_1; nodeIDs[1] = nodeID_2; }
 	};
-	// ´æ´¢Ãû³Æ£¬ÒÔ¼°±ßµÄ½Úµã
+	// å­˜å‚¨åç§°ï¼Œä»¥åŠè¾¹çš„èŠ‚ç‚¹
 	class SimpleBoundary {
 	public:
 		std::string name;
@@ -38,11 +38,11 @@ public:
 	};
 
 public:
-	// readFileµÄ²ğ·Ö°æ£¬²ğ³ÉÁ½¸ö×Óº¯Êı
+	// readFileçš„æ‹†åˆ†ç‰ˆï¼Œæ‹†æˆä¸¤ä¸ªå­å‡½æ•°
 	static void read_mesh_and_process(std::string filePath, bool convertRectToTriangle);
-	// ¶ÁÈ¡Íø¸ñÎÄ¼ş
+	// è¯»å–ç½‘æ ¼æ–‡ä»¶
 	static void readMesh(std::string filePath, bool convertRectToTriangle, int& maxNodeID, int& maxElementID, std::vector<SimpleBoundary>& tmp_boudaries);
-	// Ëõ·ÅÍø¸ñ×ø±ê¡£Ó¦ÔÚprocessÇ°µ÷ÓÃ
+	// ç¼©æ”¾ç½‘æ ¼åæ ‡ã€‚åº”åœ¨processå‰è°ƒç”¨
 	static void scaleMesh(double factor);
 	static void process(int maxNodeID, int maxElementID, std::vector<SimpleBoundary>&tmp_boudaries);
 	// 

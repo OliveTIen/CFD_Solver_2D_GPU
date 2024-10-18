@@ -6,8 +6,8 @@
 
 void HistWriter::writeHistFile_2(int iteration, const double* residual, int length) {
 	if (!hasBeenCalled_writeHistFile_2) {
-		// 第一次调用时执行
-		if (!GlobalPara::basic::_continue) {// 非续算，即第一次算。要写文件头
+		// 绗竴娆¤皟鐢ㄦ椂鎵ц
+		if (!GlobalPara::basic::_continue) {// 闈炵画绠楋紝鍗崇涓�娆＄畻銆傝鍐欐枃浠跺ご
 			writeHistFileHead_2();
 		}
 		hasBeenCalled_writeHistFile_2 = true;

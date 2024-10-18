@@ -1,4 +1,4 @@
-﻿#ifndef FVM2D_H
+#ifndef FVM2D_H
 #define FVM2D_H
 #include "Node_2D.h"
 #include "head.h"

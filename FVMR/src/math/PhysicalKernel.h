@@ -7,9 +7,9 @@
 namespace U2NITS {
 	namespace Math {
 
-		// ½«UÊı×é×ª»»ÎªruvpÊı×é
+		// å°†Uæ•°ç»„è½¬æ¢ä¸ºruvpæ•°ç»„
 		inline void U2ruvp_host(const myfloat U[4], myfloat ruvp[4], myfloat gamma) {
-			// U:	rho,rho_u,rho_v,rho_E ×¢ÒâE=e+0.5*V^2
+			// U:	rho,rho_u,rho_v,rho_E æ³¨æ„E=e+0.5*V^2
 			// ruvp: rho,u,v,p
 			ruvp[0] = U[0];
 			ruvp[1] = U[1] / U[0];
@@ -26,7 +26,7 @@ namespace U2NITS {
 			U[3] = ruvp[3] / (gamma - 1) + 0.5 * ruvp[0] * (ruvp[1] * ruvp[1] + ruvp[2] * ruvp[2]);//rhoE
 		}
 
-		// ÈıÎ¬ ÊØºãÁ¿×ª³¡±äÁ¿
+		// ä¸‰ç»´ å®ˆæ’é‡è½¬åœºå˜é‡
 		inline void U2ruvwp_host_3d(const myfloat U[5], myfloat ruvwp[5], myfloat gamma) {
 
 			/*
@@ -37,11 +37,11 @@ namespace U2NITS {
 			ruvwp[1] = U[1] / U[0];// u
 			ruvwp[2] = U[2] / U[0];// v
 			ruvwp[3] = U[3] / U[0];// w
-			myfloat V2 = ruvwp[1] * ruvwp[1] + ruvwp[2] * ruvwp[2] + ruvwp[3] * ruvwp[3];// ËÙ¶ÈÆ½·½
+			myfloat V2 = ruvwp[1] * ruvwp[1] + ruvwp[2] * ruvwp[2] + ruvwp[3] * ruvwp[3];// é€Ÿåº¦å¹³æ–¹
 			ruvwp[4] = (U[4] / U[0] - 0.5 * V2) * U[0] * (gamma - 1);// p
 		}
 
-		// Ä³·½ÏòÉÏµÄÂíºÕÊı
+		// æŸæ–¹å‘ä¸Šçš„é©¬èµ«æ•°
 		inline myfloat getMach(const myfloat U[4], myfloat nx, myfloat ny, myfloat gamma) {
 			myfloat ruvp[4]{};
 			U2ruvp_host(U, ruvp, gamma);
@@ -56,7 +56,7 @@ namespace U2NITS {
 		}
 
 		
-		// ÅúÁ¿×ª»»
+		// æ‰¹é‡è½¬æ¢
 		void U_to_ruvp_in_batch(const myfloat* U[4], myfloat* ruvp[4], int length, myfloat gamma);
 	}
 }

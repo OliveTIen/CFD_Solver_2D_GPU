@@ -9,72 +9,72 @@ namespace GPU {
 	class GPUSolver2 {
 	private:
 		bool hostMemoryAllocated = false;
-		bool hasSetGPUDevice = false;// Éè±¸´æÔÚÇÒÒÑ¾ÍĞ÷
+		bool hasSetGPUDevice = false;// è®¾å¤‡å­˜åœ¨ä¸”å·²å°±ç»ª
 		bool deviceMemoryAllocated = false;
 		bool iterationStarted = false;
 		bool hostDataInitialized = false;
 		bool deviceDataInitialized = false;
-		static GPUSolver2* pInstance;// ÊµÀıµÄÖ¸Õë
+		static GPUSolver2* pInstance;// å®ä¾‹çš„æŒ‡é’ˆ
 
 	public:
 		/*
-		Êı¾İ·ÖÎªÒÔÏÂ¼¸ÖÖÀàĞÍ
-		hostÎÄ¼şÊäÈëÊı¾İ¡£hostºÍdeviceÇé¿ö¶¼»áÊ¹ÓÃ
-		hostÎÄ¼şÊä³öÊı¾İ¡£hostºÍdeviceÇé¿ö¶¼»áÊ¹ÓÃ
-		hostÔËËãÊı¾İ¡£½öÔÚhostÇé¿öÊ¹ÓÃ
-		deviceÔËËãÊı¾İ¡£½öÔÚdeviceÇé¿öÊ¹ÓÃ
+		æ•°æ®åˆ†ä¸ºä»¥ä¸‹å‡ ç§ç±»å‹
+		hostæ–‡ä»¶è¾“å…¥æ•°æ®ã€‚hostå’Œdeviceæƒ…å†µéƒ½ä¼šä½¿ç”¨
+		hostæ–‡ä»¶è¾“å‡ºæ•°æ®ã€‚hostå’Œdeviceæƒ…å†µéƒ½ä¼šä½¿ç”¨
+		hostè¿ç®—æ•°æ®ã€‚ä»…åœ¨hostæƒ…å†µä½¿ç”¨
+		deviceè¿ç®—æ•°æ®ã€‚ä»…åœ¨deviceæƒ…å†µä½¿ç”¨
 
-		element_vruvp¡¢element_U_old
+		element_vruvpã€element_U_old
 
 		*/
 
-		// host/device³É¶ÔÊı¾İ Èô»¥Ïà¹ØÁª£¬Ò»°ãÓÃcuda_memcpyÔÚ³õÊ¼»¯Ê±´Óhost¸´ÖÆµ½device
+		// host/deviceæˆå¯¹æ•°æ® è‹¥äº’ç›¸å…³è”ï¼Œä¸€èˆ¬ç”¨cuda_memcpyåœ¨åˆå§‹åŒ–æ—¶ä»hostå¤åˆ¶åˆ°device
 		GPU::NodeSoA node_host;
 		GPU::NodeSoA node_device;
 		GPU::ElementSoA element_host;
 		GPU::ElementSoA element_device;
 		GPU::ElementFieldSoA elementField_host;
 		GPU::ElementFieldSoA elementField_device;
-		GPU::ElementFieldVariable_dt elementFieldVariable_dt_host;// »¥²»¹ØÁª£¬ÎŞĞècuda_memcpy¡£½ö×÷ÎªÖĞ¼ä±äÁ¿
+		GPU::ElementFieldVariable_dt elementFieldVariable_dt_host;// äº’ä¸å…³è”ï¼Œæ— éœ€cuda_memcpyã€‚ä»…ä½œä¸ºä¸­é—´å˜é‡
 		GPU::ElementFieldVariable_dt elementFieldVariable_dt_device;
 		GPU::EdgeSoA edge_host;
 		GPU::EdgeSoA edge_device;
-		GPU::EdgeFieldSoA edgeField_host;// Ã»ÓĞÌí¼Ó½øhost_to_deviceºÍdevice_to_host
-		GPU::EdgeFieldSoA edgeField_device;// Ã»ÓĞÌí¼Ó½øhost_to_deviceºÍdevice_to_host
-		GPU::BoundarySetMap boundary_host;// ¾É°æ£¬´æ´¢ÁË´Óset IDµ½set typeµÄÓ³Éä
+		GPU::EdgeFieldSoA edgeField_host;// æ²¡æœ‰æ·»åŠ è¿›host_to_deviceå’Œdevice_to_host
+		GPU::EdgeFieldSoA edgeField_device;// æ²¡æœ‰æ·»åŠ è¿›host_to_deviceå’Œdevice_to_host
+		GPU::BoundarySetMap boundary_host;// æ—§ç‰ˆï¼Œå­˜å‚¨äº†ä»set IDåˆ°set typeçš„æ˜ å°„
 		GPU::BoundarySetMap boundary_device;
-		GPU::BoundaryV2 boundary_host_new;// ĞÂ°æ£¬´æ´¢ÁË´Óset typeµ½edge IDsµÄÓ³Éä
+		GPU::BoundaryV2 boundary_host_new;// æ–°ç‰ˆï¼Œå­˜å‚¨äº†ä»set typeåˆ°edge IDsçš„æ˜ å°„
 		
-		// hostÊı¾İ[Î´Ê¹ÓÃ]
-		myfloat* element_vruvp[4]{};// ´æ´¢U×ª»»ÎªµÄruvp£¬ÓÃÓÚ¼ÆËã½ÚµãruvpÒÔ¼°¼ÆËãÊ±¼ä²½³¤Dt
-		myfloat* element_U_old[4]{};// ´æ´¢ÉÏÒ»²½UÓÃÓÚ¼ÆËã²Ğ²î, 4xn¾ØÕó
+		// hostæ•°æ®[æœªä½¿ç”¨]
+		myfloat* element_vruvp[4]{};// å­˜å‚¨Uè½¬æ¢ä¸ºçš„ruvpï¼Œç”¨äºè®¡ç®—èŠ‚ç‚¹ruvpä»¥åŠè®¡ç®—æ—¶é—´æ­¥é•¿Dt
+		myfloat* element_U_old[4]{};// å­˜å‚¨ä¸Šä¸€æ­¥Uç”¨äºè®¡ç®—æ®‹å·®, 4xnçŸ©é˜µ
 
-		// hostÊı¾İ
+		// hostæ•°æ®
 		const int residualVectorSize = 4;
-		myfloat residualVector[4]{ 1,1,1,1 };// ²Ğ²î£¬residualVectorSize x 1ÏòÁ¿
-		std::map<int, int> edge_periodic_pair;// ´æ´¢ÖÜÆÚ±ß½çµÄ±ß½ç¶Ô
+		myfloat residualVector[4]{ 1,1,1,1 };// æ®‹å·®ï¼ŒresidualVectorSize x 1å‘é‡
+		std::map<int, int> edge_periodic_pair;// å­˜å‚¨å‘¨æœŸè¾¹ç•Œçš„è¾¹ç•Œå¯¹
 		GPU::OutputNodeFieldSoA outputNodeField;// nodeField_host
 
-		// deviceÊı¾İ[Î´Ê¹ÓÃ]
-		//GPU::DGlobalPara* infPara_device;// ÒÑÆúÓÃ
+		// deviceæ•°æ®[æœªä½¿ç”¨]
+		//GPU::DGlobalPara* infPara_device;// å·²å¼ƒç”¨
 		SDevicePara sDevicePara;
 
 	public:
 		GPUSolver2();
 		~GPUSolver2();
-		// Îª¼õÉÙñîºÏ£¬ÇëÊ¹ÓÃSolverDataGetter¼ä½Óµ÷ÓÃ¸Ã·½·¨
+		// ä¸ºå‡å°‘è€¦åˆï¼Œè¯·ä½¿ç”¨SolverDataGetteré—´æ¥è°ƒç”¨è¯¥æ–¹æ³•
 		static GPUSolver2* getInstance();
 		// should be called before allocating device memory
 		void setGPUDevice();
-		// ÉêÇëÄÚ´æ¡£Ó¦ÔÚ¶ÁÈ¡field fileºóÊ¹ÓÃ£¬ÒòÎªÒªÈ·¶¨ÓĞ¶àÉÙµ¥Ôª¡¢ĞèÒª¶à´óÄÚ´æ
+		// ç”³è¯·å†…å­˜ã€‚åº”åœ¨è¯»å–field fileåä½¿ç”¨ï¼Œå› ä¸ºè¦ç¡®å®šæœ‰å¤šå°‘å•å…ƒã€éœ€è¦å¤šå¤§å†…å­˜
 		void allocateMemory();
 		// including host and device
 		void initializeData();
-		// ¸üĞÂ½Úµã³¡
+		// æ›´æ–°èŠ‚ç‚¹åœº
 		void updateOutputNodeField();
-		// »ñÈ¡²Ğ²î
+		// è·å–æ®‹å·®
 		void updateResidualVector();
-		// ÊÍ·Å×ÊÔ´
+		// é‡Šæ”¾èµ„æº
 		void freeMemory();
 
 		void setIterationStarted(bool b) { iterationStarted = b; }
@@ -83,9 +83,9 @@ namespace GPU {
 		bool isDeviceMemoryAllocated() { return deviceMemoryAllocated; }// first allocate memory
 		bool isDeviceDataInitialized() { return deviceDataInitialized; }// then initialize data
 
-		// deviceÊı¾İ¸üĞÂµ½host
+		// deviceæ•°æ®æ›´æ–°åˆ°host
 		void device_to_host();
-		// hostÊı¾İ¸üĞÂµ½device
+		// hostæ•°æ®æ›´æ–°åˆ°device
 		void host_to_device();
 	private:
 		// using legacy FVM_2D data
@@ -93,17 +93,17 @@ namespace GPU {
 		void initializeOtherHostData();
 		void initializeDeviceData_byHostData();
 		void initialize_nodeHost(void* _pFVM2D_, int num_node);
-		// ³õÊ¼»¯elementºÍelementFieldµÄhostÊı¾İ
+		// åˆå§‹åŒ–elementå’ŒelementFieldçš„hostæ•°æ®
 		void initialize_elementHost(void* _pFVM2D_, int num_element);
-		// ³õÊ¼»¯edgeµÄhostÊı¾İ
+		// åˆå§‹åŒ–edgeçš„hostæ•°æ®
 		void initialize_edgeHost(void* _pFVM2D_, int num_edge);
-		// ³õÊ¼»¯±ß½çÌõ¼ş ½«ÖÜÆÚ±ß½ç±äÎªÄÚ²¿±ß½ç
+		// åˆå§‹åŒ–è¾¹ç•Œæ¡ä»¶ å°†å‘¨æœŸè¾¹ç•Œå˜ä¸ºå†…éƒ¨è¾¹ç•Œ
 		void initialize_boundary(void* _pFVM2D_);
 
 
 		//void allocateMemory_kernel(const int num_node, const int num_element, const int num_edge, const int num_boundary);
 		void allocateHostMemory(const int num_node, const int num_element, const int num_edge, const int num_boundary);
-		void allocateDeviceMemory(const int num_node, const int num_element, const int num_edge, const int num_boundary);// ĞèÒªÔÚsetGPUDeviceÖ®ºó
+		void allocateDeviceMemory(const int num_node, const int num_element, const int num_edge, const int num_boundary);// éœ€è¦åœ¨setGPUDeviceä¹‹å
 		void freeHostMemory();
 		void freeDeviceMemory();
 

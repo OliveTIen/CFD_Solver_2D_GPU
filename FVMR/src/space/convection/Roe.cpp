@@ -6,12 +6,12 @@
 #include "../../global/CExit.h"
 
 void U2NITS::Space::EigenValueAndVector4x4(myfloat mat[4][4], myfloat eigens[4], myfloat R[4][4]) {
-	// ¼ÆËã4x4¾ØÕóµÄÌØÕ÷ÖµºÍÌØÕ÷ÏòÁ¿
-	// ½¨ÒéÖ±½Ó²ÎÕÕUNITsµÄ·½·¨Çó
+	// è®¡ç®—4x4çŸ©é˜µçš„ç‰¹å¾å€¼å’Œç‰¹å¾å‘é‡
+	
 }
 
 void U2NITS::Space::JacobiMethod(myfloat mat[4][4], myfloat eigens[4], myfloat R[4][4]) {
-	// ½«R³õÊ¼»¯Îªµ¥Î»¾ØÕó
+	// å°†Råˆå§‹åŒ–ä¸ºå•ä½çŸ©é˜µ
 	for (int i = 0; i < 4; i++) {
 		for (int j = 0; j < 4; j++) {
 			if (i == j) {
@@ -24,13 +24,13 @@ void U2NITS::Space::JacobiMethod(myfloat mat[4][4], myfloat eigens[4], myfloat R
 	}
 
 	const int n = 4;
-	const myfloat eps = 1.0e-10; // ÊÕÁ²Ìõ¼ş
-	myfloat max_off_diag; // ×î´ó·Ç¶Ô½ÇÔªËØ
-	myfloat theta, t, c, s; // Ğı×ª½Ç¶ÈºÍĞı×ª¾ØÕó
+	const myfloat eps = 1.0e-10; // æ”¶æ•›æ¡ä»¶
+	myfloat max_off_diag; // æœ€å¤§éå¯¹è§’å…ƒç´ 
+	myfloat theta, t, c, s; // æ—‹è½¬è§’åº¦å’Œæ—‹è½¬çŸ©é˜µ
 	int p, q;
 	do {
 		max_off_diag = 0.0;
-		// Ñ°ÕÒ×î´ó·Ç¶Ô½ÇÔªËØ
+		// å¯»æ‰¾æœ€å¤§éå¯¹è§’å…ƒç´ 
 		for (int i = 0; i < n - 1; i++) {
 			for (int j = i + 1; j < n; j++) {
 				if (std::abs(mat[i][j]) > max_off_diag) {
@@ -42,16 +42,16 @@ void U2NITS::Space::JacobiMethod(myfloat mat[4][4], myfloat eigens[4], myfloat R
 		}
 
 		if (max_off_diag < eps) {
-			break; // ÒÑ¾­×ã¹»½Ó½ü¶Ô½Ç»¯
+			break; // å·²ç»è¶³å¤Ÿæ¥è¿‘å¯¹è§’åŒ–
 		}
 
-		// ¼ÆËãĞı×ª½Ç¶È
-		theta = 0.5 * std::atan2(2 * mat[p][q], mat[p][p] - mat[q][q]);// atan2·µ»Ø·½Î»½Ç
+		// è®¡ç®—æ—‹è½¬è§’åº¦
+		theta = 0.5 * std::atan2(2 * mat[p][q], mat[p][p] - mat[q][q]);// atan2è¿”å›æ–¹ä½è§’
 		t = mat[p][q];
 		c = std::cos(theta);
 		s = std::sin(theta);
 
-		// ĞŞ¸Ä¾ØÕóºÍÓÒÌØÕ÷ÏòÁ¿
+		// ä¿®æ”¹çŸ©é˜µå’Œå³ç‰¹å¾å‘é‡
 		mat[p][q] = 0.0;
 		for (int i = 0; i < n; i++) {
 			if (i != p && i != q) {
@@ -61,7 +61,7 @@ void U2NITS::Space::JacobiMethod(myfloat mat[4][4], myfloat eigens[4], myfloat R
 				mat[i][q] = mat[i][q] * c + temp * s;
 				mat[q][i] = mat[i][q];
 			}
-			// ¸üĞÂÓÒÌØÕ÷ÏòÁ¿
+			// æ›´æ–°å³ç‰¹å¾å‘é‡
 			myfloat new_R_ip = R[i][p] * c - R[i][q] * s;
 			myfloat new_R_iq = R[i][q] * c + R[i][p] * s;
 			R[i][p] = new_R_ip;
@@ -69,7 +69,7 @@ void U2NITS::Space::JacobiMethod(myfloat mat[4][4], myfloat eigens[4], myfloat R
 		}
 		mat[p][p] = mat[p][p] * c * c - 2 * t * c * s + mat[q][q] * s * s;
 		mat[q][q] = mat[q][q] * c * c + 2 * t * c * s + mat[p][p] * s * s;
-		mat[p][p] = mat[q][q]; // µ÷ÕûÎŞÏŞĞ¡ÔªËØ
+		mat[p][p] = mat[q][q]; // è°ƒæ•´æ— é™å°å…ƒç´ 
 		mat[q][q] = c * c * mat[q][q] + 2 * t * c * s + s * s * mat[p][p];
 		for (int i = 0; i < n; i++) {
 			if (i != p && i != q) {
@@ -78,7 +78,7 @@ void U2NITS::Space::JacobiMethod(myfloat mat[4][4], myfloat eigens[4], myfloat R
 		}
 	} while (max_off_diag > eps);
 
-	// ÌáÈ¡ÌØÕ÷Öµ
+	// æå–ç‰¹å¾å€¼
 	for (int i = 0; i < n; i++) {
 		eigens[i] = mat[i][i];
 	}
@@ -86,7 +86,7 @@ void U2NITS::Space::JacobiMethod(myfloat mat[4][4], myfloat eigens[4], myfloat R
 
 void U2NITS::Space::RoeAverage(myfloat U1[4], myfloat U2[4], myfloat gamma) {
 	/*
-	Çóh1 h2
+	æ±‚h1 h2
 	*/
 	myfloat ruvp1[4];
 	U2NITS::Math::U2ruvp_host(U1, ruvp1, gamma);
@@ -108,12 +108,11 @@ void U2NITS::Space::RoeAverage(myfloat U1[4], myfloat U2[4], myfloat gamma) {
 	myfloat h2 = e2 + p2 / rho2;// h = gamma*e = e+(gamma-1)*e = e+R/Cv*e = e+R*e/Cv = e+R*t = e+p/rho
 
 	/*
-	¸ù¾İÈÎÓñĞÂ¼ÆËãÁ÷¿Î¼şP179
-	*/
-	/*
-	ÇóU{j+1/2}
-	RoeÆ½¾ù¹«Ê½ÊÇu = (sr1*u1+sr2*u2)/(sr1+sr2)£¬ÆäÖĞsr1=sqrt(rho1), sr2=sqrt(rho2)
-	´Ë´¦Áî	wt1 = sr1/(sr1+sr2) = rho1/(rho1+sr1*sr2) = (rho1/rho)/(rho1/rho + my_1)
+	ä»»ç‰æ–°è®¡ç®—æµè¯¾ä»¶P179
+
+	æ±‚U{j+1/2}
+	Roeå¹³å‡å…¬å¼æ˜¯u = (sr1*u1+sr2*u2)/(sr1+sr2)ï¼Œå…¶ä¸­sr1=sqrt(rho1), sr2=sqrt(rho2)
+	æ­¤å¤„ä»¤	wt1 = sr1/(sr1+sr2) = rho1/(rho1+sr1*sr2) = (rho1/rho)/(rho1/rho + my_1)
 	wt2 = 1-wt1 = sr2/(sr1+sr2)
 	*/
 	const myfloat my_half = 0.5;
@@ -125,18 +124,18 @@ void U2NITS::Space::RoeAverage(myfloat U1[4], myfloat U2[4], myfloat gamma) {
 	myfloat v = v1 * wt1 + v2 * wt2;
 	myfloat h = h1 * wt1 + h2 * wt2;
 	myfloat e = h / gamma;
-	myfloat p = rho * e * (gamma - 1);// ×¢Òâ²»ÊÇE¡£E=e+0.5*V2
-	myfloat V2 = u * u + v * v;// ËÙ¶ÈÆ½·½
+	myfloat p = rho * e * (gamma - 1);// æ³¨æ„ä¸æ˜¯Eã€‚E=e+0.5*V2
+	myfloat V2 = u * u + v * v;// é€Ÿåº¦å¹³æ–¹
 	myfloat E = e + 0.5 * V2;
-	myfloat U[4]{ rho,rho * u,rho * v,rho * E };// ¶şÎ¬
+	myfloat U[4]{ rho,rho * u,rho * v,rho * E };// äºŒç»´
 
-	// ¼ÆËãU{j+1/2}µÄÌØÕ÷ÖµºÍÌØÕ÷ÏòÁ¿
-	// // ½¨ÒéÖ±½Ó²ÎÕÕUNITsµÄ·½·¨Çó
+	// è®¡ç®—U{j+1/2}çš„ç‰¹å¾å€¼å’Œç‰¹å¾å‘é‡
+	// å»ºè®®ç›´æ¥å‚ç…§æŸç»“æ„ç¨‹åºçš„æ–¹æ³•æ±‚
 	//myfloat F[4]{ rho * u,rho * u * u + p,rho * u * v,(rho * E + p) * u };
 
 }
 
-void U2NITS::Space::RoeAverageFUN3D(
+void U2NITS::Space::RoeAverage_13_3(
 	myfloat rho1, myfloat rho2, myfloat& rho,
 	myfloat u1, myfloat u2, myfloat& u,
 	myfloat v1, myfloat v2, myfloat& v,
@@ -149,7 +148,7 @@ void U2NITS::Space::RoeAverageFUN3D(
 	myfloat n_species, myfloat n_energy,
 	myfloat turb1, myfloat turb2, myfloat& turb,
 	bool if_turb1) {
-	// ²Î¿¼fun3d
+	// å‚è€ƒv13.3
 
 	myfloat wt1, wt2;// weights
 	myfloat alfa_eq; // for equilibrium air
@@ -166,9 +165,9 @@ void U2NITS::Space::RoeAverageFUN3D(
 	const myfloat my_1 = 1.0;
 
 	/*
-	±¾À´RoeÆ½¾ù¹«Ê½ÊÇu = (sr1*u1+sr2*u2)/(sr1+sr2)£¬
-	ÆäÖĞsr1=sqrt(rho1), sr2=sqrt(rho2)
-	´Ë´¦Áî
+	æœ¬æ¥Roeå¹³å‡å…¬å¼æ˜¯u = (sr1*u1+sr2*u2)/(sr1+sr2)ï¼Œ
+	å…¶ä¸­sr1=sqrt(rho1), sr2=sqrt(rho2)
+	æ­¤å¤„ä»¤
 	wt1 = sr1/(sr1+sr2) = rho1/(rho1+sr1*sr2) = (rho1/rho)/(rho1/rho + my_1)
 	wt2 = 1-wt1 = sr2/(sr1+sr2)
 	*/
@@ -189,16 +188,16 @@ void U2NITS::Space::RoeAverageFUN3D(
 
 void U2NITS::Space::ConvectRoeCommon3d(const myfloat UL[5], const myfloat UR[5], const myfloat faceNormal[3],
 	const myfloat faceArea, myfloat faceFlux[5], bool bDynamicMesh, myfloat dynamicMeshValue, myfloat gamma, myfloat rcpcv) {
-	// ²ÉÓÃìØĞŞÕıµÄRoeÇó½âÆ÷ ²Î¿¼UNITs Convect_Roe_Common
-	// ±»RiemannSolverµ÷ÓÃ
-	// Êä³ö£ºfaceFlux
+	// é‡‡ç”¨ç†µä¿®æ­£çš„Roeæ±‚è§£å™¨
+	// è¢«RiemannSolverè°ƒç”¨
+	// è¾“å‡ºï¼šfaceFlux
 
-	// Ãæ·¨Ïòµ¥Î»ÏòÁ¿
+	// é¢æ³•å‘å•ä½å‘é‡
 	myfloat sav1n = faceNormal[0];
 	myfloat sav2n = faceNormal[1];
 	myfloat sav3n = faceNormal[2];
-	myfloat sav4n = dynamicMeshValue / faceArea;//¶¯Íø¸ñÏà¹Ø£¬Ä¿Ç°²»ĞèÒª
-	// ÊØºãÁ¿×ª³¡±äÁ¿rho u v w p
+	myfloat sav4n = dynamicMeshValue / faceArea;//åŠ¨ç½‘æ ¼ç›¸å…³ï¼Œç›®å‰ä¸éœ€è¦
+	// å®ˆæ’é‡è½¬åœºå˜é‡rho u v w p
 	myfloat ruvwpL[5]{};
 	U2NITS::Math::U2ruvwp_host_3d(UL, ruvwpL, gamma);
 	myfloat ruvwpR[5]{};
@@ -213,23 +212,23 @@ void U2NITS::Space::ConvectRoeCommon3d(const myfloat UL[5], const myfloat UR[5],
 	myfloat vR = ruvwpR[2];
 	myfloat wR = ruvwpR[3];
 	myfloat pR = ruvwpR[4];
-	// ·¨ÏòËÙ¶È
+	// æ³•å‘é€Ÿåº¦
 	myfloat ulnormaln = (sav1n * uL + sav2n * vL + sav3n * wL + sav4n);
 	myfloat urnormaln = (sav1n * uR + sav2n * vR + sav3n * wR + sav4n);
 	myfloat rulnormaln = rL * ulnormaln;
 	myfloat rurnormaln = rR * urnormaln;
-	// ËÙ¶ÈÆ½·½
+	// é€Ÿåº¦å¹³æ–¹
 	myfloat V2L = uL * uL + vL * vL + wL * wL;
 	myfloat V2R = uR * uR + vR * vR + wR * wR;
-	//// ìÊ+¶¯ÄÜ H = h + 0.5*V2 = gamma*e + 0.5*V2 =  gamma*p/rho/(gamma-1) + 0.5*V2
+	//// ç„“+åŠ¨èƒ½ H = h + 0.5*V2 = gamma*e + 0.5*V2 =  gamma*p/rho/(gamma-1) + 0.5*V2
 	myfloat ga1 = gamma - 1.0;
 	myfloat HL = pL * gamma / (rL * ga1) + 0.5 * V2L;
 	myfloat HR = pR * gamma / (rR * ga1) + 0.5 * V2R;
-	// ÄÚÄÜ+¶¯ÄÜ E = e + 0.5*V2 = p/rho/(gamma-1) + 0.5*V2
-	// ÄÜÁ¿·½³ÌÊØºãÁ¿ rhoE = p/(gamma-1) + 0.5*rho*V2
+	// å†…èƒ½+åŠ¨èƒ½ E = e + 0.5*V2 = p/rho/(gamma-1) + 0.5*V2
+	// èƒ½é‡æ–¹ç¨‹å®ˆæ’é‡ rhoE = p/(gamma-1) + 0.5*rho*V2
 	myfloat rhoEL = pL / ga1 + 0.5 * rL * V2L;
 	myfloat rhoER = pR / ga1 + 0.5 * rR * V2R;
-	// Í¨Á¿ ÎªÊ²Ã´ÕâÀïÊÇH£¿
+	// é€šé‡ ä¸ºä»€ä¹ˆè¿™é‡Œæ˜¯Hï¼Ÿ
 	auto& flux = faceFlux;
 	auto& sav = faceArea;
 	flux[0] = 0.5 * (rulnormaln + rurnormaln) * sav;
@@ -238,14 +237,14 @@ void U2NITS::Space::ConvectRoeCommon3d(const myfloat UL[5], const myfloat UR[5],
 	flux[3] = 0.5 * (rulnormaln * wL + rurnormaln * wR + sav3n * (pL + pR)) * sav;
 	flux[4] = 0.5 * (rulnormaln * HL + rurnormaln * HR - sav4n * (pL + pR)) * sav;
 
-	// ²»º¬ìØĞŞÕı
+	// ä¸å«ç†µä¿®æ­£
 	myfloat drRoe[5]{};
 	RoeDissapationTerm3d(
 		gamma, UL, UR, ruvwpL, ruvwpR, faceNormal, faceArea,
 		bDynamicMesh, dynamicMeshValue, 0, 0, 0, drRoe
 	);
 
-	//// ×ÔÊÊÓ¦ºÄÉ¢ÏµÊı funschemeÔÚÕâÀïÌí¼Ó
+	//// è‡ªé€‚åº”è€—æ•£ç³»æ•° funschemeåœ¨è¿™é‡Œæ·»åŠ 
 	//myfloat funscheme = AdaptiveFunctionCoeffient();
 	//
 	//myfloat droR = -(flux[0] - funscheme * drRoe[0]);
@@ -271,8 +270,7 @@ void U2NITS::Space::RoeDissapationTerm3d(
 	bool bEntropyFix, myfloat KEntropyFix[3], myfloat kp,
 	myfloat drRoe[5]
 ) {
-	// ²ÎÕÕUNITs Roe_dissipation_term
-	// Ãæµ¥Î»·¨Ïò
+	// é¢å•ä½æ³•å‘
 	typedef myfloat myfloat;
 	myfloat ga1 = gamma - 1.0;
 	myfloat sav1n = faceNormal[0];
@@ -281,7 +279,7 @@ void U2NITS::Space::RoeDissapationTerm3d(
 	myfloat sav4n = dynamicMeshValue / faceArea;
 
 
-	// ×óÓÒµ¥Ôª³¡±äÁ¿
+	// å·¦å³å•å…ƒåœºå˜é‡
 	myfloat& rL = ruvwpL[0];
 	myfloat& uL = ruvwpL[1];
 	myfloat& vL = ruvwpL[2];
@@ -292,16 +290,16 @@ void U2NITS::Space::RoeDissapationTerm3d(
 	myfloat& vR = ruvwpR[2];
 	myfloat& wR = ruvwpR[3];
 	myfloat& pR = ruvwpR[4];
-	// ËÙ¶ÈÆ½·½
+	// é€Ÿåº¦å¹³æ–¹
 	myfloat V2L = uL * uL + vL * vL + wL * wL;
 	myfloat V2R = uR * uR + vR * vR + wR * wR;
-	// ìÊ+¶¯ÄÜ H = h + 0.5*V2 = gamma*e + 0.5*V2 =  gamma*p/rho/(gamma-1) + 0.5*V2
+	// ç„“+åŠ¨èƒ½ H = h + 0.5*V2 = gamma*e + 0.5*V2 =  gamma*p/rho/(gamma-1) + 0.5*V2
 	myfloat HL = pL * gamma / (rL * ga1) + 0.5 * V2L;
 	myfloat HR = pR * gamma / (rR * ga1) + 0.5 * V2R;
-	// ÉùËÙ
+	// å£°é€Ÿ
 	myfloat aL = sqrt(gamma * pL / rL);
 	myfloat aR = sqrt(gamma * pR / rR);
-	// RoeÆ½¾ù
+	// Roeå¹³å‡
 	myfloat rrorl = sqrt(rR / rL);
 	myfloat rrorlp1 = rrorl + 1.0;
 	myfloat rm = sqrt(rR * rL);
@@ -309,19 +307,19 @@ void U2NITS::Space::RoeDissapationTerm3d(
 	myfloat vm = (vL + vR * rrorl) / rrorlp1;
 	myfloat wm = (wL + wR * rrorl) / rrorlp1;
 	myfloat Hm = (HL + HR * rrorl) / rrorlp1;
-	// Çó·¨ÏòËÙ¶È
+	// æ±‚æ³•å‘é€Ÿåº¦
 	myfloat vm2 = um * um + vm * vm + wm * wm;
 	myfloat am2 = ga1 * (Hm - 0.5 * vm2);
 	myfloat am = sqrt(am2);
 	myfloat anormaln = am;
 	myfloat mach2 = vm2 / am2;
-	myfloat unormaln = um * sav1n + vm * sav2n + wm * sav3n; // ·¨ÏòËÙ¶È
+	myfloat unormaln = um * sav1n + vm * sav2n + wm * sav3n; // æ³•å‘é€Ÿåº¦
 
-	// ÌØÕ÷Öµ
+	// ç‰¹å¾å€¼
 	myfloat eig1 = abs(unormaln);
 	myfloat eig2 = abs(unormaln + anormaln);
 	myfloat eig3 = abs(unormaln - anormaln);
-	// ìØĞŞÕı
+	// ç†µä¿®æ­£
 	const myfloat epsilon = U2NITS::Math::EPSILON;
 	const myfloat& enFixK1 = KEntropyFix[0];
 	const myfloat& enFixK2 = KEntropyFix[1];
@@ -330,25 +328,25 @@ void U2NITS::Space::RoeDissapationTerm3d(
 		myfloat eig_lim1 = (abs(unormaln) + anormaln) * enFixK3 * kp;
 		myfloat eig_lim2 = (abs(unormaln) + anormaln) * (enFixK1 + enFixK2 * kp);
 		myfloat eig_lim3 = eig_lim2;
-		// floatµÄ×îĞ¡ÕıÊıÎª1.4e-45
-		// ²Î¼û csappP72 »ò https://zhuanlan.zhihu.com/p/656543002
+		// floatçš„æœ€å°æ­£æ•°ä¸º1.4e-45
+		// å‚è§ csappP72 æˆ– https://zhuanlan.zhihu.com/p/656543002
 		U2NITS::Space::EigenEntropyFix_HartenYee(eig1, eig_lim1, epsilon);
 		U2NITS::Space::EigenEntropyFix_HartenYee(eig2, eig_lim2, epsilon);
 		U2NITS::Space::EigenEntropyFix_HartenYee(eig3, eig_lim3, epsilon);
 	}
-	// ÄÜÁ¿·½³ÌµÄÊØºãÁ¿ E=e+0.5*V2, 
-	// ìÊ+¶¯ÄÜ H = h+0.5*V2£¬
-	// ÓÖÒòÎª e=h-p/rho£¬
-	// Òò´Ë E=H-p/rho
+	// èƒ½é‡æ–¹ç¨‹çš„å®ˆæ’é‡ E=e+0.5*V2, 
+	// ç„“+åŠ¨èƒ½ H = h+0.5*V2ï¼Œ
+	// åˆå› ä¸º e=h-p/rhoï¼Œ
+	// å› æ­¤ E=H-p/rho
 	myfloat ER = HR - pR / rR;
 	myfloat EL = HL - pL / rL;
 	myfloat dE = ER - EL;
 
-	// ÎªÊ²Ã´ÕâÀïÊÇ"+"²»ÊÇ"-"£¿
-	// ÀíÂÛÉÏ E=e+0.5*V2=h-p/rho+0.5*V2
+	// ä¸ºä»€ä¹ˆè¿™é‡Œæ˜¯"+"ä¸æ˜¯"-"ï¼Ÿ
+	// ç†è®ºä¸Š E=e+0.5*V2=h-p/rho+0.5*V2
 	// e=h-p/rho, e=h/gamma
 	myfloat Etm = Hm / gamma + ga1 / gamma * 0.5 * vm2;// ?
-	// ¼ÆËã
+	// è®¡ç®—
 
 	myfloat dW[5]{};
 	dW[0] = rR - rL;
@@ -363,13 +361,13 @@ void U2NITS::Space::RoeDissapationTerm3d(
 	myfloat dUroe = Mstar * dunormaln + (astar - eig1) * (pR - pL) / rm / am2;
 	myfloat dProe = Mstar * (pR - pL) + (astar - eig1) * rm * dunormaln;
 
-	// ¼ÆËãºÄÉ¢Ïî
+	// è®¡ç®—è€—æ•£é¡¹
 	myfloat& sav = faceArea;
 	myfloat droRoe = 0.5 * (eig1 * dW[0] + dUroe * rm) * sav;
 	myfloat drxRoe = 0.5 * (eig1 * dW[1] + dUroe * rm * um + dProe * sav1n) * sav;
 	myfloat dryRoe = 0.5 * (eig1 * dW[2] + dUroe * rm * vm + dProe * sav2n) * sav;
 	myfloat drzRoe = 0.5 * (eig1 * dW[3] + dUroe * rm * wm + dProe * sav3n) * sav;
-	// unormaln - sav4n¿ÉÒÔÀí½âÎª·¨ÏòËÙ¶È£¬
+	// unormaln - sav4nå¯ä»¥ç†è§£ä¸ºæ³•å‘é€Ÿåº¦ï¼Œ
 	myfloat dreRoe = 0.5 * (eig1 * dW[4] + dUroe * rm * Hm + dProe * (unormaln - sav4n)) * sav;
 
 	drRoe[0] = droRoe;
@@ -380,13 +378,13 @@ void U2NITS::Space::RoeDissapationTerm3d(
 }
 
 void U2NITS::Space::ConvectRoeCommon2d(const myfloat UL[4], const myfloat UR[4], const myfloat faceNormal[2], const myfloat faceArea, myfloat faceFlux[4], myfloat gamma, myfloat rcpcv) {
-	// ²ÉÓÃìØĞŞÕıµÄRoeÇó½âÆ÷ ²Î¿¼UNITs Convect_Roe_Common
-	// ±»RiemannSolverµ÷ÓÃ
-	// Êä³ö£ºfaceFlux
+	// é‡‡ç”¨ç†µä¿®æ­£çš„Roeæ±‚è§£å™¨
+	// è¢«RiemannSolverè°ƒç”¨
+	// è¾“å‡ºï¼šfaceFlux
 	myfloat nx = faceNormal[0];
 	myfloat ny = faceNormal[1];
-	myfloat velocity_dynaMesh = 0;//¶¯Íø¸ñÏà¹Ø£¬Ä¿Ç°²»ĞèÒª
-	// ÊØºãÁ¿×ª³¡±äÁ¿rho u v w p
+	myfloat velocity_dynaMesh = 0;//åŠ¨ç½‘æ ¼ç›¸å…³ï¼Œç›®å‰ä¸éœ€è¦
+	// å®ˆæ’é‡è½¬åœºå˜é‡rho u v w p
 	myfloat ruvpL[4]{};
 	myfloat ruvpR[4]{};
 	U2NITS::Math::U2ruvp_host(UL, ruvpL, gamma);
@@ -399,43 +397,43 @@ void U2NITS::Space::ConvectRoeCommon2d(const myfloat UL[4], const myfloat UR[4],
 	myfloat uR = ruvpR[1];
 	myfloat vR = ruvpR[2];
 	myfloat pR = ruvpR[3];
-	//// ĞŞÕı
+	//// ä¿®æ­£
 	//U2NITS::Math::restrictRhoAndP(ruvpL);
 	//U2NITS::Math::restrictRhoAndP(ruvpR);
-	// ·¨ÏòËÙ¶È
+	// æ³•å‘é€Ÿåº¦
 	myfloat ulnormaln = (nx * uL + ny * vL + velocity_dynaMesh);
 	myfloat urnormaln = (nx * uR + ny * vR + velocity_dynaMesh);
 	myfloat rulnormaln = rL * ulnormaln;
 	myfloat rurnormaln = rR * urnormaln;
-	// ËÙ¶ÈÆ½·½
+	// é€Ÿåº¦å¹³æ–¹
 	myfloat V2L = uL * uL + vL * vL;
 	myfloat V2R = uR * uR + vR * vR;
-	//// ìÊ+¶¯ÄÜ H = h + 0.5*V2 = gamma*e + 0.5*V2 =  gamma*p/rho/(gamma-1) + 0.5*V2
+	//// ç„“+åŠ¨èƒ½ H = h + 0.5*V2 = gamma*e + 0.5*V2 =  gamma*p/rho/(gamma-1) + 0.5*V2
 	myfloat ga1 = gamma - 1.0;
 	myfloat HL = pL * gamma / (rL * ga1) + 0.5 * V2L;
 	myfloat HR = pR * gamma / (rR * ga1) + 0.5 * V2R;
-	// ÄÚÄÜ+¶¯ÄÜ E = e + 0.5*V2 = p/rho/(gamma-1) + 0.5*V2
-	// ÄÜÁ¿·½³ÌÊØºãÁ¿ rhoE = p/(gamma-1) + 0.5*rho*V2
+	// å†…èƒ½+åŠ¨èƒ½ E = e + 0.5*V2 = p/rho/(gamma-1) + 0.5*V2
+	// èƒ½é‡æ–¹ç¨‹å®ˆæ’é‡ rhoE = p/(gamma-1) + 0.5*rho*V2
 	myfloat rhoEL = pL / ga1 + 0.5 * rL * V2L;
 	myfloat rhoER = pR / ga1 + 0.5 * rR * V2R;
-	// Í¨Á¿ ÎªÊ²Ã´ÕâÀïÊÇH£¿
+	// é€šé‡ ä¸ºä»€ä¹ˆè¿™é‡Œæ˜¯Hï¼Ÿ
 	faceFlux[0] = 0.5 * (rulnormaln + rurnormaln) * faceArea;
 	faceFlux[1] = 0.5 * (rulnormaln * uL + rurnormaln * uR + nx * (pL + pR)) * faceArea;
 	faceFlux[2] = 0.5 * (rulnormaln * vL + rurnormaln * vR + ny * (pL + pR)) * faceArea;
 	faceFlux[3] = 0.5 * (rulnormaln * HL + rurnormaln * HR - velocity_dynaMesh * (pL + pR)) * faceArea;
 
-	// ìØĞŞÕı ÓÉÓÚ¼¤²¨Ì½²âÒò×Ó»¹Î´Ğ´£¬Ä¿Ç°½ûÓÃìØĞŞÕı
+	// ç†µä¿®æ­£ ç”±äºæ¿€æ³¢æ¢æµ‹å› å­è¿˜æœªå†™ï¼Œç›®å‰ç¦ç”¨ç†µä¿®æ­£
 	myfloat drRoe[4]{};
 	bool entropyFix = false;
-	myfloat kEntropyFix[3]{ 0.2,7.5,20.0 };// ìØĞŞÕıÏµÊı(EnFix_k1 = 0.15 - 0.25, EnFix_k2 = 5.0 - 10.0, EnFix_k3 = 15.0 - 25.0)
-	myfloat p_sensor = PShockWaveSensor();// ¼¤²¨Ì½²âÒò×Ó£¬µÈÓÚÑ¹Á¦¿Õ¼ä¶ş½×µ¼¡£ÓÃÀ´ºâÁ¿¼¤²¨Ç¿¶È£¬È¡Öµ[0,1)
+	myfloat kEntropyFix[3]{ 0.2,7.5,20.0 };// ç†µä¿®æ­£ç³»æ•°(EnFix_k1 = 0.15 - 0.25, EnFix_k2 = 5.0 - 10.0, EnFix_k3 = 15.0 - 25.0)
+	myfloat p_sensor = PShockWaveSensor();// æ¿€æ³¢æ¢æµ‹å› å­ï¼Œç­‰äºå‹åŠ›ç©ºé—´äºŒé˜¶å¯¼ã€‚ç”¨æ¥è¡¡é‡æ¿€æ³¢å¼ºåº¦ï¼Œå–å€¼[0,1)
 	RoeDissapationTerm2d(
 		gamma, ruvpL, ruvpR, faceNormal, faceArea,
 		entropyFix, kEntropyFix, p_sensor, drRoe
 	);
 
 
-	const myfloat funscheme = 1.0;// ×ÔÊÊÓ¦ºÄÉ¢ÏµÊı
+	const myfloat funscheme = 1.0;// è‡ªé€‚åº”è€—æ•£ç³»æ•°
 	faceFlux[0] -= funscheme * drRoe[0];
 	faceFlux[1] -= funscheme * drRoe[1];
 	faceFlux[2] -= funscheme * drRoe[2];
@@ -444,15 +442,14 @@ void U2NITS::Space::ConvectRoeCommon2d(const myfloat UL[4], const myfloat UR[4],
 }
 
 void U2NITS::Space::RoeDissapationTerm2d(myfloat gamma, myfloat ruvpL[4], myfloat ruvpR[4], const myfloat faceNormal[2], myfloat faceArea, bool bEntropyFix, myfloat KEntropyFix[3], myfloat pShockWaveSensor, myfloat drRoe[4]) {
-	// ²ÎÕÕUNITs Roe_dissipation_term
-	// Ãæµ¥Î»·¨Ïò
+	// é¢å•ä½æ³•å‘
 
 	myfloat ga1 = gamma - 1.0;
 	myfloat nx = faceNormal[0];
 	myfloat ny = faceNormal[1];
-	myfloat meshNormalVelocity = 0.0;// ¶¯Íø¸ñÏà¹Ø ·¨ÏòÔË¶¯ËÙ¶È
+	myfloat meshNormalVelocity = 0.0;// åŠ¨ç½‘æ ¼ç›¸å…³ æ³•å‘è¿åŠ¨é€Ÿåº¦
 
-	// ×óÓÒµ¥Ôª³¡±äÁ¿
+	// å·¦å³å•å…ƒåœºå˜é‡
 	myfloat rL = ruvpL[0];
 	myfloat uL = ruvpL[1];
 	myfloat vL = ruvpL[2];
@@ -461,16 +458,16 @@ void U2NITS::Space::RoeDissapationTerm2d(myfloat gamma, myfloat ruvpL[4], myfloa
 	myfloat uR = ruvpR[1];
 	myfloat vR = ruvpR[2];
 	myfloat pR = ruvpR[3];
-	// ËÙ¶ÈÆ½·½
+	// é€Ÿåº¦å¹³æ–¹
 	myfloat V2L = uL * uL + vL * vL;
 	myfloat V2R = uR * uR + vR * vR;
-	// ìÊ+¶¯ÄÜ H = h + 0.5*V2 = gamma*e + 0.5*V2 =  gamma*p/rho/(gamma-1) + 0.5*V2
+	// ç„“+åŠ¨èƒ½ H = h + 0.5*V2 = gamma*e + 0.5*V2 =  gamma*p/rho/(gamma-1) + 0.5*V2
 	myfloat HL = pL * gamma / (rL * ga1) + 0.5 * V2L;
 	myfloat HR = pR * gamma / (rR * ga1) + 0.5 * V2R;
-	// ÉùËÙ
+	// å£°é€Ÿ
 	myfloat aL = sqrt(gamma * pL / rL);
 	myfloat aR = sqrt(gamma * pR / rR);
-	// RoeÆ½¾ù 
+	// Roeå¹³å‡ 
 	myfloat rrorl = sqrt(rR / rL);
 	myfloat rrorlp1 = rrorl + 1.0;
 	myfloat rm = sqrt(rR * rL);
@@ -482,20 +479,20 @@ void U2NITS::Space::RoeDissapationTerm2d(myfloat gamma, myfloat ruvpL[4], myfloa
 	myfloat am = sqrt(am2);
 	myfloat anormaln = am;
 	myfloat mach2 = Vm2 / am2;
-	// Ğı×ª±ä»»£¬×ª»¯ÎªÀ©ÕÅÒ»Î¬Euler·½³Ì
-	myfloat unormaln = um * nx + vm * ny; // ·¨ÏòËÙ¶È
+	// æ—‹è½¬å˜æ¢ï¼Œè½¬åŒ–ä¸ºæ‰©å¼ ä¸€ç»´Euleræ–¹ç¨‹
+	myfloat unormaln = um * nx + vm * ny; // æ³•å‘é€Ÿåº¦
 
-	// ÌØÕ÷Öµ Ò»Î¬Euler·½³ÌÓĞ3¸öÌØÕ÷Öµ u u+a u-a
+	// ç‰¹å¾å€¼ ä¸€ç»´Euleræ–¹ç¨‹æœ‰3ä¸ªç‰¹å¾å€¼ u u+a u-a
 	myfloat eig1 = abs(unormaln);
 	myfloat eig2 = abs(unormaln + anormaln);
 	myfloat eig3 = abs(unormaln - anormaln);
-	// ìØĞŞÕı
+	// ç†µä¿®æ­£
 	const myfloat epsilon = U2NITS::Math::EPSILON;
 	const myfloat& enFixK1 = KEntropyFix[0];
 	const myfloat& enFixK2 = KEntropyFix[1];
 	const myfloat& enFixK3 = KEntropyFix[2];
 	if (bEntropyFix) {
-		myfloat eig_lim1 = (abs(unormaln) + anormaln) * enFixK3 * pShockWaveSensor;// kpÎª¼¤²¨Ì½²âÒò×Ó£¬È¡Á½²àµ¥Ôªp_sensorµÄ¾ùÖµ
+		myfloat eig_lim1 = (abs(unormaln) + anormaln) * enFixK3 * pShockWaveSensor;// kpä¸ºæ¿€æ³¢æ¢æµ‹å› å­ï¼Œå–ä¸¤ä¾§å•å…ƒp_sensorçš„å‡å€¼
 		myfloat eig_lim2 = (abs(unormaln) + anormaln) * (enFixK1 + enFixK2 * pShockWaveSensor);
 		myfloat eig_lim3 = eig_lim2;
 
@@ -503,19 +500,19 @@ void U2NITS::Space::RoeDissapationTerm2d(myfloat gamma, myfloat ruvpL[4], myfloa
 		U2NITS::Space::EigenEntropyFix_HartenYee(eig2, eig_lim2, epsilon);
 		U2NITS::Space::EigenEntropyFix_HartenYee(eig3, eig_lim3, epsilon);
 	}
-	// ÄÜÁ¿·½³ÌµÄÊØºãÁ¿ E=e+0.5*V2, 
-	// ìÊ+¶¯ÄÜ H = h+0.5*V2£¬
-	// ÓÖÒòÎª e=h-p/rho£¬
-	// Òò´Ë E=H-p/rho
+	// èƒ½é‡æ–¹ç¨‹çš„å®ˆæ’é‡ E=e+0.5*V2, 
+	// ç„“+åŠ¨èƒ½ H = h+0.5*V2ï¼Œ
+	// åˆå› ä¸º e=h-p/rhoï¼Œ
+	// å› æ­¤ E=H-p/rho
 	myfloat ER = HR - pR / rR;
 	myfloat EL = HL - pL / rL;
 	myfloat dE = ER - EL;
 
-	// ÎªÊ²Ã´ÕâÀïÊÇ"+"²»ÊÇ"-"£¿
-	// ÀíÂÛÉÏ E=e+0.5*V2=h-p/rho+0.5*V2
+	// ä¸ºä»€ä¹ˆè¿™é‡Œæ˜¯"+"ä¸æ˜¯"-"ï¼Ÿ
+	// ç†è®ºä¸Š E=e+0.5*V2=h-p/rho+0.5*V2
 	// e=h-p/rho, e=h/gamma
 	myfloat Etm = Hm / gamma + ga1 / gamma * 0.5 * Vm2;// ?
-	// ¼ÆËã
+	// è®¡ç®—
 
 	myfloat dW[4]{};
 	dW[0] = rR - rL;
@@ -529,7 +526,7 @@ void U2NITS::Space::RoeDissapationTerm2d(myfloat gamma, myfloat ruvpL[4], myfloa
 	myfloat dUroe = Mstar * dunormaln + (astar - eig1) * (pR - pL) / rm / am2;
 	myfloat dProe = Mstar * (pR - pL) + (astar - eig1) * rm * dunormaln;
 
-	// ¼ÆËãºÄÉ¢Ïî rho rhou rhov rhoE
+	// è®¡ç®—è€—æ•£é¡¹ rho rhou rhov rhoE
 	myfloat& sav = faceArea;
 	drRoe[0] = 0.5 * (eig1 * dW[0] + dUroe * rm) * sav;
 	drRoe[1] = 0.5 * (eig1 * dW[1] + dUroe * rm * um + dProe * nx) * sav;
@@ -548,25 +545,25 @@ void U2NITS::Space::GetRoeMatrix3d(
 	bool bEntropyFix, myfloat KEntropyFix[3], myfloat kp,
 	myfloat roeMatrix[5][5]
 ) {
-	// ÊäÈë£º×óÓÒ
-	// Êä³ö£ºroeMatrix[5][5] ÌØÕ÷¾ØÕó
-	// ÒÉÎÊ£º
-	// ÎªÊ²Ã´Ãæ·¨ÏòÁ¿ÊÇ4Î¬ÏòÁ¿¶ø²»ÊÇ3Î¬£¿
+	// è¾“å…¥ï¼šå·¦å³
+	// è¾“å‡ºï¼šroeMatrix[5][5] ç‰¹å¾çŸ©é˜µ
+	// ç–‘é—®ï¼š
+	// ä¸ºä»€ä¹ˆé¢æ³•å‘é‡æ˜¯4ç»´å‘é‡è€Œä¸æ˜¯3ç»´ï¼Ÿ
 	// 
-	typedef myfloat myfloat;// myfloatÊÇ¾Ö²¿±äÁ¿
+	typedef myfloat myfloat;// myfloatæ˜¯å±€éƒ¨å˜é‡
 	const myfloat epsilon = U2NITS::Math::EPSILON;
 	myfloat& area = faceArea;
 	auto& S_vector = faceVector;
 	myfloat ga1 = gamma - 1;
-	// ĞŞÕıÃæ»ı
+	// ä¿®æ­£é¢ç§¯
 	area = (area < epsilon) ? epsilon : area;
-	// Ãæµ¥Î»·¨ÏòÁ¿¡£µÚ4¸ö·ÖÁ¿ÊÇ¶¯Íø¸ñ²ÎÊı
+	// é¢å•ä½æ³•å‘é‡ã€‚ç¬¬4ä¸ªåˆ†é‡æ˜¯åŠ¨ç½‘æ ¼å‚æ•°
 	myfloat Sn[4]{};
 	Sn[0] = S_vector[0] / area;
 	Sn[1] = S_vector[1] / area;
 	Sn[2] = S_vector[2] / area;
 	Sn[3] = dynamicMeshValue / area;
-	// ×óÓÒµ¥Ôª³¡±äÁ¿
+	// å·¦å³å•å…ƒåœºå˜é‡
 	myfloat& rL = ruvwpL[0];
 	myfloat& uL = ruvwpL[1];
 	myfloat& vL = ruvwpL[2];
@@ -577,17 +574,17 @@ void U2NITS::Space::GetRoeMatrix3d(
 	myfloat& vR = ruvwpR[2];
 	myfloat& wR = ruvwpR[3];
 	myfloat& pR = ruvwpR[4];
-	// ËÙ¶ÈÆ½·½
+	// é€Ÿåº¦å¹³æ–¹
 	myfloat V2L = uL * uL + vL * vL + wL * wL;
 	myfloat V2R = uR * uR + vR * vR + wR * wR;
-	// ìÊ+¶¯ÄÜ H = h + 0.5*V2 = gamma*e + 0.5*V2 =  gamma*p/rho/(gamma-1) + 0.5*V2
+	// ç„“+åŠ¨èƒ½ H = h + 0.5*V2 = gamma*e + 0.5*V2 =  gamma*p/rho/(gamma-1) + 0.5*V2
 	myfloat HL = pL * gamma / (rL * ga1) + 0.5 * V2L;
 	myfloat HR = pR * gamma / (rR * ga1) + 0.5 * V2R;
-	// ÉùËÙ
+	// å£°é€Ÿ
 	myfloat aL = sqrt(gamma * pL / rL);
 	myfloat aR = sqrt(gamma * pR / rR);
 
-	// RoeÆ½¾ù
+	// Roeå¹³å‡
 	myfloat rrorl = sqrt(rR / rL);
 	myfloat rrorlp1 = rrorl + 1.0;
 	myfloat rm = sqrt(rR * rL);
@@ -595,23 +592,23 @@ void U2NITS::Space::GetRoeMatrix3d(
 	myfloat vm = (vL + vR * rrorl) / rrorlp1;
 	myfloat wm = (wL + wR * rrorl) / rrorlp1;
 	myfloat Hm = (HL + HR * rrorl) / rrorlp1;
-	// Çó·¨ÏòÂíºÕÊı
+	// æ±‚æ³•å‘é©¬èµ«æ•°
 	myfloat vm2 = um * um + vm * vm + wm * wm;
 	myfloat am2 = ga1 * (Hm - 0.5 * vm2);
 	myfloat am = sqrt(am2);
 	myfloat mach2 = vm2 / am2;
-	myfloat VN = um * Sn[0] + vm * Sn[1] + wm * Sn[2]; // ·¨ÏòËÙ¶È
+	myfloat VN = um * Sn[0] + vm * Sn[1] + wm * Sn[2]; // æ³•å‘é€Ÿåº¦
 	myfloat machN = VN / am;
 
 	myfloat Vec[3]{ um,vm,wm };
 	myfloat VxV[3][3]{};
-	// ¾­²âÊÔ£¬U={1,1,1}'ºÍV={1,2,3}'Ê±£¬³Ë·¨¶ÔUxV'ÓĞĞ§£¬ÒòÎªV'×Ô¶¯Ê¶±ğ³É3x1¾ØÕó
+	// ç»æµ‹è¯•ï¼ŒU={1,1,1}'å’ŒV={1,2,3}'æ—¶ï¼Œä¹˜æ³•å¯¹UxV'æœ‰æ•ˆï¼Œå› ä¸ºV'è‡ªåŠ¨è¯†åˆ«æˆ3x1çŸ©é˜µ
 	U2NITS::Matrix::mul_ixj_jxk(3, 1, 3, Vec, Vec, (myfloat*)VxV);
 	myfloat SnxSn[3][3]{};
-	myfloat Sn_3[3]{ Sn[0],Sn[1],Sn[2] };// È¡Ç°3Ïî
+	myfloat Sn_3[3]{ Sn[0],Sn[1],Sn[2] };// å–å‰3é¡¹
 	U2NITS::Matrix::mul_ixj_jxk(3, 1, 3, Sn_3, Sn_3, (myfloat*)SnxSn);
 
-	// ¼ÆËãR1L1
+	// è®¡ç®—R1L1
 	myfloat R1L1[5][5]{};
 	// R1L1(1,1)
 	R1L1[0][0] = 1.0 - 0.5 * ga1 * mach2;// 1-0.5*(gamma-1)*Ma^2
@@ -632,7 +629,7 @@ void U2NITS::Space::GetRoeMatrix3d(
 		R1L1[4][i + 1] = (1.0 + 0.5 * ga1 * mach2) * Vec[i] - VN * Sn[i];
 		// R1L1(2:4,2:4)
 		for (int j = 0; j < 3; j++) {
-			myfloat UNIT_i = (i == j);// µ¥Î»¾ØÕó
+			myfloat UNIT_i = (i == j);// å•ä½çŸ©é˜µ
 			R1L1[i + 1][j + 1] = ga1 / am2 * VxV[i][j] + UNIT_i - SnxSn[i][j];
 		}
 	}
@@ -643,9 +640,9 @@ void U2NITS::Space::GetRoeMatrix3d(
 		V_Sn[i] = Vec[i] - am * Sn_3[i];
 		ga1_n[i] = -0.5 * ga1 / am2 * Vec[i] - 0.5 * Sn_3[i] / am;
 	}
-	myfloat MIDDLE1[3][3];// ÁÙÊ±±äÁ¿
+	myfloat MIDDLE1[3][3];// ä¸´æ—¶å˜é‡
 	U2NITS::Matrix::mul_ixj_jxk(3, 1, 3, V_Sn, ga1_n, (myfloat*)MIDDLE1);
-	// ¼ÆËãR2L2
+	// è®¡ç®—R2L2
 	myfloat R2L2[5][5]{};
 	// R2L2(1,1)
 	R2L2[0][0] = 0.25 * ga1 * mach2 + 0.5 * machN;
@@ -670,13 +667,13 @@ void U2NITS::Space::GetRoeMatrix3d(
 		}
 	}
 
-	// ÕâÀïga1_nÎŞĞèÖØĞÂ¼ÆËã
+	// è¿™é‡Œga1_næ— éœ€é‡æ–°è®¡ç®—
 	for (int i = 0; i < 3; i++) {
 		V_Sn[i] = Vec[i] + am * Sn_3[i];
 		//ga1_n[i] = -0.5 * ga1 / am2 * Vec[i] - 0.5 * Sn_3[i] / am;
 	}
 	U2NITS::Matrix::mul_ixj_jxk(3, 1, 3, V_Sn, ga1_n, (myfloat*)MIDDLE1);
-	// ¼ÆËãR3L3
+	// è®¡ç®—R3L3
 	myfloat R3L3[5][5]{};
 	// R3L3(1,1)
 	R3L3[0][0] = 0.25 * ga1 * mach2 - 0.5 * machN;
@@ -704,7 +701,7 @@ void U2NITS::Space::GetRoeMatrix3d(
 	myfloat eig1 = abs(VN + Sn[3]);
 	myfloat eig2 = abs(VN + Sn[3] + am);
 	myfloat eig3 = abs(VN + Sn[3] - am);
-	// ìØĞŞÕı
+	// ç†µä¿®æ­£
 	const myfloat& enFixK1 = KEntropyFix[0];
 	const myfloat& enFixK2 = KEntropyFix[1];
 	const myfloat& enFixK3 = KEntropyFix[2];
@@ -712,13 +709,11 @@ void U2NITS::Space::GetRoeMatrix3d(
 		myfloat eig_lim1 = (abs(VN + Sn[3]) + am) * enFixK3 * kp;
 		myfloat eig_lim2 = (abs(VN + Sn[3]) + am) * (enFixK1 + enFixK2 * kp);
 		myfloat eig_lim3 = eig_lim2;
-		// floatµÄ×îĞ¡ÕıÊıÎª1.4e-45
-		// ²Î¼û csappP72 »ò https://zhuanlan.zhihu.com/p/656543002
 		U2NITS::Space::EigenEntropyFix_HartenYee(eig1, eig_lim1, epsilon);
 		U2NITS::Space::EigenEntropyFix_HartenYee(eig2, eig_lim2, epsilon);
 		U2NITS::Space::EigenEntropyFix_HartenYee(eig3, eig_lim3, epsilon);
 	}
-	// Êä³öÌØÕ÷¾ØÕó
+	// è¾“å‡ºç‰¹å¾çŸ©é˜µ
 	roeMatrix;
 	for (int i = 0; i < 5; i++) {
 		for (int j = 0; j < 5; j++) {

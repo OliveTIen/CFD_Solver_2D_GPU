@@ -16,7 +16,7 @@ public:
 	HistWriter(std::string fullFilePath) { m_filePath = fullFilePath; }
 	void setFilePath(std::string fullFilePath){ m_filePath = fullFilePath; }
 
-	// 新函数，将writeHead集成在里面。旧函数已删
+	// 鏂板嚱鏁帮紝灏唚riteHead闆嗘垚鍦ㄩ噷闈€�傛棫鍑芥暟宸插垹
 	void writeHistFile_2(int iteration, const double* residual, int length);
 private:
 	void writeHistFileHead_2();

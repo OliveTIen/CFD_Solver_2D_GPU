@@ -1,4 +1,4 @@
-﻿#ifndef ELEMENT_2D_H
+#ifndef ELEMENT_2D_H
 #define ELEMENT_2D_H
 #include "Node_2D.h"
 

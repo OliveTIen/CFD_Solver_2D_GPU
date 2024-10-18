@@ -4,7 +4,7 @@
 class GeometryReader {
 
 public:
-	/*旧网格读取；初始化pTable；初始化边界几何*/
+	/*鏃х綉鏍艰鍙栵紱鍒濆鍖杙Table锛涘垵濮嬪寲杈圭晫鍑犱綍*/
 };
 
 #endif

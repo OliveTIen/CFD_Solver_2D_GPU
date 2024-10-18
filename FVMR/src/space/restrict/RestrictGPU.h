@@ -18,7 +18,7 @@ namespace GPU {
 				return false;
 			}
 
-			// ĞŞÕıËùÓĞµ¥Ôª³¡±äÁ¿¡£¶ÔÓÚ³¬³ö·¶Î§µÄÊı¾İ£¬È¡ÁÚ¾ÓµÄÆ½¾ùÖµ
+			// ä¿®æ­£æ‰€æœ‰å•å…ƒåœºå˜é‡ã€‚å¯¹äºè¶…å‡ºèŒƒå›´çš„æ•°æ®ï¼Œå–é‚»å±…çš„å¹³å‡å€¼
 			void modifyElementFieldU2d_device(GPU::ElementSoA& element, GPU::ElementFieldSoA& elementField, const myfloat gamma);
 
 		}

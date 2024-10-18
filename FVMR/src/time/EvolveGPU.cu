@@ -9,7 +9,7 @@
 #include <sstream>
 
 void cuda_vector_divide_by_elements_with_weight(integer length, myfloat* dist, const myfloat* src, myfloat weight) {
-    // ´øÈ¨µÄÏòÁ¿¶ÔÓ¦ÔªËØÏà³ı
+    // å¸¦æƒçš„å‘é‡å¯¹åº”å…ƒç´ ç›¸é™¤
     int threadsPerBlock = 256;
     int blocksPerGrid = (length + threadsPerBlock - 1) / threadsPerBlock;
 
@@ -26,14 +26,25 @@ void calculateFunctionF_modify_flux_by_volume(integer num,  myfloat* ynp_flux[4]
     getLastCudaError("calculateFunctionF_modify_flux_by_volume failed.");
 }
 
+/** 
+* \file EvolveGPU.cu
+* @name calculateFunctionF_device
+* @brief get flux
+* è®¡ç®—å¸¸å¾®åˆ†æ–¹ç¨‹çš„å³ç«¯é¡¹f=f(t,U)
+* @param[out] ynp_device
+* @details
+* - @ref GPU::Space::Gradient::Gradient_2
+* - @ref GPU::Space::Flux::calculateFluxDevice_2
+* - @ref calculateFunctionF_modify_flux_by_volume
+*/
 void calculateFunctionF_device(GPU::ElementSoA& element_device, GPU::NodeSoA& node_device, GPU::EdgeSoA& edge_device, GPU::ElementFieldSoA& ynp_device) {
-    // ¼ÆËã³£Î¢·Ö·½³ÌµÄÓÒ¶ËÏîf=f(t,U)¡£ÓëÊ±¼äÎŞ¹Ø£¬Òò´Ë¼ò»¯Îªf(U)
+    // è®¡ç®—å¸¸å¾®åˆ†æ–¹ç¨‹çš„å³ç«¯é¡¹f=f(t,U)ã€‚ä¸æ—¶é—´æ— å…³ï¼Œå› æ­¤ç®€åŒ–ä¸ºf(U)
 
-    // ¸ù¾İU¼ÆËãUx¡¢Uy£¬¼´ÖØ¹¹
-    GPU::Space::Gradient::Gradient_2(element_device, node_device, edge_device, ynp_device);// ÒÑ¼ì²é
-    // ¸ù¾İUºÍUx¡¢Uy¼ÆËãÍ¨Á¿£¬´æÈëynp.Flux
+    // æ ¹æ®Uè®¡ç®—Uxã€Uyï¼Œå³é‡æ„
+    GPU::Space::Gradient::Gradient_2(element_device, node_device, edge_device, ynp_device);// å·²æ£€æŸ¥
+    // æ ¹æ®Uå’ŒUxã€Uyè®¡ç®—é€šé‡ï¼Œå­˜å…¥ynp.Flux
     GPU::Space::Flux::calculateFluxDevice_2(element_device, edge_device, ynp_device);
-    // ³ËÒÔÌå»ı¸ºµ¹Êı£¬µÃµ½ÓÒ¶ËÏîf£¬´æÈëynp.Flux
+    // ä¹˜ä»¥ä½“ç§¯è´Ÿå€’æ•°ï¼Œå¾—åˆ°å³ç«¯é¡¹fï¼Œå­˜å…¥ynp.Flux
     calculateFunctionF_modify_flux_by_volume(element_device.num_element, ynp_device.Flux, element_device.volume);
 
     getLastCudaError("calculateFunctionF_device failed.");
@@ -44,9 +55,9 @@ void GPU::Time::evolve_explicit_globaltimestep_device(myfloat dt, GPU::ElementSo
     int threadsPerBlock = 256;
     int blocksPerGrid = (num_element + threadsPerBlock - 1) / threadsPerBlock;
 
-    // ¼ÆËã²ĞÖµ¡£dU/dt = f(t,U)ÓÒ¶ËÏî
+    // è®¡ç®—æ®‹å€¼ã€‚dU/dt = f(t,U)å³ç«¯é¡¹
     calculateFunctionF_device(element_device, node_device, edge_device, elementField_device);
-    // Ê±¼äÍÆ½ø(Ê±¼ä»ı·Ö)
+    // æ—¶é—´æ¨è¿›(æ—¶é—´ç§¯åˆ†)
     for (int i = 0; i < 4; i++) {
         GPU::Math::vector_weighted_add_kernel <<<blocksPerGrid, threadsPerBlock>>> (num_element, elementField_device.U[i], elementField_device.Flux[i], dt);
     }
@@ -58,9 +69,9 @@ void GPU::Time::evolve_explicit_localtimestep_device(GPU::ElementSoA& element_de
     myint num_element = element_device.num_element;
     int threadsPerBlock = 256;
     int blocksPerGrid = (num_element + threadsPerBlock - 1) / threadsPerBlock;
-    // ¼ÆËã²ĞÖµ
+    // è®¡ç®—æ®‹å€¼
     calculateFunctionF_device(element_device, node_device, edge_device, elementField_device);
-    // Ê±¼äÍÆ½ø(Ê±¼ä»ı·Ö)
+    // æ—¶é—´æ¨è¿›(æ—¶é—´ç§¯åˆ†)
     for (int i = 0; i < 4; i++) {
         GPU::Math::vector_dot_product_add_kernel <<<blocksPerGrid, threadsPerBlock>>> (num_element, elementField_device.U[i], elementField_device.Flux[i], elementFieldVariable_dt_device.alphaC);
     }

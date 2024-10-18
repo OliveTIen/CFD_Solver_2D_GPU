@@ -24,7 +24,7 @@ public:
 
 public:
 	ConsolePrinter() { restoreCursorPosition(); }
-	// ´æ´¢µ±Ç°¿ØÖÆÌ¨¹â±êÎ»ÖÃ¡£xÖá³¯ÓÒ£¬yÖá³¯ÏÂ
+	// å­˜å‚¨å½“å‰æ§åˆ¶å°å…‰æ ‡ä½ç½®ã€‚xè½´æœå³ï¼Œyè½´æœä¸‹
 	void restoreCursorPosition();
 	void restoreClearStartPosition();
 	void setClearStartPosition();
@@ -39,25 +39,25 @@ public:
 public:
 	static COORD getCursorPosition();
 	static void setCursorPosition(COORD pstn);
-	// ´°¿Ú»º³åÇø´óĞ¡
+	// çª—å£ç¼“å†²åŒºå¤§å°
 	static COORD getScreenBufferSize();
-	// ´òÓ¡³õÊ¼½çÃæ
+	// æ‰“å°åˆå§‹ç•Œé¢
 	static void printHeader(HeaderStyle h);
 	// ...
 	static void printGenshinStart();
 	static void drawProgressBar(myfloat value, myfloat maxValue, int barLength = 45);
-	// Çå³ıp1, p2Ö®¼äµÄ¿ØÖÆÌ¨ÄÚÈİ£¬¹â±ê²»±ä
+	// æ¸…é™¤p1, p2ä¹‹é—´çš„æ§åˆ¶å°å†…å®¹ï¼Œå…‰æ ‡ä¸å˜
 	static void clearDisplay(COORD p1, COORD p2);
 	// return solveInfo
 	std::string setSolveInfo(int currentStep, int endStep, int numOfFile, myfloat usedTime, myfloat physicalTime, myfloat maxPhysicalTime, const myfloat* residual_vector, myfloat CFL, double mean_speed, double pure_calculate_speed);
 	std::string getSolveInfo() { return m_solveInfo; }
-	// ´òÓ¡Çó½âĞÅÏ¢
+	// æ‰“å°æ±‚è§£ä¿¡æ¯
 	static void printInfo(InfoType type);
 	static myfloat getMeanSpeed(int currentStep, int startStep, myfloat usedTime);
 
 
 private:
-	// »æÖÆ½ø¶ÈÌõ¡£0<=percent<=100
+	// ç»˜åˆ¶è¿›åº¦æ¡ã€‚0<=percent<=100
 	static void m_drawProgressBar(myfloat percent, int barLength);
 	
 

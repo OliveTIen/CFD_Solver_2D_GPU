@@ -41,7 +41,7 @@ void LogWriter::log(std::string content, LogLevel logLevel) {
 		m_logFilePath = directory + dateAndTime + ".LOG";
 		m_hasInitilized = true;
 	}
-	if (logLevel <= m_logLevel) {// logLevel小于参考，说明更紧急，写入日志
+	if (logLevel <= m_logLevel) {// logLevel灏忎簬鍙傝�冿紝璇存槑鏇寸揣鎬ワ紝鍐欏叆鏃ュ織
 		m_logFile.open(m_logFilePath, std::ios::app);
 		m_logFile << enumToStringWithBracket(logLevel) << " ";
 		m_logFile << content;

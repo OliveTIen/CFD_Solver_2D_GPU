@@ -15,7 +15,7 @@ void Grid::initRenderingData_StructuredGrid() {
         for (int i = 0; i < slices; ++i) {
             int row1 = j * (slices + 1);
             int row2 = (j + 1) * (slices + 1);
-            // ÎÒ²»ÖªµÀÎªÊ²Ã´ÒªÓÃuvec4£¬µ«¾­¹ıÁĞ¾Ù·¨ÑéÖ¤£¬È·ÊµÒ»´Îpush_backÁËÁ½Ìõ±ß
+            // æˆ‘ä¸çŸ¥é“ä¸ºä»€ä¹ˆè¦ç”¨uvec4ï¼Œä½†ç»è¿‡åˆ—ä¸¾æ³•éªŒè¯ï¼Œç¡®å®ä¸€æ¬¡push_backäº†ä¸¤æ¡è¾¹
             //  1----2      row1+i,  row1+i+1
             //  |    |
             //  4----3      row2+i,  row2+i+1
@@ -27,14 +27,14 @@ void Grid::initRenderingData_StructuredGrid() {
             indices.push_back(glm::uvec2(row2 + i, row1 + i));
         }
     }
-    // sizeof(glm::uvec4)/sizeof(int)=4, 4 means each uvec4 has 4 ints ±íÊ¾Ã¿¸öuvec4ÓĞ4¸öÕûĞÍÊı
-    index_length = (GLuint)indices.size() * sizeof(glm::uvec2)/sizeof(int);// »æÖÆÖ±ÏßÊ±£¬ÊÇ2¸öµã2¸öµãµØ»æÖÆµÄ¡£ÀıÈçindex_length¸öµã£¬»á»æÖÆindex_length/2Ìõ±ß
+    // sizeof(glm::uvec4)/sizeof(int)=4, 4 means each uvec4 has 4 ints è¡¨ç¤ºæ¯ä¸ªuvec4æœ‰4ä¸ªæ•´å‹æ•°
+    index_length = (GLuint)indices.size() * sizeof(glm::uvec2)/sizeof(int);// ç»˜åˆ¶ç›´çº¿æ—¶ï¼Œæ˜¯2ä¸ªç‚¹2ä¸ªç‚¹åœ°ç»˜åˆ¶çš„ã€‚ä¾‹å¦‚index_lengthä¸ªç‚¹ï¼Œä¼šç»˜åˆ¶index_length/2æ¡è¾¹
 }
 
 void Grid::initPhysicsPointData_StructuredGrid() {
 
     ///////////////////
-    // ¶¥µãÎïÀí±äÁ¿
+    // é¡¶ç‚¹ç‰©ç†å˜é‡
     velocities.resize(vertices.size());
     X_hat.resize(vertices.size());
     G.resize(vertices.size());
@@ -47,8 +47,8 @@ void Grid::initPhysicsPointData_StructuredGrid() {
 
 void Grid::initPhysicsEdgeData_StructuredGrid() {
     //////////////////
-    // ±ßÎïÀí±äÁ¿
-    // Èı½ÇĞÎËùÓĞ¶¥µãµÄ¼¯ºÏ
+    // è¾¹ç‰©ç†å˜é‡
+    // ä¸‰è§’å½¢æ‰€æœ‰é¡¶ç‚¹çš„é›†åˆ
     std::vector<int> triangles;
     triangles.resize(slices * slices * 6);
     size_t t = 0;
@@ -64,10 +64,10 @@ void Grid::initPhysicsEdgeData_StructuredGrid() {
             t++;
         }
     }
-    // ¹¹Ôì_E£¬ÊÇÈı½ÇĞÎËùÓĞ±ßµÄ¼¯ºÏ
+    // æ„é€ _Eï¼Œæ˜¯ä¸‰è§’å½¢æ‰€æœ‰è¾¹çš„é›†åˆ
     std::vector<int> _E;// edge for all triangles, storing node indices
     _E.resize(triangles.size() * 2);
-    for (size_t i = 0; i < triangles.size(); i += 3) {// Ã¿´Î¼ÇÂ¼1¸öÈı½ÇĞÎµÄ3Ìõ±ß¡£iÃ¿´Î+3µØµİÔö£¬ÒòÎª1¸öÈı½ÇĞÎÕ¼ÓÃ3¸öÔªËØ
+    for (size_t i = 0; i < triangles.size(); i += 3) {// æ¯æ¬¡è®°å½•1ä¸ªä¸‰è§’å½¢çš„3æ¡è¾¹ã€‚iæ¯æ¬¡+3åœ°é€’å¢ï¼Œå› ä¸º1ä¸ªä¸‰è§’å½¢å ç”¨3ä¸ªå…ƒç´ 
         _E[i * 2 + 0] = triangles[i + 0];
         _E[i * 2 + 1] = triangles[i + 1];
         _E[i * 2 + 2] = triangles[i + 1];
@@ -82,7 +82,7 @@ void Grid::initPhysicsEdgeData_StructuredGrid() {
     // sort the original edge list using quicksort
     Quick_Sort(_E.data(), 0, _E.size() / 2 - 1);
 
-    // ¹¹Ôì±ßÊı×éE£¬¼ÆËã±ß³¤¶ÈL
+    // æ„é€ è¾¹æ•°ç»„Eï¼Œè®¡ç®—è¾¹é•¿åº¦L
     int e_number = 0;
     for (int i = 0; i < _E.size(); i += 2)
         if (i == 0 || _E[i + 0] != _E[i - 2] || _E[i + 1] != _E[i - 1])
@@ -109,14 +109,14 @@ void Grid::initRenderingData_UnstructuredGrid(std::string filepath) {
     GUI::GridDataAdapter adapter;
     adapter.setPointer(vertices, indices, boundaries);
     adapter.readData(filepath);
-    // »æÖÆÖ±ÏßÊ±£¬ÊÇ2¸öµã2¸öµãµØ»æÖÆµÄ¡£ÀıÈçindex_length¸öµã£¬»á»æÖÆindex_length/2Ìõ±ß
+    // ç»˜åˆ¶ç›´çº¿æ—¶ï¼Œæ˜¯2ä¸ªç‚¹2ä¸ªç‚¹åœ°ç»˜åˆ¶çš„ã€‚ä¾‹å¦‚index_lengthä¸ªç‚¹ï¼Œä¼šç»˜åˆ¶index_length/2æ¡è¾¹
     index_length = (GLuint)indices.size() * sizeof(glm::uvec2) / sizeof(int);
 
 }
 
 void Grid::initPhysicsPointData_UnstructuredGrid() {
     ///////////////////
-    // ¶¥µãÎïÀí±äÁ¿
+    // é¡¶ç‚¹ç‰©ç†å˜é‡
     velocities.resize(vertices.size());
     X_hat.resize(vertices.size());
     G.resize(vertices.size());
@@ -128,18 +128,18 @@ void Grid::initPhysicsPointData_UnstructuredGrid() {
 
 void Grid::initPhysicsEdgeData_UnstructuredGrid() {
     //////////////////
-    // ±ßÎïÀí±äÁ¿
-    // Èı½ÇĞÎËùÓĞ¶¥µãµÄ¼¯ºÏ¡£³¤¶ÈÎª
+    // è¾¹ç‰©ç†å˜é‡
+    // ä¸‰è§’å½¢æ‰€æœ‰é¡¶ç‚¹çš„é›†åˆã€‚é•¿åº¦ä¸º
     std::vector<int> triangles;
     triangles.resize(indices.size());
     for (size_t i = 0; i < indices.size(); i++) {
         triangles[i] = indices[i].x;
     }
 
-    // ¹¹Ôì_E£¬ÊÇÈı½ÇĞÎËùÓĞ±ßµÄ¼¯ºÏ
+    // æ„é€ _Eï¼Œæ˜¯ä¸‰è§’å½¢æ‰€æœ‰è¾¹çš„é›†åˆ
     std::vector<int> _E;// edge for all triangles, storing node indices
     _E.resize(triangles.size() * 2);
-    for (size_t i = 0; i < triangles.size(); i += 3) {// Ã¿´Î¼ÇÂ¼1¸öÈı½ÇĞÎµÄ3Ìõ±ß¡£iÃ¿´Î+3µØµİÔö£¬ÒòÎª1¸öÈı½ÇĞÎÕ¼ÓÃ3¸öÔªËØ
+    for (size_t i = 0; i < triangles.size(); i += 3) {// æ¯æ¬¡è®°å½•1ä¸ªä¸‰è§’å½¢çš„3æ¡è¾¹ã€‚iæ¯æ¬¡+3åœ°é€’å¢ï¼Œå› ä¸º1ä¸ªä¸‰è§’å½¢å ç”¨3ä¸ªå…ƒç´ 
         _E[i * 2 + 0] = triangles[i + 0];
         _E[i * 2 + 1] = triangles[i + 1];
         _E[i * 2 + 2] = triangles[i + 1];
@@ -154,7 +154,7 @@ void Grid::initPhysicsEdgeData_UnstructuredGrid() {
     // sort the original edge list using quicksort
     Quick_Sort(_E.data(), 0, _E.size() / 2 - 1);
 
-    // ¹¹Ôì±ßÊı×éE£¬¼ÆËã±ß³¤¶ÈL
+    // æ„é€ è¾¹æ•°ç»„Eï¼Œè®¡ç®—è¾¹é•¿åº¦L
     int e_number = 0;
     for (int i = 0; i < _E.size(); i += 2)
         if (i == 0 || _E[i + 0] != _E[i - 2] || _E[i + 1] != _E[i - 1])
@@ -263,7 +263,7 @@ void Grid::update(float dt) {
         Get_Gradient(dt);
 
         // Update X by gradient.
-        // ±éÀúµã£¬Ê©¼Ó¶¯Á¿ºÍÖØÁ¦ Momentum and Gravity
+        // éå†ç‚¹ï¼Œæ–½åŠ åŠ¨é‡å’Œé‡åŠ› Momentum and Gravity
         for (int i = 0; i < X.size(); i++) {
             float hessian_inv = 1.0f / (dt2_inv * mass + 4 * spring_k);
             X[i] -= hessian_inv * G[i];
@@ -299,7 +299,7 @@ void Grid::Get_Gradient(float dt) {
 
 
     for (int i = 0; i < X.size(); i++) {
-        G[i] = dt2_inv * mass * (X[i] - X_hat[i]);// momentum; ¶¯Á¿(¹ßĞÔÁ¦) 
+        G[i] = dt2_inv * mass * (X[i] - X_hat[i]);// momentum; åŠ¨é‡(æƒ¯æ€§åŠ›) 
         G[i] -= gravity_vector;// gravity
     }
 

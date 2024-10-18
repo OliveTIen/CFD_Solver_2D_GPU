@@ -3,9 +3,9 @@
 
 class CExit {
 public:
-	// ½öÔÚµü´ú¹ı³ÌÖĞÊ¹ÓÃ¡£±£´æÉÏÒ»²½ĞøËãÎÄ¼ş²¢ÍË³ö
+	// ä»…åœ¨è¿­ä»£è¿‡ç¨‹ä¸­ä½¿ç”¨ã€‚ä¿å­˜ä¸Šä¸€æ­¥ç»­ç®—æ–‡ä»¶å¹¶é€€å‡º
 	static void saveAndExit(int _Code);
-	// press enter to exit. °´ÈÎÒâ¼üÍË³ö¡£Ä¿Ç°Ö»ÄÜ°´enterÍË³ö
+	// press enter to exit. æŒ‰ä»»æ„é”®é€€å‡ºã€‚ç›®å‰åªèƒ½æŒ‰enteré€€å‡º
 	static void pressAnyKeyToExit();
 	static int pressEnterToContinue();
 	static int pressAnyKeyToContinue();

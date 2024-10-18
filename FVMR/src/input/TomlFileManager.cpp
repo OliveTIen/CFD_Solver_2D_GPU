@@ -1,4 +1,4 @@
-﻿#include "TomlFileManager.h"
+#include "TomlFileManager.h"
 #include "../global/GlobalPara.h"
 #include <iostream>
 #include "../output/LogWriter.h"

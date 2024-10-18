@@ -3,8 +3,8 @@
 #include "DefineType.h"
 #include "../../global/Constexpr.h"
 /*
-ÓĞĞ©Êı¾İÖ»ĞèÒª´ÓCPU¿½±´µ½GPU£¬¶ø²»ĞèÒª¿½»ØÀ´£¬ÀıÈçÔ¶³¡²ÎÊı
-¸ÃÀàÓÃCPUµÄÒ»¸öÖ¸Õë³õÊ¼»¯£¬ĞèÒª·µ»ØÊ±ÓÃ
+æœ‰äº›æ•°æ®åªéœ€è¦ä»CPUæ‹·è´åˆ°GPUï¼Œè€Œä¸éœ€è¦æ‹·å›æ¥ï¼Œä¾‹å¦‚è¿œåœºå‚æ•°
+è¯¥ç±»ç”¨CPUçš„ä¸€ä¸ªæŒ‡é’ˆåˆå§‹åŒ–ï¼Œéœ€è¦è¿”å›æ—¶ç”¨
 */
 namespace GPU {
 	//class DeviceData {
@@ -15,9 +15,9 @@ namespace GPU {
 	//};
 
 	/*
-	DeviceArray£¬Éè±¸ÄÚ´æÉÏµÄÊı×é¡£ÓÃhost³õÊ¼»¯£¬Îö¹¹Ê±×Ô¶¯ÊÍ·ÅÉè±¸ÄÚ´æ¡£
-	µ«ÊÇÒªÊµÏÖ¼ÆËãµÄ»°£¬ĞèÒªÖØĞ´ÔËËã·û£¬ºÜÂé·³£¬Òò´Ë½«Ö¸ÕëÉèÎª¹«ÓĞ
-	´ËÍâ£¬²»ÖªµÀ³ÉÔ±º¯ÊıÊÇ·ñĞèÒª¼ÓÉÏ__device__
+	DeviceArrayï¼Œè®¾å¤‡å†…å­˜ä¸Šçš„æ•°ç»„ã€‚ç”¨hoståˆå§‹åŒ–ï¼Œææ„æ—¶è‡ªåŠ¨é‡Šæ”¾è®¾å¤‡å†…å­˜ã€‚
+	ä½†æ˜¯è¦å®ç°è®¡ç®—çš„è¯ï¼Œéœ€è¦é‡å†™è¿ç®—ç¬¦ï¼Œå¾ˆéº»çƒ¦ï¼Œå› æ­¤å°†æŒ‡é’ˆè®¾ä¸ºå…¬æœ‰
+	æ­¤å¤–ï¼Œä¸çŸ¥é“æˆå‘˜å‡½æ•°æ˜¯å¦éœ€è¦åŠ ä¸Š__device__
 	*/
 	template<typename T>
 	class DArray{
@@ -34,7 +34,7 @@ namespace GPU {
 	};
 
 	/*
-	Éè±¸ÄÚ´æÉÏµÄÊı£¬ÀıÈçintµÈ»ù±¾ÀàĞÍ
+	è®¾å¤‡å†…å­˜ä¸Šçš„æ•°ï¼Œä¾‹å¦‚intç­‰åŸºæœ¬ç±»å‹
 	*/
 	template<typename T>
 	class DSingle :public DArray<T> {
@@ -75,21 +75,21 @@ namespace GPU {
 	};
 
 
-	// struct device parameter; Èç¹ûÃ»ÓĞÖ¸Õë£¬Ö»ÊÇ´«Èë£¬ÎŞĞè´«³ö£¬¾Í²»ĞèÒªÉêÇëcudaÄÚ´æ
+	// struct device parameter; å¦‚æœæ²¡æœ‰æŒ‡é’ˆï¼Œåªæ˜¯ä¼ å…¥ï¼Œæ— éœ€ä¼ å‡ºï¼Œå°±ä¸éœ€è¦ç”³è¯·cudaå†…å­˜
 	struct SDevicePara {
 
 		/* struct type define */
 		struct Constant {
-			myfloat const R = 287.06;// ÆøÌå³£Êı
+			myfloat const R = 287.06;// æ°”ä½“å¸¸æ•°
 			myfloat const PI = 3.1415926535897;
-			myfloat T0 = 288.16;// º£Æ½ÃæÎÂ¶È²Î¿¼Öµ
-			myfloat p0 = 101325.0;// º£Æ½ÃæÑ¹Á¦²Î¿¼Öµ
-			myfloat c0 = 340.28;// º£Æ½ÃæÉùËÙ²Î¿¼Öµ
+			myfloat T0 = 288.16;// æµ·å¹³é¢æ¸©åº¦å‚è€ƒå€¼
+			myfloat p0 = 101325.0;// æµ·å¹³é¢å‹åŠ›å‚è€ƒå€¼
+			myfloat c0 = 340.28;// æµ·å¹³é¢å£°é€Ÿå‚è€ƒå€¼
 			myfloat gamma = 1.4;
 			myfloat epsilon = 1e-7;
 			myfloat Re = 1.0e8;
 			myfloat Pr = 0.73;
-			myfloat mu = 17.9e-6;// ¿ÕÆø¶¯Á¦Õ³ĞÔÏµÊı
+			myfloat mu = 17.9e-6;// ç©ºæ°”åŠ¨åŠ›ç²˜æ€§ç³»æ•°
 
 			void initialize(myfloat _T0, myfloat _p0, myfloat _c0, myfloat _gamma, myfloat _epsilon, myfloat _Re, myfloat _Pr, myfloat _mu) {
 				T0 = _T0;
@@ -127,7 +127,7 @@ namespace GPU {
 		};
 
 		struct InviscidFluxMethod {
-			int flux_conservation_scheme = _SOL_Roe;// ÀèÂüÇó½âÆ÷
+			int flux_conservation_scheme = _SOL_Roe;// é»æ›¼æ±‚è§£å™¨
 			int flux_limiter = _LIM_minmod;
 
 			void initialize(int _flux_conservation_scheme, int _flux_limiter) {

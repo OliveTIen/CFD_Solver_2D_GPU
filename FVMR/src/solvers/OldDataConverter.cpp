@@ -6,10 +6,10 @@ void U2NITS::OldDataConverter::Convert_FVM2D_to_HostData() {
 	const int num_edge = (int)m_pFVM2D->edges.size();
 	const int num_boundary = (int)m_pFVM2D->boundaryManager.boundaries.size();
 
-	// ³õÊ¼»¯Element_2D vectorÖĞµÄGPUindex
+	// åˆå§‹åŒ–Element_2D vectorä¸­çš„GPUindex
 	InitializeOldGPUIndex(num_node, num_element, num_edge);
 
-	// ÓÃFVM_2DÊı¾İ³õÊ¼»¯host
+	// ç”¨FVM_2Dæ•°æ®åˆå§‹åŒ–host
 	ConvertNode(num_node);
 	ConvertElement(num_element);
 	ConvertEdge(num_edge);
@@ -19,7 +19,7 @@ void U2NITS::OldDataConverter::Convert_FVM2D_to_HostData() {
 }
 
 void U2NITS::OldDataConverter::InitializeOldGPUIndex(int num_node, int num_element, int num_edge) {
-	// ³õÊ¼»¯Element_2D vectorÖĞµÄGPUindex
+	// åˆå§‹åŒ–Element_2D vectorä¸­çš„GPUindex
 
 	for (int i = 0; i < num_node; i++) {
 		m_pFVM2D->nodes[i].GPUID = i;
@@ -44,7 +44,7 @@ void U2NITS::OldDataConverter::ConvertNode(int num_node) {
 
 void U2NITS::OldDataConverter::ConvertElement(int num_element) {
 	/*
-	¼ÙÉèÊÇÈı½ÇĞÎ
+	å‡è®¾æ˜¯ä¸‰è§’å½¢
 	*/
 	//const int num_element = (int)m_pFVM2D->elements.size();
 	GPU::EdgeSoA& edge_host = m_pGPUSolver2->edge_host;
@@ -52,7 +52,7 @@ void U2NITS::OldDataConverter::ConvertElement(int num_element) {
 	GPU::ElementSoA& element_host = m_pGPUSolver2->element_host;
 	GPU::ElementFieldSoA& elementField_host = m_pGPUSolver2->elementField_host;
 
-	// ³õÊ¼»¯element_hostºÍelementAdjacent
+	// åˆå§‹åŒ–element_hostå’ŒelementAdjacent
 	FVM_2D* pFVM2D = (FVM_2D*)m_pFVM2D;
 	const int nodePerElement = 3;
 	const int nValue = 4;
@@ -62,17 +62,17 @@ void U2NITS::OldDataConverter::ConvertElement(int num_element) {
 
 		Element_2D& element_i = pFVM2D->elements[i];
 		// ID xy volume
-		// ×¢ÒâvolumeÊÇÓÃµÄÒÔÇ°µÄº¯Êı¼ÆËã£¬Èç¹ûÒªÖØĞÂ¶ÁÈ¡µÄ»°£¬xy volumeĞèÒª·ÅÔÚºóÃæ£¬ÒòÎª
-		// nodeÉĞÎ´È«²¿³õÊ¼»¯
+		// æ³¨æ„volumeæ˜¯ç”¨çš„ä»¥å‰çš„å‡½æ•°è®¡ç®—ï¼Œå¦‚æœè¦é‡æ–°è¯»å–çš„è¯ï¼Œxy volumeéœ€è¦æ”¾åœ¨åé¢ï¼Œå› ä¸º
+		// nodeå°šæœªå…¨éƒ¨åˆå§‹åŒ–
 		element_host.ID[i] = element_i.GPUID;
 		element_host.xy[0][i] = element_i.x;
 		element_host.xy[1][i] = element_i.y;
-		element_host.volume[i] = element_i.area;// 20240405ĞÂÔö£ºÔÚ×é×°edgeÊ±¼ÆËãÃæ»ı£¬²¢µ÷Õû½ÚµãË³ĞòÎªÄæÊ±Õë
+		element_host.volume[i] = element_i.area;// 20240405æ–°å¢ï¼šåœ¨ç»„è£…edgeæ—¶è®¡ç®—é¢ç§¯ï¼Œå¹¶è°ƒæ•´èŠ‚ç‚¹é¡ºåºä¸ºé€†æ—¶é’ˆ
 		for (int j = 0; j < nodePerElement; j++) {
 			element_host.nodes[j][i] = pFVM2D->getNodeByID(element_i.nodes[j])->GPUID;
 			element_host.edges[j][i] = element_i.pEdges[j]->GPUID;
 		}
-		element_host.nodes[3][i] = -1;// ¶ÔÈı½ÇĞÎµ¥Ôª£¬ÆäµÚ4¸ö¶¥µãºÍ±ß²»´æÔÚ£¬IDÈ¡-1
+		element_host.nodes[3][i] = -1;// å¯¹ä¸‰è§’å½¢å•å…ƒï¼Œå…¶ç¬¬4ä¸ªé¡¶ç‚¹å’Œè¾¹ä¸å­˜åœ¨ï¼ŒIDå–-1
 		element_host.edges[3][i] = -1;
 		for (int j = 0; j < nValue; j++) {
 			elementField_host.U[j][i] = element_i.U[j];
@@ -80,7 +80,7 @@ void U2NITS::OldDataConverter::ConvertElement(int num_element) {
 			elementField_host.Uy[j][i] = element_i.Uy[j];
 			elementField_host.Flux[j][i] = element_i.Flux[j];
 		}
-		// ÁÚ¾Ó£¬°´edgesË³ĞòÅÅÁĞ£¬-1±íÊ¾ÎŞÁÚ¾Ó
+		// é‚»å±…ï¼ŒæŒ‰edgesé¡ºåºæ’åˆ—ï¼Œ-1è¡¨ç¤ºæ— é‚»å±…
 		for (int j = 0; j < 4; j++) {
 			element_host.neighbors[j][i] = -1;
 		}
@@ -100,7 +100,7 @@ void U2NITS::OldDataConverter::ConvertEdge(int num_edge) {
 	//const int num_edge = (int)m_pFVM2D->edges.size();
 	GPU::EdgeSoA& edge_host = m_pGPUSolver2->edge_host;
 	GPU::NodeSoA& node_host = m_pGPUSolver2->node_host;
-	// ³õÊ¼»¯edge_host
+	// åˆå§‹åŒ–edge_host
 	FVM_2D* pFVM2D = (FVM_2D*)m_pFVM2D;
 	//#pragma omp parallel for
 	for (int i = 0; i < num_edge; i++) {
@@ -120,12 +120,12 @@ void U2NITS::OldDataConverter::ConvertEdge(int num_edge) {
 		edge_host.length[i] = edge_i.length;
 		edge_host.distanceOfElements[i] = edge_i.refLength;
 
-		// ¼ÆËã±ß½ç×ø±ê£¬µÈÓÚ½Úµã×ø±êÆ½¾ùÖµ
+		// è®¡ç®—è¾¹ç•Œåæ ‡ï¼Œç­‰äºèŠ‚ç‚¹åæ ‡å¹³å‡å€¼
 		int tmpNodeID0 = edge_host.nodes[0][i];// node ID
 		int tmpNodeID1 = edge_host.nodes[1][i];
 		edge_host.xy[0][i] = (node_host.xy[0][tmpNodeID0] + node_host.xy[0][tmpNodeID1]) / 2.0;
 		edge_host.xy[1][i] = (node_host.xy[1][tmpNodeID0] + node_host.xy[1][tmpNodeID1]) / 2.0;
-		// ¼ÆËãnormal
+		// è®¡ç®—normal
 		//edge_i.getDirectionN(edge_host.normal[0][i], edge_host.normal[1][i]);
 		myfloat dx = node_host.xy[0][tmpNodeID1] - node_host.xy[0][tmpNodeID0];
 		myfloat dy = node_host.xy[1][tmpNodeID1] - node_host.xy[1][tmpNodeID0];
@@ -137,46 +137,46 @@ void U2NITS::OldDataConverter::ConvertEdge(int num_edge) {
 
 void U2NITS::OldDataConverter::ConvertBoundary(int num_boundary) {
 	/*
-	³õÊ¼»¯ÖÜÆÚedgeµÄelementR
-	³õÊ¼»¯ÖÜÆÚedgeµÄedge_pair
-	³õÊ¼»¯±ß½çIDÀàĞÍÓ³Éä±í£¬¼´m_pGPUSolver2->boundary_hostµÄ<boundary set ID, boundary type>µÄÓ³Éä¹ØÏµ
+	åˆå§‹åŒ–å‘¨æœŸedgeçš„elementR
+	åˆå§‹åŒ–å‘¨æœŸedgeçš„edge_pair
+	åˆå§‹åŒ–è¾¹ç•ŒIDç±»å‹æ˜ å°„è¡¨ï¼Œå³m_pGPUSolver2->boundary_hostçš„<boundary set ID, boundary type>çš„æ˜ å°„å…³ç³»
 	*/
 	/**
-	* ÖÜÆÚ±ß½ç¶¨Î»¶ÔÓ¦±ß(edge pair)µÄ·½·¨
-	* ·¨1£ºÔÚEdgeSoAĞÂÔö³ÉÔ±int periodicPair£¬ÓÅµãÊÇ²éÕÒ¿ì£¬È±µãÊÇÕ¼ÓÃ¿Õ¼ä´ó¡£
-	* ·¨2£ºÓÃmap»òhashTable´æ´¢£¬µ«ÊÇGPUµÄÊı¾İ½á¹¹ºÍdeviceº¯ÊıĞèÒª×Ô¼ºĞ´
+	* å‘¨æœŸè¾¹ç•Œå®šä½å¯¹åº”è¾¹(edge pair)çš„æ–¹æ³•
+	* æ³•1ï¼šåœ¨EdgeSoAæ–°å¢æˆå‘˜int periodicPairï¼Œä¼˜ç‚¹æ˜¯æŸ¥æ‰¾å¿«ï¼Œç¼ºç‚¹æ˜¯å ç”¨ç©ºé—´å¤§ã€‚
+	* æ³•2ï¼šç”¨mapæˆ–hashTableå­˜å‚¨ï¼Œä½†æ˜¯GPUçš„æ•°æ®ç»“æ„å’Œdeviceå‡½æ•°éœ€è¦è‡ªå·±å†™
 	*
-	* Ä¿Ç°GPU²ÉÓÃ·¨1£¬CPU²ÉÓÃ·¨2(?)
+	* ç›®å‰GPUé‡‡ç”¨æ³•1ï¼ŒCPUé‡‡ç”¨æ³•2(?)
 	*/
 	GPU::EdgeSoA& edge_host = m_pGPUSolver2->edge_host;
 	BoundaryManager_2D& boundaryManager = m_pFVM2D->boundaryManager;
 
-	// ³õÊ¼»¯ÖÜÆÚedgeµÄelementRºÍedge_pair
+	// åˆå§‹åŒ–å‘¨æœŸedgeçš„elementRå’Œedge_pair
 	for (VirtualBoundarySet_2D& boundary : boundaryManager.boundaries) {
 		int bType = boundary.type;
 		if (_BC_periodic_0 <= bType && bType <= _BC_periodic_9) {
-			// ÈôÄ³±ß½ç¼¯setÊÇÖÜÆÚ±ß½ç£¬±éÀúÆäedge
+			// è‹¥æŸè¾¹ç•Œé›†setæ˜¯å‘¨æœŸè¾¹ç•Œï¼Œéå†å…¶edge
 			for (Edge_2D* pEdge : boundary.pEdges) {
-				// »ñÈ¡edgeºÍedge pairµÄID
+				// è·å–edgeå’Œedge pairçš„ID
 				int edgeID = pEdge->GPUID;
 				int edgeID_pair = boundaryManager.get_pairEdge_periodic(pEdge)->GPUID;
-				// ÓÃpairµÄelementL¸üĞÂedgeµÄelementR
+				// ç”¨pairçš„elementLæ›´æ–°edgeçš„elementR
 				int elementL_pair = edge_host.elementL[edgeID_pair];
 				edge_host.elementR[edgeID] = elementL_pair;
-				// ÓÃmap´æ´¢pair
+				// ç”¨mapå­˜å‚¨pair
 				m_pGPUSolver2->edge_periodic_pair.insert(std::pair<int, int>(edgeID, edgeID_pair));
-				// ÓÃEdgeSoA³ÉÔ±´æ´¢pair
+				// ç”¨EdgeSoAæˆå‘˜å­˜å‚¨pair
 				edge_host.periodicPair[edgeID] = edgeID_pair;
 			}
 		}
 	}
 
-	// ³õÊ¼»¯±ß½çIDÀàĞÍÓ³Éä±íboundary_host
+	// åˆå§‹åŒ–è¾¹ç•ŒIDç±»å‹æ˜ å°„è¡¨boundary_host
 	for (int i = 0; i < num_boundary; i++) {
 		m_pGPUSolver2->boundary_host.type[i] = boundaryManager.boundaries[i].type;
 	}
 
-	// ³õÊ¼»¯boundary_host_new¡£
+	// åˆå§‹åŒ–boundary_host_newã€‚
 	m_pGPUSolver2->boundary_host_new.edgeSets.resize(boundaryManager.boundaries.size());
 	for (int i = 0; i < num_boundary; i++) {
 		

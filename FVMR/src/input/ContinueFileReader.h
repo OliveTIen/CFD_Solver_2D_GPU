@@ -6,17 +6,17 @@
 
 
 /*
-ÓÉÓÚFVM_2D::readContinueFile()º¯Êı°üº¬¶ÔÖ¸Õë±í³õÊ¼»¯µÈ²Ù×÷£¬ºÜ¸´ÔÓ£¬
-Ä¿Ç°ÏÈ²»Ã¦Íê³É¸ÃÀà
+ç”±äºFVM_2D::readContinueFile()å‡½æ•°åŒ…å«å¯¹æŒ‡é’ˆè¡¨åˆå§‹åŒ–ç­‰æ“ä½œï¼Œå¾ˆå¤æ‚ï¼Œ
+ç›®å‰å…ˆä¸å¿™å®Œæˆè¯¥ç±»
 */
 class ContinueFileReader {
-	// ½¨Òé½«reader writerºÏ²¢ ·Å½øfileioÎÄ¼ş¼Ğ ²éÑ¯Ò»ÏÂÆäËûÈí¼şµÄÄ¿Â¼×éÖ¯
+	// å»ºè®®å°†reader writeråˆå¹¶ æ”¾è¿›fileioæ–‡ä»¶å¤¹ æŸ¥è¯¢ä¸€ä¸‹å…¶ä»–è½¯ä»¶çš„ç›®å½•ç»„ç»‡
 
 public:
 	static int readContinueFile_1();
-	// Ìí¼ÓUx Uy Ä¿Ç°ÓÃ²»µ½
+	// æ·»åŠ Ux Uy ç›®å‰ç”¨ä¸åˆ°
 	static int readContinueFile_2_unused_addUxUy();
-	// Î´Ê¹ÓÃ
+	// æœªä½¿ç”¨
 	static int readContinueFile_1_1();
 
 private:

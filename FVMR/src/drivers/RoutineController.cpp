@@ -12,7 +12,7 @@ RoutineController* RoutineController::getInstance() {
 
 void RoutineController::setStrategy(int s) {
 	m_strategy = s;
-	//¼ì²é²ÎÊıÕıÈ·ĞÔºÍÊä³öÓÉCInputÍê³É
+	//æ£€æŸ¥å‚æ•°æ­£ç¡®æ€§å’Œè¾“å‡ºç”±CInputå®Œæˆ
 	increase.initialize(1000, 1.1);
 	decrease.initialize(500, 0.9);
 }
@@ -24,12 +24,12 @@ void RoutineController::applyStrategy(myfloat residual_rho, myfloat& CFL, int st
 	m_current_residual_rho = residual_rho;
 	switch (m_strategy) {
 	case 0:
-		// ÎŞ²ßÂÔ
+		// æ— ç­–ç•¥
 		return;
 		break;
 
 	case 1:
-		// ¶¨³££¬¸ù¾İ²Ğ²îµ÷ÕûCFLÊıºÍÊ±¼ä²½³¤
+		// å®šå¸¸ï¼Œæ ¹æ®æ®‹å·®è°ƒæ•´CFLæ•°å’Œæ—¶é—´æ­¥é•¿
 		strategy_dynamic_CFL(CFL, apply_success);
 		break;
 
@@ -42,40 +42,40 @@ void RoutineController::applyStrategy(myfloat residual_rho, myfloat& CFL, int st
 
 void RoutineController::strategy_dynamic_CFL(myfloat& CFL, bool& apply_success) {
 	/*
-	ĞŞ¸ÄCFLÊı
-	½«ĞŞ¸ÄÓ¦ÓÃÖÁÈ«¾Ö±äÁ¿£¬ÒÔ¼°GPUµÄÈ«¾Ö±äÁ¿¸±±¾¡£ÓÉÓÚCFLÖ»ÔÚ¼ÆËãdtÊ±ÓÃµ½£¬¶øGPU³ÌĞò¼ÆËãdtÔÚhostÍê³É£¬Òò´ËÎŞĞè´´½¨¸±±¾
+	ä¿®æ”¹CFLæ•°
+	å°†ä¿®æ”¹åº”ç”¨è‡³å…¨å±€å˜é‡ï¼Œä»¥åŠGPUçš„å…¨å±€å˜é‡å‰¯æœ¬ã€‚ç”±äºCFLåªåœ¨è®¡ç®—dtæ—¶ç”¨åˆ°ï¼Œè€ŒGPUç¨‹åºè®¡ç®—dtåœ¨hostå®Œæˆï¼Œå› æ­¤æ— éœ€åˆ›å»ºå‰¯æœ¬
 	*/
 
 	apply_success = false;
 
-	// µÚÒ»´Îµ÷ÓÃ£¬¼ÇÂ¼
-	if (m_num_of_strategy_calls == 0) {// m_tickÔÚapplyStrategyÖĞ¸üĞÂ
+	// ç¬¬ä¸€æ¬¡è°ƒç”¨ï¼Œè®°å½•
+	if (m_num_of_strategy_calls == 0) {// m_tickåœ¨applyStrategyä¸­æ›´æ–°
 		m_record_res_rho = m_current_residual_rho;
 		LogWriter::logAndPrint("use strategy_dynamic_CFL.\n");
 		return;
 	}
 
-	// Èô´óÒ»¸öÁ¿¼¶£¬Ôò¼õĞ¡CFL
+	// è‹¥å¤§ä¸€ä¸ªé‡çº§ï¼Œåˆ™å‡å°CFL
 	if (m_current_time > decrease_start_time && m_current_residual_rho > m_record_res_rho * 10.0) {
 		if (tryApplyAction(decrease, CFL, 0.75)) {
 			apply_success = true;
 		}
 
 	}
-	// ÈôĞ¡ÓÚ¼ÇÂ¼µÄÒ»°ë£¬ÔòÔö´óCFL£¬¼õĞ¡Ì½²âãĞÖµ
+	// è‹¥å°äºè®°å½•çš„ä¸€åŠï¼Œåˆ™å¢å¤§CFLï¼Œå‡å°æ¢æµ‹é˜ˆå€¼
 	if (m_current_time > increase_start_time && m_current_residual_rho < m_record_res_rho * 0.5) {
 		if (tryApplyAction(increase, CFL, 1.1)) {
 			m_record_res_rho *= 0.9;
 			apply_success = true;
 		}
 	}
-	// ÈôÒ»Ö±²»±ä£¬Ôò³¢ÊÔÔö´óCFL£¬µ«²»¸Ä±äm_res_rho
+	// è‹¥ä¸€ç›´ä¸å˜ï¼Œåˆ™å°è¯•å¢å¤§CFLï¼Œä½†ä¸æ”¹å˜m_res_rho
 	if (m_current_time > increase_start_time) {
 		if (tryApplyAction(increase, CFL, 1.05)) {
 			apply_success = true;
 		}
 	}
-	// ÏŞÖÆ·¶Î§
+	// é™åˆ¶èŒƒå›´
 	if (CFL < tolerance_min_CFL) {
 		CFL = tolerance_min_CFL;
 	}

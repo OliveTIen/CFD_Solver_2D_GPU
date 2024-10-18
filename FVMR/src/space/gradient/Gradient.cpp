@@ -3,7 +3,7 @@
 #include "../../output/LogWriter.h"
 #include "../../global/GlobalPara.h"
 
-// º¯ÊıÉùÃ÷
+// å‡½æ•°å£°æ˜
 namespace U2NITS {
 	namespace Space {
 		namespace Gradient {
@@ -16,7 +16,7 @@ namespace U2NITS {
 
 void gradient_to_Matrix_2x4(myint iElement, myfloat* Ux[4], myfloat* Uy[4], myfloat* dUdX) {
 	/*
-	½«Ìİ¶ÈÊı¾İ×ª»¯Îª2x4¾ØÕóĞÎÊ½
+	å°†æ¢¯åº¦æ•°æ®è½¬åŒ–ä¸º2x4çŸ©é˜µå½¢å¼
 	Ux: 4xn, n = num_element
 	Uy: 4xn
 	dUdX: 2x4
@@ -34,11 +34,11 @@ void gradient_to_Matrix_2x4(myint iElement, myfloat* Ux[4], myfloat* Uy[4], myfl
 
 inline void getElementT3ValidNeighbor(int validNeighbors[3], int& numOfValidNeighbor, myint iElement, GPU::ElementSoA& element_host) {
 	/*
-	»ñÈ¡ÓĞĞ§ÁÚ¾Ó
-	Êä³öĞÍ²ÎÊı£ºvalidNeighborsÓĞĞ§ÁÚ¾Ó£¬numOfValidNeighborÓĞĞ§ÁÚ¾Ó¸öÊı
+	è·å–æœ‰æ•ˆé‚»å±…
+	è¾“å‡ºå‹å‚æ•°ï¼švalidNeighborsæœ‰æ•ˆé‚»å±…ï¼ŒnumOfValidNeighboræœ‰æ•ˆé‚»å±…ä¸ªæ•°
 	*/
 	numOfValidNeighbor = 0;
-	for (int j = 0; j < 3; j++) {// Èı½ÇĞÎµ¥Ôª£¬×î¶à3¸öÁÚ¾Ó
+	for (int j = 0; j < 3; j++) {// ä¸‰è§’å½¢å•å…ƒï¼Œæœ€å¤š3ä¸ªé‚»å±…
 		if (element_host.neighbors[j][iElement] != -1) {
 			validNeighbors[numOfValidNeighbor] = element_host.neighbors[j][iElement];
 			numOfValidNeighbor += 1;
@@ -49,19 +49,19 @@ inline void getElementT3ValidNeighbor(int validNeighbors[3], int& numOfValidNeig
 
 inline void get_U_linear(myfloat x, myfloat y, myfloat& U_dist, myint i_e, const myfloat* x_e, const myfloat* y_e, const myfloat* U_e, const myfloat* Ux_e, const myfloat* Uy_e) {
 	/*
-	i_e: µ¥Ôªindex
-	Êä³öĞÍ²ÎÊı£ºU_dist
+	i_e: å•å…ƒindex
+	è¾“å‡ºå‹å‚æ•°ï¼šU_dist
 	*/
 	U_dist = U_e[i_e] + Ux_e[i_e] * (x - x_e[i_e]) + Uy_e[i_e] * (y - y_e[i_e]);
 }
 
 void LimiterBarth(GPU::ElementFieldSoA& elementField_host, GPU::ElementSoA& element_host, GPU::NodeSoA& node_host) {
 	/*
-	BarthÏŞÖÆÆ÷£¬ÓÃÓÚĞŞÕıÌİ¶È
-	¶ÔÓÚ¶şÎ¬·Ç½á¹¹Íø¸ñ£¬Òª±£Ö¤Èı½ÇĞÎ¶¥µã´¦U²»³¬¹ıÏàÁÚµ¥ÔªU
-	¹«Ê½²Î¼ûÂÛÎÄ The design and application of upwind schemes on unstructured meshes
+	Barthé™åˆ¶å™¨ï¼Œç”¨äºä¿®æ­£æ¢¯åº¦
+	å¯¹äºäºŒç»´éç»“æ„ç½‘æ ¼ï¼Œè¦ä¿è¯ä¸‰è§’å½¢é¡¶ç‚¹å¤„Uä¸è¶…è¿‡ç›¸é‚»å•å…ƒU
+	å…¬å¼å‚è§è®ºæ–‡ The design and application of upwind schemes on unstructured meshes
 
-	´´½¨8¸öOpenMPÏß³Ìºó£¬È·ÊµCPUÕ¼ÓÃ´ïµ½56%£¬È»¶ø¼ÆËãËÙ¶È·´¶øÏÂ½µÁË£¬´Ó138.036±äÎª124.603step/s
+	åˆ›å»º8ä¸ªOpenMPçº¿ç¨‹åï¼Œç¡®å®CPUå ç”¨è¾¾åˆ°56%ï¼Œç„¶è€Œè®¡ç®—é€Ÿåº¦åè€Œä¸‹é™äº†ï¼Œä»138.036å˜ä¸º124.603step/s
 	*/
 //#pragma omp parallel for num_threads(4)
 	for (myint iElement = 0; iElement < element_host.num_element; iElement++) {
@@ -73,7 +73,7 @@ void LimiterBarth(GPU::ElementFieldSoA& elementField_host, GPU::ElementSoA& elem
 		auto& Uy_element = elementField_host.Uy;
 
 		for (int iVar = 0; iVar < 4; iVar++) {
-			// »ñÈ¡×ÔÉí¼°ÁÚ¾Óµ¥ÔªÖĞĞÄÖµµÄÏÂ½çU_lowerºÍÉÏ½çU_upper
+			// è·å–è‡ªèº«åŠé‚»å±…å•å…ƒä¸­å¿ƒå€¼çš„ä¸‹ç•ŒU_lowerå’Œä¸Šç•ŒU_upper
 			myfloat U_element_center = U_element[iVar][iElement];
 			myfloat U_lower = U_element_center;
 			myfloat U_upper = U_element_center;
@@ -83,7 +83,7 @@ void LimiterBarth(GPU::ElementFieldSoA& elementField_host, GPU::ElementSoA& elem
 				U_upper = U2NITS::Math::max(U_upper, U_element[iVar][iNeighbor]);
 			}
 
-			// ¼ÆËãÏŞÖÆÆ÷ÏµÊıphi£¬È¡¶¥µãÏŞÖÆÆ÷ÏµÊıphi_nodeµÄ×îĞ¡Öµ
+			// è®¡ç®—é™åˆ¶å™¨ç³»æ•°phiï¼Œå–é¡¶ç‚¹é™åˆ¶å™¨ç³»æ•°phi_nodeçš„æœ€å°å€¼
 			myfloat phi = 1.0;
 			for (int j = 0; j < 3; j++) {
 				myint iNode = element_host.nodes[j][iElement];
@@ -106,7 +106,7 @@ void LimiterBarth(GPU::ElementFieldSoA& elementField_host, GPU::ElementSoA& elem
 				phi = U2NITS::Math::min(phi, phi_node);
 			}
 
-			// ĞŞÕıÌİ¶È
+			// ä¿®æ­£æ¢¯åº¦
 			Ux_element[iVar][iElement] *= phi;
 			Uy_element[iVar][iElement] *= phi;
 		}
@@ -115,12 +115,12 @@ void LimiterBarth(GPU::ElementFieldSoA& elementField_host, GPU::ElementSoA& elem
 
 void U2NITS::Space::Gradient::Gradient(GPU::ElementSoA& element_host, GPU::NodeSoA& node_host, GPU::EdgeSoA& edge_host, GPU::ElementFieldSoA& elementField_host) {
 	/*
-	ËäÈ»¶ÔÓÚ×îĞ¡¶ş³Ë£¬½ÚµãÏà¶ÔÖµU_node_relativeÒÑ¾­¼ÆËã£¬ÏŞÖÆÆ÷ÖĞÎŞĞèÔÙ¼ÆËã
-	µ«¶ÔÓÚÒµÎñ´úÂë£¬×îºÃ°ÑÇóÌİ¶ÈºÍÏŞÖÆÆ÷µÄ¹¦ÄÜ²ğ¿ª£¬·Ö³ÉÁ½¸öÑ­»·¡£
+	è™½ç„¶å¯¹äºæœ€å°äºŒä¹˜ï¼ŒèŠ‚ç‚¹ç›¸å¯¹å€¼U_node_relativeå·²ç»è®¡ç®—ï¼Œé™åˆ¶å™¨ä¸­æ— éœ€å†è®¡ç®—
+	ä½†å¯¹äºä¸šåŠ¡ä»£ç ï¼Œæœ€å¥½æŠŠæ±‚æ¢¯åº¦å’Œé™åˆ¶å™¨çš„åŠŸèƒ½æ‹†å¼€ï¼Œåˆ†æˆä¸¤ä¸ªå¾ªç¯ã€‚
 	*/
 
 	static bool is_called_first_time = true;
-	// ÇóÌİ¶È
+	// æ±‚æ¢¯åº¦
 	switch (GlobalPara::inviscid_flux_method::flag_gradient) {
 	case _GRA_leastSquare:
 		GradientLeastSquare_2(element_host, elementField_host, node_host);
@@ -134,7 +134,7 @@ void U2NITS::Space::Gradient::Gradient(GPU::ElementSoA& element_host, GPU::NodeS
 		exit(-1);
 		break;
 	}
-	// ÏŞÖÆÆ÷
+	// é™åˆ¶å™¨
 	switch (GlobalPara::inviscid_flux_method::flux_limiter) {
 	case _LIM_none:
 		if (is_called_first_time) {
@@ -162,34 +162,34 @@ void U2NITS::Space::Gradient::GradientLeastSquare_2(GPU::ElementSoA& element_hos
 	for (myint iElement = 0; iElement < element_host.num_element; iElement++) {
 
 
-		// ÌáÈ¡ÓĞĞ§ÁÚ¾Ó
-		int validNeighbors[3]{ -1,-1,-1 };// ÓĞĞ§ÁÚ¾ÓµÄID
+		// æå–æœ‰æ•ˆé‚»å±…
+		int validNeighbors[3]{ -1,-1,-1 };// æœ‰æ•ˆé‚»å±…çš„ID
 		int numOfValidNeighbor = 0;
 		getElementT3ValidNeighbor(validNeighbors, numOfValidNeighbor, iElement, element_host);
 		if (numOfValidNeighbor <= 0) {
 			LogWriter::logAndPrintError("invalid numOfValidNeighbor.\n");
 			exit(-1);
 		}
-		// ÉêÇë¶ÑÊı×é
-		const int nVar = 4;// ÊØºãÁ¿¸öÊı£¬¶şÎ¬Îª4
-		const int nX = 2;// ×ø±ê¸öÊı£¬¶şÎ¬Îª2
-		const int& nVN = numOfValidNeighbor;// ÓĞĞ§ÁÚ¾Ó¸öÊı£¬È¡Öµ1-3
+		// ç”³è¯·å †æ•°ç»„
+		const int nVar = 4;// å®ˆæ’é‡ä¸ªæ•°ï¼ŒäºŒç»´ä¸º4
+		const int nX = 2;// åæ ‡ä¸ªæ•°ï¼ŒäºŒç»´ä¸º2
+		const int& nVN = numOfValidNeighbor;// æœ‰æ•ˆé‚»å±…ä¸ªæ•°ï¼Œå–å€¼1-3
 		myfloat* dX = new myfloat[nVN * nX]{};
 		myfloat* dUdX = new myfloat[nX * nVar]{};
 		myfloat* dU = new myfloat[nVN * nVar]{};
 		myfloat* dXtrans = new myfloat[nX * nVN]{};
 		myfloat* invdXdX = new myfloat[nX * nX]{};
 		myfloat* invdXdX_dX = new myfloat[nX * nVN]{};
-		// ³õÊ¼»¯dX¡¢dU
+		// åˆå§‹åŒ–dXã€dU
 		for (int iVN = 0; iVN < nVN; iVN++) {
-			int index = validNeighbors[iVN];// ÁÚ¾ÓµÄID
+			int index = validNeighbors[iVN];// é‚»å±…çš„ID
 			dX[iVN * nX + 0] = element_host.xy[0][index] - element_host.xy[0][iElement];
 			dX[iVN * nX + 1] = element_host.xy[1][index] - element_host.xy[1][iElement];
 			for (int iVar = 0; iVar < nVar; iVar++) {
 				dU[iVN * nVar + iVar] = elementField_host.U[iVar][index] - elementField_host.U[iVar][iElement];
 			}
 		}
-		// ×îĞ¡¶ş³Ë·¨¼ÆËãdUdX£¬x=(A'A)^{-1}A'b£¬dUdX = inv(dXtrans * dX) * dXtrans * dU
+		// æœ€å°äºŒä¹˜æ³•è®¡ç®—dUdXï¼Œx=(A'A)^{-1}A'bï¼ŒdUdX = inv(dXtrans * dX) * dXtrans * dU
 		U2NITS::Math::Matrix::transpose(nVN, nX, (myfloat*)dX, (myfloat*)dXtrans);
 		U2NITS::Math::Matrix::mul_ixj_jxk(nX, nVN, nX, (myfloat*)dXtrans, (myfloat*)dX, (myfloat*)invdXdX);
 		U2NITS::Math::Matrix::inv_2x2(invdXdX);
@@ -197,18 +197,18 @@ void U2NITS::Space::Gradient::GradientLeastSquare_2(GPU::ElementSoA& element_hos
 		U2NITS::Math::Matrix::mul_ixj_jxk(nX, nVN, nVar, (myfloat*)invdXdX_dX, (myfloat*)dU, (myfloat*)dUdX);
 
 		/*
-		ÏŞÖÆÆ÷
-		Ò»Î¬ÏÂ£¬minmodºÍvanleerÏŞÖÆÆ÷µÄÄ¿µÄÊÇ±£Ö¤Á½²à½çÃæÉÏÎïÀíÁ¿µÄÖµ²»³¬¹ıÏàÁÚµ¥ÔªµÄÎïÀíÁ¿µÄÖµ
-		²Î¼û¼ÆËãÁ÷ÌåÁ¦Ñ§£¨ÀîÆô±ø£©¿Î¼şºÏ¼¯P106
+		é™åˆ¶å™¨
+		ä¸€ç»´ä¸‹ï¼Œminmodå’Œvanleeré™åˆ¶å™¨çš„ç›®çš„æ˜¯ä¿è¯ä¸¤ä¾§ç•Œé¢ä¸Šç‰©ç†é‡çš„å€¼ä¸è¶…è¿‡ç›¸é‚»å•å…ƒçš„ç‰©ç†é‡çš„å€¼
+		å‚è§è®¡ç®—æµä½“åŠ›å­¦ï¼ˆæå¯å…µï¼‰è¯¾ä»¶åˆé›†P106
 
-		ÀàËÆµØ£¬¿ÉÒÔ±£Ö¤Èı½ÇĞÎ¶¥µã´¦U²»³¬¹ıÏàÁÚµ¥ÔªU
-		¸ù¾İµ±Ç°Ğ±ÂÊUx, Uy£¬¼ÆËã¶¥µãÏà¶ÔÖµdU_node£¬Ç°ÃæÒÑ¾­Ëã³öÁÚ¾ÓÖĞĞÄÏà¶ÔÖµdU
-		¼ÆËãratio = max(abs(dU_node/dU))£¬Èô´óÓÚ1£¬ÔòÕûÌå³ıÒÔratio
+		ç±»ä¼¼åœ°ï¼Œå¯ä»¥ä¿è¯ä¸‰è§’å½¢é¡¶ç‚¹å¤„Uä¸è¶…è¿‡ç›¸é‚»å•å…ƒU
+		æ ¹æ®å½“å‰æ–œç‡Ux, Uyï¼Œè®¡ç®—é¡¶ç‚¹ç›¸å¯¹å€¼dU_nodeï¼Œå‰é¢å·²ç»ç®—å‡ºé‚»å±…ä¸­å¿ƒç›¸å¯¹å€¼dU
+		è®¡ç®—ratio = max(abs(dU_node/dU))ï¼Œè‹¥å¤§äº1ï¼Œåˆ™æ•´ä½“é™¤ä»¥ratio
 		*/
 		//const int nNode = 3;
 		//myfloat dU_node[nNode][nVar]{};
 		//myfloat dX_node[nNode][nX]{};
-		//// ¼ÆËãdX_node
+		//// è®¡ç®—dX_node
 		//for (int iNode = 0; iNode < nNode; iNode++) {
 		//	for (int iVar = 0; iVar < nVar; iVar++) {
 		//		int nodeID = element_host.nodes[iNode][iElement];
@@ -216,20 +216,20 @@ void U2NITS::Space::Gradient::GradientLeastSquare_2(GPU::ElementSoA& element_hos
 		//		dX_node[iNode][1] = node_host.xy[1][nodeID] - element_host.xy[1][iElement];
 		//	}
 		//}
-		//// ¼ÆËãdU_node[nNode,nVar] =  dX_node[nNode,nX] * dUdX[nX,nVar]£¬È»ºó¼ÆËãratio
+		//// è®¡ç®—dU_node[nNode,nVar] =  dX_node[nNode,nX] * dUdX[nX,nVar]ï¼Œç„¶åè®¡ç®—ratio
 		//U2NITS::Math::Matrix::mul_ixj_jxk(nNode, nX, nVar, (myfloat*)dX_node, dUdX, (myfloat*)dU_node);
 		//myfloat ratio = 1.0;
 		//for (int iNode = 0; iNode < nNode; iNode++) {
 		//	for (int iVar = 0; iVar < nVar; iVar++) {
 		//		using namespace U2NITS::Math;
-		//		if (dU[iNode * nVar + iVar] == 0)continue;// ³ıÁã
+		//		if (dU[iNode * nVar + iVar] == 0)continue;// é™¤é›¶
 		//		ratio = max(ratio, abs(dU_node[iNode][iVar] / dU[iNode * nVar + iVar]));
 		//	}
 		//}
-		//// ratioÒ»¶¨´óÓÚµÈÓÚ1.0£¬Òò´Ë¿ÉÒÔÖ±½Ó³ıÒÔratio
+		//// ratioä¸€å®šå¤§äºç­‰äº1.0ï¼Œå› æ­¤å¯ä»¥ç›´æ¥é™¤ä»¥ratio
 		//U2NITS::Math::Matrix::div_matrix_by_scalar(nX, nVar, dUdX, ratio);
 
-		// ½«dUdX´æ½øµ¥ÔªUx Uy
+		// å°†dUdXå­˜è¿›å•å…ƒUx Uy
 		for (int jVar = 0; jVar < nVar; jVar++) {
 			elementField_host.Ux[jVar][iElement] = dUdX[0 * nVar + jVar];
 			elementField_host.Uy[jVar][iElement] = dUdX[1 * nVar + jVar];
@@ -249,30 +249,30 @@ void U2NITS::Space::Gradient::GradientGreenGauss_2(GPU::ElementSoA& element_host
 	/*
 	2024-03-28
 
-	* ¸ñÁÖ¸ßË¹Ìİ¶È
+	* æ ¼æ—é«˜æ–¯æ¢¯åº¦
 	* https://zhuanlan.zhihu.com/p/370586072
-	* ½«ÃæÊ¸Á¿¼Óµ½µ¥ÔªÊ±£¬Ó¦×¢ÒâÃæÊÇ³¯Àï»¹ÊÇ³¯Íâ¡£
+	* å°†é¢çŸ¢é‡åŠ åˆ°å•å…ƒæ—¶ï¼Œåº”æ³¨æ„é¢æ˜¯æœé‡Œè¿˜æ˜¯æœå¤–ã€‚
 	*
-	* ¶ÔÓÚ±ß½ç£¬ÆäÍ¨Á¿Ó¦µÈÓÚphiC(²Î¼û01-01-CFDÀíÂÛ)
-	* ¶ÔÓÚ·Ç·¨±ß(Èı½ÇĞÎµ¥ÔªµÄµÚ4Ìõ±ß)£¬edgeID=-1, outElementID=-1,
+	* å¯¹äºè¾¹ç•Œï¼Œå…¶é€šé‡åº”ç­‰äºphiC(å‚è§01-01-CFDç†è®º)
+	* å¯¹äºéæ³•è¾¹(ä¸‰è§’å½¢å•å…ƒçš„ç¬¬4æ¡è¾¹)ï¼ŒedgeID=-1, outElementID=-1,
 	*/
-	// ÇóÌİ¶ÈµÄ×Óµü´ú²½Êı
+	// æ±‚æ¢¯åº¦çš„å­è¿­ä»£æ­¥æ•°
 	int subIterationGradient = 3;
 	int num_edge = edge_host.num_edge;
 
 	for (int iElement = 0; iElement < element_host.num_element; iElement++) {
-		// Çóµ±Ç°µ¥ÔªID¡¢µ±Ç°µ¥ÔªÌå»ı¡¢edgeID¡¢edge³¯ÏòÕı¸º¡¢Íâµ¥ÔªID
-		int currentElementID = element_host.ID[iElement];// ½¨Òé²»ÒªÖ±½ÓÓÃiElement£¬ËäÈ»Ä¿Ç°iElement==i(element_host.ID[i]=element_i.GPUID=i)£¬µ«ÓĞÒş»¼
-		myfloat volumeC = element_host.volume[currentElementID];// Ìå»ı
-		// ³õÊ¼»¯edgeID ³¬³öÊı×é·¶Î§µÄ·Ç·¨Öµ¸³Îª-1
-		int edgeID[4]{ -1,-1,-1,-1 };// µÚiElement¸öelementµÄµÚiÌõ±ßµÄID
+		// æ±‚å½“å‰å•å…ƒIDã€å½“å‰å•å…ƒä½“ç§¯ã€edgeIDã€edgeæœå‘æ­£è´Ÿã€å¤–å•å…ƒID
+		int currentElementID = element_host.ID[iElement];// å»ºè®®ä¸è¦ç›´æ¥ç”¨iElementï¼Œè™½ç„¶ç›®å‰iElement==i(element_host.ID[i]=element_i.GPUID=i)ï¼Œä½†æœ‰éšæ‚£
+		myfloat volumeC = element_host.volume[currentElementID];// ä½“ç§¯
+		// åˆå§‹åŒ–edgeID è¶…å‡ºæ•°ç»„èŒƒå›´çš„éæ³•å€¼èµ‹ä¸º-1
+		int edgeID[4]{ -1,-1,-1,-1 };// ç¬¬iElementä¸ªelementçš„ç¬¬iæ¡è¾¹çš„ID
 		for (int i = 0; i < 4; i++) {
 			edgeID[i] = element_host.edges[i][iElement];
 			if (!edge_host.has(edgeID[i])) { // !edge_host.has(edgeID[i])  edgeID[i] <= -1 || edgeID[i] >= num_edge
 				edgeID[i] = -1;
 			}
 		}
-		// ³õÊ¼»¯edgeType
+		// åˆå§‹åŒ–edgeType
 		int edgeType[4]{ -1,-1,-1,-1 };
 		for (int i = 0; i < 4; i++) {
 			int edgeIDi = edgeID[i];
@@ -282,9 +282,9 @@ void U2NITS::Space::Gradient::GradientGreenGauss_2(GPU::ElementSoA& element_host
 
 			edgeType[i] = edge_host.setID[edgeIDi];
 		}
-		// ³õÊ¼»¯edgeSignºÍoutElementID
-		int edgeSign[4]{ 0,0,0,0 };// 1±íÊ¾±ß³¯Íâ£¬-1±íÊ¾±ß³¯ÄÚ
-		int outElementID[4]{ -1,-1,-1,-1 };//Íâµ¥ÔªID ÄÚ²¿±ßºÍÖÜÆÚ±ß
+		// åˆå§‹åŒ–edgeSignå’ŒoutElementID
+		int edgeSign[4]{ 0,0,0,0 };// 1è¡¨ç¤ºè¾¹æœå¤–ï¼Œ-1è¡¨ç¤ºè¾¹æœå†…
+		int outElementID[4]{ -1,-1,-1,-1 };//å¤–å•å…ƒID å†…éƒ¨è¾¹å’Œå‘¨æœŸè¾¹
 		for (int i = 0; i < 4; i++) {
 			int edgeIDi = edgeID[i];
 			if (edgeIDi == -1) {
@@ -292,18 +292,18 @@ void U2NITS::Space::Gradient::GradientGreenGauss_2(GPU::ElementSoA& element_host
 			}
 
 			if (currentElementID != edge_host.elementR[edgeIDi]) {
-				edgeSign[i] = 1;// currentElement=elementL£¬³¯Íâ
+				edgeSign[i] = 1;// currentElement=elementLï¼Œæœå¤–
 				outElementID[i] = edge_host.elementR[edgeIDi];
 			}
 			else {
-				edgeSign[i] = -1;// currentElement=elementR£¬³¯ÄÚ
+				edgeSign[i] = -1;// currentElement=elementRï¼Œæœå†…
 				outElementID[i] = edge_host.elementL[edgeIDi];
 			}
 		}
-		// ÇóÃæ»ıÊ¸Á¿edgeSVector(¼¸ºÎÁ¿)
+		// æ±‚é¢ç§¯çŸ¢é‡edgeSVector(å‡ ä½•é‡)
 		myfloat edgeNormal[2][4]{};
 		myfloat edgeArea[4]{};
-		myfloat edgeSVector[2][4]{};// Ãæ»ıÊ¸Á¿
+		myfloat edgeSVector[2][4]{};// é¢ç§¯çŸ¢é‡
 		for (int i = 0; i < 4; i++) {
 			int edgeIDi = edgeID[i];
 			if (edgeIDi == -1) {
@@ -317,7 +317,7 @@ void U2NITS::Space::Gradient::GradientGreenGauss_2(GPU::ElementSoA& element_host
 			edgeSVector[1][i] = edgeNormal[1][i] * edgeArea[i];
 		}
 
-		// Çó¼¸ºÎÈ¨ÖØÒò×Ógc¡¢Ê¸¾¶(¼¸ºÎÁ¿)
+		// æ±‚å‡ ä½•æƒé‡å› å­gcã€çŸ¢å¾„(å‡ ä½•é‡)
 		myfloat gC_all[4]{};
 		myfloat rf_rC_all[4][2]{};
 		myfloat rf_rF_all[4][2]{};
@@ -329,55 +329,55 @@ void U2NITS::Space::Gradient::GradientGreenGauss_2(GPU::ElementSoA& element_host
 
 			int currentOutElementID = outElementID[i];
 			if (currentOutElementID != -1) {
-				// ÄÚ²¿±ßºÍÖÜÆÚ±ß
+				// å†…éƒ¨è¾¹å’Œå‘¨æœŸè¾¹
 				if (edgeType[i] == -1) {
-					// ÄÚ²¿±ß
+					// å†…éƒ¨è¾¹
 
-					// ÃæºÍµ¥Ôª×ø±ê
+					// é¢å’Œå•å…ƒåæ ‡
 					myfloat fx = edge_host.xy[0][edgeIDi];// face x
 					myfloat fy = edge_host.xy[1][edgeIDi];
 					myfloat Cx = element_host.xy[0][currentElementID];// cell x
 					myfloat Cy = element_host.xy[1][currentElementID];
 					myfloat Fx = element_host.xy[0][currentOutElementID];
 					myfloat Fy = element_host.xy[1][currentOutElementID];
-					// ¼¸ºÎÈ¨ÖØÒò×ÓgC = |rF-rf|/|rF-rC|£¬´æ´¢ÓÚgC_allÊı×éÖĞ
+					// å‡ ä½•æƒé‡å› å­gC = |rF-rf|/|rF-rC|ï¼Œå­˜å‚¨äºgC_allæ•°ç»„ä¸­
 					using namespace U2NITS;
 					myfloat dFf = Math::distance2D(Fx, Fy, fx, fy);
 					myfloat dFC = Math::distance2D(Fx, Fy, Cx, Cy);
 					if (dFC < Math::EPSILON)dFC = Math::EPSILON;
 					gC_all[i] = dFf / dFC;
-					// Ê¸¾¶ rf-rC rf-rF£¬ÔÚµü´úÊ±»áÓÃµ½
+					// çŸ¢å¾„ rf-rC rf-rFï¼Œåœ¨è¿­ä»£æ—¶ä¼šç”¨åˆ°
 					rf_rC_all[i][0] = fx - Cx;// rf-rC
 					rf_rC_all[i][1] = fy - Cy;
 					rf_rF_all[i][0] = fx - Fx;// rf-rF
 					rf_rF_all[i][1] = fy - Fy;
 				}
 				else {
-					// ÖÜÆÚ±ß
-					// ÃæºÍµ¥Ôª×ø±ê
+					// å‘¨æœŸè¾¹
+					// é¢å’Œå•å…ƒåæ ‡
 					myfloat fx = edge_host.xy[0][edgeIDi];
 					myfloat fy = edge_host.xy[1][edgeIDi];
 					myfloat Cx = element_host.xy[0][currentElementID];// cell x
 					myfloat Cy = element_host.xy[1][currentElementID];
-					// ÖÜÆÚ±ßµÄoutElement×ø±êĞèÒªÆ½ÒÆ
+					// å‘¨æœŸè¾¹çš„outElementåæ ‡éœ€è¦å¹³ç§»
 					int pairIDi = edge_host.periodicPair[edgeIDi];
 					myfloat fx_pair = edge_host.xy[0][pairIDi];
 					myfloat fy_pair = edge_host.xy[1][pairIDi];
-					myfloat shiftx = fx - fx_pair;// ´ÓpairÖ¸Ïòµ±Ç°Î»ÖÃµÄÊ¸¾¶
+					myfloat shiftx = fx - fx_pair;// ä»pairæŒ‡å‘å½“å‰ä½ç½®çš„çŸ¢å¾„
 					myfloat shifty = fy - fy_pair;
 					myfloat Fx = element_host.xy[0][currentOutElementID];
 					myfloat Fy = element_host.xy[1][currentOutElementID];
-					Fx += shiftx;// ÓÃ¸ÃÊ¸¾¶Æ½ÒÆµ¥Ôª
+					Fx += shiftx;// ç”¨è¯¥çŸ¢å¾„å¹³ç§»å•å…ƒ
 					Fy += shifty;
 
-					// ºóÃæºÍÄÚ²¿±ßÊÇÒ»ÑùµÄ
-					// ¼¸ºÎÈ¨ÖØÒò×ÓgC = |rF-rf|/|rF-rC|£¬´æ´¢ÓÚgC_allÊı×éÖĞ
+					// åé¢å’Œå†…éƒ¨è¾¹æ˜¯ä¸€æ ·çš„
+					// å‡ ä½•æƒé‡å› å­gC = |rF-rf|/|rF-rC|ï¼Œå­˜å‚¨äºgC_allæ•°ç»„ä¸­
 					using namespace U2NITS;
 					myfloat dFf = Math::distance2D(Fx, Fy, fx, fy);
 					myfloat dFC = Math::distance2D(Fx, Fy, Cx, Cy);
 					if (dFC < Math::EPSILON)dFC = Math::EPSILON;
 					gC_all[i] = dFf / dFC;
-					// Ê¸¾¶ rf-rC rf-rF£¬ÔÚµü´úÊ±»áÓÃµ½
+					// çŸ¢å¾„ rf-rC rf-rFï¼Œåœ¨è¿­ä»£æ—¶ä¼šç”¨åˆ°
 					rf_rC_all[i][0] = fx - Cx;// rf-rC
 					rf_rC_all[i][1] = fy - Cy;
 					rf_rF_all[i][0] = fx - Fx;// rf-rF
@@ -386,15 +386,15 @@ void U2NITS::Space::Gradient::GradientGreenGauss_2(GPU::ElementSoA& element_host
 
 			}
 			else {
-				// ±ß½ç±ß(ÖÜÆÚ±ß½ç³ıÍâ)
-				// Fµ¥ÔªÊµ¼Ê²»´æÔÚ£¬¼ÙÉèFµ¥ÔªºÍCµ¥Ôª¹ØÓÚfÃæÖĞĞÄ¶Ô³Æ
+				// è¾¹ç•Œè¾¹(å‘¨æœŸè¾¹ç•Œé™¤å¤–)
+				// Få•å…ƒå®é™…ä¸å­˜åœ¨ï¼Œå‡è®¾Få•å…ƒå’ŒCå•å…ƒå…³äºfé¢ä¸­å¿ƒå¯¹ç§°
 				myfloat fx = edge_host.xy[0][edgeIDi];// face x
 				myfloat fy = edge_host.xy[1][edgeIDi];
 				myfloat Cx = element_host.xy[0][currentElementID];// cell x
 				myfloat Cy = element_host.xy[1][currentElementID];
 
 				using namespace U2NITS;
-				myfloat gC = 0.5;// ¼¸ºÎÈ¨ÖØÒò×Ógc
+				myfloat gC = 0.5;// å‡ ä½•æƒé‡å› å­gc
 				myfloat rf_rC[2]{ fx - Cx,fy - Cy };// rf-rC
 				myfloat rf_rF[2]{ -(fx - Cx),-(fy - Cy) };// rf-rF
 
@@ -408,10 +408,10 @@ void U2NITS::Space::Gradient::GradientGreenGauss_2(GPU::ElementSoA& element_host
 		}
 
 
-		// ¼ÆËãÃ¿Ìõ±ßµÄÏòÁ¿Í¨Á¿phif¡¤Sf£¬È»ºóÇóºÍ£¬³ıÒÔÌå»ı£¬µÃµ½µ¥ÔªCµÄÌİ¶È
+		// è®¡ç®—æ¯æ¡è¾¹çš„å‘é‡é€šé‡phifãƒ»Sfï¼Œç„¶åæ±‚å’Œï¼Œé™¤ä»¥ä½“ç§¯ï¼Œå¾—åˆ°å•å…ƒCçš„æ¢¯åº¦
 		const int nVar = 4;
 		for (int jVar = 0; jVar < nVar; jVar++) {
-			// ÇóºÍ¡£ÈôÃæ³¯ÄÚ£¬¸ÃÃæÍ¨Á¿È¡Ïà·´Êı
+			// æ±‚å’Œã€‚è‹¥é¢æœå†…ï¼Œè¯¥é¢é€šé‡å–ç›¸åæ•°
 			myfloat sum_phifSf[2]{};
 			for (int i = 0; i < 4; i++) {
 				int currentEdgeID = edgeID[i];
@@ -421,38 +421,38 @@ void U2NITS::Space::Gradient::GradientGreenGauss_2(GPU::ElementSoA& element_host
 				int currentOutElementID = outElementID[i];
 
 				if (currentOutElementID != -1) {
-					// ÄÚ²¿±ßºÍÖÜÆÚ±ß
+					// å†…éƒ¨è¾¹å’Œå‘¨æœŸè¾¹
 
-					// »ñÈ¡µ¥ÔªÖµºÍµ¥ÔªÌİ¶ÈÖµ
+					// è·å–å•å…ƒå€¼å’Œå•å…ƒæ¢¯åº¦å€¼
 					myfloat phiC = elementField_host.U[jVar][currentElementID];
 					myfloat phiF = elementField_host.U[jVar][currentOutElementID];
-					// Çó½çÃæÖµ(½üËÆ)
+					// æ±‚ç•Œé¢å€¼(è¿‘ä¼¼)
 					myfloat gC = gC_all[i];
 					myfloat gC1 = 1.0 - gC;
 					myfloat phif = gC * phiC + gC1 * phiF;
 					myfloat Sf[2]{ edgeSVector[0][i],edgeSVector[1][i] };
-					sum_phifSf[0] += phif * Sf[0] * edgeSign[i];// ³ËÒÔ·ûºÅ£¬ÒÔÓ¦¶ÔÃæ³¯ÄÚµÄÇéĞÎ
+					sum_phifSf[0] += phif * Sf[0] * edgeSign[i];// ä¹˜ä»¥ç¬¦å·ï¼Œä»¥åº”å¯¹é¢æœå†…çš„æƒ…å½¢
 					sum_phifSf[1] += phif * Sf[1] * edgeSign[i];
 				}
 				else {
-					// ±ß½ç±ß(ÖÜÆÚ±ß³ıÍâ)
+					// è¾¹ç•Œè¾¹(å‘¨æœŸè¾¹é™¤å¤–)
 					myfloat phiC = elementField_host.U[jVar][currentElementID];
 					myfloat phif = phiC;
 					myfloat Sf[2]{ edgeSVector[0][i],edgeSVector[1][i] };
-					sum_phifSf[0] += phif * Sf[0] * edgeSign[i];// ³ËÒÔ·ûºÅ£¬ÒÔÓ¦¶ÔÃæ³¯ÄÚµÄÇéĞÎ
+					sum_phifSf[0] += phif * Sf[0] * edgeSign[i];// ä¹˜ä»¥ç¬¦å·ï¼Œä»¥åº”å¯¹é¢æœå†…çš„æƒ…å½¢
 					sum_phifSf[1] += phif * Sf[1] * edgeSign[i];
 				}
 
 			}
 
-			myfloat nabla_phiC_new[2]{// Ìİ¶È
+			myfloat nabla_phiC_new[2]{// æ¢¯åº¦
 				1 / volumeC * sum_phifSf[0],
 				1 / volumeC * sum_phifSf[1]
 			};
-			// ¸üĞÂµ¥ÔªÌİ¶ÈÖµ
+			// æ›´æ–°å•å…ƒæ¢¯åº¦å€¼
 			elementField_host.Ux[jVar][currentElementID] = nabla_phiC_new[0];
 			elementField_host.Uy[jVar][currentElementID] = nabla_phiC_new[1];
-			// Èç¹ûÒªµü´ú£¬ĞèÒªµÈËùÓĞµ¥Ôª¸üĞÂÍê±Ï£¬Òò´Ëµü´úÑ­»·Òª·ÅÔÚiElementÑ­»·Íâ
+			// å¦‚æœè¦è¿­ä»£ï¼Œéœ€è¦ç­‰æ‰€æœ‰å•å…ƒæ›´æ–°å®Œæ¯•ï¼Œå› æ­¤è¿­ä»£å¾ªç¯è¦æ”¾åœ¨iElementå¾ªç¯å¤–
 		}
 	}
 }

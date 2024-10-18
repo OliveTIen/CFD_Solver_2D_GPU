@@ -19,17 +19,17 @@ namespace GPU {
 			__device__ inline myfloat PShockWaveSensor() { return 0.5; }
 
 			__device__ inline void EigenEntropyFix_HartenYee(myfloat& eig, myfloat eig_lim, myfloat epsilon) {
-				// Harten-YeeĞÍìØĞŞÕı Ä¿µÄÊÇÈÃÌØÕ÷Öµ²»ÒªÌ«½Ó½ü0£¬µ¼ÖÂ·ÇÎïÀí½â
-				// eig-ÌØÕ÷Öµ£¬lim-ÏŞÖÆÆ÷£¬epsilon-·ÀÖ¹·ÖÄ¸Îª0
-				// µ±eigĞ¡ÓÚeig_limÊ±£¬Ôö´óeig£¬Ê¹ÆäÔ¶Àë0
-				// »ù±¾²»µÈÊ½a^2+b^2>=2ab£¬Òò´Ë(e*e+l*l)/(2*l)>=(2*e*l)/(2*l)= e
+				// Harten-Yeeå‹ç†µä¿®æ­£ ç›®çš„æ˜¯è®©ç‰¹å¾å€¼ä¸è¦å¤ªæ¥è¿‘0ï¼Œå¯¼è‡´éç‰©ç†è§£
+				// eig-ç‰¹å¾å€¼ï¼Œlim-é™åˆ¶å™¨ï¼Œepsilon-é˜²æ­¢åˆ†æ¯ä¸º0
+				// å½“eigå°äºeig_limæ—¶ï¼Œå¢å¤§eigï¼Œä½¿å…¶è¿œç¦»0
+				// åŸºæœ¬ä¸ç­‰å¼a^2+b^2>=2abï¼Œå› æ­¤(e*e+l*l)/(2*l)>=(2*e*l)/(2*l)= e
 
-				// Ô­Ê½£º 
+				// åŸå¼ï¼š 
 				if (eig < eig_lim) {
 					eig = 0.5 * (eig * eig + eig_lim * eig_lim) / (eig_lim + epsilon);
 				}
 
-				//// ´ıÑéÖ¤£¿
+				//// å¾…éªŒè¯ï¼Ÿ
 				//if (eig_lim < 0)eig_lim = -eig_lim;
 				//if (eig_lim == 0)eig_lim = epsilon;
 				//if (eig < eig_lim) {

@@ -5,13 +5,13 @@
 void U2NITS::COutput::updateFileName(int istep) {
 	if (!initialized) {
 		outputPathWithSlash = FilePathManager::getInstance()->getOutputDirectory();
-		basicFileName = GlobalPara::basic::filename;// Ó¦µ±ÔÚ¶ÁÈ¡CConfigºóµ÷ÓÃ£¬·ÀÖ¹filenameÎ´¶ÁÈ¡¾ÍÊ¹ÓÃ
+		basicFileName = GlobalPara::basic::filename;// åº”å½“åœ¨è¯»å–CConfigåè°ƒç”¨ï¼Œé˜²æ­¢filenameæœªè¯»å–å°±ä½¿ç”¨
 		initialized = true;
 	}
 
-	// ¸üĞÂÎÄ¼şÃû
+	// æ›´æ–°æ–‡ä»¶å
 	char szBuffer[20];
-	sprintf_s(szBuffer, _countof(szBuffer), "%04d", istep);//ÈôistepĞ¡ÓÚ4Î»Êı£¬Ôò²¹0
+	sprintf_s(szBuffer, _countof(szBuffer), "%04d", istep);//è‹¥istepå°äº4ä½æ•°ï¼Œåˆ™è¡¥0
 	std::string str_istep_withBracket = "[" + std::string(szBuffer) + "]";
 	tecplotFilePath = outputPathWithSlash + basicFileName + str_istep_withBracket + ".dat";
 	tecplotBoundaryFilePath = outputPathWithSlash + basicFileName + "_tec_boundary.dat";

@@ -5,7 +5,7 @@
 #include <string>
 #include <vector>
 class FilePathManager {
-// µ¥ÀıÄ£Ê½Ê¹µÃÃ¿´ÎµÃµ½µÄÊÇÍ¬Ò»¸öÊµÀı¡£ËüµÄ×÷ÓÃÀàËÆ¾²Ì¬³ÉÔ±±äÁ¿
+// å•ä¾‹æ¨¡å¼ä½¿å¾—æ¯æ¬¡å¾—åˆ°çš„æ˜¯åŒä¸€ä¸ªå®ä¾‹ã€‚å®ƒçš„ä½œç”¨ç±»ä¼¼é™æ€æˆå‘˜å˜é‡
 private:
 	static FilePathManager* class_pointer;
 	bool if_initialized = false;
@@ -13,27 +13,27 @@ private:
 	std::string m_outputFolderName = "";
 	std::string m_TomlFileName = "input.toml";
 
-	std::string m_workingDirectory;// µ±Ç°Ö´ĞĞÎÄ¼şËùÔÚµÄÄ¿Â¼ ÓĞĞ±¸Ü
-	std::string m_inputDirectory;// ÊäÈëÎÄ¼şÄ¿Â¼
-	std::string m_outputDirectory;// Êä³öÎÄ¼şÄ¿Â¼
+	std::string m_workingDirectory;// å½“å‰æ‰§è¡Œæ–‡ä»¶æ‰€åœ¨çš„ç›®å½• æœ‰æ–œæ 
+	std::string m_inputDirectory;// è¾“å…¥æ–‡ä»¶ç›®å½•
+	std::string m_outputDirectory;// è¾“å‡ºæ–‡ä»¶ç›®å½•
 
 	std::string m_tomlFilePath;
 
 private:
-	FilePathManager() { initialzeVariables(); };// ¹¹Ôìº¯Êı£¬ÉèÎªË½ÓĞ£¬ÔÚµÚÒ»´Î»ñÈ¡ÊµÀıÊ±µ÷ÓÃ
+	FilePathManager() { initialzeVariables(); };// æ„é€ å‡½æ•°ï¼Œè®¾ä¸ºç§æœ‰ï¼Œåœ¨ç¬¬ä¸€æ¬¡è·å–å®ä¾‹æ—¶è°ƒç”¨
 	void initialzeVariables();
 	void m_initializeWorkingDirectory();
 	void createFolderIfDoesntExist(std::string foldername);
 
 
 public:
-	static FilePathManager* getInstance();// ½Ó¿Ú£¬»ñÈ¡µ¥ÀıÖ¸Õë
+	static FilePathManager* getInstance();// æ¥å£ï¼Œè·å–å•ä¾‹æŒ‡é’ˆ
 
 	std::string getWorkingDirectory(){ return m_workingDirectory; }
 	std::string getInputDirectory() { return m_inputDirectory; }
 	std::string getOutputDirectory() { return m_outputDirectory; }
 	std::string getTomlFilePath();
-	// ÁĞ¾ÙÎÄ¼şÃû³Æ£¬pathĞè¼Ó·´Ğ±¸Ü[todo]¸Ãº¯Êı½ö½öÁĞ³öÁËÄ¿Â¼ÏÂÎÄ¼ş£¬Ã»ÓĞÁĞ³ö×ÓÄ¿Â¼
+	// åˆ—ä¸¾æ–‡ä»¶åç§°ï¼Œpathéœ€åŠ åæ–œæ [todo]è¯¥å‡½æ•°ä»…ä»…åˆ—å‡ºäº†ç›®å½•ä¸‹æ–‡ä»¶ï¼Œæ²¡æœ‰åˆ—å‡ºå­ç›®å½•
 	std::vector<std::string> getFiles(std::string path);
 
 };

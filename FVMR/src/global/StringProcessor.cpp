@@ -14,19 +14,19 @@ std::string StringProcessor::doubleArray_2_string(myfloat* U, int length) {
 	for (int i = 0; i < length; i++) {
 		str += std::to_string(U[i]) + ",";
 	}
-	str[str.length() - 1] = '}';//½«×îºóµÄ","Ìæ»»³É"}"
+	str[str.length() - 1] = '}';//å°†æœ€åçš„","æ›¿æ¢æˆ"}"
 	return str;
 }
 
 std::vector<std::string> StringProcessor::splitString(std::string tLine) {
-	tLine = tLine + ' ';//Ä¿µÄÊÇ·ÀÖ¹×îºóÒ»¸öµ¥´ÊÃ»ÓĞ±»push_back½øtWords
+	tLine = tLine + ' ';//ç›®çš„æ˜¯é˜²æ­¢æœ€åä¸€ä¸ªå•è¯æ²¡æœ‰è¢«push_backè¿›tWords
 	std::vector<std::string> tWords;
 	std::string tWord;
 	bool isCurrentMeaningful = 0;
 	bool isLastMeaningful = 0;
 	const int length = (int)tLine.size();
 	//std::cout << "tLine= " << tLine << std::endl;
-	//std::cout << "size= " << length << std::endl; ³É¹¦·µ»ØtLine³¤¶È
+	//std::cout << "size= " << length << std::endl; æˆåŠŸè¿”å›tLineé•¿åº¦
 	for (int j = 0; j < length; j++) {
 		if (tLine[j] != ' ' && tLine[j] != '\t' && tLine[j] != ',')
 			isCurrentMeaningful = 1;
@@ -58,17 +58,17 @@ std::string StringProcessor::replaceCharInString(std::string word, char oldChar,
 }
 
 std::string StringProcessor::deleteCommentByChar(std::string word, char flag) {
-	// É¾³ıflag¼°ÆäºóÃæµÄ×Ö·û
+	// åˆ é™¤flagåŠå…¶åé¢çš„å­—ç¬¦
 	int i_last_meaningful_char = -1;
 	for (int i = 0; i < word.size(); i++) {
-		// Óöµ½'%'Í£Ö¹
+		// é‡åˆ°'%'åœæ­¢
 		if (word[i] == flag) {
 			break;
 		}
-		// ¼ÇÂ¼Î»ÖÃ
+		// è®°å½•ä½ç½®
 		i_last_meaningful_char = i;
 	}
-	// ÈôÕûĞĞ±»É¾È¥£¬Ôò·µ»Ø¿Õ×Ö·û´®
+	// è‹¥æ•´è¡Œè¢«åˆ å»ï¼Œåˆ™è¿”å›ç©ºå­—ç¬¦ä¸²
 	if (i_last_meaningful_char == -1) {
 		return std::string();
 	}
@@ -80,7 +80,7 @@ std::string StringProcessor::timeFormat(int dt) {
 		return "0:00:00";
 	}
 
-	int h = dt / 3600;//×¨ÃÅÓÃintµÄ³ı·¨
+	int h = dt / 3600;//ä¸“é—¨ç”¨intçš„é™¤æ³•
 	dt -= h * 3600;
 	int m = dt / 60;
 	dt -= m * 60;

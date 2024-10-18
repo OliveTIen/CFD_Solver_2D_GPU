@@ -1,4 +1,4 @@
-﻿#ifndef _GPU_CDRIVER_H_
+#ifndef _GPU_CDRIVER_H_
 #define _GPU_CDRIVER_H_
 // 用于替代FVM_2D部分功能
 #include "../solvers/GPUSolver2.h"
@@ -7,18 +7,31 @@
 #include "../gpu/datatype/DefineType.h"
 #include "../gui/WinGui.h"
 
+
 namespace U2NITS {
+	/**
+	 * \class CDriver
+	 * \brief 
+	 * Program routine controller. 
+	 * \details @ref CDriver::start controls the whole routine,
+	 * and @ref CDriver::gui controls the physics simulation scene.
+	 * 
+	 */
 	class CDriver {
+		/*
+		该类用于控制整个应用程序的流程
+		但未来如果要往引擎发展，需要以Scene为主体，把求解器挂载到Cudagrid Object上
+		*/
 	private:
 		static CDriver* pCDriver;
 		CInput input;
 		COutput out;
 		GPU::GPUSolver2 solver;
-		WinGui gui;
+		WinGui gui;///< controls the physics simulation scene.
 		int m_last_istep = 0;
 		double m_last_t = 0.0;
 		double m_last_snapshot_time = 0.0;
-		double m_snapshot_cold_time = 1800.0;// default 30min=1800s 保存快照的冷却时间[秒]，默认为30min=1800s
+		double m_snapshot_cold_time = 1800.0;///< default 30min=1800s 保存快照的冷却时间[秒]，默认为30min=1800s
 
 	public:
 		enum PauseSignal {
@@ -30,13 +43,13 @@ namespace U2NITS {
 		};
 		class SignalPack {
 		public:
-			bool b_writeContinue = false;// 续算
-			bool b_writeTecplot = false;// 流场
-			bool b_writeRecovery = false;// [已弃用]因为不如保存续算文件，所以没用到
+			bool b_writeContinue = false;///< 续算
+			bool b_writeTecplot = false;///< 流场
+			bool b_writeRecovery = false;///< [已弃用]因为不如保存续算文件，所以没用到
 			bool b_nanDetected = false;
-			bool b_writeHist = false;// 残差
-			bool b_print = false;// 屏幕
-			PauseSignal pauseSignal = _NoSignal;// 暂停信号
+			bool b_writeHist = false;///< 残差
+			bool b_print = false;///< 屏幕
+			PauseSignal pauseSignal = _NoSignal;///< 暂停信号
 		};
 
 		// following parameters are read from "input.toml"
@@ -45,7 +58,7 @@ namespace U2NITS {
 		bool enable_write_file = true;
 
 		static CDriver* getInstance();
-		void start();
+		void start();///< \brief entry point
 		static void saveAndExit(int _Code);
 		
 	private:

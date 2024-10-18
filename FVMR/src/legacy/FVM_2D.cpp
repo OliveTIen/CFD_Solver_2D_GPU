@@ -1,4 +1,4 @@
-﻿#include "FVM_2D.h"
+#include "FVM_2D.h"
 #include "../output/ConsolePrinter.h"
 //#include "output/ResidualCalculator.h"
 #include "../output/LogWriter.h"

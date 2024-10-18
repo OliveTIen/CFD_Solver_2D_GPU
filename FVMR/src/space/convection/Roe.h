@@ -3,10 +3,7 @@
  * \brief Implementations of Roe-type schemes.
  * \author tgl
  *
- * ¹ØÓÚÄ¿Â¼ºÍÎÄ¼şµÄÃüÃû£º
- * UNITsÖĞ£¬RoeÎ»ÓÚSpace/Convect_Roe.f90
- * FUN3DÖĞ£¬RoeÎ»ÓÚlibres/jacobian_gen.f90
- * SU2ÖĞ£¬RoeÎ»ÓÚsrc/numerics/flow/convection/roe.cpp
+ * SU2ä¸­ï¼ŒRoeä½äºsrc/numerics/flow/convection/roe.cpp
  * 
  */
 
@@ -16,14 +13,14 @@
 
 namespace U2NITS {
 	namespace Space {
-		// Î´Ê¹ÓÃ
+		// æœªä½¿ç”¨
 		void EigenValueAndVector4x4(myfloat mat[4][4], myfloat eigens[4], myfloat R[4][4]);
-		// Î´Ê¹ÓÃ
+		// æœªä½¿ç”¨
 		void JacobiMethod(myfloat mat[4][4], myfloat eigens[4], myfloat R[4][4]);
-		// Î´Ê¹ÓÃ
+		// æœªä½¿ç”¨
 		void RoeAverage(myfloat U1[4], myfloat U2[4], myfloat gamma);
-		// Î´Ê¹ÓÃ
-		void RoeAverageFUN3D(
+		// æœªä½¿ç”¨
+		void RoeAverage_13_3(
 			myfloat rho1, myfloat rho2, myfloat& rho,
 			myfloat u1, myfloat u2, myfloat& u,
 			myfloat v1, myfloat v2, myfloat& v,
@@ -64,7 +61,7 @@ namespace U2NITS {
 		inline myfloat PShockWaveSensor() { return 0.5; }
 
 
-		// Î´Ê¹ÓÃ
+		// æœªä½¿ç”¨
 		void GetRoeMatrix3d(
 			myfloat gamma,
 			myfloat ruvwpL[5], myfloat ruvwpR[5],
@@ -75,17 +72,17 @@ namespace U2NITS {
 		);
 
 		inline void EigenEntropyFix_HartenYee(myfloat& eig, myfloat eig_lim, myfloat epsilon) {
-			// Harten-YeeĞÍìØĞŞÕı Ä¿µÄÊÇÈÃÌØÕ÷Öµ²»ÒªÌ«½Ó½ü0£¬µ¼ÖÂ·ÇÎïÀí½â
-			// eig-ÌØÕ÷Öµ£¬lim-ÏŞÖÆÆ÷£¬epsilon-·ÀÖ¹·ÖÄ¸Îª0
-			// µ±eigĞ¡ÓÚeig_limÊ±£¬Ôö´óeig£¬Ê¹ÆäÔ¶Àë0
-			// »ù±¾²»µÈÊ½a^2+b^2>=2ab£¬Òò´Ë(e*e+l*l)/(2*l)>=(2*e*l)/(2*l)= e
+			// Harten-Yeeå‹ç†µä¿®æ­£ ç›®çš„æ˜¯è®©ç‰¹å¾å€¼ä¸è¦å¤ªæ¥è¿‘0ï¼Œå¯¼è‡´éç‰©ç†è§£
+			// eig-ç‰¹å¾å€¼ï¼Œlim-é™åˆ¶å™¨ï¼Œepsilon-é˜²æ­¢åˆ†æ¯ä¸º0
+			// å½“eigå°äºeig_limæ—¶ï¼Œå¢å¤§eigï¼Œä½¿å…¶è¿œç¦»0
+			// åŸºæœ¬ä¸ç­‰å¼a^2+b^2>=2abï¼Œå› æ­¤(e*e+l*l)/(2*l)>=(2*e*l)/(2*l)= e
 
-			// Ô­Ê½£º 
+			// åŸå¼ï¼š 
 			if (eig < eig_lim) {
 				eig = 0.5 * (eig * eig + eig_lim * eig_lim) / (eig_lim + epsilon);
 			}
 
-			//// ´ıÑéÖ¤£¿
+			//// å¾…éªŒè¯ï¼Ÿ
 			//if (eig_lim < 0)eig_lim = -eig_lim;
 			//if (eig_lim == 0)eig_lim = epsilon;
 			//if (eig < eig_lim) {

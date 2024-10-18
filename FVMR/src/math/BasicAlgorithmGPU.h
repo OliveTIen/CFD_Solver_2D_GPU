@@ -11,7 +11,7 @@ namespace GPU {
 
 		
 #ifdef max 
-#undef max // Èç¹û²»undefµÄ»°£¬»áµ¼ÖÂ×Ô¶¨Òåmaxº¯Êý±àÒëÊ§°Ü
+#undef max // å¦‚æžœä¸undefçš„è¯ï¼Œä¼šå¯¼è‡´è‡ªå®šä¹‰maxå‡½æ•°ç¼–è¯‘å¤±è´¥
 #endif
 #ifdef min
 #undef min
@@ -34,33 +34,33 @@ namespace GPU {
 			myfloat dy = y2 - y1;
 			return sqrt(dx * dx + dy * dy);
 		}
-		// ½á¹û´æÈëa
+		// ç»“æžœå­˜å…¥a
 		__host__ __device__ inline void operator_min(myfloat& a, const myfloat& b) {
 			if (a > b)a = b;
 		}
 		__host__ __device__ inline void operator_max(myfloat& a, const myfloat& b) {
 			if (a < b)a = b;
 		}
-		// deviceº¯ÊýÖ¸Õë
+		// deviceå‡½æ•°æŒ‡é’ˆ
 		extern __device__ func_bin_myfloat p_operator_min;
 		extern __device__ func_bin_myfloat p_operator_max;
 
 		/*
 		kernels
 		*/
-		// ´øÈ¨µÄÏòÁ¿³ý·¨ v1 /= v2 .* weight
+		// å¸¦æƒçš„å‘é‡é™¤æ³• v1 /= v2 .* weight
 		__global__ void vector_weighted_divide_kernel(myint length, myfloat* v1, const myfloat* v2, myfloat weight);
-		// ´øÈ¨µÄÏòÁ¿µ¹Êý v1 = (v2 .* weight) / v1
+		// å¸¦æƒçš„å‘é‡å€’æ•° v1 = (v2 .* weight) / v1
 		__global__ void vector_weighted_reciprocal_kernel(myint length, myfloat* v1, const myfloat* v2, myfloat weight);
-		// ´øÈ¨µÄÏòÁ¿¼Ó·¨ v1 += v2 .* weight
+		// å¸¦æƒçš„å‘é‡åŠ æ³• v1 += v2 .* weight
 		__global__ void vector_weighted_add_kernel(myint length, myfloat* v1, const myfloat* v2, myfloat weight);
-		// ÏòÁ¿µã»ý v1 += v2 .* v3
+		// å‘é‡ç‚¹ç§¯ v1 += v2 .* v3
 		__global__ void vector_dot_product_add_kernel(myint v_size, myfloat* v1, const myfloat* v2, const myfloat* v3);
 
 		/*
 		functions, vector
 		*/
-		// ¸øÊý×éÖ¸¶¨·¶Î§[start, end)µÄÔªËØ¸³Öµ
+		// ç»™æ•°ç»„æŒ‡å®šèŒƒå›´[start, end)çš„å…ƒç´ èµ‹å€¼
 		void assign_elements_in_array_device(myint start, myint end, myfloat* arr_dev, myfloat value);
 	}
 }

@@ -3,7 +3,7 @@
 #include <string>
 namespace U2NITS {
 	/*
-	ĞÂBoundaryManager
+	ÃÃ‚BoundaryManager
 	*/
 	class BoundaryManager {
 	private:

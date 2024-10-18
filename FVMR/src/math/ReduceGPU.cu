@@ -3,8 +3,8 @@
 #include "../math/BasicAlgorithmGPU.h"
 
 /*
-µÚ2°ækernel£¬ºÏ²¢È«¾ÖÄÚ´æ
-Ã¿¸öÏß³Ì´¦ÀíÁ½¸öÊı¾İ£¬ÕâÁ½¸öÊı¾İµÄ¿Õ¼ä¾àÀë£¨¼´²½³¤stride£©ÊÇÏàÍ¬µÄ£¬ÀàËÆ»¬¶¯´°¿Ú
+ç¬¬2ç‰ˆkernelï¼Œåˆå¹¶å…¨å±€å†…å­˜
+æ¯ä¸ªçº¿ç¨‹å¤„ç†ä¸¤ä¸ªæ•°æ®ï¼Œè¿™ä¸¤ä¸ªæ•°æ®çš„ç©ºé—´è·ç¦»ï¼ˆå³æ­¥é•¿strideï¼‰æ˜¯ç›¸åŒçš„ï¼Œç±»ä¼¼æ»‘åŠ¨çª—å£
 */
 __global__ void reduce_device_kernel(myfloat* input, myfloat* output, unsigned int n, func_bin_myfloat p_func) {
     // Determine this thread's various ids
@@ -13,23 +13,23 @@ __global__ void reduce_device_kernel(myfloat* input, myfloat* output, unsigned i
     unsigned int block_id = blockIdx.x;
 
     /*
-    Ã¿¸öÏß³Ì²Ù×÷input[block_start]ºÍinput[block_start + stride]£¬´æÈëinput[block_start]
-    Èç´Ë·´¸´£¬Ö±µ½×îºóÊ£ÏÂ1¸öÊı
+    æ¯ä¸ªçº¿ç¨‹æ“ä½œinput[block_start]å’Œinput[block_start + stride]ï¼Œå­˜å…¥input[block_start]
+    å¦‚æ­¤åå¤ï¼Œç›´åˆ°æœ€åå‰©ä¸‹1ä¸ªæ•°
     */
-    unsigned int block_start = block_id * block_size * 2 + thread_id;// µ±Ç°Ïß³ÌµÄ×ó²Ù×÷Êı
+    unsigned int block_start = block_id * block_size * 2 + thread_id;// å½“å‰çº¿ç¨‹çš„å·¦æ“ä½œæ•°
     for (unsigned int stride = block_size; stride > 0; stride /= 2) {
-        if (thread_id < stride && // µ±Ç°Ïß³ÌµÄ×ó²Ù×÷ÊıÔÚ·¶Î§ÄÚ 
-            block_start + stride < n) // µ±Ç°Ïß³ÌµÄÓÒ²Ù×÷ÊıÔÚ·¶Î§ÄÚ
+        if (thread_id < stride && // å½“å‰çº¿ç¨‹çš„å·¦æ“ä½œæ•°åœ¨èŒƒå›´å†… 
+            block_start + stride < n) // å½“å‰çº¿ç¨‹çš„å³æ“ä½œæ•°åœ¨èŒƒå›´å†…
         {
             //input[block_start] += input[block_start + stride];
 
             p_func(input[block_start], input[block_start + stride]);
         }
-        // Í¬²½ËùÓĞÏß³Ì
+        // åŒæ­¥æ‰€æœ‰çº¿ç¨‹
         __syncthreads();
     }
 
-    // ½«×îºóÊ£ÏÂµÄ1¸öÊı´æÈëoutput
+    // å°†æœ€åå‰©ä¸‹çš„1ä¸ªæ•°å­˜å…¥output
     if (!thread_id) {
         output[block_id] = input[block_start];
     }
@@ -45,12 +45,12 @@ inline void reduce_device_show_debug_info(unsigned int remaining, unsigned int b
 
 void GPU::Math::reduce_device(const myint n, myfloat* dev_input, myfloat* dev_output, bool debug_info, ReduceType reduceType) {
     /*
-    n dev_inputµÄ×Ü³¤¶È£¬ÒªÇóÎª2µÄÃİ¡£·ñÔòÔÚÄ³Ò»²½£¬nÎªÆæÊı£¬×îºóÒ»¸öÔªËØÃ»ÓĞ²ÎÓëÔËËã£¬µ¼ÖÂ½á¹û²»×¼È·
-    dev_input ´ı¹æÔ¼Êı×é ´óĞ¡Îªn
-    dev_output ÖĞ¼äÊı×é¼°×îÖÕÊä³öÊı×é ´óĞ¡Îª n/block_size ÏòÉÏÈ¡Õû¡£ÊÂÏÈÒÑ¾­·ÖÅäºÃ
+    n dev_inputçš„æ€»é•¿åº¦ï¼Œè¦æ±‚ä¸º2çš„å¹‚ã€‚å¦åˆ™åœ¨æŸä¸€æ­¥ï¼Œnä¸ºå¥‡æ•°ï¼Œæœ€åä¸€ä¸ªå…ƒç´ æ²¡æœ‰å‚ä¸è¿ç®—ï¼Œå¯¼è‡´ç»“æœä¸å‡†ç¡®
+    dev_input å¾…è§„çº¦æ•°ç»„ å¤§å°ä¸ºn
+    dev_output ä¸­é—´æ•°ç»„åŠæœ€ç»ˆè¾“å‡ºæ•°ç»„ å¤§å°ä¸º n/block_size å‘ä¸Šå–æ•´ã€‚äº‹å…ˆå·²ç»åˆ†é…å¥½
     */
 
-    // ¼ì²énÊÇ·ñÎª2µÄÃİ¡£²ÎÕÕ https://blog.csdn.net/qq_39360985/article/details/78628550
+    // æ£€æŸ¥næ˜¯å¦ä¸º2çš„å¹‚ã€‚å‚ç…§ https://blog.csdn.net/qq_39360985/article/details/78628550
     if ((n & n - 1) == 0) {
         //printf("%d is pow of 2\n", n);
     }
@@ -58,8 +58,8 @@ void GPU::Math::reduce_device(const myint n, myfloat* dev_input, myfloat* dev_ou
         printf("warning: %d is NOT pow of 2\n", n);
     }
 
-    // ¸ù¾İ¹æÔ¼ÀàĞÍ£¬Ñ¡Ôñ¶ÔÓ¦µÄË«Ä¿ÔËËã·û(º¯ÊıÖ¸Õë)
-    func_bin_myfloat p_func_host;// º¯ÊıÖ¸Õë
+    // æ ¹æ®è§„çº¦ç±»å‹ï¼Œé€‰æ‹©å¯¹åº”çš„åŒç›®è¿ç®—ç¬¦(å‡½æ•°æŒ‡é’ˆ)
+    func_bin_myfloat p_func_host;// å‡½æ•°æŒ‡é’ˆ
     switch (reduceType) {
     case reduceType_min:
         cudaMemcpyFromSymbol(&p_func_host, GPU::Math::p_operator_min, sizeof(func_bin_myfloat));// device to host
@@ -72,25 +72,25 @@ void GPU::Math::reduce_device(const myint n, myfloat* dev_input, myfloat* dev_ou
     }
     getLastCudaError("cudaMemcpyFromSymbol @ reduce_device failed.");
 
-    const int block_threads = GPU::get_max_threads_per_block();// Ã¿¸öblockÔÊĞíµÄÏß³ÌÊı
-    unsigned int threads_needed = n / 2; // Ïß³ÌÊıÁ¿
-    unsigned int blocks = threads_needed / block_threads + (threads_needed % block_threads > 0 ? 1 : 0); // blockÊıÁ¿
-    unsigned int remaining = n; // ĞèÒªÇóºÍµÄÔªËØÊıÁ¿
+    const int block_threads = GPU::get_max_threads_per_block();// æ¯ä¸ªblockå…è®¸çš„çº¿ç¨‹æ•°
+    unsigned int threads_needed = n / 2; // çº¿ç¨‹æ•°é‡
+    unsigned int blocks = threads_needed / block_threads + (threads_needed % block_threads > 0 ? 1 : 0); // blockæ•°é‡
+    unsigned int remaining = n; // éœ€è¦æ±‚å’Œçš„å…ƒç´ æ•°é‡
     while (remaining > 1) {
-        // ÏÔÊ¾µ÷ÊÔĞÅÏ¢
+        // æ˜¾ç¤ºè°ƒè¯•ä¿¡æ¯
         if (debug_info) {
             reduce_device_show_debug_info(remaining, blocks, threads_needed);
         }
 
-        // µ÷ÓÃºËº¯Êı
+        // è°ƒç”¨æ ¸å‡½æ•°
         reduce_device_kernel <<<blocks, block_threads>>> (dev_input, dev_output, remaining, p_func_host);
 
-        // ¼ÆËãÏÂÒ»²½µü´úµÄÏà¹ØĞÅÏ¢
-        remaining = blocks; // ÏÂÒ»²½ĞèÒªÇóºÍµÄÔªËØÊıÁ¿
-        threads_needed = remaining / 2; // ÏÂÒ»²½ĞèÒªµÄÏß³ÌÊıÁ¿
-        blocks = threads_needed / block_threads + (threads_needed % block_threads ? 1 : 0); // ÏÂÒ»²½ĞèÒªµÄblockÊıÁ¿
+        // è®¡ç®—ä¸‹ä¸€æ­¥è¿­ä»£çš„ç›¸å…³ä¿¡æ¯
+        remaining = blocks; // ä¸‹ä¸€æ­¥éœ€è¦æ±‚å’Œçš„å…ƒç´ æ•°é‡
+        threads_needed = remaining / 2; // ä¸‹ä¸€æ­¥éœ€è¦çš„çº¿ç¨‹æ•°é‡
+        blocks = threads_needed / block_threads + (threads_needed % block_threads ? 1 : 0); // ä¸‹ä¸€æ­¥éœ€è¦çš„blockæ•°é‡
 
-        // ½»»»Ö¸Õë¡£²¢Ã»ÓĞ´«µİÊı¾İµ½host£¬¼¸ºõÎŞ¿ªÏú
+        // äº¤æ¢æŒ‡é’ˆã€‚å¹¶æ²¡æœ‰ä¼ é€’æ•°æ®åˆ°hostï¼Œå‡ ä¹æ— å¼€é”€
         if (remaining > 1) {
             myfloat* dev_temp = dev_input;
             dev_input = dev_output;

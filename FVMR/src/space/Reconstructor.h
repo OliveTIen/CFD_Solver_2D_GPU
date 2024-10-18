@@ -1,8 +1,8 @@
 #ifndef RECONSTRUCTOR_H
 #define RECONSTRUCTOR_H
 /**
-* ÒÅÁô´úÂë£¬ÏßĞÔÖØ¹¹
-* ²ÎÕÕLaminar-WangQ£¬reconstruction_initialize.f90
+* é—ç•™ä»£ç ï¼Œçº¿æ€§é‡æ„
+* å‚ç…§Laminar-WangQï¼Œreconstruction_initialize.f90
 */
 class FVM_2D;
 class Element_2D;

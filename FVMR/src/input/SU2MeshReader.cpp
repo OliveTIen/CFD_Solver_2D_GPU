@@ -20,9 +20,9 @@ void SU2MeshReader::read_mesh_and_process(std::string filePath, bool convertRect
 
 void SU2MeshReader::readMesh(std::string filePath, bool convertRectToTriangle, int& maxnodeID, int& maxelementID, std::vector<SimpleBoundary>& tmp_boudaries) {
 	/*
-	¶ÁÈ¡SU2Íø¸ñÎÄ¼ş¡£
-	°üÀ¨½Úµã±àºÅ¡¢½Úµã×ø±ê
-	µ¥Ôª±àºÅ¡¢Ã¿¸öµ¥ÔªµÄ½Úµã±àºÅ
+	è¯»å–SU2ç½‘æ ¼æ–‡ä»¶ã€‚
+	åŒ…æ‹¬èŠ‚ç‚¹ç¼–å·ã€èŠ‚ç‚¹åæ ‡
+	å•å…ƒç¼–å·ã€æ¯ä¸ªå•å…ƒçš„èŠ‚ç‚¹ç¼–å·
 	*/
 	LogWriter::logAndPrint("Mesh file: " + filePath + "\n");
 	FVM_2D* pFVM2D = FVM_2D::getInstance();
@@ -39,17 +39,17 @@ void SU2MeshReader::readMesh(std::string filePath, bool convertRectToTriangle, i
 	char buffer[bufferLength];
 	std::string tLine;
 	std::vector<std::string> tWords;
-	std::vector<VirtualEdge_2D> vBoundaryEdges;//ÁÙÊ±±äÁ¿¡£´æ´¢±ß½çÔª½ÚµãID
-	vBoundaryEdges.push_back(VirtualEdge_2D());//Ìî³ä1¸önullÔªËØ£¬ÒÔ±£Ö¤ĞĞºÅ±íÊ¾ID
+	std::vector<VirtualEdge_2D> vBoundaryEdges;//ä¸´æ—¶å˜é‡ã€‚å­˜å‚¨è¾¹ç•Œå…ƒèŠ‚ç‚¹ID
+	vBoundaryEdges.push_back(VirtualEdge_2D());//å¡«å……1ä¸ªnullå…ƒç´ ï¼Œä»¥ä¿è¯è¡Œå·è¡¨ç¤ºID
 	while (infile.getline(buffer, bufferLength)) {
 
 		tLine = buffer;
 		tLine = StringProcessor::replaceCharInString(tLine, '=', " = ");
 		tWords = StringProcessor::splitString(tLine);
 		long tWordsSize = tWords.size();
-		// ¸üĞÂ×´Ì¬
+		// æ›´æ–°çŠ¶æ€
 		if (tWordsSize == 0 || tWords[0] == "%") {
-			continue;//¶ÔÓÚ¿ÕĞĞ£¬Ç¿ÆÈ½øÈëÏÂÒ»´ÎÑ­»·£¬·ÀÖ¹¶ÁÈ¡tWords[0]³öÏÖÄÚ´æ´íÎó
+			continue;//å¯¹äºç©ºè¡Œï¼Œå¼ºè¿«è¿›å…¥ä¸‹ä¸€æ¬¡å¾ªç¯ï¼Œé˜²æ­¢è¯»å–tWords[0]å‡ºç°å†…å­˜é”™è¯¯
 		}
 		if (tWords[0] == "NDIME") {
 			state = state_NDIME;
@@ -65,7 +65,7 @@ void SU2MeshReader::readMesh(std::string filePath, bool convertRectToTriangle, i
 			state = state_NMARK;
 		}
 
-		// ¸ù¾İ×´Ì¬½øĞĞÌØ¶¨²Ù×÷
+		// æ ¹æ®çŠ¶æ€è¿›è¡Œç‰¹å®šæ“ä½œ
 		if (state == state_NDIME) {
 			if (tWordsSize == 3 && tWords[2] == "2") {
 
@@ -75,7 +75,7 @@ void SU2MeshReader::readMesh(std::string filePath, bool convertRectToTriangle, i
 				exit(-1);
 			}
 		}
-		else if (state == state_NPOIN && tWords[0].substr(0, 1) != "N") {//"*NODE" ¶ÁÈ¡½ÚµãIDºÍ×ø±ê
+		else if (state == state_NPOIN && tWords[0].substr(0, 1) != "N") {//"*NODE" è¯»å–èŠ‚ç‚¹IDå’Œåæ ‡
 			Node_2D node;
 			node.x = std::stod(tWords[0]);
 			node.y = std::stod(tWords[1]);
@@ -83,13 +83,13 @@ void SU2MeshReader::readMesh(std::string filePath, bool convertRectToTriangle, i
 				node.ID = (int)std::stod(tWords[2]) + 1;
 			}
 			else if (tWordsSize == 4) {// x y z ID
-				node.ID = (int)std::stod(tWords[3]) + 1;// ¸úinp±£³ÖÒ»ÖÂ£¬´Ó1¿ªÊ¼
+				node.ID = (int)std::stod(tWords[3]) + 1;// è·Ÿinpä¿æŒä¸€è‡´ï¼Œä»1å¼€å§‹
 			}
 			pFVM2D->nodes.push_back(node);
 			maxnodeID = (std::max)(maxnodeID, node.ID);
 		}
 		else if (state == state_NELEM && tWords[0].substr(0, 1) != "N") {
-			// Èı½ÇÔª
+			// ä¸‰è§’å…ƒ
 			if (tWords[0] == "5") {
 				Element_2D e;
 				e.ID = pFVM2D->elements.size() + 1;
@@ -99,7 +99,7 @@ void SU2MeshReader::readMesh(std::string filePath, bool convertRectToTriangle, i
 				pFVM2D->elements.push_back(e);
 				maxelementID = (std::max)(maxelementID, e.ID);
 			}
-			// ËÄ±ßÔª
+			// å››è¾¹å…ƒ
 			else if (tWords[0] == "9") {
 				if (convertRectToTriangle) {
 					Element_2D e;
@@ -134,7 +134,7 @@ void SU2MeshReader::readMesh(std::string filePath, bool convertRectToTriangle, i
 
 			}
 			else if (tWords[0] == "MARKER_TAG") {
-				// Ìí¼ÓÒ»¸öboundary£¬³õÊ¼»¯Ãû³Æ
+				// æ·»åŠ ä¸€ä¸ªboundaryï¼Œåˆå§‹åŒ–åç§°
 				tmp_boudaries.push_back(SimpleBoundary(tWords[2]));
 
 			}
@@ -142,7 +142,7 @@ void SU2MeshReader::readMesh(std::string filePath, bool convertRectToTriangle, i
 
 			}
 			else {
-				// µ±Ç°boundaryÌí¼ÓÒ»¸ö±ß
+				// å½“å‰boundaryæ·»åŠ ä¸€ä¸ªè¾¹
 				SimpleBoundary& tmp_currentBoundary = tmp_boudaries[tmp_boudaries.size() - 1];
 				tmp_currentBoundary.edges.push_back(SimpleEdge(
 					std::stoi(tWords[1]) + 1, std::stoi(tWords[2]) + 1
@@ -183,20 +183,20 @@ void SU2MeshReader::process(int maxNodeID, int maxElementID, std::vector<SimpleB
 	pFVM2D->iniPElementTable(maxElementID);
 	pFVM2D->iniEdges();
 	pFVM2D->iniPEdgeTable();
-	pFVM2D->iniNode_neighborElements();//Ç°ÖÃÌõ¼ş elements, elements.nodes, pNodeTable
+	pFVM2D->iniNode_neighborElements();//å‰ç½®æ¡ä»¶ elements, elements.nodes, pNodeTable
 
 	LogWriter::logAndPrint("Calculate Element xy, edge length\n");
 	pFVM2D->iniElement_xy_pEdges();
 	pFVM2D->iniEdges_lengths();
 
 	LogWriter::logAndPrint("Initialize boundary condition\n");
-	// ³õÊ¼»¯boundaryManager.boundariesµÄpEdges¡¢type
-	// ³õÊ¼»¯edgeµÄsetID
-	// ³õÊ¼»¯ÖÜÆÚ±ß½ç¹ØÏµ£¬ÓÉboundaryManager.periodPairsÎ¬»¤
-	// Ç°ÖÃÌõ¼ş£ºÓĞboundariesÏòÁ¿£¬ÓĞedgesÏòÁ¿ÇÒedgesÒÑ³õÊ¼»¯nodeIDs£¬boundariesÓĞname
+	// åˆå§‹åŒ–boundaryManager.boundariesçš„pEdgesã€type
+	// åˆå§‹åŒ–edgeçš„setID
+	// åˆå§‹åŒ–å‘¨æœŸè¾¹ç•Œå…³ç³»ï¼Œç”±boundaryManager.periodPairsç»´æŠ¤
+	// å‰ç½®æ¡ä»¶ï¼šæœ‰boundarieså‘é‡ï¼Œæœ‰edgeså‘é‡ä¸”edgeså·²åˆå§‹åŒ–nodeIDsï¼Œboundariesæœ‰name
 	/*
-	std::vector<SimpleBoundary>& tmp_boudaries£º¶ÁÈ¡su2 meshÊ±´´½¨£¬SimpleBoundaryº¬ÓĞ±ß½çÃû³Æ£¨ÀıÈç"periodic_2"£©ºÍ±ßµÄĞòÁĞ¶Ô£¨ÀıÈç{51,52}£©
-	real_boundaries£ºÊÇpFVM2D->boundaryManager.boundariesµÄÒıÓÃ£¬ÔÚ´Ë´¦±»³õÊ¼»¯
+	std::vector<SimpleBoundary>& tmp_boudariesï¼šè¯»å–su2 meshæ—¶åˆ›å»ºï¼ŒSimpleBoundaryå«æœ‰è¾¹ç•Œåç§°ï¼ˆä¾‹å¦‚"periodic_2"ï¼‰å’Œè¾¹çš„åºåˆ—å¯¹ï¼ˆä¾‹å¦‚{51,52}ï¼‰
+	real_boundariesï¼šæ˜¯pFVM2D->boundaryManager.boundariesçš„å¼•ç”¨ï¼Œåœ¨æ­¤å¤„è¢«åˆå§‹åŒ–
 	*/
 	{
 		std::vector<VirtualBoundarySet_2D>& real_boundaries = pFVM2D->boundaryManager.boundaries;
@@ -216,23 +216,23 @@ void SU2MeshReader::process(int maxNodeID, int maxElementID, std::vector<SimpleB
 				real_boundaries[i].pEdges.push_back(pEdge);
 			}
 
-			//! ×¢Òâ¸Ã¶Î´úÂë´æÔÚÓÚ¶à´¦¡£ĞŞ¸ÄÊ±¿ÉÄÜĞèÒªĞŞ¸Ä¶à´¦
-			// ³õÊ¼»¯periodPairs£¬periodPairs´æ´¢ÖÜÆÚ±ß½çµÄÅä¶ÔĞÅÏ¢£¬ÓÃÀ´¼ì²éÖÜÆÚ±ß½çÍêÕûĞÔ
-			// periodPairsÊÇboundaryManagerµÄ³ÉÔ±£¬Ã¿¸öpair´æ´¢int bType, int setID_0, int setID_1
+			//! æ³¨æ„è¯¥æ®µä»£ç å­˜åœ¨äºå¤šå¤„ã€‚ä¿®æ”¹æ—¶å¯èƒ½éœ€è¦ä¿®æ”¹å¤šå¤„
+			// åˆå§‹åŒ–periodPairsï¼ŒperiodPairså­˜å‚¨å‘¨æœŸè¾¹ç•Œçš„é…å¯¹ä¿¡æ¯ï¼Œç”¨æ¥æ£€æŸ¥å‘¨æœŸè¾¹ç•Œå®Œæ•´æ€§
+			// periodPairsæ˜¯boundaryManagerçš„æˆå‘˜ï¼Œæ¯ä¸ªpairå­˜å‚¨int bType, int setID_0, int setID_1
 			const int& bType = real_boundaries[i].type;
 			const int& bID = real_boundaries[i].ID;
 			auto& periodPairs = pFVM2D->boundaryManager.periodPairs;
-			if (_BC_periodic_0 <= bType && bType <= _BC_periodic_9) {// Á½¸ö²»µÈÊ½Ğè²ğ¿ª£¬ÓÃ&&Á¬½Ó
-				//¼ì²éperiodPairsÊÇ·ñÒÑ¾­Â¼Èë¸ÃbType£¬ÈôÊÇ£¬ÔòÊ¹ÓÃÒÑÓĞµÄ£»Èô·ñ£¬ÔòĞÂ½¨Ò»¸öPeriodPair tmp£¬´æÈëperiodPairs
+			if (_BC_periodic_0 <= bType && bType <= _BC_periodic_9) {// ä¸¤ä¸ªä¸ç­‰å¼éœ€æ‹†å¼€ï¼Œç”¨&&è¿æ¥
+				//æ£€æŸ¥periodPairsæ˜¯å¦å·²ç»å½•å…¥è¯¥bTypeï¼Œè‹¥æ˜¯ï¼Œåˆ™ä½¿ç”¨å·²æœ‰çš„ï¼›è‹¥å¦ï¼Œåˆ™æ–°å»ºä¸€ä¸ªPeriodPair tmpï¼Œå­˜å…¥periodPairs
 				int index_pairs = -1;
 				for (int i = 0; i < periodPairs.size(); i++) {
 					if (periodPairs[i].bType == bType)index_pairs = i;
 				}
-				// ´æÔÚ£¬ÔòÖ±½ÓÉèÖÃ
+				// å­˜åœ¨ï¼Œåˆ™ç›´æ¥è®¾ç½®
 				if (index_pairs != -1) {
 					periodPairs[index_pairs].setID_1 = bID;
 				}
-				// ²»´æÔÚ£¬ÔòĞÂ½¨
+				// ä¸å­˜åœ¨ï¼Œåˆ™æ–°å»º
 				else {
 					BoundaryManager_2D::PeriodPair tmp;
 					tmp.bType = bType;
@@ -243,7 +243,7 @@ void SU2MeshReader::process(int maxNodeID, int maxElementID, std::vector<SimpleB
 		}
 	}
 	//pFVM2D->boundaryManager.iniBoundaryEdgeSetID_and_iniBoundaryType(pFVM2D);
-	// ¼ì²éÖÜÆÚ±ß½çÕıÈ·ĞÔ
+	// æ£€æŸ¥å‘¨æœŸè¾¹ç•Œæ­£ç¡®æ€§
 	pFVM2D->boundaryManager.checkPeriodPairs();
 
 	//LogWriter::log("elements.size="+std::to_string())

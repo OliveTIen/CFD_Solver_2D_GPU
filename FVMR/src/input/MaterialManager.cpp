@@ -18,7 +18,7 @@ void MaterialManager::addMaterial(FluidMaterial material) {
         m_materials.push_back(material);
     }
     else {
-        // Ä¿Ç°Ö»ÔÊĞíÌí¼ÓÒ»ÖÖ²ÄÁÏ£¬²»ÔÊĞíÖØ¸´Ìí¼Ó
+        // ç›®å‰åªå…è®¸æ·»åŠ ä¸€ç§ææ–™ï¼Œä¸å…è®¸é‡å¤æ·»åŠ 
         LogWriter::logAndPrintError("can only add one material\n");
         exit(-1);
     }
@@ -43,12 +43,12 @@ const MaterialManager::FluidMaterial& MaterialManager::getMaterial(size_t index)
 
 void MaterialManager::initialize_using_config(double rho_ref, double U_ref, double L_ref) {
     /*
-    ·ÅÔÚFieldInitializerÖĞ£¬ÒòÎªÒªµÈµ½È·¶¨³õÊ¼»¯·½Ê½ºó²ÅÖªµÀÓÃÄÄ¸öu×÷Îª²Î¿¼ËÙ¶È
-    ¹¦ÄÜ£º
-    ¶ÁÈ¡tomlÎÄ¼ş£¬ÏÈÅĞ¶ÏÊÇ·ñÓÃReĞŞÕımu0£¬È»ºóÌí¼ÓMaterial
+    æ”¾åœ¨FieldInitializerä¸­ï¼Œå› ä¸ºè¦ç­‰åˆ°ç¡®å®šåˆå§‹åŒ–æ–¹å¼åæ‰çŸ¥é“ç”¨å“ªä¸ªuä½œä¸ºå‚è€ƒé€Ÿåº¦
+    åŠŸèƒ½ï¼š
+    è¯»å–tomlæ–‡ä»¶ï¼Œå…ˆåˆ¤æ–­æ˜¯å¦ç”¨Reä¿®æ­£mu0ï¼Œç„¶åæ·»åŠ Material
     
-    ¶ÁÈ¡²ßÂÔ
-    ÈôÄ£Ê½Îª£ºÓÃReĞŞÕıÕ³¶ÈÏµÊı
+    è¯»å–ç­–ç•¥
+    è‹¥æ¨¡å¼ä¸ºï¼šç”¨Reä¿®æ­£ç²˜åº¦ç³»æ•°
     */
     
     TomlFileManager* t = TomlFileManager::getInstance();

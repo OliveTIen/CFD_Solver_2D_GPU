@@ -1,6 +1,6 @@
 
-#include <glad/glad.h> // ºÍglad.c¶ÔÓ¦
-#include <GLFW/glfw3.h>// ºÍglfw3.lib¶ÔÓ¦
+#include <glad/glad.h> // å’Œglad.cå¯¹åº”
+#include <GLFW/glfw3.h>// å’Œglfw3.libå¯¹åº”
 
 #include <glm/glm.hpp>
 #include <glm/gtc/matrix_transform.hpp>
@@ -74,8 +74,8 @@ void Cube::init_static_buffer() {
     glGenVertexArrays(1, &VAO);
     glGenBuffers(1, &VBO);
     glBindVertexArray(VAO);
-    glBindBuffer(GL_ARRAY_BUFFER, VBO);// ½«È«¾ÖÖ¸ÕëGL_ARRAY_BUFFERµÄÄÚÈİÉèÎªVBOµÄµØÖ·
-    glBufferData(GL_ARRAY_BUFFER, sizeof(float) * Cube::vertex_number, Cube::vertices, GL_STATIC_DRAW);// Êı¾İ¿½±´µ½ÏÔ´æ¡£Í¨¹ıÈ«¾ÖÖ¸ÕëĞŞ¸ÄVBOµÄÄÚÈİ
+    glBindBuffer(GL_ARRAY_BUFFER, VBO);// å°†å…¨å±€æŒ‡é’ˆGL_ARRAY_BUFFERçš„å†…å®¹è®¾ä¸ºVBOçš„åœ°å€
+    glBufferData(GL_ARRAY_BUFFER, sizeof(float) * Cube::vertex_number, Cube::vertices, GL_STATIC_DRAW);// æ•°æ®æ‹·è´åˆ°æ˜¾å­˜ã€‚é€šè¿‡å…¨å±€æŒ‡é’ˆä¿®æ”¹VBOçš„å†…å®¹
     // set attributes: aPos and aTexCoord
     // 0-attribute index, 3-array length, GL_FLOAT-type, GL_FALSE-normalize, 5*sizeof(float)-step, (void*)0-bias
     glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 5 * sizeof(float), (void*)0);

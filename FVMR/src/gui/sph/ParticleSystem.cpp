@@ -1,5 +1,5 @@
-#include <glad/glad.h> // ºÍglad.c¶ÔÓ¦
-#include <GLFW/glfw3.h>// ºÍglfw3.lib¶ÔÓ¦
+#include <glad/glad.h> // å’Œglad.cå¯¹åº”
+#include <GLFW/glfw3.h>// å’Œglfw3.libå¯¹åº”
 #include <glm/gtc/type_ptr.hpp>
 #include <unordered_set>
 #include "ParticleSystem.h"
@@ -192,7 +192,7 @@ std::vector<std::pair<int, float>> ParticleSystem::searchNeighborsInRadius(int p
 		if (distance < radius)neighbors.push_back(std::pair<int, float>(particle, distance));
 	}
 	// return value optimization: https://blog.csdn.net/wangkai6666/article/details/135183961
-	return neighbors;// ±àÒëÆ÷»á×Ô¶¯ÓÅ»¯£¬±ÜÃâ¿½±´¸´ÖÆ£¬´Ë´¦²»ÓÃ¹Ü
+	return neighbors;// ç¼–è¯‘å™¨ä¼šè‡ªåŠ¨ä¼˜åŒ–ï¼Œé¿å…æ‹·è´å¤åˆ¶ï¼Œæ­¤å¤„ä¸ç”¨ç®¡
 }
 
 bool ParticleSystem::in_bgGridCube(const glm::vec3& point, float ball_radius) {
@@ -304,7 +304,7 @@ void ParticleSystem::setBoundaryCondition_Wall(int particle, float ball_radius, 
 		}
 
 		// convert normal speed to shear speed
-		//Î´Íê´ıĞø;
+		//æœªå®Œå¾…ç»­;
 	}
 
 }

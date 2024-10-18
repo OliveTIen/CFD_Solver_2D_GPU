@@ -3,18 +3,18 @@
 
 namespace GlobalPara {
 	namespace constant {
-		myfloat R = 287.06;                   // ÆøÌå³£Êı
-		myfloat T0 = 288.16;                  // º£Æ½ÃæÎÂ¶È²Î¿¼Öµ
-		myfloat p0 = 101325.0;                // º£Æ½ÃæÑ¹Á¦²Î¿¼Öµ
-		myfloat c0 = 340.28;                  // º£Æ½ÃæÉùËÙ²Î¿¼Öµ
+		myfloat R = 287.06;                   // æ°”ä½“å¸¸æ•°
+		myfloat T0 = 288.16;                  // æµ·å¹³é¢æ¸©åº¦å‚è€ƒå€¼
+		myfloat p0 = 101325.0;                // æµ·å¹³é¢å‹åŠ›å‚è€ƒå€¼
+		myfloat c0 = 340.28;                  // æµ·å¹³é¢å£°é€Ÿå‚è€ƒå€¼
 		myfloat gamma = 1.4;
 		myfloat epsilon = 1e-7;
 		myfloat Re = 1.0e8;
 		myfloat Pr = 0.73;
-		myfloat mu0 = 17.9e-6;                 // ¿ÕÆø¶¯Á¦Õ³ĞÔÏµÊı²Î¿¼Öµ
+		myfloat mu0 = 17.9e-6;                 // ç©ºæ°”åŠ¨åŠ›ç²˜æ€§ç³»æ•°å‚è€ƒå€¼
 
-		myfloat referenceArea = 1.0;          // (ÈıÎ¬ËãÀı)²Î¿¼Ãæ»ı£¬»ò(¶şÎ¬ËãÀı)²Î¿¼ÏÒ³¤¡£ÌîËõ·ÅÇ°µÄ
-		myfloat mesh_scale_factor = 1.0;            // Íø¸ñËõ·ÅÒò×Ó¡£Ö»ÔÚ¶ÁÈ¡Íø¸ñÎÄ¼şÊ±ÉúĞ§¡£²Î¿¼Ãæ»ıÒ²ÊÜÆäÓ°Ïì
+		myfloat referenceArea = 1.0;          // (ä¸‰ç»´ç®—ä¾‹)å‚è€ƒé¢ç§¯ï¼Œæˆ–(äºŒç»´ç®—ä¾‹)å‚è€ƒå¼¦é•¿ã€‚å¡«ç¼©æ”¾å‰çš„
+		myfloat mesh_scale_factor = 1.0;            // ç½‘æ ¼ç¼©æ”¾å› å­ã€‚åªåœ¨è¯»å–ç½‘æ ¼æ–‡ä»¶æ—¶ç”Ÿæ•ˆã€‚å‚è€ƒé¢ç§¯ä¹Ÿå—å…¶å½±å“
 	}
 
 	namespace render {
@@ -39,7 +39,7 @@ namespace GlobalPara {
 		myfloat max_physical_time = 20;
 		int time_advance = _EVO_explicit;
 
-		// ÒÔÏÂÊı¾İ´ÓContinueFileÖĞ¶ÁÈ¡£¬²»ÊÇToml
+		// ä»¥ä¸‹æ•°æ®ä»ContinueFileä¸­è¯»å–ï¼Œä¸æ˜¯Toml
 		myfloat t_previous = 0;
 		int istep_previous = 0;
 	}
@@ -63,7 +63,7 @@ namespace GlobalPara {
 			namespace inf {
 				int input_mode = 0;
 				myfloat Ma = 0.8;
-				myfloat AOA = 1.25;//Ó­½Ç
+				myfloat AOA = 1.25;//è¿è§’
 				myfloat ruvp[4];
 			}
 		}
@@ -75,13 +75,13 @@ namespace GlobalPara {
 		int step_per_print = 50;
 		int step_per_output_field = 50;
 		int step_per_output_hist = 50;
-		int start_output_field = 0;// ¿ªÊ¼Êä³öµÄ²½Êı
+		int start_output_field = 0;// å¼€å§‹è¾“å‡ºçš„æ­¥æ•°
 		int autosaveFileNum = 3;
 		int maxIteration = 5000;
-		myfloat tolerace_residual = 1.0e-7;// µÍÓÚ´Ë²Ğ²îÈÏÎª´ïµ½ÎÈÌ¬
+		myfloat tolerace_residual = 1.0e-7;// ä½äºæ­¤æ®‹å·®è®¤ä¸ºè¾¾åˆ°ç¨³æ€
 	}
 	namespace inviscid_flux_method {
-		int flux_conservation_scheme = _SOL_Roe;// ÀèÂüÇó½âÆ÷
+		int flux_conservation_scheme = _SOL_Roe;// é»æ›¼æ±‚è§£å™¨
 		int flux_limiter = _LIM_minmod;
 		int flag_reconstruct = _REC_constant;
 		int flag_gradient = _GRA_leastSquare;

@@ -18,18 +18,18 @@
 
 
 /*
-¼ì²éÊäÈëÖµÊÇ·ñÊôÓÚÁĞ±í
-value: ´ı¼ì²âÖµ
-category: ÖµËùÊôÀàĞÍ
-table: ÁĞ±í£¬°üº¬ÒÑÖªÖµºÍÃèÊö
-b_print: ÊÇ·ñÊä³öµ½ÆÁÄ»
+æ£€æŸ¥è¾“å…¥å€¼æ˜¯å¦å±äºåˆ—è¡¨
+value: å¾…æ£€æµ‹å€¼
+category: å€¼æ‰€å±ç±»å‹
+table: åˆ—è¡¨ï¼ŒåŒ…å«å·²çŸ¥å€¼å’Œæè¿°
+b_print: æ˜¯å¦è¾“å‡ºåˆ°å±å¹•
 */
 void check_if_value_belongs_to_table(int value, std::string category, std::map<int,std::string> table, bool b_print = false) {
 	/*
 	2024-05-01
-	¼ì²éÊäÈëÖµÊÇ·ñÊôÓÚÁĞ±í
-	ÈôÊôÓÚ£¬ÔòÊä³ö¶ÔÓ¦µÄÃèÊö£¬·ñÔò±¨´íÍË³ö
-	ÁĞ±íÎª¿ÕÊ±£¬Ïàµ±ÓÚ¡°²»ÊôÓÚ¡±
+	æ£€æŸ¥è¾“å…¥å€¼æ˜¯å¦å±äºåˆ—è¡¨
+	è‹¥å±äºï¼Œåˆ™è¾“å‡ºå¯¹åº”çš„æè¿°ï¼Œå¦åˆ™æŠ¥é”™é€€å‡º
+	åˆ—è¡¨ä¸ºç©ºæ—¶ï¼Œç›¸å½“äºâ€œä¸å±äºâ€
 	*/
 	std::stringstream ss;
 	auto iter = table.find(value);
@@ -58,14 +58,14 @@ void U2NITS::CInput::readConfig() {
 }
 
 
-// ¼ÇÂ¼±ß½ç²ÎÊı
+// è®°å½•è¾¹ç•Œå‚æ•°
 void log_boundary_condition() {
 	using namespace GlobalPara::boundaryCondition::_2D;
 	myfloat* inlet_ruvp = inlet::ruvp;
 	myfloat* outlet_ruvp = outlet::ruvp;
 	myfloat* inf_ruvp = inf::ruvp;
 	const int num_ruvp = 4;
-	// ±ß½ç²ÎÊı
+	// è¾¹ç•Œå‚æ•°
 	std::string str;
 	str += "BoundaryCondition:\n";
 	str += "inlet::ruvp\t" + StringProcessor::doubleArray_2_string(inlet_ruvp, num_ruvp)
@@ -73,19 +73,19 @@ void log_boundary_condition() {
 		+ "\ninf::ruvp\t" + StringProcessor::doubleArray_2_string(inf_ruvp, num_ruvp)
 		+ "\n";
 	LogWriter::log(str);
-	// Êä³öÀ×ÅµÊı²Î¼ûFieldInitialize£¬ÒòÎªÒª¸ù¾İinitial_typeÈ·¶¨ÓÃinf, inlet»¹ÊÇoutlet
+	// è¾“å‡ºé›·è¯ºæ•°å‚è§FieldInitializeï¼Œå› ä¸ºè¦æ ¹æ®initial_typeç¡®å®šç”¨inf, inletè¿˜æ˜¯outlet
 
 
 }
 
 void read_mesh_file_and_initialize() {
 	/*
-	´ÓÍ·¿ªÊ¼¡£¶ÁÈ¡Íø¸ñ£¬³õÊ¼»¯Á÷³¡ºÍ±ß½ç
+	ä»å¤´å¼€å§‹ã€‚è¯»å–ç½‘æ ¼ï¼Œåˆå§‹åŒ–æµåœºå’Œè¾¹ç•Œ
 	*/
-	// ¶ÁÈ¡Íø¸ñ
-	std::string dir = FilePathManager::getInstance()->getInputDirectory();// Ä¿Â¼
-	std::string basename = GlobalPara::basic::filename;// ÎÄ¼şÃûÖ÷Ìå
-	std::string type = GlobalPara::basic::meshFileType;// ºó×º
+	// è¯»å–ç½‘æ ¼
+	std::string dir = FilePathManager::getInstance()->getInputDirectory();// ç›®å½•
+	std::string basename = GlobalPara::basic::filename;// æ–‡ä»¶åä¸»ä½“
+	std::string type = GlobalPara::basic::meshFileType;// åç¼€
 	if (type == "su2") {
 		std::string filename = basename + "." + type;
 		LogWriter::log("mesh file: " + filename + "\n");
@@ -95,36 +95,36 @@ void read_mesh_file_and_initialize() {
 		LogWriter::logAndPrint("Invalid mesh file type: " + type + " @CInput::readField_1()\n");
 		exit(-1);
 	}
-	// ³õÊ¼»¯Á÷³¡ºÍ±ß½ç
+	// åˆå§‹åŒ–æµåœºå’Œè¾¹ç•Œ
 	FieldInitializer::getInstance()->setInitialAndBoundaryCondition();
 }
 
 void U2NITS::CInput::readField_1() {
 
 	/*
-	ÈôConfigÒªÇóĞøËã£¬ÔòÖ±½Ó¶ÁÈ¡ĞøËãÎÄ¼ş£¬·ñÔò´ÓÍ·¿ªÊ¼
+	è‹¥Configè¦æ±‚ç»­ç®—ï¼Œåˆ™ç›´æ¥è¯»å–ç»­ç®—æ–‡ä»¶ï¼Œå¦åˆ™ä»å¤´å¼€å§‹
 	*/
 	if (GlobalPara::basic::_continue) {
-		// ÈôÕÒ²»µ½ĞøËãÎÄ¼ş£¬Ôò´ÓÍ·¿ªÊ¼
+		// è‹¥æ‰¾ä¸åˆ°ç»­ç®—æ–‡ä»¶ï¼Œåˆ™ä»å¤´å¼€å§‹
 		if (ContinueFileReader::readContinueFile_1() == -1) {
 			LogWriter::logAndPrint("failed to read continue file(pause_*.dat), will read mesh file.\n");
 			read_mesh_file_and_initialize();
-			GlobalPara::basic::_continue = false;// ±£Ö¤_continueÎªfalse£¬·ÀÖ¹ºóÃæhistWriter²»Ğ´ÎÄ¼şÍ·
+			GlobalPara::basic::_continue = false;// ä¿è¯_continueä¸ºfalseï¼Œé˜²æ­¢åé¢histWriterä¸å†™æ–‡ä»¶å¤´
 		}
 	}
 	else {
 		read_mesh_file_and_initialize();
 	}
 
-	// ÈÕÖ¾¼ÇÂ¼±ß½ç²ÎÊı
+	// æ—¥å¿—è®°å½•è¾¹ç•Œå‚æ•°
 	log_boundary_condition();
 }
 
 void U2NITS::CInput::readField_2_unused() {
 	/*
-	¶ÁÈ¡Íø¸ñÎÄ¼ş£¬
-	·¨Ò»£º¶Áµ½µ¥ÔªÊıÁ¿ÄÇÒ»ĞĞºó£¬¾Í¿ÉÒÔ¿ª±ÙsolverÖĞµ¥ÔªµÄÄÚ´æ¿Õ¼ä¡£È±µãÊÇÄãÎŞ·¨±£Ö¤Õâ¸öÊı×ÖÊÇ·ñÕıÈ·
-	·¨¶ş£ºÏÈÓÃstd::vectorÒ»¸öÒ»¸öpush¡£Íê³Éºó£¬¿ª±ÙsolverÊı¾İµÄÄÚ´æ²¢³õÊ¼»¯£¬È»ºóÉ¾³ıÁÙÊ±µÄstd::vector
+	è¯»å–ç½‘æ ¼æ–‡ä»¶ï¼Œ
+	æ³•ä¸€ï¼šè¯»åˆ°å•å…ƒæ•°é‡é‚£ä¸€è¡Œåï¼Œå°±å¯ä»¥å¼€è¾Ÿsolverä¸­å•å…ƒçš„å†…å­˜ç©ºé—´ã€‚ç¼ºç‚¹æ˜¯ä½ æ— æ³•ä¿è¯è¿™ä¸ªæ•°å­—æ˜¯å¦æ­£ç¡®
+	æ³•äºŒï¼šå…ˆç”¨std::vectorä¸€ä¸ªä¸€ä¸ªpushã€‚å®Œæˆåï¼Œå¼€è¾Ÿsolveræ•°æ®çš„å†…å­˜å¹¶åˆå§‹åŒ–ï¼Œç„¶ååˆ é™¤ä¸´æ—¶çš„std::vector
 	*/
 	LogWriter::logAndPrintError("unimplemented error @CInput::readField_2_unused\n");
 	exit(-1);

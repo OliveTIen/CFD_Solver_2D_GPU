@@ -4,20 +4,20 @@
 #include "../../global/GlobalPara.h"
 #include "ViscousFluxGPU.h"
 
-// È¡×óÓÒµ¥ÔªÌİ¶ÈÆ½¾ùÖµ
+// å–å·¦å³å•å…ƒæ¢¯åº¦å¹³å‡å€¼
 __host__ __device__ void get_U_Gradient_mean_host_device(
 	myfloat& drhodx, myfloat& drhoudx, myfloat& drhovdx, myfloat& drhoEdx,
 	myfloat& drhody, myfloat& drhoudy, myfloat& drhovdy, myfloat& drhoEdy,
 	myint elementL, myint elementR, GPU::ElementFieldSoA& elementField_host
 );
 
-// È¡×óÓÒµ¥ÔªÊØºãÁ¿Æ½¾ùÖµ
+// å–å·¦å³å•å…ƒå®ˆæ’é‡å¹³å‡å€¼
 __host__ __device__ void get_U_mean_host_device(
 	myfloat& rho, myfloat& rhou, myfloat& rhov, myfloat& rhoE,
 	myint elementL, myint elementR, GPU::ElementFieldSoA& elementField_host
 );
 
-// ¼ÆËãÎïÀíÁ¿¼°Ìİ¶È¡£ÓÃÇóµ¼Á´Ê½·¨Ôò
+// è®¡ç®—ç‰©ç†é‡åŠæ¢¯åº¦ã€‚ç”¨æ±‚å¯¼é“¾å¼æ³•åˆ™
 __host__ __device__ void get_physical_variable_and_gradient_host_device(
 	myfloat& u, myfloat& v, myfloat& T,
 	myfloat& dudx, myfloat& dvdx, myfloat& dTdx,
@@ -28,18 +28,18 @@ __host__ __device__ void get_physical_variable_and_gradient_host_device(
 	myfloat Cv
 );
 
-// ÓÃËÕÊÀÀ¼¹«Ê½(Sutherland's law)ÇóÕ³ĞÔÏµÊı
+// ç”¨è‹ä¸–å…°å…¬å¼(Sutherland's law)æ±‚ç²˜æ€§ç³»æ•°
 myfloat get_mu_using_Sutherland_air(myfloat temperature) {
 	/*
-	ÓÃ¾²Ì¬±äÁ¿£¬µÚÒ»´Î¼ÆËã£¬ºóĞøÎŞĞèÖØ¸´¼ÆËã
-	¾²Ì¬±äÁ¿Éú´æÆÚÎª³ÌĞòÖÜÆÚ¡£ÏÂ´Îµ÷ÓÃÊ±ÈÔÊ¹ÓÃÉÏ´ÎµÄÖµ
-	ÎÊÌâ£º
-	Ä³Ğ©Çé¿öÏÂinf rho=0µ¼ÖÂ·¢É¢
+	ç”¨é™æ€å˜é‡ï¼Œç¬¬ä¸€æ¬¡è®¡ç®—ï¼Œåç»­æ— éœ€é‡å¤è®¡ç®—
+	é™æ€å˜é‡ç”Ÿå­˜æœŸä¸ºç¨‹åºå‘¨æœŸã€‚ä¸‹æ¬¡è°ƒç”¨æ—¶ä»ä½¿ç”¨ä¸Šæ¬¡çš„å€¼
+	é—®é¢˜ï¼š
+	æŸäº›æƒ…å†µä¸‹inf rho=0å¯¼è‡´å‘æ•£
 	*/
 	static myfloat C_sutherland = 0.0;
 	static bool is_called_first_time = true;
 	if (is_called_first_time) {
-		myfloat T_inf = 690.0;// Ô¶³¡±ß½çÌõ¼şµÄÎŞÇîÔ¶¾²ÎÂ£¬UNITs original.orgÖĞÈ¡690
+		myfloat T_inf = 690.0;// è¿œåœºè¾¹ç•Œæ¡ä»¶çš„æ— ç©·è¿œé™æ¸© æŸoriginal.orgä¸­å–690
 		C_sutherland = 117.0 / T_inf;
 		is_called_first_time = false;
 	}
@@ -47,12 +47,12 @@ myfloat get_mu_using_Sutherland_air(myfloat temperature) {
 	return (1.0 + C_sutherland) / (T + C_sutherland) * pow(T, 1.5);
 }
 
-// ¼ÆËãÀ×ÅµÓ¦Á¦
+// è®¡ç®—é›·è¯ºåº”åŠ›
 inline void get_Reynolds_stress_2d_host_inline(
 	myfloat& tau_xx, myfloat& tau_yy, myfloat& tau_xy,
 	myfloat mu, myfloat dudx, myfloat dudy, myfloat dvdx, myfloat dvdy
 ) {
-	// NMD: lambda/mu£¬µÚ¶şÕ³ĞÔÏµÊı/Õ³ĞÔÏµÊı¡£stokesÈÏÎªËüµÈÓÚ-2/3
+	// NMD: lambda/muï¼Œç¬¬äºŒç²˜æ€§ç³»æ•°/ç²˜æ€§ç³»æ•°ã€‚stokesè®¤ä¸ºå®ƒç­‰äº-2/3
 	constexpr myfloat NMD = -2.0 / 3.0;
 	myfloat div = dudx + dvdy;
 	tau_xx = mu * (NMD * div + 2.0 * dudx);
@@ -62,21 +62,21 @@ inline void get_Reynolds_stress_2d_host_inline(
 
 void viscous_flux_kernel(myint iEdge, GPU::EdgeSoA& edge_host, GPU::EdgeFieldSoA& edgeField_host, GPU::ElementSoA& element_host, GPU::ElementFieldSoA& elementField_host, myfloat sutherland_C1) {
 	/*
-	¶ÔiEdge£¬¼ÆËãÊıÖµÍ¨Á¿£¬²¢
-	´´½¨£ºtgl, 20240430
-	Ğ£ºË£º
+	å¯¹iEdgeï¼Œè®¡ç®—æ•°å€¼é€šé‡ï¼Œå¹¶
+	åˆ›å»ºï¼štgl, 20240430
+	æ ¡æ ¸ï¼š
 	*/
 	const myint elementL = edge_host.elementL[iEdge];
 	const myint elementR = edge_host.elementR[iEdge];
 	const myfloat R = GlobalPara::constant::R;
-	constexpr myfloat Pr = 0.72;// Prantl number£¬UNITsÖĞÉèÖÃÎª³£Á¿Öµ0.72
+	constexpr myfloat Pr = 0.72;// Prantl numberï¼ŒæŸç»“æ„ç¨‹åºä¸­è®¾ç½®ä¸ºå¸¸é‡å€¼0.72
 	const myfloat gamma = GlobalPara::constant::gamma;
 	const myfloat ga1 = gamma - 1.0;
-	const myfloat Cv = R / ga1;// ¶¨Èİ±ÈÈÈ
-	const myfloat Cp = Cv * gamma;// ¶¨Ñ¹±ÈÈÈ
+	const myfloat Cv = R / ga1;// å®šå®¹æ¯”çƒ­
+	const myfloat Cp = Cv * gamma;// å®šå‹æ¯”çƒ­
 	/*
-	È¡×óÓÒµ¥ÔªÊØºãÁ¿Ìİ¶ÈÆ½¾ùÖµ×÷Îª½çÃæÌİ¶È¡£Ïàµ±ÓÚÌİ¶ÈµÄ³£Á¿ÖØ¹¹£¬ÈÏÎªµ¥ÔªÄÚÌİ¶ÈÊÇ³£Êı
-	×¢ÒâÕâÊÇÊØºãÁ¿Ìİ¶È£¬»¹Òª×ª»¯ÎªÎïÀíÁ¿Ìİ¶È
+	å–å·¦å³å•å…ƒå®ˆæ’é‡æ¢¯åº¦å¹³å‡å€¼ä½œä¸ºç•Œé¢æ¢¯åº¦ã€‚ç›¸å½“äºæ¢¯åº¦çš„å¸¸é‡é‡æ„ï¼Œè®¤ä¸ºå•å…ƒå†…æ¢¯åº¦æ˜¯å¸¸æ•°
+	æ³¨æ„è¿™æ˜¯å®ˆæ’é‡æ¢¯åº¦ï¼Œè¿˜è¦è½¬åŒ–ä¸ºç‰©ç†é‡æ¢¯åº¦
 	*/
 	myfloat drhodx, drhoudx, drhovdx, drhoEdx;
 	myfloat drhody, drhoudy, drhovdy, drhoEdy;
@@ -85,9 +85,9 @@ void viscous_flux_kernel(myint iEdge, GPU::EdgeSoA& edge_host, GPU::EdgeFieldSoA
 		elementL, elementR, elementField_host
 	);
 	/*
-	È¡×óÓÒµ¥ÔªÊØºãÁ¿Æ½¾ùÖµ×÷Îª½çÃæÊØºãÁ¿£¬È»ºó×ª»»ÎªÎïÀíÁ¿
-	ÒÉÎÊ1£ºĞèÒªÓÃRoeÆ½¾ùÂğ£¿ËãÊõÆ½¾ùÊÇ·ñ¿ÉĞĞ£¿ÎŞÕ³Í¨Á¿ÊÇÍÖÔ²·½³Ì£¬ĞèÒª±£Ö¤ÊØºãĞÔÖÊÂğ£¿
-	ÒÉÎÊ2£ºÁ´Ê½·¨ÔòÇóµ¼Ê±¼ÆËãÁ¿½Ï´ó£¬²»ÖªµÀÆäËûº¯ÊıÊÇ·ñ»áÓÃµ½£¿ĞèÒª´æÆğÀ´Âğ£¿
+	å–å·¦å³å•å…ƒå®ˆæ’é‡å¹³å‡å€¼ä½œä¸ºç•Œé¢å®ˆæ’é‡ï¼Œç„¶åè½¬æ¢ä¸ºç‰©ç†é‡
+	ç–‘é—®1ï¼šéœ€è¦ç”¨Roeå¹³å‡å—ï¼Ÿç®—æœ¯å¹³å‡æ˜¯å¦å¯è¡Œï¼Ÿæ— ç²˜é€šé‡æ˜¯æ¤­åœ†æ–¹ç¨‹ï¼Œéœ€è¦ä¿è¯å®ˆæ’æ€§è´¨å—ï¼Ÿ
+	ç–‘é—®2ï¼šé“¾å¼æ³•åˆ™æ±‚å¯¼æ—¶è®¡ç®—é‡è¾ƒå¤§ï¼Œä¸çŸ¥é“å…¶ä»–å‡½æ•°æ˜¯å¦ä¼šç”¨åˆ°ï¼Ÿéœ€è¦å­˜èµ·æ¥å—ï¼Ÿ
 	*/
 	myfloat rho, rhou, rhov, rhoE;
 	get_U_mean_host_device(rho, rhou, rhov, rhoE, elementL, elementR, elementField_host);
@@ -104,19 +104,19 @@ void viscous_flux_kernel(myint iEdge, GPU::EdgeSoA& edge_host, GPU::EdgeFieldSoA
 		Cv
 	);
 	/*
-	¼ÆËãÀ×ÅµÓ¦Á¦
-	ÍÄÁ÷Ä¿Ç°ÏÈ²»¹Ü
+	è®¡ç®—é›·è¯ºåº”åŠ›
+	æ¹æµç›®å‰å…ˆä¸ç®¡
 	*/
-	myfloat tau_xx{}, tau_yy{}, tau_xy{};// À×ÅµÓ¦Á¦¡£ÓÃ{}³õÊ¼»¯Îª0.0
-	myfloat mu = GPU::Space::get_mu_using_Sutherland_air_host_device(T, sutherland_C1);// ¶¯Á¦Õ³ĞÔÏµÊı
-	myfloat tau_xx_laminar, tau_yy_laminar, tau_xy_laminar;// ²ãÁ÷À×ÅµÓ¦Á¦
+	myfloat tau_xx{}, tau_yy{}, tau_xy{};// é›·è¯ºåº”åŠ›ã€‚ç”¨{}åˆå§‹åŒ–ä¸º0.0
+	myfloat mu = GPU::Space::get_mu_using_Sutherland_air_host_device(T, sutherland_C1);// åŠ¨åŠ›ç²˜æ€§ç³»æ•°
+	myfloat tau_xx_laminar, tau_yy_laminar, tau_xy_laminar;// å±‚æµé›·è¯ºåº”åŠ›
 	get_Reynolds_stress_2d_host_inline(
 		tau_xx_laminar, tau_yy_laminar, tau_xy_laminar, mu,
 		dudx, dudy, dvdx, dvdy
 	);
 	constexpr bool use_turbulence = false;
-	myfloat mu_turbulence = 0.0;// ÎĞÕ³ÏµÊı
-	myfloat tau_xx_turbulence{}, tau_yy_turbulence{}, tau_xy_turbulence{};// ÍÄÁ÷À×ÅµÓ¦Á¦
+	myfloat mu_turbulence = 0.0;// æ¶¡ç²˜ç³»æ•°
+	myfloat tau_xx_turbulence{}, tau_yy_turbulence{}, tau_xy_turbulence{};// æ¹æµé›·è¯ºåº”åŠ›
 	if (use_turbulence) {
 		get_Reynolds_stress_2d_host_inline(
 			tau_xx_turbulence, tau_yy_turbulence, tau_xy_turbulence, mu_turbulence,
@@ -127,32 +127,32 @@ void viscous_flux_kernel(myint iEdge, GPU::EdgeSoA& edge_host, GPU::EdgeFieldSoA
 	tau_yy = tau_yy_laminar + tau_yy_turbulence;
 	tau_xy = tau_xy_laminar + tau_xy_turbulence;
 
-	myfloat akmu = Cp * (mu / Pr);// ´«ÈÈÏµÊı¡£ÓÉÓÚmuËæµ±µØÎÂ¶È±ä»¯£¬ĞèÒªÖØĞÂ¼ÆËã
+	myfloat akmu = Cp * (mu / Pr);// ä¼ çƒ­ç³»æ•°ã€‚ç”±äºmuéšå½“åœ°æ¸©åº¦å˜åŒ–ï¼Œéœ€è¦é‡æ–°è®¡ç®—
 	if (use_turbulence) {
-		constexpr myfloat Pr_turbulence = 0.90;// UNITsÖĞÉèÖÃÎª³£Öµ0.90
+		constexpr myfloat Pr_turbulence = 0.90;// æŸç»“æ„ç¨‹åºä¸­è®¾ç½®ä¸ºå¸¸å€¼0.90
 		akmu += Cp * (mu_turbulence/ Pr_turbulence);
 	}
 	/*
-	¼ÆËãÕ³ĞÔÍ¨Á¿¡£´Ë´¦²¢Ã»ÓĞÓÃµ½À×ÅµÊı
+	è®¡ç®—ç²˜æ€§é€šé‡ã€‚æ­¤å¤„å¹¶æ²¡æœ‰ç”¨åˆ°é›·è¯ºæ•°
 	
-	À×ÅµÊıÊÇ¶Ô·½³ÌÎŞÁ¿¸Ù»¯ºóµÄ²úÎï£¬Ò»°ã²»ĞèÒªĞ´½ø·½³Ì
-	UNITsÒÀÕÕÔ¶³¡²ÎÊı½øĞĞÁË¹éÒ»»¯£¬Òò´ËÓÃÁËÀ×ÅµÊı
+	é›·è¯ºæ•°æ˜¯å¯¹æ–¹ç¨‹æ— é‡çº²åŒ–åçš„äº§ç‰©ï¼Œä¸€èˆ¬ä¸éœ€è¦å†™è¿›æ–¹ç¨‹
+	æŸç»“æ„ç¨‹åºä¾ç…§è¿œåœºå‚æ•°è¿›è¡Œäº†å½’ä¸€åŒ–ï¼Œå› æ­¤ç”¨äº†é›·è¯ºæ•°
 
-	ÎŞÕ³Í¨Á¿Á¿¸Ù(->±íÊ¾Á¿¸ÙÏàÍ¬)
+	æ— ç²˜é€šé‡é‡çº²(->è¡¨ç¤ºé‡çº²ç›¸åŒ)
 	F[1]   -> rho*u*u+p          -> [Pa]
 	F[3]   -> (rho*E+p)*u        -> [Pa * m/s]
 
-	Õ³ĞÔÍ¨Á¿Á¿¸Ù
+	ç²˜æ€§é€šé‡é‡çº²
 	F_v[1] -> tau_xx -> 2*mu*u   -> [Pa]
 	F_v[3] -> Phix   -> u*tau_xx -> [Pa * m/s]
 
-	¿ÉÒÔ¿´µ½Õ³ĞÔÍ¨Á¿ÓëÎŞÕ³Í¨Á¿Á¿¸ÙÏàÍ¬¡£¶ÔÓÚÊıÖµÍ¨Á¿£¬»¹Ğè³ËÒÔÃæ»ı£¬ÒòÎªÒªÓÃµ½Gauss¹«Ê½
+	å¯ä»¥çœ‹åˆ°ç²˜æ€§é€šé‡ä¸æ— ç²˜é€šé‡é‡çº²ç›¸åŒã€‚å¯¹äºæ•°å€¼é€šé‡ï¼Œè¿˜éœ€ä¹˜ä»¥é¢ç§¯ï¼Œå› ä¸ºè¦ç”¨åˆ°Gausså…¬å¼
 	*/
-	myfloat Phix = akmu * dTdx + u * tau_xx + v * tau_xy;// Õ³ĞÔÍ¨Á¿µÄÄÜÁ¿Ïî
+	myfloat Phix = akmu * dTdx + u * tau_xx + v * tau_xy;// ç²˜æ€§é€šé‡çš„èƒ½é‡é¡¹
 	myfloat Phiy = akmu * dTdy + u * tau_xy + v * tau_yy;
-	const myfloat nx = edge_host.normal[0][iEdge];// ±ß·¨ÏòÁ¿(¹éÒ»»¯)
+	const myfloat nx = edge_host.normal[0][iEdge];// è¾¹æ³•å‘é‡(å½’ä¸€åŒ–)
 	const myfloat ny = edge_host.normal[1][iEdge];
-	const myfloat area = edge_host.length[iEdge];// ½çÃæÃæ»ı
+	const myfloat area = edge_host.length[iEdge];// ç•Œé¢é¢ç§¯
 	myfloat flux[4]{};
 
 	flux[0] = 0.0;
@@ -169,9 +169,9 @@ void viscous_flux_kernel(myint iEdge, GPU::EdgeSoA& edge_host, GPU::EdgeFieldSoA
 
 void U2NITS::Space::edge_viscous_flux() {
 	/*
-	20240430 Õ³ĞÔÍ¨Á¿
-	¼ÆËãÕ³ĞÔÍ¨Á¿ºó£¬¶ÔedgeField_hostµÄÖµ½øĞĞĞŞ¸Ä
-	½«Ñ­»·ÌåÌáÈ¡³Éº¯Êıviscous_flux_kernel£¬ÓëCUDA kernel±£³ÖÒ»ÖÂ£¬±ãÓÚ×ª»¯
+	20240430 ç²˜æ€§é€šé‡
+	è®¡ç®—ç²˜æ€§é€šé‡åï¼Œå¯¹edgeField_hostçš„å€¼è¿›è¡Œä¿®æ”¹
+	å°†å¾ªç¯ä½“æå–æˆå‡½æ•°viscous_flux_kernelï¼Œä¸CUDA kernelä¿æŒä¸€è‡´ï¼Œä¾¿äºè½¬åŒ–
 	*/
 
 	GPU::GPUSolver2* solver = SolverDataGetter::getSolverInstance();

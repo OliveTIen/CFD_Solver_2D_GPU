@@ -1,4 +1,4 @@
-// ±ê×¼ÔËËãºÍÏòÁ¿ÔËËã
+// æ ‡å‡†è¿ç®—å’Œå‘é‡è¿ç®—
 #ifndef BASIC_ALGORITHM_H
 #define BASIC_ALGORITHM_H
 #include "../gpu/dataType/DefineType.h"
@@ -24,29 +24,29 @@ namespace U2NITS {
 			myfloat dy = y2 - y1;
 			return sqrt(dx * dx + dy * dy);
 		}
-		// ¶şÎ¬ÏòÁ¿µã»ı u¡¤v=u[0] * v[0] + u[1] * v[1]
+		// äºŒç»´å‘é‡ç‚¹ç§¯ uãƒ»v=u[0] * v[0] + u[1] * v[1]
 		inline myfloat dot2D(myfloat* u, myfloat* v) {
 			return u[0] * v[0] + u[1] * v[1];
 		}
-		// ÏòÁ¿Êı³Ë v[i] *= scalar;
+		// å‘é‡æ•°ä¹˜ v[i] *= scalar;
 		inline void vector_times_scalar(myfloat* v, int v_length, myfloat scalar) {
 			for (int i = 0; i < v_length; i++) {
 				v[i] *= scalar;
 			}
 		}
-		// ÏòÁ¿Ïà¼Ó result[i] = u[i] + v[i]
+		// å‘é‡ç›¸åŠ  result[i] = u[i] + v[i]
 		inline void vector_add(const myfloat* u, const myfloat* v, myfloat* result, int length) {
 			for (int i = 0; i < length; i++) {
 				result[i] = u[i] + v[i];
 			}
 		}
-		// ÏòÁ¿Ïà¼Ó v[i] += u[i];
+		// å‘é‡ç›¸åŠ  v[i] += u[i];
 		inline void vector_addto_v(const myfloat* u, myfloat* v, int length) {
 			for (int i = 0; i < length; i++) {
 				v[i] += u[i];
 			}
 		}
-		// »ñÈ¡ÏòÁ¿×îĞ¡Öµ
+		// è·å–å‘é‡æœ€å°å€¼
 		inline myfloat get_min_of_vector(const myfloat* v, myint v_size) {
 			myfloat result = v[0];
 

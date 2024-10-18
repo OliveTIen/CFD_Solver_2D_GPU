@@ -2,11 +2,11 @@
 #define RESIDUAL_NORM_TYPE_H
 /*
 2024-05-17
-ÎªÁË¸´ÓÃNormTypeÃ¶¾ÙÀàĞÍ£¬½«EnumNormType×¨ÃÅÁĞÈëÒ»¸öÎÄ¼ş
+ä¸ºäº†å¤ç”¨NormTypeæšä¸¾ç±»å‹ï¼Œå°†EnumNormTypeä¸“é—¨åˆ—å…¥ä¸€ä¸ªæ–‡ä»¶
 */
 namespace U2NITS {
 	namespace Output {
-		// ·¶ÊıÀàĞÍ
+		// èŒƒæ•°ç±»å‹
 		enum NormType {
 			normType_infinity,
 			normType_1,

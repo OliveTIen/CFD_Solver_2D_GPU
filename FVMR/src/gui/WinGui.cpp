@@ -55,7 +55,7 @@ void WinGui::init() {
     glfwSetKeyCallback(m_window, Control::key_callback);
     glfwSetCursorPosCallback(m_window, Control::mouse_callback);
     glfwSetScrollCallback(m_window, Control::scroll_callback);
-    glfwSwapInterval(1); // double buffer exchange interval time Ë«»º³å½»»»¼ä¸ôÊ±¼ä
+    glfwSwapInterval(1); // double buffer exchange interval time åŒç¼“å†²äº¤æ¢é—´éš”æ—¶é—´
 
     if (!gladLoadGLLoader((GLADloadproc)glfwGetProcAddress)) {
         std::cout << "Failed to initialize GLAD" << std::endl;
@@ -83,7 +83,7 @@ void WinGui::init() {
     ImGui_ImplOpenGL3_Init(m_control->glsl_version);
     // setup imgui font "microsoft yahei"
     ImFont* font = io.Fonts->AddFontFromFileTTF("c:\\Windows\\Fonts\\msyh.ttc", 20.0f, nullptr, io.Fonts->GetGlyphRangesChineseFull());
-    IM_ASSERT(font != nullptr);// ÅĞ¶ÏÊÇ·ñ³É¹¦
+    IM_ASSERT(font != nullptr);// åˆ¤æ–­æ˜¯å¦æˆåŠŸ
 }
 
 
@@ -340,9 +340,9 @@ void WinGui::button_ColorPicker(ImVec4& color) {
         ImGui::ColorButton("##current", color, ImGuiColorEditFlags_NoPicker | ImGuiColorEditFlags_AlphaPreviewHalf, ImVec2(60, 40));
         ImGui::Text("Previous");
         if (ImGui::ColorButton("##previous", backup_color, ImGuiColorEditFlags_NoPicker | ImGuiColorEditFlags_AlphaPreviewHalf, ImVec2(60, 40)))
-            color = backup_color;// µã»÷previous°´Å¥»á»¹Ô­ÉÏ´ÎµÄÑÕÉ«
+            color = backup_color;// ç‚¹å‡»previousæŒ‰é’®ä¼šè¿˜åŸä¸Šæ¬¡çš„é¢œè‰²
         if (ImGui::IsItemHovered())
-            ImGui::SetMouseCursor(7);// Èôµ±Ç°ÔªËØ±»Ğü¸¡£¬cursor¸ÄÎªhand
+            ImGui::SetMouseCursor(7);// è‹¥å½“å‰å…ƒç´ è¢«æ‚¬æµ®ï¼Œcursoræ”¹ä¸ºhand
         ImGui::Separator();
         ImGui::Text("Palette");
         for (int n = 0; n < IM_ARRAYSIZE(saved_palette); n++) {

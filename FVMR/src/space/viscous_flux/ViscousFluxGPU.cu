@@ -3,7 +3,7 @@
 #include "../../solvers/SolverDataGetter.h"
 #include "../../global/GlobalPara.h"
 
-// È¡×óÓÒµ¥ÔªÌİ¶ÈÆ½¾ùÖµ
+// å–å·¦å³å•å…ƒæ¢¯åº¦å¹³å‡å€¼
 __host__ __device__ void get_U_Gradient_mean_host_device(
 	myfloat& drhodx, myfloat& drhoudx, myfloat& drhovdx, myfloat& drhoEdx,
 	myfloat& drhody, myfloat& drhoudy, myfloat& drhovdy, myfloat& drhoEdy,
@@ -19,7 +19,7 @@ __host__ __device__ void get_U_Gradient_mean_host_device(
 	myfloat drhovdyL = elementField_host.Uy[2][elementL];
 	myfloat drhoEdyL = elementField_host.Uy[3][elementL];
 
-	// ÈôelementR²»´æÔÚ£¬¼´ÊÇ±ß½çÇÒ·ÇÖÜÆÚ±ß½çedge£¬ÔòÈ¡×óµ¥ÔªÖµ
+	// è‹¥elementRä¸å­˜åœ¨ï¼Œå³æ˜¯è¾¹ç•Œä¸”éå‘¨æœŸè¾¹ç•Œedgeï¼Œåˆ™å–å·¦å•å…ƒå€¼
 	if (elementR<0 || elementR>=elementField_host.num) {// has: return (iElement >= 0 && iElement < num);
 		drhodx = drhodxL;
 		drhoudx = drhoudxL;
@@ -30,7 +30,7 @@ __host__ __device__ void get_U_Gradient_mean_host_device(
 		drhoudy = drhoudyL;
 		drhovdy = drhovdyL;
 		drhoEdy = drhoEdyL;
-		return;// ÓÃreturn´úÌæelse£¬·ÀÖ¹·ÖÖ§ÅĞ¶Ï£¬²¢ĞĞÖ´ĞĞ¸ü¸ßĞ§
+		return;// ç”¨returnä»£æ›¿elseï¼Œé˜²æ­¢åˆ†æ”¯åˆ¤æ–­ï¼Œå¹¶è¡Œæ‰§è¡Œæ›´é«˜æ•ˆ
 	}
 
 	myfloat drhodxR = elementField_host.Ux[0][elementR];
@@ -55,7 +55,7 @@ __host__ __device__ void get_U_Gradient_mean_host_device(
 
 }
 
-// È¡×óÓÒµ¥ÔªÊØºãÁ¿Æ½¾ùÖµ
+// å–å·¦å³å•å…ƒå®ˆæ’é‡å¹³å‡å€¼
 __host__ __device__ void get_U_mean_host_device(
 	myfloat& rho, myfloat& rhou, myfloat& rhov, myfloat& rhoE,
 	myint elementL, myint elementR, GPU::ElementFieldSoA& elementField_host
@@ -65,13 +65,13 @@ __host__ __device__ void get_U_mean_host_device(
 	myfloat rhovL = elementField_host.U[2][elementL];
 	myfloat rhoEL = elementField_host.U[3][elementL];
 
-	// ÈôelementR²»´æÔÚ£¬¼´ÊÇ±ß½çÇÒ·ÇÖÜÆÚ±ß½çedge£¬ÔòÈ¡×óµ¥ÔªÖµ
+	// è‹¥elementRä¸å­˜åœ¨ï¼Œå³æ˜¯è¾¹ç•Œä¸”éå‘¨æœŸè¾¹ç•Œedgeï¼Œåˆ™å–å·¦å•å…ƒå€¼
 	if (elementR < 0 || elementR >= elementField_host.num) { // !elementField_host.has(elementR)
 		rho = rhoL;
 		rhou = rhouL;
 		rhov = rhovL;
 		rhoE = rhoEL;
-		return;// ÓÃreturn´úÌæelse
+		return;// ç”¨returnä»£æ›¿else
 	}
 
 	myfloat rhoR = elementField_host.U[0][elementR];
@@ -86,7 +86,7 @@ __host__ __device__ void get_U_mean_host_device(
 
 }
 
-// ¼ÆËãÎïÀíÁ¿¼°Ìİ¶È¡£ÓÃÇóµ¼Á´Ê½·¨Ôò
+// è®¡ç®—ç‰©ç†é‡åŠæ¢¯åº¦ã€‚ç”¨æ±‚å¯¼é“¾å¼æ³•åˆ™
 __host__ __device__ void get_physical_variable_and_gradient_host_device(
 	myfloat& u, myfloat& v, myfloat& T,
 	myfloat& dudx, myfloat& dvdx, myfloat& dTdx,
@@ -113,7 +113,7 @@ __host__ __device__ void get_physical_variable_and_gradient_host_device(
 	/*
 	E = e + 0.5 * V2 = Cv * T + 0.5 * (u*u+v*v)
 	dEdx = Cv * dTdx + 0.5 * d(u*u+v*v)dx = Cv * dTdx + u*dudx + v*dvdx
-	Òò´Ë
+	å› æ­¤
 	dTdx = (dEdx - u*dudx - v*dvdx)/Cv
 	*/
 	myfloat one_on_Cv = 1.0 / Cv;
@@ -123,12 +123,12 @@ __host__ __device__ void get_physical_variable_and_gradient_host_device(
 	dTdy = (dEdy - u * dudy - v * dvdy) * one_on_Cv;
 }
 
-// ¼ÆËãÀ×ÅµÓ¦Á¦
+// è®¡ç®—é›·è¯ºåº”åŠ›
 __device__ inline void get_Reynolds_stress_2d_device_inline(
 	myfloat& tau_xx, myfloat& tau_yy, myfloat& tau_xy,
 	myfloat mu, myfloat dudx, myfloat dudy, myfloat dvdx, myfloat dvdy
 ) {
-	// NMD: lambda/mu£¬µÚ¶şÕ³ĞÔÏµÊı/Õ³ĞÔÏµÊı¡£stokesÈÏÎªËüµÈÓÚ-2/3
+	// NMD: lambda/muï¼Œç¬¬äºŒç²˜æ€§ç³»æ•°/ç²˜æ€§ç³»æ•°ã€‚stokesè®¤ä¸ºå®ƒç­‰äº-2/3
 	constexpr myfloat NMD = -2.0 / 3.0;
 	myfloat div = dudx + dvdy;
 	tau_xx = mu * (NMD * div + 2.0 * dudx);
@@ -145,12 +145,12 @@ __global__ void viscous_flux_device_kernel(GPU::EdgeSoA edge_device, GPU::EdgeFi
 	const myint elementL = edge_device.elementL[iEdge];
 	const myint elementR = edge_device.elementR[iEdge];
 	const myfloat ga1 = gamma - 1.0;
-	const myfloat Cv = R / ga1;// ¶¨Èİ±ÈÈÈ
-	const myfloat Cp = Cv * gamma;// ¶¨Ñ¹±ÈÈÈ
+	const myfloat Cv = R / ga1;// å®šå®¹æ¯”çƒ­
+	const myfloat Cp = Cv * gamma;// å®šå‹æ¯”çƒ­
 
 	/*
-	È¡×óÓÒµ¥ÔªÊØºãÁ¿Ìİ¶ÈÆ½¾ùÖµ×÷Îª½çÃæÌİ¶È¡£Ïàµ±ÓÚÌİ¶ÈµÄ³£Á¿ÖØ¹¹£¬ÈÏÎªµ¥ÔªÄÚÌİ¶ÈÊÇ³£Êı
-	×¢ÒâÕâÊÇÊØºãÁ¿Ìİ¶È£¬»¹Òª×ª»¯ÎªÎïÀíÁ¿Ìİ¶È
+	å–å·¦å³å•å…ƒå®ˆæ’é‡æ¢¯åº¦å¹³å‡å€¼ä½œä¸ºç•Œé¢æ¢¯åº¦ã€‚ç›¸å½“äºæ¢¯åº¦çš„å¸¸é‡é‡æ„ï¼Œè®¤ä¸ºå•å…ƒå†…æ¢¯åº¦æ˜¯å¸¸æ•°
+	æ³¨æ„è¿™æ˜¯å®ˆæ’é‡æ¢¯åº¦ï¼Œè¿˜è¦è½¬åŒ–ä¸ºç‰©ç†é‡æ¢¯åº¦
 	*/
 	myfloat drhodx, drhoudx, drhovdx, drhoEdx;
 	myfloat drhody, drhoudy, drhovdy, drhoEdy;
@@ -159,9 +159,9 @@ __global__ void viscous_flux_device_kernel(GPU::EdgeSoA edge_device, GPU::EdgeFi
 		elementL, elementR, elementField_device
 	);
 	/*
-	È¡×óÓÒµ¥ÔªÊØºãÁ¿Æ½¾ùÖµ×÷Îª½çÃæÊØºãÁ¿£¬È»ºó×ª»»ÎªÎïÀíÁ¿
-	ÒÉÎÊ1£ºĞèÒªÓÃRoeÆ½¾ùÂğ£¿ËãÊõÆ½¾ùÊÇ·ñ¿ÉĞĞ£¿ÎŞÕ³Í¨Á¿ÊÇÍÖÔ²·½³Ì£¬ĞèÒª±£Ö¤ÊØºãĞÔÖÊÂğ£¿
-	ÒÉÎÊ2£ºÁ´Ê½·¨ÔòÇóµ¼Ê±¼ÆËãÁ¿½Ï´ó£¬²»ÖªµÀÆäËûº¯ÊıÊÇ·ñ»áÓÃµ½£¿ĞèÒª´æÆğÀ´Âğ£¿
+	å–å·¦å³å•å…ƒå®ˆæ’é‡å¹³å‡å€¼ä½œä¸ºç•Œé¢å®ˆæ’é‡ï¼Œç„¶åè½¬æ¢ä¸ºç‰©ç†é‡
+	ç–‘é—®1ï¼šéœ€è¦ç”¨Roeå¹³å‡å—ï¼Ÿç®—æœ¯å¹³å‡æ˜¯å¦å¯è¡Œï¼Ÿæ— ç²˜é€šé‡æ˜¯æ¤­åœ†æ–¹ç¨‹ï¼Œéœ€è¦ä¿è¯å®ˆæ’æ€§è´¨å—ï¼Ÿ
+	ç–‘é—®2ï¼šé“¾å¼æ³•åˆ™æ±‚å¯¼æ—¶è®¡ç®—é‡è¾ƒå¤§ï¼Œä¸çŸ¥é“å…¶ä»–å‡½æ•°æ˜¯å¦ä¼šç”¨åˆ°ï¼Ÿéœ€è¦å­˜èµ·æ¥å—ï¼Ÿ
 	*/
 	myfloat rho, rhou, rhov, rhoE;
 	get_U_mean_host_device(rho, rhou, rhov, rhoE, elementL, elementR, elementField_device);
@@ -178,19 +178,19 @@ __global__ void viscous_flux_device_kernel(GPU::EdgeSoA edge_device, GPU::EdgeFi
 		Cv
 	);
 	/*
-	¼ÆËãÀ×ÅµÓ¦Á¦
-	ÍÄÁ÷Ä¿Ç°ÏÈ²»¹Ü
+	è®¡ç®—é›·è¯ºåº”åŠ›
+	æ¹æµç›®å‰å…ˆä¸ç®¡
 	*/
-	myfloat tau_xx{}, tau_yy{}, tau_xy{};// À×ÅµÓ¦Á¦¡£ÓÃ{}³õÊ¼»¯Îª0.0
-	myfloat mu = GPU::Space::get_mu_using_Sutherland_air_host_device(T, sutherland_C1);// ¶¯Á¦Õ³ĞÔÏµÊı
-	myfloat tau_xx_laminar, tau_yy_laminar, tau_xy_laminar;// ²ãÁ÷À×ÅµÓ¦Á¦
+	myfloat tau_xx{}, tau_yy{}, tau_xy{};// é›·è¯ºåº”åŠ›ã€‚ç”¨{}åˆå§‹åŒ–ä¸º0.0
+	myfloat mu = GPU::Space::get_mu_using_Sutherland_air_host_device(T, sutherland_C1);// åŠ¨åŠ›ç²˜æ€§ç³»æ•°
+	myfloat tau_xx_laminar, tau_yy_laminar, tau_xy_laminar;// å±‚æµé›·è¯ºåº”åŠ›
 	get_Reynolds_stress_2d_device_inline(
 		tau_xx_laminar, tau_yy_laminar, tau_xy_laminar, mu,
 		dudx, dudy, dvdx, dvdy
 	);
 	constexpr bool use_turbulence = false;
-	myfloat mu_turbulence = 0.0;// ÎĞÕ³ÏµÊı
-	myfloat tau_xx_turbulence{}, tau_yy_turbulence{}, tau_xy_turbulence{};// ÍÄÁ÷À×ÅµÓ¦Á¦
+	myfloat mu_turbulence = 0.0;// æ¶¡ç²˜ç³»æ•°
+	myfloat tau_xx_turbulence{}, tau_yy_turbulence{}, tau_xy_turbulence{};// æ¹æµé›·è¯ºåº”åŠ›
 	if (use_turbulence) {
 		get_Reynolds_stress_2d_device_inline(
 			tau_xx_turbulence, tau_yy_turbulence, tau_xy_turbulence, mu_turbulence,
@@ -201,19 +201,19 @@ __global__ void viscous_flux_device_kernel(GPU::EdgeSoA edge_device, GPU::EdgeFi
 	tau_yy = tau_yy_laminar + tau_yy_turbulence;
 	tau_xy = tau_xy_laminar + tau_xy_turbulence;
 
-	myfloat akmu = Cp * (mu / Pr);// ´«ÈÈÏµÊı¡£ÓÉÓÚmuËæµ±µØÎÂ¶È±ä»¯£¬ĞèÒªÖØĞÂ¼ÆËã
+	myfloat akmu = Cp * (mu / Pr);// ä¼ çƒ­ç³»æ•°ã€‚ç”±äºmuéšå½“åœ°æ¸©åº¦å˜åŒ–ï¼Œéœ€è¦é‡æ–°è®¡ç®—
 	if (use_turbulence) {
-		constexpr myfloat Pr_turbulence = 0.90;// UNITsÖĞÉèÖÃÎª³£Öµ0.90
+		constexpr myfloat Pr_turbulence = 0.90;// æŸç»“æ„ç¨‹åºä¸­è®¾ç½®ä¸ºå¸¸å€¼0.90
 		akmu += Cp * (mu_turbulence / Pr_turbulence);
 	}
 	/*
-	¼ÆËãÕ³ĞÔÍ¨Á¿
+	è®¡ç®—ç²˜æ€§é€šé‡
 	*/
-	myfloat Phix = akmu * dTdx + u * tau_xx + v * tau_xy;// Õ³ĞÔÍ¨Á¿µÄÄÜÁ¿Ïî
+	myfloat Phix = akmu * dTdx + u * tau_xx + v * tau_xy;// ç²˜æ€§é€šé‡çš„èƒ½é‡é¡¹
 	myfloat Phiy = akmu * dTdy + u * tau_xy + v * tau_yy;
-	const myfloat nx = edge_device.normal[0][iEdge];// ±ß·¨ÏòÁ¿(¹éÒ»»¯)
+	const myfloat nx = edge_device.normal[0][iEdge];// è¾¹æ³•å‘é‡(å½’ä¸€åŒ–)
 	const myfloat ny = edge_device.normal[1][iEdge];
-	const myfloat area = edge_device.length[iEdge];// ½çÃæÃæ»ı
+	const myfloat area = edge_device.length[iEdge];// ç•Œé¢é¢ç§¯
 	myfloat flux[4]{};
 
 	flux[0] = 0.0;
@@ -230,8 +230,8 @@ __global__ void viscous_flux_device_kernel(GPU::EdgeSoA edge_device, GPU::EdgeFi
 
 void GPU::Space::edge_viscous_flux_device() {
 	/*
-	20240526 Õ³ĞÔÍ¨Á¿GPU
-	Ã»ÓĞ¶ÔCPU´úÂë½øĞĞĞ£ºË£¬Ö±½ÓĞ´³ÉGPUĞÎÊ½¡£ÒòÎª¼ÓÕ³ĞÔºó£¬CPU´úÂëĞ£ºËËãÀıËãµÃÌ«ÂıÁË
+	20240526 ç²˜æ€§é€šé‡GPU
+	æ²¡æœ‰å¯¹CPUä»£ç è¿›è¡Œæ ¡æ ¸ï¼Œç›´æ¥å†™æˆGPUå½¢å¼ã€‚å› ä¸ºåŠ ç²˜æ€§åï¼ŒCPUä»£ç æ ¡æ ¸ç®—ä¾‹ç®—å¾—å¤ªæ…¢äº†
 	*/
 	GPU::GPUSolver2* solver = SolverDataGetter::getSolverInstance();
 	GPU::ElementSoA& element_device = solver->element_device;
@@ -240,7 +240,7 @@ void GPU::Space::edge_viscous_flux_device() {
 	GPU::EdgeFieldSoA& edgeField_device = solver->edgeField_device;
 
 	const myfloat R = GlobalPara::constant::R;
-	constexpr myfloat Pr = 0.72;// Prantl number£¬UNITsÖĞÉèÖÃÎª³£Á¿Öµ0.72
+	constexpr myfloat Pr = 0.72;// Prantl numberï¼ŒæŸç»“æ„ç¨‹åºä¸­è®¾ç½®ä¸ºå¸¸é‡å€¼0.72
 	const myfloat gamma = GlobalPara::constant::gamma;
 	myfloat sutherland_C1 = GPU::Space::get_Sutherland_C1_host_device(GPU::Space::S_Sutherland, GlobalPara::constant::mu0, GlobalPara::constant::T0);
 

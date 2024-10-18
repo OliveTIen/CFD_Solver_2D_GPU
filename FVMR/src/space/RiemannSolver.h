@@ -2,14 +2,14 @@
 #define RIEMANN_SOLVER_H
 #include "../gpu/datatype/DefineType.h"
 /**
-* ÎÞÕ³ÀèÂüÇó½âÆ÷ ÏÈ×ø±ê±ä»»£¬È»ºó¸ù¾ÝÁ½²àUÖµ¼ÆËã½çÃæÎÞÕ³Í¨Á¿(×¼Ò»Î¬)
+* æ— ç²˜é»Žæ›¼æ±‚è§£å™¨ å…ˆåæ ‡å˜æ¢ï¼Œç„¶åŽæ ¹æ®ä¸¤ä¾§Uå€¼è®¡ç®—ç•Œé¢æ— ç²˜é€šé‡(å‡†ä¸€ç»´)
 * 
-* Îª¼õÉÙÎÄ¼þÏà»¥ÒÀÀµ£¬
-* 1.conservation_scheme²¢Ã»ÓÐÖ±½ÓÓÃGlobalPara£¬
-*   ¶øÊÇ×÷Îª²ÎÊý´«µÝ£¬ÕâÑù¿ÉÒÔËõ¶Ì±àÒëÊ±¼ä¡£
-*   Ò»µ©GlobalPara±ä¶¯£¬ËùÓÐ°üº¬GlobalPara.hµÄÎÄ¼þ¶¼»á±»ÖØÐÂ±àÒë
-* 2.¶ÔÓÚ´íÎó´¦Àí£¬²¢Ã»ÓÐÖ±½Óµ÷ÓÃLogWriterÊä³ö£¬¶øÊÇÊä³ö·µ»ØÖµ£¬ÈÃ
-*   µ÷ÓÃËüµÄº¯Êý´¦Àí´íÎó¡£ÕâÑù¿ÉÒÔ¼õÉÙ¶ÔLogWriterµÄÒÀÀµ
+* ä¸ºå‡å°‘æ–‡ä»¶ç›¸äº’ä¾èµ–ï¼Œ
+* 1.conservation_schemeå¹¶æ²¡æœ‰ç›´æŽ¥ç”¨GlobalParaï¼Œ
+*   è€Œæ˜¯ä½œä¸ºå‚æ•°ä¼ é€’ï¼Œè¿™æ ·å¯ä»¥ç¼©çŸ­ç¼–è¯‘æ—¶é—´ã€‚
+*   ä¸€æ—¦GlobalParaå˜åŠ¨ï¼Œæ‰€æœ‰åŒ…å«GlobalPara.hçš„æ–‡ä»¶éƒ½ä¼šè¢«é‡æ–°ç¼–è¯‘
+* 2.å¯¹äºŽé”™è¯¯å¤„ç†ï¼Œå¹¶æ²¡æœ‰ç›´æŽ¥è°ƒç”¨LogWriterè¾“å‡ºï¼Œè€Œæ˜¯è¾“å‡ºè¿”å›žå€¼ï¼Œè®©
+*   è°ƒç”¨å®ƒçš„å‡½æ•°å¤„ç†é”™è¯¯ã€‚è¿™æ ·å¯ä»¥å‡å°‘å¯¹LogWriterçš„ä¾èµ–
 */
 class RiemannSolver {
 public:

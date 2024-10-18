@@ -6,25 +6,25 @@
 
 std::vector<int> BoundaryManager_2D::compressSeveralSequences(const std::vector<int>& ints) {
 	/*
-	¸Ãº¯ÊıÓÃÓÚÑ¹Ëõ´æ´¢ÊıÁĞ£¬ÓÃÀ´¼õÉÙÕ¼ÓÃ¿Õ¼äµ«²»ËğÊ§ĞÅÏ¢
+	è¯¥å‡½æ•°ç”¨äºå‹ç¼©å­˜å‚¨æ•°åˆ—ï¼Œç”¨æ¥å‡å°‘å ç”¨ç©ºé—´ä½†ä¸æŸå¤±ä¿¡æ¯
 	
-	ÊäÈë²ÎÊıintsÊÇ·Ö¶ÎÁ¬ĞøµÄÊıÁĞ£¬Êä³öÊÇ¸ÃÊıÁĞ¸÷¶ÎµÄ×óÓÒ¶ËµãÖµ
+	è¾“å…¥å‚æ•°intsæ˜¯åˆ†æ®µè¿ç»­çš„æ•°åˆ—ï¼Œè¾“å‡ºæ˜¯è¯¥æ•°åˆ—å„æ®µçš„å·¦å³ç«¯ç‚¹å€¼
 
-	ÀıÈç£¬"1-5,11-14,21-26"->"1,5,11,14,21,26"
-	ÊäÈë£º1,2,3,4,5,11,12,13,14,21,22,23,24,25,26
-	Êä³ö£º1,5,11,14,21,26
+	ä¾‹å¦‚ï¼Œ"1-5,11-14,21-26"->"1,5,11,14,21,26"
+	è¾“å…¥ï¼š1,2,3,4,5,11,12,13,14,21,22,23,24,25,26
+	è¾“å‡ºï¼š1,5,11,14,21,26
 
-	Êµ¼ÊÓ¦ÓÃÖĞ£¬ÊıÁĞµÄÃ¿¸öÔªËØ±íÊ¾Ò»¸ö±ß½çÏßÔªµÄID¡£Ò»ÌõÁ¬ĞøÊıÁĞ¶ÔÓ¦Ò»¸ö±ß½ç
+	å®é™…åº”ç”¨ä¸­ï¼Œæ•°åˆ—çš„æ¯ä¸ªå…ƒç´ è¡¨ç¤ºä¸€ä¸ªè¾¹ç•Œçº¿å…ƒçš„IDã€‚ä¸€æ¡è¿ç»­æ•°åˆ—å¯¹åº”ä¸€ä¸ªè¾¹ç•Œ
 
 	*/
 
 	std::vector<int> ret;
-	if (ints.size() < 2) {//¿Õ£¬»òÕßÖ»ÓĞ1¸öÔªËØ
+	if (ints.size() < 2) {//ç©ºï¼Œæˆ–è€…åªæœ‰1ä¸ªå…ƒç´ 
 		if (ints.size() == 1) {
 			ret.push_back(ints[0]);
 			ret.push_back(ints[0]);
 		}
-		return ret;//¿Õ-·µ»Ø¿Õ¡£½ö1¸öÔªËØa-·µ»Øa,a
+		return ret;//ç©º-è¿”å›ç©ºã€‚ä»…1ä¸ªå…ƒç´ a-è¿”å›a,a
 	}
 	ret.push_back(ints[0]);
 	int last, current;
@@ -34,11 +34,11 @@ std::vector<int> BoundaryManager_2D::compressSeveralSequences(const std::vector<
 		if (current == last + 1) {
 			if (i == (int)ints.size() - 1)ret.push_back(ints[i]);
 		}
-		else {//¼ä¶Ï
+		else {//é—´æ–­
 			ret.push_back(last);
 			ret.push_back(current);
 			if (i == (int)ints.size() - 1)
-				ret.push_back(current);//½áÎ²µ¥¶ÀÒ»¸ö£¬ÔòÖØ¸´2´Î
+				ret.push_back(current);//ç»“å°¾å•ç‹¬ä¸€ä¸ªï¼Œåˆ™é‡å¤2æ¬¡
 		}
 		last = current;
 	}
@@ -54,37 +54,37 @@ VirtualBoundarySet_2D* BoundaryManager_2D::findSetByID(int ID) {
 }
 
 void BoundaryManager_2D::iniBoundaryEdgeSetID_and_iniBoundaryType(FVM_2D* f) {
-	//º¯ÊıÄ¿µÄ£º¸ù¾İBoundarySetµÄnameµÃµ½type£»¸ø±ß½çedge´òÉÏsetID±êÇ©
+	//å‡½æ•°ç›®çš„ï¼šæ ¹æ®BoundarySetçš„nameå¾—åˆ°typeï¼›ç»™è¾¹ç•Œedgeæ‰“ä¸ŠsetIDæ ‡ç­¾
 	
-	//¼ì²éf->edgesÊÇ·ñÒÑ³õÊ¼»¯
+	//æ£€æŸ¥f->edgesæ˜¯å¦å·²åˆå§‹åŒ–
 	if (f->edges.size() == 0) {
 		LogWriter::logError("f->edges.size() == 0, @BoundaryManager_2D::iniBoundaryEdgeSetID_and_iniBoundaryType\n");
 		exit(-1);
 	}
 
-	//´ò±êÇ©
+	//æ‰“æ ‡ç­¾
 	for (int is = 0; is < boundaries.size(); is++) {
-		//±ß½çÀàĞÍ¸³¸øsetµÄtype£¬±ß½çID¸³¸øedgeµÄsetID
+		//è¾¹ç•Œç±»å‹èµ‹ç»™setçš„typeï¼Œè¾¹ç•ŒIDèµ‹ç»™edgeçš„setID
 		int bType = U2NITS::BoundaryManager::boundaryNameToType(boundaries[is].name);
 		boundaries[is].type = bType;
 		for (int ie = 0; ie < boundaries[is].pEdges.size(); ie++) {
 			boundaries[is].pEdges[ie]->setID = boundaries[is].ID;
 		}
 
-		//! ×¢Òâ¸Ã¶Î´úÂë´æÔÚÓÚ¶à´¦¡£ĞŞ¸ÄÊ±¿ÉÄÜĞèÒªĞŞ¸Ä¶à´¦
-		// ³õÊ¼»¯periodPairs£¬periodPairs´æ´¢ÖÜÆÚ±ß½çµÄÅä¶ÔĞÅÏ¢£¬ÓÃÀ´¼ì²éÖÜÆÚ±ß½çÍêÕûĞÔ
-		// periodPairsÊÇboundaryManagerµÄ³ÉÔ±£¬Ã¿¸öpair´æ´¢int bType, int setID_0, int setID_1
-		if (_BC_periodic_0 <= bType && bType <= _BC_periodic_9) {// Á½¸ö²»µÈÊ½Ğè²ğ¿ª£¬ÓÃ&&Á¬½Ó
-			//¼ì²éperiodPairsÊÇ·ñÒÑ¾­Â¼Èë¸ÃbType£¬ÈôÊÇ£¬ÔòÊ¹ÓÃÒÑÓĞµÄ£»Èô·ñ£¬ÔòĞÂ½¨Ò»¸öPeriodPair tmp£¬´æÈëperiodPairs
+		//! æ³¨æ„è¯¥æ®µä»£ç å­˜åœ¨äºå¤šå¤„ã€‚ä¿®æ”¹æ—¶å¯èƒ½éœ€è¦ä¿®æ”¹å¤šå¤„
+		// åˆå§‹åŒ–periodPairsï¼ŒperiodPairså­˜å‚¨å‘¨æœŸè¾¹ç•Œçš„é…å¯¹ä¿¡æ¯ï¼Œç”¨æ¥æ£€æŸ¥å‘¨æœŸè¾¹ç•Œå®Œæ•´æ€§
+		// periodPairsæ˜¯boundaryManagerçš„æˆå‘˜ï¼Œæ¯ä¸ªpairå­˜å‚¨int bType, int setID_0, int setID_1
+		if (_BC_periodic_0 <= bType && bType <= _BC_periodic_9) {// ä¸¤ä¸ªä¸ç­‰å¼éœ€æ‹†å¼€ï¼Œç”¨&&è¿æ¥
+			//æ£€æŸ¥periodPairsæ˜¯å¦å·²ç»å½•å…¥è¯¥bTypeï¼Œè‹¥æ˜¯ï¼Œåˆ™ä½¿ç”¨å·²æœ‰çš„ï¼›è‹¥å¦ï¼Œåˆ™æ–°å»ºä¸€ä¸ªPeriodPair tmpï¼Œå­˜å…¥periodPairs
 			int index_pairs = -1;
 			for (int i = 0; i < periodPairs.size(); i++) {
 				if (periodPairs[i].bType == bType)index_pairs = i;
 			}
-			// ´æÔÚ£¬ÔòÖ±½ÓÉèÖÃ
+			// å­˜åœ¨ï¼Œåˆ™ç›´æ¥è®¾ç½®
 			if (index_pairs != -1) {
 				periodPairs[index_pairs].setID_1 = boundaries[is].ID;
 			}
-			// ²»´æÔÚ£¬ÔòĞÂ½¨
+			// ä¸å­˜åœ¨ï¼Œåˆ™æ–°å»º
 			else {
 				PeriodPair tmp;
 				tmp.bType = bType;
@@ -94,13 +94,13 @@ void BoundaryManager_2D::iniBoundaryEdgeSetID_and_iniBoundaryType(FVM_2D* f) {
 		}
 	}
 
-	//¼ì²éÖÜÆÚ±ß½çµÄÕıÈ·ĞÔºÍÍêÕûĞÔ
+	//æ£€æŸ¥å‘¨æœŸè¾¹ç•Œçš„æ­£ç¡®æ€§å’Œå®Œæ•´æ€§
 	checkPeriodPairs();
 }
 
 void BoundaryManager_2D::ini_infBoundary_ruvp() {
-	//³õÊ¼»¯Ô¶³¡±ß½çµÄruvp
-	//ÒÔÏÂÎªdebug£¬Éè¶¨ÌØ¶¨ruvp
+	//åˆå§‹åŒ–è¿œåœºè¾¹ç•Œçš„ruvp
+	//ä»¥ä¸‹ä¸ºdebugï¼Œè®¾å®šç‰¹å®šruvp
 	//using namespace GlobalPara::boundaryCondition::_2D;
 	//std::cout << "debug: BoundaryManager_2D::ini_infBoundary_ruvp\n";
 	//inlet::ruvp[0] = 1.0;
@@ -113,11 +113,11 @@ void BoundaryManager_2D::ini_infBoundary_ruvp() {
 	//outlet::ruvp[2] = 0;
 	//outlet::ruvp[3] = 0.1e5;
 
-	//³õÊ¼ÄÚ²¿Ìõ¼ş¼ûFVM_2D::initField
+	//åˆå§‹å†…éƒ¨æ¡ä»¶è§FVM_2D::initField
 }
 
 void BoundaryManager_2D::setBoundaryElementU(int tag) {
-	//[debug]Ô¶³¡±ß½çµ¥ÔªÊØºãÁ¿Ç¿ÖÆ¸³Öµ
+	//[debug]è¿œåœºè¾¹ç•Œå•å…ƒå®ˆæ’é‡å¼ºåˆ¶èµ‹å€¼
 	using namespace GlobalPara::boundaryCondition::_2D;
 	switch (tag) {
 	case 0:
@@ -173,7 +173,7 @@ void BoundaryManager_2D::setBoundaryElementU(int tag) {
 }
 
 VirtualBoundarySet_2D* BoundaryManager_2D::getBoundarySetByID(const int setID) {
-	if (setID <= 0 || setID > boundaries.size()) {//setID·¶Î§Ó¦´Ó1¿ªÊ¼£¬×î´óÎªvBoundarySetsµÄsize
+	if (setID <= 0 || setID > boundaries.size()) {//setIDèŒƒå›´åº”ä»1å¼€å§‹ï¼Œæœ€å¤§ä¸ºvBoundarySetsçš„size
 		LogWriter::logAndPrintError("setID out of range. (getBoundarySetByID)\n");
 		return nullptr;
 	}
@@ -181,15 +181,15 @@ VirtualBoundarySet_2D* BoundaryManager_2D::getBoundarySetByID(const int setID) {
 }
 
 void BoundaryManager_2D::checkPeriodPairs() {
-	// ¼ì²éÖÜÆÚ±ß½çµÄÕıÈ·ĞÔºÍÍêÕûĞÔ
-	// !Òş»¼£º´æÔÚÒÔÏÂ¼ÙÉè£º
-	// gmshÊä³öµÄinpÎÄ¼şÖĞ£¬edge±àºÅÊÇ´ÓµÚÒ»¸ö¶¥µã³ö·¢£¬ÄæÊ±Õë»·ÈÆÒ»È¦¡£Òò´ËÒ»¶ÔperiodPairÆä·½Ïò±ØÈ»ÊÇÏà·´µÄ
+	// æ£€æŸ¥å‘¨æœŸè¾¹ç•Œçš„æ­£ç¡®æ€§å’Œå®Œæ•´æ€§
+	// !éšæ‚£ï¼šå­˜åœ¨ä»¥ä¸‹å‡è®¾ï¼š
+	// gmshè¾“å‡ºçš„inpæ–‡ä»¶ä¸­ï¼Œedgeç¼–å·æ˜¯ä»ç¬¬ä¸€ä¸ªé¡¶ç‚¹å‡ºå‘ï¼Œé€†æ—¶é’ˆç¯ç»•ä¸€åœˆã€‚å› æ­¤ä¸€å¯¹periodPairå…¶æ–¹å‘å¿…ç„¶æ˜¯ç›¸åçš„
 	bool b_loop = true;
 	bool b_error_uninitialized = false;
 	bool b_error_edge_num_not_match = false;
 	bool b_error_not_translatable = false;
 	for (int ip = 0; ip < periodPairs.size() && b_loop; ip++) {
-		// ¼ì²é¶ÔÓ¦±ß½çÊÇ·ñ´æÔÚ¡£Èç¹û²»´æÔÚ£¬¿ÉÄÜÊÇÒòÎªĞ´ÖÜÆÚ±ß½çÊ±£¬Ã¿ÖÖÖÜÆÚ±ß½ç²»ÊÇ³É¶Ô³öÏÖ£¬µ¼ÖÂÎ´³õÊ¼»¯
+		// æ£€æŸ¥å¯¹åº”è¾¹ç•Œæ˜¯å¦å­˜åœ¨ã€‚å¦‚æœä¸å­˜åœ¨ï¼Œå¯èƒ½æ˜¯å› ä¸ºå†™å‘¨æœŸè¾¹ç•Œæ—¶ï¼Œæ¯ç§å‘¨æœŸè¾¹ç•Œä¸æ˜¯æˆå¯¹å‡ºç°ï¼Œå¯¼è‡´æœªåˆå§‹åŒ–
 		auto& pair = periodPairs[ip];
 		if (pair.setID_0 == -1 || pair.setID_1 == -1) {
 			b_error_uninitialized = true;
@@ -200,15 +200,15 @@ void BoundaryManager_2D::checkPeriodPairs() {
 		const VirtualBoundarySet_2D& vbs0 = boundaries[pair.setID_0 - 1];
 		const VirtualBoundarySet_2D& vbs1 = boundaries[pair.setID_1 - 1];
 
-		// ¼ì²é¶ÔÓ¦±ß½çÊÇ·ñµãÊıÏàµÈ
+		// æ£€æŸ¥å¯¹åº”è¾¹ç•Œæ˜¯å¦ç‚¹æ•°ç›¸ç­‰
 		if (vbs0.pEdges.size() != vbs1.pEdges.size()) {
 			b_error_edge_num_not_match = true;
 			b_loop = false;
 			break;
 		}
 
-		// ¼ì²é¶ÔÓ¦±ß½çÊÇ·ñÂú×ãÆ½ÒÆ¹æÂÉ ½«±ß½ç1ÖĞÄ³µãÆ½ÒÆ(vx,vy)µÃµ½p0,ÅĞ¶Ïp0ºÍp1ÊÇ·ñÖØºÏ
-		// Ê×ÏÈÈ¡µÚÒ»¶Ô¶ÔÓ¦µã£¬¼ÆËãÎ»ÒÆ
+		// æ£€æŸ¥å¯¹åº”è¾¹ç•Œæ˜¯å¦æ»¡è¶³å¹³ç§»è§„å¾‹ å°†è¾¹ç•Œ1ä¸­æŸç‚¹å¹³ç§»(vx,vy)å¾—åˆ°p0,åˆ¤æ–­p0å’Œp1æ˜¯å¦é‡åˆ
+		// é¦–å…ˆå–ç¬¬ä¸€å¯¹å¯¹åº”ç‚¹ï¼Œè®¡ç®—ä½ç§»
 		const int pEdge_size = int(vbs0.pEdges.size());
 		myfloat translate_x = vbs1.pEdges[pEdge_size - 1]->getx() - vbs0.pEdges[0]->getx();
 		myfloat translate_y = vbs1.pEdges[pEdge_size - 1]->gety() - vbs0.pEdges[0]->gety();
@@ -221,7 +221,7 @@ void BoundaryManager_2D::checkPeriodPairs() {
 			myfloat residual_y = y1 - y1_ref;
 			myfloat residual_square = residual_x * residual_x + residual_y * residual_y;
 			myfloat translate_square = translate_x * translate_x + translate_y * translate_y;
-			myfloat residual_relative = residual_square / translate_square;// Ïà¶Ô²Ğ²î
+			myfloat residual_relative = residual_square / translate_square;// ç›¸å¯¹æ®‹å·®
 
 			if (residual_relative >= 0.0001) {
 				b_error_not_translatable = true;
@@ -256,18 +256,18 @@ void BoundaryManager_2D::checkPeriodPairs() {
 
 VirtualBoundarySet_2D* BoundaryManager_2D::getPairByID_periodicBoundary(const int setID) {
 	VirtualBoundarySet_2D* set_0 = getBoundarySetByID(setID);
-	int setID_to_find = -1;//´ıÑ°ÕÒµÄset
+	int setID_to_find = -1;//å¾…å¯»æ‰¾çš„set
 	const int bType = set_0->type;
-	if (_BC_periodic_0 <= bType && bType <= _BC_periodic_9) {//ÅĞ¶ÏÊÇ·ñÎªÖÜÆÚ±ß½ç
-		//ÊÇÖÜÆÚ±ß½ç£¬ÔòÑ°ÕÒÅä¶Ô
+	if (_BC_periodic_0 <= bType && bType <= _BC_periodic_9) {//åˆ¤æ–­æ˜¯å¦ä¸ºå‘¨æœŸè¾¹ç•Œ
+		//æ˜¯å‘¨æœŸè¾¹ç•Œï¼Œåˆ™å¯»æ‰¾é…å¯¹
 		for (int ip = 0; ip < periodPairs.size(); ip++) {
-			if (periodPairs[ip].bType == bType) {//ÈôÊÇÍ¬Ò»¶ÔÖÜÆÚ±ß½ç
+			if (periodPairs[ip].bType == bType) {//è‹¥æ˜¯åŒä¸€å¯¹å‘¨æœŸè¾¹ç•Œ
 				if (periodPairs[ip].setID_0 == setID)setID_to_find = periodPairs[ip].setID_1;
 				else setID_to_find = periodPairs[ip].setID_0;
-				break;//Ìø³öforÑ­»·
+				break;//è·³å‡ºforå¾ªç¯
 			}
 		}
-		//ÈôÕÒµ½Åä¶ÔµÄID£¬Ôò·µ»ØÖ¸Õë£¬·ñÔò±¨´í
+		//è‹¥æ‰¾åˆ°é…å¯¹çš„IDï¼Œåˆ™è¿”å›æŒ‡é’ˆï¼Œå¦åˆ™æŠ¥é”™
 		if (setID_to_find == -1) {
 			LogWriter::logAndPrintError("pair not found. (getPairByID_periodicBoundary)\n");
 			return nullptr;
@@ -281,49 +281,49 @@ VirtualBoundarySet_2D* BoundaryManager_2D::getPairByID_periodicBoundary(const in
 }
 
 Element_2D* BoundaryManager_2D::get_pElement_R_periodic(Edge_2D* pEdge_0) {
-	//º¯Êı¹¦ÄÜ£ºÕÒµ½Ä³edgeµÄĞéÄâpElement_R¡£½öÏŞÓÚÖÜÆÚ±ß½ç
+	//å‡½æ•°åŠŸèƒ½ï¼šæ‰¾åˆ°æŸedgeçš„è™šæ‹ŸpElement_Rã€‚ä»…é™äºå‘¨æœŸè¾¹ç•Œ
 
-	//ÕÒµ½pEdge¶ÔÓ¦µÄboundarySet(pBoundary_0)£¬ÒÔ¼°Åä¶ÔboundarySet(pBoundary_1)
-	VirtualBoundarySet_2D* pBoundary_0 = FVM_2D::getInstance()->boundaryManager.getBoundarySetByID(pEdge_0->setID);//pEdge¶ÔÓ¦µÄboundarySet
+	//æ‰¾åˆ°pEdgeå¯¹åº”çš„boundarySet(pBoundary_0)ï¼Œä»¥åŠé…å¯¹boundarySet(pBoundary_1)
+	VirtualBoundarySet_2D* pBoundary_0 = FVM_2D::getInstance()->boundaryManager.getBoundarySetByID(pEdge_0->setID);//pEdgeå¯¹åº”çš„boundarySet
 	VirtualBoundarySet_2D* pBoundary_1 = FVM_2D::getInstance()->boundaryManager.getPairByID_periodicBoundary(pEdge_0->setID);
-	//»ñÈ¡pEdgeÔÚpBoundary_0µÄpEdgesÖĞµÄĞòºÅ(´Ó0¿ªÊ¼µÄÖ¸±ê)
+	//è·å–pEdgeåœ¨pBoundary_0çš„pEdgesä¸­çš„åºå·(ä»0å¼€å§‹çš„æŒ‡æ ‡)
 	int index_0 = pBoundary_0->getEdgeIndex(pEdge_0);
 	if (index_0 == -1) {
 		LogWriter::logAndPrintError("edge not found. (BoundaryManager_2D::get_pElement_R_periodic)\n");
 		return nullptr;
 	}
-	//¼ÆËãµÃµ½ËüÔÚpBoundary_1µÄĞòºÅ
+	//è®¡ç®—å¾—åˆ°å®ƒåœ¨pBoundary_1çš„åºå·
 	const int eSize = int(pBoundary_0->pEdges.size());
 	int index_1 = eSize - 1 - index_0;
-	//ÕÒµ½pEdge_0ÔÚpBoundary_1ÉÏ¶ÔÓ¦µÄpEdge_1
+	//æ‰¾åˆ°pEdge_0åœ¨pBoundary_1ä¸Šå¯¹åº”çš„pEdge_1
 	Edge_2D* pEdge_1 = pBoundary_1->pEdges[index_1];
-	//pEdge_1µÄpElement_L¼´ÎªpEdge_0µÄĞéÄâpElement_R
+	//pEdge_1çš„pElement_Lå³ä¸ºpEdge_0çš„è™šæ‹ŸpElement_R
 	return pEdge_1->pElement_L;
 }
 
 Edge_2D* BoundaryManager_2D::get_pairEdge_periodic(Edge_2D* pEdge_0) {
-	// !¸Ãº¯Êı¾ßÓĞÒş»¼£¬ËüÄ¬ÈÏindex_1 = eSize - 1 - index_0£¬¼´±ß½ç½ÚµãIDÊÇÄæÊ±ÕëÔö´óµÄ
-	// º¯Êı¹¦ÄÜ£ºÕÒµ½Ä³edge¶ÔÓ¦µÄedge¡£½öÏŞÓÚÖÜÆÚ±ß½ç
+	// !è¯¥å‡½æ•°å…·æœ‰éšæ‚£ï¼Œå®ƒé»˜è®¤index_1 = eSize - 1 - index_0ï¼Œå³è¾¹ç•ŒèŠ‚ç‚¹IDæ˜¯é€†æ—¶é’ˆå¢å¤§çš„
+	// å‡½æ•°åŠŸèƒ½ï¼šæ‰¾åˆ°æŸedgeå¯¹åº”çš„edgeã€‚ä»…é™äºå‘¨æœŸè¾¹ç•Œ
 	// 
 	
-	//ÕÒµ½pEdge¶ÔÓ¦µÄboundarySet(pBoundary_0)£¬ÒÔ¼°Åä¶ÔboundarySet(pBoundary_1)
-	VirtualBoundarySet_2D* pBoundary_0 = FVM_2D::getInstance()->boundaryManager.getBoundarySetByID(pEdge_0->setID);//pEdge¶ÔÓ¦µÄboundarySet
+	//æ‰¾åˆ°pEdgeå¯¹åº”çš„boundarySet(pBoundary_0)ï¼Œä»¥åŠé…å¯¹boundarySet(pBoundary_1)
+	VirtualBoundarySet_2D* pBoundary_0 = FVM_2D::getInstance()->boundaryManager.getBoundarySetByID(pEdge_0->setID);//pEdgeå¯¹åº”çš„boundarySet
 	VirtualBoundarySet_2D* pBoundary_1 = FVM_2D::getInstance()->boundaryManager.getPairByID_periodicBoundary(pEdge_0->setID);
-	//»ñÈ¡pEdgeÔÚpBoundary_0µÄpEdgesÖĞµÄĞòºÅ(´Ó0¿ªÊ¼µÄÖ¸±ê)
+	//è·å–pEdgeåœ¨pBoundary_0çš„pEdgesä¸­çš„åºå·(ä»0å¼€å§‹çš„æŒ‡æ ‡)
 	int index_0 = pBoundary_0->getEdgeIndex(pEdge_0);
 	if (index_0 == -1) {
 		LogWriter::logAndPrintError("edge not found. (BoundaryManager_2D::get_pElement_R_periodic)\n");
 		return nullptr;
 	}
-	//¼ÆËãµÃµ½ËüÔÚpBoundary_1µÄĞòºÅ
+	//è®¡ç®—å¾—åˆ°å®ƒåœ¨pBoundary_1çš„åºå·
 	const int eSize = int(pBoundary_0->pEdges.size());
 	int index_1 = eSize - 1 - index_0;
-	//ÕÒµ½pEdge_0ÔÚpBoundary_1ÉÏ¶ÔÓ¦µÄpEdge_1
+	//æ‰¾åˆ°pEdge_0åœ¨pBoundary_1ä¸Šå¯¹åº”çš„pEdge_1
 	return pBoundary_1->pEdges[index_1];
 }
 
 int VirtualBoundarySet_2D::getEdgeIndex(Edge_2D* pEdge) {
-	//²éÑ¯pEdgeÊÇ·ñÔÚpEdgesÖĞ£¬ÈôÊÇ£¬Ôò·µ»ØÖ¸±ê(´Ó0¿ªÊ¼)£¬·ñÔò·µ»Ø-1
+	//æŸ¥è¯¢pEdgeæ˜¯å¦åœ¨pEdgesä¸­ï¼Œè‹¥æ˜¯ï¼Œåˆ™è¿”å›æŒ‡æ ‡(ä»0å¼€å§‹)ï¼Œå¦åˆ™è¿”å›-1
 	for (int i = 0; i < pEdges.size(); i++) {
 		if (pEdge == pEdges[i])return i;
 	}

@@ -86,7 +86,7 @@ namespace GPU {
 			}
 
 			inline void __device__ div_matrix_by_scalar(int nRow, int nCol, myfloat* mat, myfloat scalar) {
-				// 矩阵除以标量
+				// 戮脴脮贸鲁媒脪脭卤锚脕驴
 				for (int i = 0; i < nRow; i++) {
 					for (int j = 0; j < nCol; j++) {
 						mat[i * nCol + j] /= scalar;

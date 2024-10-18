@@ -11,7 +11,7 @@
 #include "viscous_flux/ViscousFluxGPU.h"
 
 
-// µ¥ÔªÍ¨Á¿ÇåÁã
+// å•å…ƒé€šé‡æ¸…é›¶
 inline void clear_element_flux_device() {
     GPU::GPUSolver2* solver = SolverDataGetter::getSolverInstance();
     GPU::ElementFieldSoA& elementField_device = solver->elementField_device;
@@ -25,7 +25,7 @@ inline void clear_element_flux_device() {
 }
 
 __device__ inline bool isUpStreamOfShock_atBoundary_static_inline(double x, double y, double _shock_x, double _shock_y, double _shock_speed, double _t_RK, const double _sqrt3) {
-    // CBoundaryDoubleShockReflectµÄ³ÉÔ±º¯ÊıµÄ¾²Ì¬°æ±¾
+    // CBoundaryDoubleShockReflectçš„æˆå‘˜å‡½æ•°çš„é™æ€ç‰ˆæœ¬
     double right = _shock_x + (y + _shock_speed * _t_RK) / _sqrt3;
     if (x < right) return true;
     else return false;
@@ -45,12 +45,12 @@ __device__ inline void get_U_reconstruct_singleValue(myfloat x, myfloat y, myflo
 }
 
 __device__ void get_Uvector_reconstruct_2_device(GPU::ElementSoA& element, GPU::ElementFieldSoA& elementField, myfloat x, myfloat y, myint iElement, myfloat* U_dist, int flag_reconstruct, myfloat gamma) {
-    // ¸ù¾İµ¥Ôª·Ö²¼º¯Êı£¬µÃµ½Ä³µãUÖµ
+    // æ ¹æ®å•å…ƒåˆ†å¸ƒå‡½æ•°ï¼Œå¾—åˆ°æŸç‚¹Uå€¼
     for (int i = 0; i < 4; i++) {
         get_U_reconstruct_singleValue(x, y, U_dist[i], iElement, element.xy[0], element.xy[1], elementField.U[i], elementField.Ux[i], elementField.Uy[i], flag_reconstruct);
     }
 
-    // ÈôÊı¾İÒì³££¬Ôò³£Á¿ÖØ¹¹
+    // è‹¥æ•°æ®å¼‚å¸¸ï¼Œåˆ™å¸¸é‡é‡æ„
     myfloat ruvp[4]{};
     GPU::Math::U2ruvp_device(U_dist, ruvp, gamma);
     if (GPU::Space::Restrict::outOfRange_device(ruvp)) {
@@ -61,10 +61,10 @@ __device__ void get_Uvector_reconstruct_2_device(GPU::ElementSoA& element, GPU::
 }
 
 __device__ void get_UR_wallNonViscous_device(const myfloat* U_L, myfloat* U_R, myfloat nx, myfloat ny) {
-    // »¬ÒÆ±ÚÃæ£¬·¨ÏòËÙ¶ÈÈ¡·´£¬ÇĞÏòËÙ¶ÈÏàµÈ
+    // æ»‘ç§»å£é¢ï¼Œæ³•å‘é€Ÿåº¦å–åï¼Œåˆ‡å‘é€Ÿåº¦ç›¸ç­‰
     myfloat uxL = U_L[1] / U_L[0];
     myfloat uyL = U_L[2] / U_L[0];
-    myfloat unL = uxL * nx + uyL * ny;// xyÎªÈ«¾Ö×ø±êÏµ£¬tnÎªÇĞÏò-·¨Ïò×ø±êÏµ
+    myfloat unL = uxL * nx + uyL * ny;// xyä¸ºå…¨å±€åæ ‡ç³»ï¼Œtnä¸ºåˆ‡å‘-æ³•å‘åæ ‡ç³»
     myfloat utL = uxL * ny - uyL * nx;
     myfloat unR = -unL;
     myfloat utR = utL;
@@ -77,7 +77,7 @@ __device__ void get_UR_wallNonViscous_device(const myfloat* U_L, myfloat* U_R, m
 }
 
 __device__ void get_UR_wall_adiabat_device(const myfloat* U_L, myfloat* U_R, myfloat nx, myfloat ny) {
-    // ÎŞ»¬ÒÆ¾øÈÈ±ÚÃæ£¬·¨ÏòÇĞÏòËÙ¶È¶¼È¡·´
+    // æ— æ»‘ç§»ç»çƒ­å£é¢ï¼Œæ³•å‘åˆ‡å‘é€Ÿåº¦éƒ½å–å
     U_R[0] = U_L[0];
     U_R[1] = -U_R[1];
     U_R[2] = -U_R[2];
@@ -86,10 +86,9 @@ __device__ void get_UR_wall_adiabat_device(const myfloat* U_L, myfloat* U_R, myf
 
 __device__ void get_UR_farField_device(const myfloat* U_L, const myfloat* ruvp_inf, myfloat* U_R, myfloat nx, myfloat ny, myfloat gamma) {
     /*
-    ²ÎÕÕUNITsºÍÀîÆô±ø¿Î¼ş
-    ÒÔÑÇÉùËÙÈë¿ÚÎªÀı£¬ÏÈÓÉÄÚµãÍâÍÆ±ß½çµãµÄ¹À¼ÆÖµ£¬
-    ÔÙ½¨Á¢±ß½çµãÊıÖµ½âÓë¹À¼ÆÖµµÄÌØÕ÷ÏàÈİ¹ØÏµ
-    ½â³ö±ß½çÉùËÙ£¬½ø¶øµÃµ½Ñ¹Á¦ÊıÖµ½â
+    ä»¥äºšå£°é€Ÿå…¥å£ä¸ºä¾‹ï¼Œå…ˆç”±å†…ç‚¹å¤–æ¨è¾¹ç•Œç‚¹çš„ä¼°è®¡å€¼ï¼Œ
+    å†å»ºç«‹è¾¹ç•Œç‚¹æ•°å€¼è§£ä¸ä¼°è®¡å€¼çš„ç‰¹å¾ç›¸å®¹å…³ç³»
+    è§£å‡ºè¾¹ç•Œå£°é€Ÿï¼Œè¿›è€Œå¾—åˆ°å‹åŠ›æ•°å€¼è§£
     */
     myfloat ga1 = gamma - 1;
     myfloat rho_f = ruvp_inf[0];
@@ -104,48 +103,48 @@ __device__ void get_UR_farField_device(const myfloat* U_L, const myfloat* ruvp_i
     myfloat v_e = ruvp_e[2];
     myfloat p_e = ruvp_e[3];
 
-    // ÌØÕ÷ÏàÈİ¹ØÏµ
+    // ç‰¹å¾ç›¸å®¹å…³ç³»
     myfloat a2_f = gamma * p_f / rho_f;
-    myfloat af = sqrt(a2_f);// Ô¶³¡ÉùËÙ
-    myfloat Ma2_f = (u_f * u_f + v_f * v_f) / a2_f;// Ô¶³¡ÂíºÕÊıÆ½·½
-    myfloat ae = sqrt(gamma * p_e / rho_e);// ÄÚµãÉùËÙ
-    myfloat qnf = u_f * nx + v_f * ny;// Ô¶³¡·¨ÏòËÙ¶È
-    myfloat qne = u_e * nx + v_e * ny;// ÄÚµã·¨ÏòËÙ¶È
-    myfloat rf = qnf - 2.0 * af / ga1;// µÚÒ»²¨ÌØÕ÷ R2 = u0n - 2*a0n/(gamma-1)
-    myfloat re = qne + 2.0 * ae / ga1;// µÚ¶ş²¨ÌØÕ÷ u0n - 2*a0n/(gamma-1)
+    myfloat af = sqrt(a2_f);// è¿œåœºå£°é€Ÿ
+    myfloat Ma2_f = (u_f * u_f + v_f * v_f) / a2_f;// è¿œåœºé©¬èµ«æ•°å¹³æ–¹
+    myfloat ae = sqrt(gamma * p_e / rho_e);// å†…ç‚¹å£°é€Ÿ
+    myfloat qnf = u_f * nx + v_f * ny;// è¿œåœºæ³•å‘é€Ÿåº¦
+    myfloat qne = u_e * nx + v_e * ny;// å†…ç‚¹æ³•å‘é€Ÿåº¦
+    myfloat rf = qnf - 2.0 * af / ga1;// ç¬¬ä¸€æ³¢ç‰¹å¾ R2 = u0n - 2*a0n/(gamma-1)
+    myfloat re = qne + 2.0 * ae / ga1;// ç¬¬äºŒæ³¢ç‰¹å¾ u0n - 2*a0n/(gamma-1)
     myfloat qn = 0.5 * (re + rf);
     myfloat as = ga1 * (re - rf) / 4.0;
-    myfloat dnt = 0;// ±ÚÃæÔË¶¯ËÙ¶È
+    myfloat dnt = 0;// å£é¢è¿åŠ¨é€Ÿåº¦
 
-    // ÅĞ¾İ q<=-as£¬³¬ÒôËÙÈë¿Ú£»-as<q<0£¬ÑÇÒôËÙÈë¿Ú£»0<=q<as£¬ÑÇÒôËÙ³ö¿Ú£»as<=q£¬³¬ÒôËÙ³ö¿Ú
+    // åˆ¤æ® q<=-asï¼Œè¶…éŸ³é€Ÿå…¥å£ï¼›-as<q<0ï¼ŒäºšéŸ³é€Ÿå…¥å£ï¼›0<=q<asï¼ŒäºšéŸ³é€Ÿå‡ºå£ï¼›as<=qï¼Œè¶…éŸ³é€Ÿå‡ºå£
     myfloat rho0 = 1, u0 = 0, v0 = 0, p0 = 1;
     if (qn <= -as) {
-        // ³¬ÒôËÙÈë¿Ú
+        // è¶…éŸ³é€Ÿå…¥å£
         rho0 = rho_f;
         u0 = u_f;
         v0 = v_f;
         p0 = p_f;
     }
     else if (qn < 0) {
-        // -as < qn < 0 ×¢ÒâC++ÖĞ²»ÄÜÁ¬ĞøĞ´Ğ¡ÓÚºÅ
-        // ÑÇÒôËÙÈë¿Ú ²ÎÕÕUNITs¡£
-        myfloat son = p_f / pow(rho_f, gamma);// ìØ
+        // -as < qn < 0 æ³¨æ„C++ä¸­ä¸èƒ½è¿ç»­å†™å°äºå·
+        // äºšéŸ³é€Ÿå…¥å£
+        myfloat son = p_f / pow(rho_f, gamma);// ç†µ
         myfloat qtx = u_f - qnf * nx;
         myfloat qty = v_f - qnf * ny;
 
-        rho0 = pow((as * as / son / gamma), 1.0 / ga1);// ¸ù¾İS=p/rho^gammaµÃrho=(p/S)^(1/gamma)=(a2/gamma/S)^(1/gamma)
+        rho0 = pow((as * as / son / gamma), 1.0 / ga1);// æ ¹æ®S=p/rho^gammaå¾—rho=(p/S)^(1/gamma)=(a2/gamma/S)^(1/gamma)
         u0 = qtx + qn * nx;
         v0 = qty + qn * ny;
         p0 = as * as * rho0 / gamma;// p=rho*R*t=rho/gamma*gamma*R*t=rho/gamma*a2
     }
     else if (qn < as) {
         // 0 <= qn < as
-        // ÑÇÒôËÙ³ö¿Ú 
+        // äºšéŸ³é€Ÿå‡ºå£ 
         myfloat son = p_e / pow(rho_e, gamma);
         myfloat qtx = u_e - qne * nx;
         myfloat qty = v_e - qne * ny;
 
-        // ºóÃæ¸úÑÇÒôËÙÈë¿ÚÏàÍ¬
+        // åé¢è·ŸäºšéŸ³é€Ÿå…¥å£ç›¸åŒ
         rho0 = pow((as * as / son / gamma), 1.0 / ga1);
         u0 = qtx + qn * nx;
         v0 = qty + qn * ny;
@@ -153,14 +152,14 @@ __device__ void get_UR_farField_device(const myfloat* U_L, const myfloat* ruvp_i
     }
     else {
         // as <= q
-        // ³¬ÒôËÙ³ö¿Ú
+        // è¶…éŸ³é€Ÿå‡ºå£
         rho0 = rho_e;
         u0 = u_e;
         v0 = v_e;
         p0 = p_e;
     }
     myfloat ruvp0[4]{ rho0,u0,v0,p0 };
-    // ¼ÆËãflux
+    // è®¡ç®—flux
     if (GPU::Space::Restrict::outOfRange_device(ruvp0)) {
         printf("Out of range @get_UR_farField \n");
     }
@@ -169,7 +168,7 @@ __device__ void get_UR_farField_device(const myfloat* U_L, const myfloat* ruvp_i
 
 __device__ void get_UR_inner_and_periodic_device(GPU::ElementSoA& element, GPU::ElementFieldSoA& elementField, GPU::EdgeSoA& edge, myint iEdge, myint iElementR, myfloat x_edge, myfloat y_edge, myfloat* U_R, int inviscid_flux_method_flag_reconstruct, myfloat gamma) {
     if (edge.setID[iEdge] != -1) {
-        // ÖÜÆÚ±ß½ç Ó¦Ê¹ÓÃ¶Ô³ÆµÄedgeµÄ×ø±ê¼ÆËãUÖµ
+        // å‘¨æœŸè¾¹ç•Œ åº”ä½¿ç”¨å¯¹ç§°çš„edgeçš„åæ ‡è®¡ç®—Uå€¼
         int ID = edge.ID[iEdge];
         int ID_pair = edge.periodicPair[ID];
         if (ID_pair < 0 || ID_pair >= edge.num_edge) {
@@ -182,14 +181,14 @@ __device__ void get_UR_inner_and_periodic_device(GPU::ElementSoA& element, GPU::
         get_Uvector_reconstruct_2_device(element, elementField, x_edge_pair, y_edge_pair, iElementR, U_R, inviscid_flux_method_flag_reconstruct, gamma);
     }
     else {
-        // ÄÚ²¿±ß½ç
+        // å†…éƒ¨è¾¹ç•Œ
         get_Uvector_reconstruct_2_device(element, elementField, x_edge, y_edge, iElementR, U_R, inviscid_flux_method_flag_reconstruct, gamma);
     }
 
 }
 
 __device__ void get_flux_RiemannSolve_device(const myfloat* UL, const myfloat* UR, const myfloat nx, const myfloat ny, const myfloat length, myfloat* flux, const int flux_conservation_scheme, myfloat gamma, myfloat rcpcv) {
-    // ÀèÂüÇó½âÆ÷£¬¸ù¾İUL¡¢URÇó½âflux
+    // é»æ›¼æ±‚è§£å™¨ï¼Œæ ¹æ®ULã€URæ±‚è§£flux
     myfloat faceNormal[2]{ nx,ny };
 
     switch (flux_conservation_scheme) {// GlobalPara::inviscid_flux_method::flux_conservation_scheme
@@ -213,10 +212,10 @@ __global__ void edge_convection_flux_device_kernel(GPU::ElementSoA element_devic
     const int iEdge = blockIdx.x * blockDim.x + threadIdx.x;
     if (iEdge >= edge_device.num_edge || iEdge < 0) return;
 
-    int setID = edge_device.setID[iEdge];// ÄÚ²¿edge²»ÊôÓÚÈÎºÎset£¬Òò´ËsetIDÎª-1 setIDµÄ³õÊ¼»¯¼ûreadContinueFile
+    int setID = edge_device.setID[iEdge];// å†…éƒ¨edgeä¸å±äºä»»ä½•setï¼Œå› æ­¤setIDä¸º-1 setIDçš„åˆå§‹åŒ–è§readContinueFile
     int bType = -1;
     if (setID != -1) {
-        // µÚiedge¸öedgeµÄ±ß½çÀàĞÍ
+        // ç¬¬iedgeä¸ªedgeçš„è¾¹ç•Œç±»å‹
         bType = boundary_device.type[setID - 1];
     }
 
@@ -236,31 +235,31 @@ __global__ void edge_convection_flux_device_kernel(GPU::ElementSoA element_devic
 
     switch (bType) {
     case _BC_symmetry:
-        // ¶Ô³Æ¡£¶ÔÅ·À­·½³Ì£¬Ïàµ±ÓÚÎŞÕ³¹Ì±Ú
+        // å¯¹ç§°ã€‚å¯¹æ¬§æ‹‰æ–¹ç¨‹ï¼Œç›¸å½“äºæ— ç²˜å›ºå£
         get_UR_wallNonViscous_device(U_L, U_R, nx, ny);
         break;
     case _BC_wall_nonViscous:
-        // ÎŞÕ³¹Ì±Ú
+        // æ— ç²˜å›ºå£
         get_UR_wallNonViscous_device(U_L, U_R, nx, ny);
         break;
     case _BC_wall_adiabat:
-        // ÎŞ»¬ÒÆ¾øÈÈ
+        // æ— æ»‘ç§»ç»çƒ­
         get_UR_wall_adiabat_device(U_L, U_R, nx, ny);
         break;
     case _BC_inlet:
-        // Èë¿Ú
+        // å…¥å£
         get_UR_farField_device(U_L, inlet_ruvp, U_R, nx, ny, gamma);
         break;
     case _BC_outlet:
-        // ³ö¿Ú
+        // å‡ºå£
         get_UR_farField_device(U_L, outlet_ruvp, U_R, nx, ny, gamma);
         break;
     case _BC_inf:
-        // Ô¶³¡
+        // è¿œåœº
         get_UR_farField_device(U_L, inf_ruvp, U_R, nx, ny, gamma);
         break;
     case _BC_doubleShockReflect:
-        // Ë«ÂíºÕ·´Éä
+        // åŒé©¬èµ«åå°„
         if (isUpStream_doubleShockReflect) {
             get_UR_farField_device(U_L, inlet_ruvp, U_R, nx, ny, gamma);
         }
@@ -269,9 +268,9 @@ __global__ void edge_convection_flux_device_kernel(GPU::ElementSoA element_devic
         }
         break;
 
-    default:// ÄÚ²¿£ºbType=-1£¬±ß½ç£ºbTypeÈ¡_BC_periodic_0µ½_BC_periodic_9£¬¼´6100-6109
+    default:// å†…éƒ¨ï¼šbType=-1ï¼Œè¾¹ç•Œï¼šbTypeå–_BC_periodic_0åˆ°_BC_periodic_9ï¼Œå³6100-6109
         if (iElementR != -1) {
-            // ÖÜÆÚºÍÄÚ²¿ Í³Ò»´¦Àí
+            // å‘¨æœŸå’Œå†…éƒ¨ ç»Ÿä¸€å¤„ç†
             get_UR_inner_and_periodic_device(element_device, elementField_device, edge_device, iEdge, iElementR, x_edge, y_edge, U_R, inviscid_flux_method_flag_reconstruct, gamma);
         }
     }
@@ -288,30 +287,30 @@ __global__ void add_edge_flux_to_element_flux_kernel(GPU::ElementSoA element_dev
     const int iElement = blockIdx.x * blockDim.x + threadIdx.x;
     if (iElement >= element_device.num_element || iElement < 0) return;
 
-    myfloat volumeC = element_device.volume[iElement];// Ìå»ı
-    // ³õÊ¼»¯edgeID ³¬³öÊı×é·¶Î§µÄ·Ç·¨Öµ¸³Îª-1
-    int edgeID[4]{ -1,-1,-1,-1 };// µÚiElement¸öelementµÄµÚiÌõ±ßµÄID
+    myfloat volumeC = element_device.volume[iElement];// ä½“ç§¯
+    // åˆå§‹åŒ–edgeID è¶…å‡ºæ•°ç»„èŒƒå›´çš„éæ³•å€¼èµ‹ä¸º-1
+    int edgeID[4]{ -1,-1,-1,-1 };// ç¬¬iElementä¸ªelementçš„ç¬¬iæ¡è¾¹çš„ID
     for (int i = 0; i < 4; i++) {
         edgeID[i] = element_device.edges[i][iElement];
         if (edgeID[i] < 0 || edgeID[i] >= edge_device.num_edge) { // has: iEdge >= 0 && iEdge < num_edge
             edgeID[i] = -1;
         }
     }
-    // ³õÊ¼»¯±ß³¯ÏòedgeSign
-    int edgeSign[4]{ 0,0,0,0 };// 1±íÊ¾±ß³¯Íâ£¬-1±íÊ¾±ß³¯ÄÚ
+    // åˆå§‹åŒ–è¾¹æœå‘edgeSign
+    int edgeSign[4]{ 0,0,0,0 };// 1è¡¨ç¤ºè¾¹æœå¤–ï¼Œ-1è¡¨ç¤ºè¾¹æœå†…
     for (int i = 0; i < 4; i++) {
         int edgeIDi = edgeID[i];
         if (edgeIDi == -1) {
             continue;
         }
         if (iElement != edge_device.elementR[edgeIDi]) {
-            edgeSign[i] = 1;// currentElement=elementL£¬³¯Íâ
+            edgeSign[i] = 1;// currentElement=elementLï¼Œæœå¤–
         }
         else {
-            edgeSign[i] = -1;// currentElement=elementR£¬³¯ÄÚ
+            edgeSign[i] = -1;// currentElement=elementRï¼Œæœå†…
         }
     }
-    // ¸ù¾İ±ß³¯Ïò£¬¼Ó¼õµ½ÖĞĞÄµ¥Ôª¡£ÏòÍâÎª¼Ó£¬ÏòÄÚÎª¼õ
+    // æ ¹æ®è¾¹æœå‘ï¼ŒåŠ å‡åˆ°ä¸­å¿ƒå•å…ƒã€‚å‘å¤–ä¸ºåŠ ï¼Œå‘å†…ä¸ºå‡
     for (int i = 0; i < 4; i++) {
         int edgeIDi = edgeID[i];
         if (edgeIDi == -1) {
@@ -323,7 +322,7 @@ __global__ void add_edge_flux_to_element_flux_kernel(GPU::ElementSoA element_dev
     }
 }
 
-// ¼ÆËãÎŞÕ³Í¨Á¿
+// è®¡ç®—æ— ç²˜é€šé‡
 void edge_convection_flux_device() {
     GPU::GPUSolver2* solver = SolverDataGetter::getSolverInstance();
     GPU::ElementSoA& element_device = solver->element_device;
@@ -345,7 +344,7 @@ void edge_convection_flux_device() {
     cudaMemcpy(outlet_ruvp, GlobalPara::boundaryCondition::_2D::outlet::ruvp, 4 * sizeof(myfloat), cudaMemcpyHostToDevice);
     myfloat gamma = GlobalPara::constant::gamma;
     myfloat rcpcv = GlobalPara::constant::R;
-    // ÒÔÏÂÎªË«ÂíºÕ·´ÉäµÄ³ÉÔ±º¯Êı
+    // ä»¥ä¸‹ä¸ºåŒé©¬èµ«åå°„çš„æˆå‘˜å‡½æ•°
     CBoundaryDoubleShockReflect* cbdsr = CBoundaryDoubleShockReflect::getInstance();
     myfloat dsr_shock_x = cbdsr->get_shock_x();
     myfloat dsr_shock_y = cbdsr->get_shock_y();
@@ -383,7 +382,7 @@ void add_edge_flux_to_element_flux_device() {
 void GPU::Space::Flux::calculateFluxDevice_2(ElementSoA& element_device, EdgeSoA& edge_device, ElementFieldSoA& elementField_device) {
     /*
     https://forums.developer.nvidia.com/t/synchronization-between-kernel-calls/23336
-    Á½´ÎºËº¯Êıµ÷ÓÃÖ®¼äÎŞĞè¼ÓcudaDeviceSynchronize().
+    ä¸¤æ¬¡æ ¸å‡½æ•°è°ƒç”¨ä¹‹é—´æ— éœ€åŠ cudaDeviceSynchronize().
     */
 
     clear_element_flux_device();

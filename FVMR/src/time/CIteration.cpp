@@ -14,7 +14,7 @@
 
 void constPointerTest() {
     /*
-    Ñ§Ï°constºÍÖ¸ÕëĞŞÊÎ·ûµÄÊ¹ÓÃ¡£Ïê¼ûREADME(05-17)
+    å­¦ä¹ constå’ŒæŒ‡é’ˆä¿®é¥°ç¬¦çš„ä½¿ç”¨ã€‚è¯¦è§README(05-17)
     */
     const int a = 10;
     int b = 20;
@@ -30,39 +30,39 @@ void CIteration::iteration_host(myfloat& t, myfloat T, GPU::GPUSolver2* s) {
     update_host_ruvp_Uold(s->elementField_host.U, s->elementField_host.ruvp, s->elementField_host.Uold, s->elementField_host.num, GlobalPara::constant::gamma);
 
     /*
-    Ê±¼äÍÆ½ø
-    ¶¨³££¬²ÉÓÃ¾Ö²¿Ê±¼äÍÆ½ø£¬t¡¢TÎŞĞ§
-    ·Ç¶¨³££¬²ÉÓÃÕûÌåÊ±¼äÍÆ½ø£¬ĞèÒª¸Ä±ätµÄÖµ¡£Ê×ÏÈ¼ÆËãÔÊĞíµÄ×î´ódt£¬È»ºóÍÆ½ø¡£¿É²ÉÓÃRK1»òRK3
+    æ—¶é—´æ¨è¿›
+    å®šå¸¸ï¼Œé‡‡ç”¨å±€éƒ¨æ—¶é—´æ¨è¿›ï¼Œtã€Tæ— æ•ˆ
+    éå®šå¸¸ï¼Œé‡‡ç”¨æ•´ä½“æ—¶é—´æ¨è¿›ï¼Œéœ€è¦æ”¹å˜tçš„å€¼ã€‚é¦–å…ˆè®¡ç®—å…è®¸çš„æœ€å¤§dtï¼Œç„¶åæ¨è¿›ã€‚å¯é‡‡ç”¨RK1æˆ–RK3
     */
     using namespace U2NITS::Time;
     bool is_steady = GlobalPara::time::is_steady;
     bool is_explicit = GlobalPara::time::is_explicit;
     int temporal_choice = GlobalPara::time::time_advance;
 
-    // ¶¨³£
+    // å®šå¸¸
     if (is_steady) {
 
-        // ¼ÆËã¾Ö²¿Ê±¼ä²½³¤dt(Î»ÓÚelementFieldVariable_dt_host.alphaCÊı×é)
+        // è®¡ç®—å±€éƒ¨æ—¶é—´æ­¥é•¿dt(ä½äºelementFieldVariable_dt_host.alphaCæ•°ç»„)
         get_local_dt_host(GlobalPara::constant::gamma, GlobalPara::constant::Pr, GlobalPara::time::CFL, GlobalPara::constant::R, s->elementFieldVariable_dt_host, s->element_host, s->edge_host, s->elementField_host, GlobalPara::physicsModel::equation);
-        // ¸üĞÂt
-        t += s->elementFieldVariable_dt_host.alphaC[0];// ¸Ä±ätÊÇÎªÁËÊä³ötecplotÊ±ÄÜ¹»ÒÔĞòÁĞµÄ·½Ê½¶ÁÈ¡£¬·½±ã¹Û²ì¶¯»­ÒÔ½øĞĞµ÷ÊÔ
-        // ¼ÆËã²ĞÖµ¡¢Ê±¼äÍÆ½ø
+        // æ›´æ–°t
+        t += s->elementFieldVariable_dt_host.alphaC[0];// æ”¹å˜tæ˜¯ä¸ºäº†è¾“å‡ºtecplotæ—¶èƒ½å¤Ÿä»¥åºåˆ—çš„æ–¹å¼è¯»å–ï¼Œæ–¹ä¾¿è§‚å¯ŸåŠ¨ç”»ä»¥è¿›è¡Œè°ƒè¯•
+        // è®¡ç®—æ®‹å€¼ã€æ—¶é—´æ¨è¿›
         evolve_explicit_localtimestep(s->element_host, s->node_host, s->edge_host, s->elementField_host, s->elementFieldVariable_dt_host);
 
 
     }
-    // ·Ç¶¨³£
+    // éå®šå¸¸
     else {
-        // ¼ÆËãÈ«¾ÖÊ±¼ä²½³¤dt
+        // è®¡ç®—å…¨å±€æ—¶é—´æ­¥é•¿dt
         myfloat dt = U2NITS::Time::get_global_dt_host(GlobalPara::constant::gamma, GlobalPara::constant::Pr, GlobalPara::time::CFL,
             GlobalPara::constant::R, s->elementFieldVariable_dt_host, s->element_host, s->edge_host, s->elementField_host, GlobalPara::physicsModel::equation);
         if (t + dt > T)dt = T - t;
-        // Ë«ÂíºÕ·´Éä´æt£¬ÓÃÓÚºóÃæ¼ÆËã±ß½çÌõ¼şµÄÀíÂÛ¼¤²¨Î»ÖÃ
+        // åŒé©¬èµ«åå°„å­˜tï¼Œç”¨äºåé¢è®¡ç®—è¾¹ç•Œæ¡ä»¶çš„ç†è®ºæ¿€æ³¢ä½ç½®
         CBoundaryDoubleShockReflect::getInstance()->set_t(t);
         CBoundaryDoubleShockReflect::getInstance()->set_dt(0.0);
-        // ¸üĞÂt
+        // æ›´æ–°t
         t += dt;
-        // ¼ÆËã²ĞÖµ¡¢Ê±¼äÍÆ½ø
+        // è®¡ç®—æ®‹å€¼ã€æ—¶é—´æ¨è¿›
         switch (temporal_choice) {
         case _EVO_explicit:
             evolve_explicit_globaltimestep(dt, s->element_host, s->node_host, s->edge_host, s->elementField_host);
@@ -79,9 +79,16 @@ void CIteration::iteration_host(myfloat& t, myfloat T, GPU::GPUSolver2* s) {
     U2NITS::Space::Restrict::modifyElementFieldU2d(s->element_host, s->elementField_host);
 }
 
-void CIteration::iteration_device_20240517(myfloat& t, myfloat T, GPU::GPUSolver2* s) {
+/// <summary>
+/// #### Call
+/// - @ref GPU::Time::get_global_dt_device -  get global time step
+/// - @ref GPU::Time::evolve_explicit_globaltimestep_device - evolve
+/// </summary>
+/// <param name="t">time</param>
+/// <param name="T">total time</param>
+void CIteration::iteration_device(myfloat& t, myfloat T, GPU::GPUSolver2* s) {
     // updated: 2024-05-17
-    constexpr bool debug_host_on = false;// ÊÇ·ñ¿ªÆôhost½øĞĞµ÷ÊÔ£¬¶Ô±Èreduce½á¹û
+    constexpr bool debug_host_on = false;// æ˜¯å¦å¼€å¯hostè¿›è¡Œè°ƒè¯•ï¼Œå¯¹æ¯”reduceç»“æœ
     if (debug_host_on) {
         update_host_ruvp_Uold(s->elementField_host.U, s->elementField_host.ruvp, s->elementField_host.Uold, s->elementField_host.num, GlobalPara::constant::gamma);
     }
@@ -96,41 +103,41 @@ void CIteration::iteration_device_20240517(myfloat& t, myfloat T, GPU::GPUSolver
         exit(-1);
     };
 
-    // ¶¨³£
+    // å®šå¸¸
     if (is_steady) {
         //func_unimplemented("steady");
         myfloat dt = 0.0;
-        // ¼ÆËã¾Ö²¿Ê±¼ä²½³¤dt(Î»ÓÚelementFieldVariable_dt_host.alphaCÊı×é)
+        // è®¡ç®—å±€éƒ¨æ—¶é—´æ­¥é•¿dt(ä½äºelementFieldVariable_dt_host.alphaCæ•°ç»„)
         GPU::Time::get_local_dt_device(GlobalPara::constant::gamma, GlobalPara::constant::Re, GlobalPara::constant::Pr, GlobalPara::time::CFL,
             GlobalPara::constant::R, s->elementFieldVariable_dt_device, s->element_device, s->edge_device, s->elementField_device, GlobalPara::physicsModel::equation);
-        // ¸üĞÂt£¬È¡elementFieldVariable_dt_device.alphaC[0]¡£
+        // æ›´æ–°tï¼Œå–elementFieldVariable_dt_device.alphaC[0]ã€‚
         cudaMemcpy(&dt, s->elementFieldVariable_dt_device.alphaC, sizeof(myfloat), cudaMemcpyDeviceToHost);
-        t += dt;// ¶¨³£t±¾ÎŞÒâÒå£¬¸Ä±ätÊÇÎªÁËÊä³ötecplotÊ±ÄÜ¹»ÒÔĞòÁĞµÄ·½Ê½¶ÁÈ¡£¬·½±ã¹Û²ì¶¯»­ÒÔ½øĞĞµ÷ÊÔ
-        // ¼ÆËã²ĞÖµ¡¢Ê±¼äÍÆ½ø
+        t += dt;// å®šå¸¸tæœ¬æ— æ„ä¹‰ï¼Œæ”¹å˜tæ˜¯ä¸ºäº†è¾“å‡ºtecplotæ—¶èƒ½å¤Ÿä»¥åºåˆ—çš„æ–¹å¼è¯»å–ï¼Œæ–¹ä¾¿è§‚å¯ŸåŠ¨ç”»ä»¥è¿›è¡Œè°ƒè¯•
+        // è®¡ç®—æ®‹å€¼ã€æ—¶é—´æ¨è¿›
         GPU::Time::evolve_explicit_localtimestep_device(s->element_device, s->node_device, s->edge_device, s->elementField_device, s->elementFieldVariable_dt_device);
     }
-    // ·Ç¶¨³£
+    // éå®šå¸¸
     else {
-        // ¼ÆËãÈ«¾ÖÊ±¼ä²½³¤dt
+        // è®¡ç®—å…¨å±€æ—¶é—´æ­¥é•¿dt
         myfloat dt = 0.0;
         if (debug_host_on) {
-            // µ÷ÊÔÄ£Ê½£¬ÓÃhost¼ÆËã
+            // è°ƒè¯•æ¨¡å¼ï¼Œç”¨hostè®¡ç®—
             dt = U2NITS::Time::get_global_dt_host(GlobalPara::constant::gamma, GlobalPara::constant::Pr, GlobalPara::time::CFL,
                 GlobalPara::constant::R, s->elementFieldVariable_dt_host, s->element_host, s->edge_host, s->elementField_host, GlobalPara::physicsModel::equation);
         }
         else {
-            // device¼ÆËã
+            // deviceè®¡ç®—
             GPU::Time::get_global_dt_device(GlobalPara::constant::gamma, GlobalPara::constant::Re, GlobalPara::constant::Pr, GlobalPara::time::CFL,
                 GlobalPara::constant::R, s->elementFieldVariable_dt_device, s->element_device, s->edge_device, s->elementField_device, GlobalPara::physicsModel::equation);
             cudaMemcpy(&dt, s->elementFieldVariable_dt_device.dev_output, sizeof(myfloat), cudaMemcpyDeviceToHost);
         }
         if (t + dt > T)dt = T - t;
-        // Ë«ÂíºÕ·´Éä´æt£¬ÓÃÓÚºóÃæ¼ÆËã±ß½çÌõ¼şµÄÀíÂÛ¼¤²¨Î»ÖÃ
+        // åŒé©¬èµ«åå°„å­˜tï¼Œç”¨äºåé¢è®¡ç®—è¾¹ç•Œæ¡ä»¶çš„ç†è®ºæ¿€æ³¢ä½ç½®
         CBoundaryDoubleShockReflect::getInstance()->set_t(t);
         CBoundaryDoubleShockReflect::getInstance()->set_dt(0.0);
-        // ¸üĞÂt
+        // æ›´æ–°t
         t += dt;
-        // ¼ÆËã²ĞÖµ¡¢Ê±¼äÍÆ½ø
+        // è®¡ç®—æ®‹å€¼ã€æ—¶é—´æ¨è¿›
         switch (temporal_choice) {
         case _EVO_explicit:
             GPU::Time::evolve_explicit_globaltimestep_device(dt, s->element_device, s->node_device, s->edge_device, s->elementField_device);
@@ -145,7 +152,7 @@ void CIteration::iteration_device_20240517(myfloat& t, myfloat T, GPU::GPUSolver
         GPU::Space::Restrict::modifyElementFieldU2d_device(s->element_device, s->elementField_device, GlobalPara::constant::gamma);
 
         if (debug_host_on) {
-            // device to host¡£¸Ãº¯Êı½öÔÚ²âÊÔ¹æÔ¼º¯ÊıÕıÈ·ĞÔÊ±¿ªÆô¡£Õı³£Çé¿öÏÂÎŞĞèÃ¿²½¶¼¿½±´
+            // device to hostã€‚è¯¥å‡½æ•°ä»…åœ¨æµ‹è¯•è§„çº¦å‡½æ•°æ­£ç¡®æ€§æ—¶å¼€å¯ã€‚æ­£å¸¸æƒ…å†µä¸‹æ— éœ€æ¯æ­¥éƒ½æ‹·è´
             GPU::ElementFieldSoA::cuda_memcpy(&s->elementField_host, &s->elementField_device, cudaMemcpyDeviceToHost);
         }
     }
@@ -155,15 +162,15 @@ void CIteration::iteration_device_20240517(myfloat& t, myfloat T, GPU::GPUSolver
 
 void CIteration::update_host_ruvp_Uold(const myfloat* const U[4], myfloat* ruvp[4], myfloat* U_old[4], myint num, myfloat gamma) {
     /*
-    ÓÃU¸üĞÂelement_vruvp.element_vruvpÓÃÓÚ¼ÆËãÊ±¼ä²½³¤DtÒÔ¼°Êä³öÁ÷³¡
+    ç”¨Uæ›´æ–°element_vruvp.element_vruvpç”¨äºè®¡ç®—æ—¶é—´æ­¥é•¿Dtä»¥åŠè¾“å‡ºæµåœº
     U:rho,rho_u,rho_v,rho_E ruvp:rho,u,v,p
     */
     for (int i = 0; i < num; i++) {
-        // ¸üĞÂhost¶ËµÄU_old
+        // æ›´æ–°hostç«¯çš„U_old
         for (int j = 0; j < 4; j++) {
             U_old[j][i] = U[j][i];
         }
-        // ¸üĞÂhost¶ËµÄruvp  
+        // æ›´æ–°hostç«¯çš„ruvp  
         ruvp[0][i] = U[0][i];
         ruvp[1][i] = U[1][i] / U[0][i];
         ruvp[2][i] = U[2][i] / U[0][i];

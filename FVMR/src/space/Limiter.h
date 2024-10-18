@@ -3,10 +3,10 @@
 #include <iostream>
 #include "../gpu/datatype/DefineType.h"
 /*
-[±ğÉ¾]
-ÕâÊÇÒÅÁô´úÂë¡£²¿·ÖÏŞÖÆÆ÷(barth)ÒÑ¾­×ªÒÆÖÁGradient.cppÖĞ
-TVD»¹Ã»×ªÒÆ
-Èç¹ûÉ¾ÁËµÄ»°£¬ÒÔºóÔÙĞ´TVDLimiterÓÖÒªÖØĞÂ²éÒ»±é
+[åˆ«åˆ ]
+è¿™æ˜¯é—ç•™ä»£ç ã€‚éƒ¨åˆ†é™åˆ¶å™¨(barth)å·²ç»è½¬ç§»è‡³Gradient.cppä¸­
+TVDè¿˜æ²¡è½¬ç§»
+å¦‚æœåˆ äº†çš„è¯ï¼Œä»¥åå†å†™TVDLimiteråˆè¦é‡æ–°æŸ¥ä¸€é
 */
 
 class Element_2D;

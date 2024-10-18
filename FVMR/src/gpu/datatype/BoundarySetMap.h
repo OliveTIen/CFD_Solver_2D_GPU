@@ -5,7 +5,7 @@
 #include "../Env.h"
 namespace GPU {
 	/*
-	´æ´¢´Ó±ß½çIDµ½±ß½çÀàĞÍtypeµÄÓ³Éä¡£²»´æ´¢¾ßÌåÓĞÄÄĞ©edge
+	å­˜å‚¨ä»è¾¹ç•ŒIDåˆ°è¾¹ç•Œç±»å‹typeçš„æ˜ å°„ã€‚ä¸å­˜å‚¨å…·ä½“æœ‰å“ªäº›edge
 	*/
 	struct BoundarySetMap {
 	public:
@@ -13,29 +13,29 @@ namespace GPU {
 
 		myint* type = nullptr;
 
-		// ÒÔÏÂÁ½¸ö´ıÍê³É¡£´æ´¢¸÷¸ö±ß½çÓĞÄÄĞ©edge¡£±ãÓÚ±éÀú±ß½ç±ß£¬½ø¶ø»ı·ÖÆø¶¯Á¦
+		// ä»¥ä¸‹ä¸¤ä¸ªå¾…å®Œæˆã€‚å­˜å‚¨å„ä¸ªè¾¹ç•Œæœ‰å“ªäº›edgeã€‚ä¾¿äºéå†è¾¹ç•Œè¾¹ï¼Œè¿›è€Œç§¯åˆ†æ°”åŠ¨åŠ›
 		//myint* numOfEdge = nullptr;
 		//myint** edge = nullptr;
 
-		// Ö÷ÒªÊÇÈç¹ûÒªÓÃÖ¸Õë£¬´«²Î±È½ÏÂé·³£¬¼ÈÒª´«num of boundary set£¬ÓÖÒª´«Ã¿¸ösetµÄedgeµÄÊıÁ¿¡£µ«ÊÇ
-		// ÎÒ²»ÏëÁ¢¿ÌÉêÇëedgeÊıÁ¿µÄÄÚ´æ£¬ÏëµÈµ½¸´ÖÆÊ±ÔÙ´«¡£
-		// Ä¿Ç°µÄÍ×Ğ­·½Ê½ÊÇÏÈÓÃBoundaryManager_2D
+		// ä¸»è¦æ˜¯å¦‚æœè¦ç”¨æŒ‡é’ˆï¼Œä¼ å‚æ¯”è¾ƒéº»çƒ¦ï¼Œæ—¢è¦ä¼ num of boundary setï¼Œåˆè¦ä¼ æ¯ä¸ªsetçš„edgeçš„æ•°é‡ã€‚ä½†æ˜¯
+		// æˆ‘ä¸æƒ³ç«‹åˆ»ç”³è¯·edgeæ•°é‡çš„å†…å­˜ï¼Œæƒ³ç­‰åˆ°å¤åˆ¶æ—¶å†ä¼ ã€‚
+		// ç›®å‰çš„å¦¥åæ–¹å¼æ˜¯å…ˆç”¨BoundaryManager_2D
 
 		/*
-		ĞèÇó£º
-		BoundarySetMap´æ´¢std::vectorÊı×é
+		éœ€æ±‚ï¼š
+		BoundarySetMapå­˜å‚¨std::vectoræ•°ç»„
 
 
-		ÎÊÌâ£ºÈç¹ûÓÃstd::vector£¬¼ÆËãÍ¨Á¿Ê±£¬ÒÑÖªedge£¬ÈçºÎ»ñÈ¡ËùÊô±ß½çÀàĞÍ£¿
-		´ğ°¸£ºÒÑ¾­ÔÚedge_hostÖĞ´æ´¢ÁËsetID£¬
-			ÏÈÓÃ²éÑ¯edge_host»ñÈ¡setID£º
+		é—®é¢˜ï¼šå¦‚æœç”¨std::vectorï¼Œè®¡ç®—é€šé‡æ—¶ï¼Œå·²çŸ¥edgeï¼Œå¦‚ä½•è·å–æ‰€å±è¾¹ç•Œç±»å‹ï¼Ÿ
+		ç­”æ¡ˆï¼šå·²ç»åœ¨edge_hostä¸­å­˜å‚¨äº†setIDï¼Œ
+			å…ˆç”¨æŸ¥è¯¢edge_hostè·å–setIDï¼š
 			int setID = edge_host.setID[iedge];
-			ÔÙÓÃsetID»ñÈ¡±ß½çÀàĞÍ£º
+			å†ç”¨setIDè·å–è¾¹ç•Œç±»å‹ï¼š
 			bType = f->boundaryManager.boundaries[setID - 1].type;
 		
-		ÎÊÌâ£ºÈç¹ûÓÃstd::vector£¬GPUÈçºÎ´«²Î£¿
-		´ğ°¸£ºGPUÖĞ¿ÉÒÔÓÃthrust::vector
-			ÏÈ²»¹ÜGPU£¬Ö»ÓÃCPU
+		é—®é¢˜ï¼šå¦‚æœç”¨std::vectorï¼ŒGPUå¦‚ä½•ä¼ å‚ï¼Ÿ
+		ç­”æ¡ˆï¼šGPUä¸­å¯ä»¥ç”¨thrust::vector
+			å…ˆä¸ç®¡GPUï¼Œåªç”¨CPU
 		*/
 	public:
 		void alloc(myint _size) {

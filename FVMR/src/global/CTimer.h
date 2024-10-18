@@ -7,7 +7,7 @@ private:
 
 public:
 	CTimer() { start(); }
-	// 重设起始时间
+	// 閲嶈璧峰鏃堕棿
 	void start() {
 		m_clock = clock();
 	}

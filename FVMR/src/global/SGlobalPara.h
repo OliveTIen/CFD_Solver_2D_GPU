@@ -9,16 +9,16 @@ namespace SGlobalPara {
 		/* struct type */
 
 		struct Constant {
-			double const R = 287.06;// ÆøÌå³£Êı
+			double const R = 287.06;// æ°”ä½“å¸¸æ•°
 			double const PI = 3.1415926535897;
-			double T0 = 288.16;// º£Æ½ÃæÎÂ¶È²Î¿¼Öµ
-			double p0 = 101325.0;// º£Æ½ÃæÑ¹Á¦²Î¿¼Öµ
-			double c0 = 340.28;// º£Æ½ÃæÉùËÙ²Î¿¼Öµ
+			double T0 = 288.16;// æµ·å¹³é¢æ¸©åº¦å‚è€ƒå€¼
+			double p0 = 101325.0;// æµ·å¹³é¢å‹åŠ›å‚è€ƒå€¼
+			double c0 = 340.28;// æµ·å¹³é¢å£°é€Ÿå‚è€ƒå€¼
 			double gamma = 1.4;
 			double epsilon = 1e-7;
 			double Re = 1.0e8;
 			double Pr = 0.73;
-			double mu = 17.9e-6;// ¿ÕÆø¶¯Á¦Õ³ĞÔÏµÊı
+			double mu = 17.9e-6;// ç©ºæ°”åŠ¨åŠ›ç²˜æ€§ç³»æ•°
 
 			void initialize(double _T0, double _p0, double _c0, double _gamma, double _epsilon, double _Re, double _Pr, double _mu) {
 				T0 = _T0;
@@ -54,7 +54,7 @@ namespace SGlobalPara {
 			double residual = 1e-7;
 			int time_advance = _EVO_explicit;
 
-			// ÒÔÏÂÊı¾İ´ÓContinueFileÖĞ¶ÁÈ¡£¬²»ÊÇToml
+			// ä»¥ä¸‹æ•°æ®ä»ContinueFileä¸­è¯»å–ï¼Œä¸æ˜¯Toml
 			double t_previous = 0;
 			int istep_previous = 0;
 		};
@@ -66,7 +66,7 @@ namespace SGlobalPara {
 		struct SingleBC_2D {
 			bool use_ruvp = 0;
 			double Ma = 0.8;
-			double AOA = 1.25;//Ó­½Ç
+			double AOA = 1.25;//è¿è§’
 			double ruvp[4]{ 1,1,0,1 };
 		};
 
@@ -90,7 +90,7 @@ namespace SGlobalPara {
 		};
 
 		struct InviscidFluxMethod {
-			int flux_conservation_scheme = _SOL_Roe;// ÀèÂüÇó½âÆ÷
+			int flux_conservation_scheme = _SOL_Roe;// é»æ›¼æ±‚è§£å™¨
 			int flux_limiter = _LIM_minmod;
 		};
 

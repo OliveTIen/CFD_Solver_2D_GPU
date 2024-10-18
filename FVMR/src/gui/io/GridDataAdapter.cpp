@@ -26,8 +26,8 @@ void GridDataAdapter::readData(const std::string& filepath) {
 		vertices[i].z = nodes[i].y;// exchange y z
 		vertices[i].y = 0;
 	}
-	//// ����ʱʵ�����ǰ���ÿ���������һ���������Ƶģ���һ����Ҫ�ĸ��ĸ���ȥ���
-	// ֻ�Ƕ��ڽṹ���񣬻�������������ȽϺÿ������԰����ĸ��ĸ������
+	//// 绘制时实际上是按照每两个点组成一条边来绘制的，不一定非要四个四个地去填充
+	// 只是对于结构网格，绘制正方形网格比较好看，所以按照四个四个地填充
 	// 1--2    12,23; 31,12
 	// | /
 	// |/

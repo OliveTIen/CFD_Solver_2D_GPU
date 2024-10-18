@@ -10,9 +10,9 @@ namespace GPU {
 		};
 
 
-		// ¹æÔ¼ÔËËã£¬½á¹û´æÈëdev_output[0]¡£
-		// n_dev_input: dev_inputÊı×é´óĞ¡£¬±ØĞëÎª2µÄÃİ¡£dev_outputÊı×é´óĞ¡ÖÁÉÙÎªceil(n/block_size)
-		// p_func_deviceÒªÇóÊÇÓĞ__device__±ê¼ÇµÄº¯ÊıÖ¸Õë£¬ÀıÈç__device__ func_bin_myfloat p_operator_min = operator_min; Ä¿Ç°Èç¹ûÖ±½Ó´«²ÎÓĞÎÊÌâ(cuda error 13)
+		// è§„çº¦è¿ç®—ï¼Œç»“æœå­˜å…¥dev_output[0]ã€‚
+		// n_dev_input: dev_inputæ•°ç»„å¤§å°ï¼Œå¿…é¡»ä¸º2çš„å¹‚ã€‚dev_outputæ•°ç»„å¤§å°è‡³å°‘ä¸ºceil(n/block_size)
+		// p_func_deviceè¦æ±‚æ˜¯æœ‰__device__æ ‡è®°çš„å‡½æ•°æŒ‡é’ˆï¼Œä¾‹å¦‚__device__ func_bin_myfloat p_operator_min = operator_min; ç›®å‰å¦‚æœç›´æ¥ä¼ å‚æœ‰é—®é¢˜(cuda error 13)
 		void reduce_device(const myint n_dev_input, myfloat* dev_input, myfloat* dev_output, bool debug_info, ReduceType reduceType);
 	}
 }

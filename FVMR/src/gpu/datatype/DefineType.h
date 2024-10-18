@@ -2,18 +2,18 @@
 #define DEFINE_TYPE_H
 
 // define data type
-// typedef×÷ÓÃÓò½öÏŞÎÄ¼ş£¬¶øºê(#define REAL double)×÷ÓÃÓÚÈ«¾Ö¡£
-// ¿ÉÒÔ¶à´ÎÊ¹ÓÃtypedef double REAL£¬Ö»Òª»ùÀàĞÍ¶¼ÊÇdouble
-// µ« typedef double REALºÍtypedef float REALÒ»ÆğÓÃ»á±¨´íÖØ¶¨Òå
-// usingÓëtypedef²î²»¶à£¬µ«¸³ÖµµÄ·½Ê½¸ü·ûºÏÖ±¾õ£»´ËÍâusing¿ÉÒÔ¸øÄ£°åÆğ±ğÃû
+// typedefä½œç”¨åŸŸä»…é™æ–‡ä»¶ï¼Œè€Œå®(#define REAL double)ä½œç”¨äºå…¨å±€ã€‚
+// å¯ä»¥å¤šæ¬¡ä½¿ç”¨typedef double REALï¼Œåªè¦åŸºç±»å‹éƒ½æ˜¯double
+// ä½† typedef double REALå’Œtypedef float REALä¸€èµ·ç”¨ä¼šæŠ¥é”™é‡å®šä¹‰
+// usingä¸typedefå·®ä¸å¤šï¼Œä½†èµ‹å€¼çš„æ–¹å¼æ›´ç¬¦åˆç›´è§‰ï¼›æ­¤å¤–usingå¯ä»¥ç»™æ¨¡æ¿èµ·åˆ«å
 
-// ÊµÊıÀàĞÍ
+// å®æ•°ç±»å‹
 //using REAL = double;
 using myfloat = float;
 using integer = int;
 using myint = integer;
 
-// º¯ÊıÖ¸Õë£¬floatÀàĞÍµÄË«Ä¿ÔËËã·û
+// å‡½æ•°æŒ‡é’ˆï¼Œfloatç±»å‹çš„åŒç›®è¿ç®—ç¬¦
 typedef void(*func_bin_myfloat) (myfloat&, const myfloat&);
 
 #endif

@@ -7,10 +7,10 @@ namespace GPU {
 
 class SolverDataGetter {
 public:
-	// 获取Solver实例。为减少耦合，节省重新编译时间，用SolverDataGetter间接调用
-	// 仅保证指针非空，不保证资源已申请
+	// 鑾峰彇Solver瀹炰緥銆備负鍑忓皯鑰﹀悎锛岃妭鐪侀噸鏂扮紪璇戞椂闂达紝鐢⊿olverDataGetter闂存帴璋冪敤
+	// 浠呬繚璇佹寚閽堥潪绌猴紝涓嶄繚璇佽祫婧愬凡鐢宠
 	static GPU::GPUSolver2* getSolverInstance();
-	//// 获取Solver数据指针
+	//// 鑾峰彇Solver鏁版嵁鎸囬拡
 	//static GPU::OutputNodeFieldSoA* getSolverOutputNodeFieldPointer();
 };
 

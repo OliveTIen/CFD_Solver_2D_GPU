@@ -1,13 +1,13 @@
 #include "AirParameterConverter.h"
 
 void AirParameterConverter::get_ruvp_by_Ma_AoA_T0_p0_gamma_R(myfloat* ruvp, myfloat Ma, myfloat AoA, myfloat T0, myfloat p0, myfloat gamma, myfloat R) {
-	// ÊäÈë²ÎÊı£ºT0 gamma Ma p0 R
-	// ÆäÖĞp0 T0Îªº£Æ½Ãæ²ÎÊı
-	// ¸ù¾İº£Æ½ÃæT0¡¢gamma¡¢Ma£¬¼ÆËãT
-	// ¸ù¾İº£Æ½Ãæp0¡¢gamma¡¢T¡¢T0£¬¼ÆËãp
-	// ¸ù¾İgamma R T¼ÆËãc
-	// ¸ù¾İp R T¼ÆËãrho
-	// ¸ù¾İc Ma AOA¼ÆËãu v
+	// è¾“å…¥å‚æ•°ï¼šT0 gamma Ma p0 R
+	// å…¶ä¸­p0 T0ä¸ºæµ·å¹³é¢å‚æ•°
+	// æ ¹æ®æµ·å¹³é¢T0ã€gammaã€Maï¼Œè®¡ç®—T
+	// æ ¹æ®æµ·å¹³é¢p0ã€gammaã€Tã€T0ï¼Œè®¡ç®—p
+	// æ ¹æ®gamma R Tè®¡ç®—c
+	// æ ¹æ®p R Tè®¡ç®—rho
+	// æ ¹æ®c Ma AOAè®¡ç®—u v
 	myfloat& rho = ruvp[0];
 	myfloat& u = ruvp[1];
 	myfloat& v = ruvp[2];
@@ -16,9 +16,9 @@ void AirParameterConverter::get_ruvp_by_Ma_AoA_T0_p0_gamma_R(myfloat* ruvp, myfl
 	myfloat const PI = 3.1415926535897;
 	T = T0 / (1.0 + (gamma - 1.0) / 2.0 * Ma * Ma);
 	p = p0 * pow(T / T0, gamma / (gamma - 1.0));
-	c = sqrt(gamma * R * T);//À´Á÷ÉùËÙ
-	rho = p / (R * T);//À´Á÷ÃÜ¶È
-	u = c * Ma * cos(AoA / 180 * PI);//À´Á÷x·½ÏòËÙ¶È
-	v = c * Ma * sin(AoA / 180 * PI);//À´Á÷y·½ÏòËÙ¶È
+	c = sqrt(gamma * R * T);//æ¥æµå£°é€Ÿ
+	rho = p / (R * T);//æ¥æµå¯†åº¦
+	u = c * Ma * cos(AoA / 180 * PI);//æ¥æµxæ–¹å‘é€Ÿåº¦
+	v = c * Ma * sin(AoA / 180 * PI);//æ¥æµyæ–¹å‘é€Ÿåº¦
 
 }

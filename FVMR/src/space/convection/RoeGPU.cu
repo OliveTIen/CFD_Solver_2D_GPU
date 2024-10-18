@@ -2,17 +2,17 @@
 #include "../../math/MathGPU.h"
 
 __device__ void GPU::Space::Convection::ConvectRoeCommon2d(const myfloat UL[4], const myfloat UR[4], const myfloat faceNormal[2], const myfloat faceArea, myfloat faceFlux[4], myfloat gamma, myfloat rcpcv) {
-	// ²ÉÓÃìØĞŞÕıµÄRoeÇó½âÆ÷ ²Î¿¼UNITs Convect_Roe_Common
-	// ±»RiemannSolverµ÷ÓÃ
-	// Êä³ö£ºfaceFlux
+	// é‡‡ç”¨ç†µä¿®æ­£çš„Roeæ±‚è§£å™¨
+	// è¢«RiemannSolverè°ƒç”¨
+	// è¾“å‡ºï¼šfaceFlux
 	myfloat nx = faceNormal[0];
 	myfloat ny = faceNormal[1];
 	myfloat ruvpL[4]{};
 	myfloat ruvpR[4]{};
 
-	// Ãæ·¨Ïòµ¥Î»ÏòÁ¿
-	myfloat velocity_dynaMesh = 0;//¶¯Íø¸ñÏà¹Ø£¬Ä¿Ç°²»ĞèÒª
-	// ÊØºãÁ¿×ª³¡±äÁ¿rho u v w p
+	// é¢æ³•å‘å•ä½å‘é‡
+	myfloat velocity_dynaMesh = 0;//åŠ¨ç½‘æ ¼ç›¸å…³ï¼Œç›®å‰ä¸éœ€è¦
+	// å®ˆæ’é‡è½¬åœºå˜é‡rho u v w p
 	GPU::Math::U2ruvp_device(UL, ruvpL, gamma);
 	GPU::Math::U2ruvp_device(UR, ruvpR, gamma);
 	myfloat rL = ruvpL[0];
@@ -23,39 +23,39 @@ __device__ void GPU::Space::Convection::ConvectRoeCommon2d(const myfloat UL[4], 
 	myfloat uR = ruvpR[1];
 	myfloat vR = ruvpR[2];
 	myfloat pR = ruvpR[3];
-	// ·¨ÏòËÙ¶È
+	// æ³•å‘é€Ÿåº¦
 	myfloat ulnormaln = (nx * uL + ny * vL + velocity_dynaMesh);
 	myfloat urnormaln = (nx * uR + ny * vR + velocity_dynaMesh);
 	myfloat rulnormaln = rL * ulnormaln;
 	myfloat rurnormaln = rR * urnormaln;
-	// ËÙ¶ÈÆ½·½
+	// é€Ÿåº¦å¹³æ–¹
 	myfloat V2L = uL * uL + vL * vL;
 	myfloat V2R = uR * uR + vR * vR;
-	//// ìÊ+¶¯ÄÜ H = h + 0.5*V2 = gamma*e + 0.5*V2 =  gamma*p/rho/(gamma-1) + 0.5*V2
+	//// ç„“+åŠ¨èƒ½ H = h + 0.5*V2 = gamma*e + 0.5*V2 =  gamma*p/rho/(gamma-1) + 0.5*V2
 	myfloat ga1 = gamma - 1.0;
 	myfloat HL = pL * gamma / (rL * ga1) + 0.5 * V2L;
 	myfloat HR = pR * gamma / (rR * ga1) + 0.5 * V2R;
-	// ÄÚÄÜ+¶¯ÄÜ E = e + 0.5*V2 = p/rho/(gamma-1) + 0.5*V2
-	// ÄÜÁ¿·½³ÌÊØºãÁ¿ rhoE = p/(gamma-1) + 0.5*rho*V2
+	// å†…èƒ½+åŠ¨èƒ½ E = e + 0.5*V2 = p/rho/(gamma-1) + 0.5*V2
+	// èƒ½é‡æ–¹ç¨‹å®ˆæ’é‡ rhoE = p/(gamma-1) + 0.5*rho*V2
 	myfloat rhoEL = pL / ga1 + 0.5 * rL * V2L;
 	myfloat rhoER = pR / ga1 + 0.5 * rR * V2R;
-	// Í¨Á¿ ÎªÊ²Ã´ÕâÀïÊÇH£¿
+	// é€šé‡ ä¸ºä»€ä¹ˆè¿™é‡Œæ˜¯Hï¼Ÿ
 	faceFlux[0] = 0.5 * (rulnormaln + rurnormaln) * faceArea;
 	faceFlux[1] = 0.5 * (rulnormaln * uL + rurnormaln * uR + nx * (pL + pR)) * faceArea;
 	faceFlux[2] = 0.5 * (rulnormaln * vL + rurnormaln * vR + ny * (pL + pR)) * faceArea;
 	faceFlux[3] = 0.5 * (rulnormaln * HL + rurnormaln * HR - velocity_dynaMesh * (pL + pR)) * faceArea;
 
-	// ìØĞŞÕı ÓÉÓÚ¼¤²¨Ì½²âÒò×Ó»¹Î´Ğ´£¬Ä¿Ç°½ûÓÃìØĞŞÕı
+	// ç†µä¿®æ­£ ç”±äºæ¿€æ³¢æ¢æµ‹å› å­è¿˜æœªå†™ï¼Œç›®å‰ç¦ç”¨ç†µä¿®æ­£
 	myfloat drRoe[4]{};
 	bool entropyFix = false;
-	myfloat kEntropyFix[3]{ 0.2,7.5,20.0 };// ìØĞŞÕıÏµÊı(EnFix_k1 = 0.15 - 0.25, EnFix_k2 = 5.0 - 10.0, EnFix_k3 = 15.0 - 25.0)
-	myfloat p_sensor = PShockWaveSensor();// ¼¤²¨Ì½²âÒò×Ó£¬µÈÓÚÑ¹Á¦¿Õ¼ä¶ş½×µ¼¡£ÓÃÀ´ºâÁ¿¼¤²¨Ç¿¶È£¬È¡Öµ[0,1)
+	myfloat kEntropyFix[3]{ 0.2,7.5,20.0 };// ç†µä¿®æ­£ç³»æ•°(EnFix_k1 = 0.15 - 0.25, EnFix_k2 = 5.0 - 10.0, EnFix_k3 = 15.0 - 25.0)
+	myfloat p_sensor = PShockWaveSensor();// æ¿€æ³¢æ¢æµ‹å› å­ï¼Œç­‰äºå‹åŠ›ç©ºé—´äºŒé˜¶å¯¼ã€‚ç”¨æ¥è¡¡é‡æ¿€æ³¢å¼ºåº¦ï¼Œå–å€¼[0,1)
 	RoeDissapationTerm2d(
 		gamma, ruvpL, ruvpR, faceNormal, faceArea,
 		entropyFix, kEntropyFix, p_sensor, drRoe
 	);
 
-	const myfloat funscheme = 1.0;// ×ÔÊÊÓ¦ºÄÉ¢ÏµÊı
+	const myfloat funscheme = 1.0;// è‡ªé€‚åº”è€—æ•£ç³»æ•°
 	faceFlux[0] -= funscheme * drRoe[0];
 	faceFlux[1] -= funscheme * drRoe[1];
 	faceFlux[2] -= funscheme * drRoe[2];
@@ -69,9 +69,9 @@ __device__ void GPU::Space::Convection::RoeDissapationTerm2d(myfloat gamma, myfl
 	myfloat ga1 = gamma - 1.0;
 	myfloat nx = faceNormal[0];
 	myfloat ny = faceNormal[1];
-	myfloat meshNormalVelocity = 0.0;// ¶¯Íø¸ñÏà¹Ø ·¨ÏòÔË¶¯ËÙ¶È
+	myfloat meshNormalVelocity = 0.0;// åŠ¨ç½‘æ ¼ç›¸å…³ æ³•å‘è¿åŠ¨é€Ÿåº¦
 
-	// ×óÓÒµ¥Ôª³¡±äÁ¿
+	// å·¦å³å•å…ƒåœºå˜é‡
 	myfloat rL = ruvpL[0];
 	myfloat uL = ruvpL[1];
 	myfloat vL = ruvpL[2];
@@ -80,16 +80,16 @@ __device__ void GPU::Space::Convection::RoeDissapationTerm2d(myfloat gamma, myfl
 	myfloat uR = ruvpR[1];
 	myfloat vR = ruvpR[2];
 	myfloat pR = ruvpR[3];
-	// ËÙ¶ÈÆ½·½
+	// é€Ÿåº¦å¹³æ–¹
 	myfloat V2L = uL * uL + vL * vL;
 	myfloat V2R = uR * uR + vR * vR;
-	// ìÊ+¶¯ÄÜ H = h + 0.5*V2 = gamma*e + 0.5*V2 =  gamma*p/rho/(gamma-1) + 0.5*V2
+	// ç„“+åŠ¨èƒ½ H = h + 0.5*V2 = gamma*e + 0.5*V2 =  gamma*p/rho/(gamma-1) + 0.5*V2
 	myfloat HL = pL * gamma / (rL * ga1) + 0.5 * V2L;
 	myfloat HR = pR * gamma / (rR * ga1) + 0.5 * V2R;
-	// ÉùËÙ
+	// å£°é€Ÿ
 	myfloat aL = sqrt(gamma * pL / rL);
 	myfloat aR = sqrt(gamma * pR / rR);
-	// RoeÆ½¾ù 
+	// Roeå¹³å‡ 
 	myfloat rrorl = sqrt(rR / rL);
 	myfloat rrorlp1 = rrorl + 1.0;
 	myfloat rm = sqrt(rR * rL);
@@ -101,20 +101,20 @@ __device__ void GPU::Space::Convection::RoeDissapationTerm2d(myfloat gamma, myfl
 	myfloat am = sqrt(am2);
 	myfloat anormaln = am;
 	myfloat mach2 = Vm2 / am2;
-	// Ğı×ª±ä»»£¬×ª»¯ÎªÀ©ÕÅÒ»Î¬Euler·½³Ì
-	myfloat unormaln = um * nx + vm * ny; // ·¨ÏòËÙ¶È
+	// æ—‹è½¬å˜æ¢ï¼Œè½¬åŒ–ä¸ºæ‰©å¼ ä¸€ç»´Euleræ–¹ç¨‹
+	myfloat unormaln = um * nx + vm * ny; // æ³•å‘é€Ÿåº¦
 
-	// ÌØÕ÷Öµ Ò»Î¬Euler·½³ÌÓĞ3¸öÌØÕ÷Öµ u u+a u-a
+	// ç‰¹å¾å€¼ ä¸€ç»´Euleræ–¹ç¨‹æœ‰3ä¸ªç‰¹å¾å€¼ u u+a u-a
 	myfloat eig1 = abs(unormaln);
 	myfloat eig2 = abs(unormaln + anormaln);
 	myfloat eig3 = abs(unormaln - anormaln);
-	// ìØĞŞÕı
+	// ç†µä¿®æ­£
 	const myfloat epsilon = U2NITS::Math::EPSILON;
 	const myfloat& enFixK1 = KEntropyFix[0];
 	const myfloat& enFixK2 = KEntropyFix[1];
 	const myfloat& enFixK3 = KEntropyFix[2];
 	if (bEntropyFix) {
-		myfloat eig_lim1 = (abs(unormaln) + anormaln) * enFixK3 * pShockWaveSensor;// kpÎª¼¤²¨Ì½²âÒò×Ó£¬È¡Á½²àµ¥Ôªp_sensorµÄ¾ùÖµ
+		myfloat eig_lim1 = (abs(unormaln) + anormaln) * enFixK3 * pShockWaveSensor;// kpä¸ºæ¿€æ³¢æ¢æµ‹å› å­ï¼Œå–ä¸¤ä¾§å•å…ƒp_sensorçš„å‡å€¼
 		myfloat eig_lim2 = (abs(unormaln) + anormaln) * (enFixK1 + enFixK2 * pShockWaveSensor);
 		myfloat eig_lim3 = eig_lim2;
 
@@ -122,19 +122,19 @@ __device__ void GPU::Space::Convection::RoeDissapationTerm2d(myfloat gamma, myfl
 		EigenEntropyFix_HartenYee(eig2, eig_lim2, epsilon);
 		EigenEntropyFix_HartenYee(eig3, eig_lim3, epsilon);
 	}
-	// ÄÜÁ¿·½³ÌµÄÊØºãÁ¿ E=e+0.5*V2, 
-	// ìÊ+¶¯ÄÜ H = h+0.5*V2£¬
-	// ÓÖÒòÎª e=h-p/rho£¬
-	// Òò´Ë E=H-p/rho
+	// èƒ½é‡æ–¹ç¨‹çš„å®ˆæ’é‡ E=e+0.5*V2, 
+	// ç„“+åŠ¨èƒ½ H = h+0.5*V2ï¼Œ
+	// åˆå› ä¸º e=h-p/rhoï¼Œ
+	// å› æ­¤ E=H-p/rho
 	myfloat ER = HR - pR / rR;
 	myfloat EL = HL - pL / rL;
 	myfloat dE = ER - EL;
 
-	// ÎªÊ²Ã´ÕâÀïÊÇ"+"²»ÊÇ"-"£¿
-	// ÀíÂÛÉÏ E=e+0.5*V2=h-p/rho+0.5*V2
+	// ä¸ºä»€ä¹ˆè¿™é‡Œæ˜¯"+"ä¸æ˜¯"-"ï¼Ÿ
+	// ç†è®ºä¸Š E=e+0.5*V2=h-p/rho+0.5*V2
 	// e=h-p/rho, e=h/gamma
 	myfloat Etm = Hm / gamma + ga1 / gamma * 0.5 * Vm2;// ?
-	// ¼ÆËã
+	// è®¡ç®—
 
 	myfloat dW[4]{};
 	dW[0] = rR - rL;
@@ -148,7 +148,7 @@ __device__ void GPU::Space::Convection::RoeDissapationTerm2d(myfloat gamma, myfl
 	myfloat dUroe = Mstar * dunormaln + (astar - eig1) * (pR - pL) / rm / am2;
 	myfloat dProe = Mstar * (pR - pL) + (astar - eig1) * rm * dunormaln;
 
-	// ¼ÆËãºÄÉ¢Ïî rho rhou rhov rhoE
+	// è®¡ç®—è€—æ•£é¡¹ rho rhou rhov rhoE
 	myfloat& sav = faceArea;
 	drRoe[0] = 0.5 * (eig1 * dW[0] + dUroe * rm) * sav;
 	drRoe[1] = 0.5 * (eig1 * dW[1] + dUroe * rm * um + dProe * nx) * sav;

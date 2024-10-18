@@ -3,8 +3,8 @@
 #include <string>
 
 /*
-¸üĞÂË«ÂíºÕ·´ÉäµÄ±ß½ç
-ÔÚ¼ÆËãÍ¨Á¿Ê±£¬¶ÔÓÚË«ÂíºÕ±ß½ç£¬»áÓÃ¸ÃÀàµÄº¯ÊıÅĞ¶Ï±ßÊÇ·ñÎ»ÓÚ¼¤²¨ÉÏÓÎ£¬²¢ÉèÖÃÏàÓ¦µÄÔ¶³¡±ß½ç
+æ›´æ–°åŒé©¬èµ«åå°„çš„è¾¹ç•Œ
+åœ¨è®¡ç®—é€šé‡æ—¶ï¼Œå¯¹äºåŒé©¬èµ«è¾¹ç•Œï¼Œä¼šç”¨è¯¥ç±»çš„å‡½æ•°åˆ¤æ–­è¾¹æ˜¯å¦ä½äºæ¿€æ³¢ä¸Šæ¸¸ï¼Œå¹¶è®¾ç½®ç›¸åº”çš„è¿œåœºè¾¹ç•Œ
 */
 class CBoundaryDoubleShockReflect {
 private:
@@ -20,21 +20,21 @@ private:
 	CBoundaryDoubleShockReflect() {};
 
 public:
-	// »ñÈ¡ÀàÊµÀı
+	// è·å–ç±»å®ä¾‹
 	static CBoundaryDoubleShockReflect* getInstance();
-	// ÓÉÓÚ²»ÖªµÀÈçºÎ¼ÆËã¼¤²¨ÔË¶¯ËÙ¶È£¬¸Ã·½·¨±»ÆúÓÃ¡£Ö»ÊÊºÏÓÃÓÚ³õÊ¼»¯³õ³¡(t=0)
+	// ç”±äºä¸çŸ¥é“å¦‚ä½•è®¡ç®—æ¿€æ³¢è¿åŠ¨é€Ÿåº¦ï¼Œè¯¥æ–¹æ³•è¢«å¼ƒç”¨ã€‚åªé€‚åˆç”¨äºåˆå§‹åŒ–åˆåœº(t=0)
 	bool isUpStreamOfShock_forElement(double x, double y);
-	// ¸Ã·½·¨Ö»ÊÊºÏ¼ÆËã90¶È½ÇµÄÇé¿ö£¬µ«¿ÉÒÔ¼ÆËã¸÷Ê±¼ä
+	// è¯¥æ–¹æ³•åªé€‚åˆè®¡ç®—90åº¦è§’çš„æƒ…å†µï¼Œä½†å¯ä»¥è®¡ç®—å„æ—¶é—´
 	bool isUpStreamOfShock_atBoundary(double x, double y);
-	// ÉèÖÃ³ÉÔ±±äÁ¿shock_x,shock_y,shock_angle_degreeµÄÖµ
+	// è®¾ç½®æˆå‘˜å˜é‡shock_x,shock_y,shock_angle_degreeçš„å€¼
 	void set_shock_x_y_angle(double x, double y, double angle) {
 		shock_x = x;
 		shock_y = y;
 		shock_angle_degree = angle;
 	}
-	// ÉèÖÃ³ÉÔ±±äÁ¿tµÄÖµ
+	// è®¾ç½®æˆå‘˜å˜é‡tçš„å€¼
 	void set_t(double _t) { m_physical_t = _t; }
-	// ÉèÖÃ³ÉÔ±±äÁ¿dtµÄÖµ
+	// è®¾ç½®æˆå‘˜å˜é‡dtçš„å€¼
 	void set_dt(double _dt) { m_physical_dt = _dt; }
 	double get_t() { return m_physical_t; }
 	double get_dt() { return m_physical_dt; }

@@ -1,4 +1,4 @@
-﻿#include "Camera.h"
+#include "Camera.h"
 #include <iostream>
 
 void Camera::setFront(float _yaw, float _pitch) {

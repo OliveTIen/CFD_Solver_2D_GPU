@@ -12,14 +12,14 @@
 #include "viscous_flux/ViscousFlux.h"
 
 /*
-¸Ã²¿·Ö´úÂëÓÃÓÚ¼ÆËãÍ¨Á¿¡£
-ĞèÒªÓÃ±äÁ¿edgeField´æ´¢¸÷±ßµÄÊıÖµÍ¨Á¿£¬¸Ã±äÁ¿ÎŞĞè´ÓÍâ²¿ÎÄ¼ş¶ÁÈ¡£¬¶øÇÒÎŞĞèÔÚhostÓëdeviceÖ®¼ä½»»»¡£
-»»ÑÔÖ®£¬¶ÔÓÚhost¼ÆËã£¬Ö»ĞèÉêÇëedgeField_host£¬¶ÔÓÚdevice¼ÆËã£¬Ö»ĞèÉêÇëedgeField_device
-¶ÔÓÚhost´úÂë£¬ÎªÁË±ÜÃâĞŞ¸ÄÑØÍ¾ËùÓĞº¯Êı£¬×îºÃÓÃÈ«¾Ö±äÁ¿Ìá¹©·ÃÎÊÍâ²¿º¯ÊıµÄ½Ó¿Ú
-¶ÔÓÚdevice´úÂë£¬ÈçºÎÖ±½Ó·ÃÎÊÈ«¾Öº¯Êı£¿
+è¯¥éƒ¨åˆ†ä»£ç ç”¨äºè®¡ç®—é€šé‡ã€‚
+éœ€è¦ç”¨å˜é‡edgeFieldå­˜å‚¨å„è¾¹çš„æ•°å€¼é€šé‡ï¼Œè¯¥å˜é‡æ— éœ€ä»å¤–éƒ¨æ–‡ä»¶è¯»å–ï¼Œè€Œä¸”æ— éœ€åœ¨hostä¸deviceä¹‹é—´äº¤æ¢ã€‚
+æ¢è¨€ä¹‹ï¼Œå¯¹äºhostè®¡ç®—ï¼Œåªéœ€ç”³è¯·edgeField_hostï¼Œå¯¹äºdeviceè®¡ç®—ï¼Œåªéœ€ç”³è¯·edgeField_device
+å¯¹äºhostä»£ç ï¼Œä¸ºäº†é¿å…ä¿®æ”¹æ²¿é€”æ‰€æœ‰å‡½æ•°ï¼Œæœ€å¥½ç”¨å…¨å±€å˜é‡æä¾›è®¿é—®å¤–éƒ¨å‡½æ•°çš„æ¥å£
+å¯¹äºdeviceä»£ç ï¼Œå¦‚ä½•ç›´æ¥è®¿é—®å…¨å±€å‡½æ•°ï¼Ÿ
 */
 inline bool isUpStreamOfShock_atBoundary_static_inline(myfloat x, myfloat y, myfloat _shock_x, myfloat _shock_y, myfloat _shock_speed, myfloat _t_RK, const myfloat _sqrt3) {
-    // CBoundaryDoubleShockReflectµÄ³ÉÔ±º¯ÊıµÄ¾²Ì¬°æ±¾
+    // CBoundaryDoubleShockReflectçš„æˆå‘˜å‡½æ•°çš„é™æ€ç‰ˆæœ¬
     myfloat right = _shock_x + (y + _shock_speed * _t_RK) / _sqrt3;
     if (x < right) return true;
     else return false;
@@ -39,12 +39,12 @@ inline void get_U_reconstruct_singleValue(myfloat x, myfloat y, myfloat& U_dist,
 }
 
 void get_Uvector_reconstruct_2(GPU::ElementSoA& element, GPU::ElementFieldSoA& elementField, myfloat x, myfloat y, myint iElement, myfloat* U_dist, int flag_reconstruct, myfloat gamma) {
-    // ¸ù¾İµ¥Ôª·Ö²¼º¯Êı£¬µÃµ½Ä³µãUÖµ
+    // æ ¹æ®å•å…ƒåˆ†å¸ƒå‡½æ•°ï¼Œå¾—åˆ°æŸç‚¹Uå€¼
     for (int i = 0; i < 4; i++) {
         get_U_reconstruct_singleValue(x, y, U_dist[i], iElement, element.xy[0], element.xy[1], elementField.U[i], elementField.Ux[i], elementField.Uy[i], flag_reconstruct);
     }
 
-    // ÈôÊı¾İÒì³££¬Ôò³£Á¿ÖØ¹¹
+    // è‹¥æ•°æ®å¼‚å¸¸ï¼Œåˆ™å¸¸é‡é‡æ„
     myfloat ruvp[4]{};
     U2NITS::Math::U2ruvp_host(U_dist, ruvp, gamma);
     if (U2NITS::Space::Restrict::outOfRange(ruvp)) {
@@ -55,10 +55,10 @@ void get_Uvector_reconstruct_2(GPU::ElementSoA& element, GPU::ElementFieldSoA& e
 }
 
 void get_UR_wallNonViscous(const myfloat* U_L, myfloat* U_R, myfloat nx, myfloat ny) {
-    // »¬ÒÆ±ÚÃæ£¬·¨ÏòËÙ¶ÈÈ¡·´£¬ÇĞÏòËÙ¶ÈÏàµÈ
+    // æ»‘ç§»å£é¢ï¼Œæ³•å‘é€Ÿåº¦å–åï¼Œåˆ‡å‘é€Ÿåº¦ç›¸ç­‰
     myfloat uxL = U_L[1] / U_L[0];
     myfloat uyL = U_L[2] / U_L[0];
-    myfloat unL = uxL * nx + uyL * ny;// xyÎªÈ«¾Ö×ø±êÏµ£¬tnÎªÇĞÏò-·¨Ïò×ø±êÏµ
+    myfloat unL = uxL * nx + uyL * ny;// xyä¸ºå…¨å±€åæ ‡ç³»ï¼Œtnä¸ºåˆ‡å‘-æ³•å‘åæ ‡ç³»
     myfloat utL = uxL * ny - uyL * nx;
     myfloat unR = -unL;
     myfloat utR = utL;
@@ -71,7 +71,7 @@ void get_UR_wallNonViscous(const myfloat* U_L, myfloat* U_R, myfloat nx, myfloat
 }
 
 void get_UR_wall_adiabat(const myfloat* U_L, myfloat* U_R, myfloat nx, myfloat ny) {
-    // ÎŞ»¬ÒÆ¾øÈÈ±ÚÃæ£¬·¨ÏòÇĞÏòËÙ¶È¶¼È¡·´
+    // æ— æ»‘ç§»ç»çƒ­å£é¢ï¼Œæ³•å‘åˆ‡å‘é€Ÿåº¦éƒ½å–å
     U_R[0] = U_L[0];
     U_R[1] = - U_R[1];
     U_R[2] = - U_R[2];
@@ -80,10 +80,9 @@ void get_UR_wall_adiabat(const myfloat* U_L, myfloat* U_R, myfloat nx, myfloat n
 
 void get_UR_farField(const myfloat* U_L, const myfloat* ruvp_inf, myfloat* U_R, myfloat nx, myfloat ny, myfloat gamma) {
     /*
-    ²ÎÕÕUNITsºÍÀîÆô±ø¿Î¼ş
-    ÒÔÑÇÉùËÙÈë¿ÚÎªÀı£¬ÏÈÓÉÄÚµãÍâÍÆ±ß½çµãµÄ¹À¼ÆÖµ£¬
-    ÔÙ½¨Á¢±ß½çµãÊıÖµ½âÓë¹À¼ÆÖµµÄÌØÕ÷ÏàÈİ¹ØÏµ
-    ½â³ö±ß½çÉùËÙ£¬½ø¶øµÃµ½Ñ¹Á¦ÊıÖµ½â
+    ä»¥äºšå£°é€Ÿå…¥å£ä¸ºä¾‹ï¼Œå…ˆç”±å†…ç‚¹å¤–æ¨è¾¹ç•Œç‚¹çš„ä¼°è®¡å€¼ï¼Œ
+    å†å»ºç«‹è¾¹ç•Œç‚¹æ•°å€¼è§£ä¸ä¼°è®¡å€¼çš„ç‰¹å¾ç›¸å®¹å…³ç³»
+    è§£å‡ºè¾¹ç•Œå£°é€Ÿï¼Œè¿›è€Œå¾—åˆ°å‹åŠ›æ•°å€¼è§£
     */
     myfloat ga1 = gamma - 1;
     myfloat rho_f = ruvp_inf[0];
@@ -98,48 +97,48 @@ void get_UR_farField(const myfloat* U_L, const myfloat* ruvp_inf, myfloat* U_R, 
     myfloat v_e = ruvp_e[2];
     myfloat p_e = ruvp_e[3];
 
-    // ÌØÕ÷ÏàÈİ¹ØÏµ
+    // ç‰¹å¾ç›¸å®¹å…³ç³»
     myfloat a2_f = gamma * p_f / rho_f;
-    myfloat af = sqrt(a2_f);// Ô¶³¡ÉùËÙ
-    myfloat Ma2_f = (u_f * u_f + v_f * v_f) / a2_f;// Ô¶³¡ÂíºÕÊıÆ½·½
-    myfloat ae = sqrt(gamma * p_e / rho_e);// ÄÚµãÉùËÙ
-    myfloat qnf = u_f * nx + v_f * ny;// Ô¶³¡·¨ÏòËÙ¶È
-    myfloat qne = u_e * nx + v_e * ny;// ÄÚµã·¨ÏòËÙ¶È
-    myfloat rf = qnf - 2.0 * af / ga1;// µÚÒ»²¨ÌØÕ÷ R2 = u0n - 2*a0n/(gamma-1)
-    myfloat re = qne + 2.0 * ae / ga1;// µÚ¶ş²¨ÌØÕ÷ u0n - 2*a0n/(gamma-1)
+    myfloat af = sqrt(a2_f);// è¿œåœºå£°é€Ÿ
+    myfloat Ma2_f = (u_f * u_f + v_f * v_f) / a2_f;// è¿œåœºé©¬èµ«æ•°å¹³æ–¹
+    myfloat ae = sqrt(gamma * p_e / rho_e);// å†…ç‚¹å£°é€Ÿ
+    myfloat qnf = u_f * nx + v_f * ny;// è¿œåœºæ³•å‘é€Ÿåº¦
+    myfloat qne = u_e * nx + v_e * ny;// å†…ç‚¹æ³•å‘é€Ÿåº¦
+    myfloat rf = qnf - 2.0 * af / ga1;// ç¬¬ä¸€æ³¢ç‰¹å¾ R2 = u0n - 2*a0n/(gamma-1)
+    myfloat re = qne + 2.0 * ae / ga1;// ç¬¬äºŒæ³¢ç‰¹å¾ u0n - 2*a0n/(gamma-1)
     myfloat qn = 0.5 * (re + rf);
     myfloat as = ga1 * (re - rf) / 4.0;
-    myfloat dnt = 0;// ±ÚÃæÔË¶¯ËÙ¶È
+    myfloat dnt = 0;// å£é¢è¿åŠ¨é€Ÿåº¦
 
-    // ÅĞ¾İ q<=-as£¬³¬ÒôËÙÈë¿Ú£»-as<q<0£¬ÑÇÒôËÙÈë¿Ú£»0<=q<as£¬ÑÇÒôËÙ³ö¿Ú£»as<=q£¬³¬ÒôËÙ³ö¿Ú
+    // åˆ¤æ® q<=-asï¼Œè¶…éŸ³é€Ÿå…¥å£ï¼›-as<q<0ï¼ŒäºšéŸ³é€Ÿå…¥å£ï¼›0<=q<asï¼ŒäºšéŸ³é€Ÿå‡ºå£ï¼›as<=qï¼Œè¶…éŸ³é€Ÿå‡ºå£
     myfloat rho0 = 1, u0 = 0, v0 = 0, p0 = 1;
     if (qn <= -as) {
-        // ³¬ÒôËÙÈë¿Ú
+        // è¶…éŸ³é€Ÿå…¥å£
         rho0 = rho_f;
         u0 = u_f;
         v0 = v_f;
         p0 = p_f;
     }
     else if (qn < 0) {
-        // -as < qn < 0 ×¢ÒâC++ÖĞ²»ÄÜÁ¬ĞøĞ´Ğ¡ÓÚºÅ£¬Òª²ğ³É -as<qn && qn<0
-        // ÑÇÒôËÙÈë¿Ú
-        myfloat son = p_f / pow(rho_f, gamma);// ìØ
+        // -as < qn < 0 æ³¨æ„C++ä¸­ä¸èƒ½è¿ç»­å†™å°äºå·ï¼Œè¦æ‹†æˆ -as<qn && qn<0
+        // äºšéŸ³é€Ÿå…¥å£
+        myfloat son = p_f / pow(rho_f, gamma);// ç†µ
         myfloat qtx = u_f - qnf * nx;
         myfloat qty = v_f - qnf * ny;
 
-        rho0 = pow((as * as / son / gamma), 1.0 / ga1);// ¸ù¾İS=p/rho^gammaµÃrho=(p/S)^(1/gamma)=(a2/gamma/S)^(1/gamma)
+        rho0 = pow((as * as / son / gamma), 1.0 / ga1);// æ ¹æ®S=p/rho^gammaå¾—rho=(p/S)^(1/gamma)=(a2/gamma/S)^(1/gamma)
         u0 = qtx + qn * nx;
         v0 = qty + qn * ny;
         p0 = as * as * rho0 / gamma;// p=rho*R*t=rho/gamma*gamma*R*t=rho/gamma*a2
     }
     else if (qn < as) {
         // 0 <= qn < as
-        // ÑÇÒôËÙ³ö¿Ú 
+        // äºšéŸ³é€Ÿå‡ºå£ 
         myfloat son = p_e / pow(rho_e, gamma);
         myfloat qtx = u_e - qne * nx;
         myfloat qty = v_e - qne * ny;
 
-        // ºóÃæ¸úÑÇÒôËÙÈë¿ÚÏàÍ¬
+        // åé¢è·ŸäºšéŸ³é€Ÿå…¥å£ç›¸åŒ
         rho0 = pow((as * as / son / gamma), 1.0 / ga1);
         u0 = qtx + qn * nx;
         v0 = qty + qn * ny;
@@ -147,25 +146,25 @@ void get_UR_farField(const myfloat* U_L, const myfloat* ruvp_inf, myfloat* U_R, 
     }
     else {
         // as <= q
-        // ³¬ÒôËÙ³ö¿Ú
+        // è¶…éŸ³é€Ÿå‡ºå£
         rho0 = rho_e;
         u0 = u_e;
         v0 = v_e;
         p0 = p_e;
     }
     myfloat ruvp0[4]{ rho0,u0,v0,p0 };
-    // ¼ì²érho¡¢pÊÇ·ñÒì³£
+    // æ£€æŸ¥rhoã€pæ˜¯å¦å¼‚å¸¸
     if (U2NITS::Space::Restrict::outOfRange(ruvp0)) {
         LogWriter::logAndPrintError("Out of range @get_UR_farField \n");
         CExit::saveAndExit(-1);
     }
-    // ¸ù¾İÔ­Ê¼±äÁ¿ruvp0¼ÆËãÊØºãÁ¿U_R
+    // æ ¹æ®åŸå§‹å˜é‡ruvp0è®¡ç®—å®ˆæ’é‡U_R
     U2NITS::Math::ruvp2U_host(ruvp0, U_R, gamma);
 }
 
 void get_UR_inner_and_periodic(GPU::ElementSoA& element, GPU::ElementFieldSoA& elementField, GPU::EdgeSoA& edge, myint iEdge, myint iElementR, myfloat x_edge, myfloat y_edge, myfloat* U_R, int inviscid_flux_method_flag_reconstruct, myfloat gamma) {
     if (edge.setID[iEdge] != -1) {
-        // ÖÜÆÚ±ß½ç Ó¦Ê¹ÓÃ¶Ô³ÆµÄedgeµÄ×ø±ê¼ÆËãUÖµ
+        // å‘¨æœŸè¾¹ç•Œ åº”ä½¿ç”¨å¯¹ç§°çš„edgeçš„åæ ‡è®¡ç®—Uå€¼
         int ID = edge.ID[iEdge];
         int ID_pair = edge.periodicPair[ID];
         if (ID_pair < 0 || ID_pair >= edge.num_edge) {
@@ -178,14 +177,14 @@ void get_UR_inner_and_periodic(GPU::ElementSoA& element, GPU::ElementFieldSoA& e
         get_Uvector_reconstruct_2(element, elementField, x_edge_pair, y_edge_pair, iElementR, U_R, inviscid_flux_method_flag_reconstruct, gamma);
     }
     else {
-        // ÄÚ²¿±ß½ç
+        // å†…éƒ¨è¾¹ç•Œ
         get_Uvector_reconstruct_2(element, elementField, x_edge, y_edge, iElementR, U_R, inviscid_flux_method_flag_reconstruct, gamma);
     }
 
 }
 
 void get_flux_RiemannSolve(const myfloat* UL, const myfloat* UR, const myfloat nx, const myfloat ny, const myfloat length, myfloat* flux, const int flux_conservation_scheme, myfloat gamma, myfloat rcpcv) {
-    // ÀèÂüÇó½âÆ÷£¬¸ù¾İUL¡¢URÇó½âflux
+    // é»æ›¼æ±‚è§£å™¨ï¼Œæ ¹æ®ULã€URæ±‚è§£flux
     myfloat faceNormal[2]{ nx,ny };
 
     switch (flux_conservation_scheme) {// GlobalPara::inviscid_flux_method::flux_conservation_scheme
@@ -204,16 +203,16 @@ void get_flux_RiemannSolve(const myfloat* UL, const myfloat* UR, const myfloat n
 
 inline void fill_matrix(myfloat* mat[], int nrow, myint ncol, myfloat _Val) {
     /*
-    ÊäÈë£ºmatÍ¨³£Îª4xn¾ØÕó¡£Êı¾İÀàĞÍÎªmyfloat* mat[4]£¬4¸öÖ¸Õë¸÷×ÔÖ¸ÏòÒ»¸öÒ»Î¬Êı×é£¬Òò´Ë¸÷ĞĞ·ÇÁ¬Ğø·ÖÅä£¬Òª·Ö±ğmemset
-    n½Ï´ó(¿ÉÄÜ³¬¹ı21ÒÚ)£¬Òò´ËÓÃmyint
+    è¾“å…¥ï¼šmaté€šå¸¸ä¸º4xnçŸ©é˜µã€‚æ•°æ®ç±»å‹ä¸ºmyfloat* mat[4]ï¼Œ4ä¸ªæŒ‡é’ˆå„è‡ªæŒ‡å‘ä¸€ä¸ªä¸€ç»´æ•°ç»„ï¼Œå› æ­¤å„è¡Œéè¿ç»­åˆ†é…ï¼Œè¦åˆ†åˆ«memset
+    nè¾ƒå¤§(å¯èƒ½è¶…è¿‡21äº¿)ï¼Œå› æ­¤ç”¨myint
 
-    memsetÒÔ×Ö½ÚÎªµ¥Î»½øĞĞ¸³Öµ£¬Ëù¸³ÖµµÄ·¶Î§ÊÇ0x00¡«0xFF: memset(mat[i], 0, ncol * sizeof(myfloat));
+    memsetä»¥å­—èŠ‚ä¸ºå•ä½è¿›è¡Œèµ‹å€¼ï¼Œæ‰€èµ‹å€¼çš„èŒƒå›´æ˜¯0x00ï½0xFF: memset(mat[i], 0, ncol * sizeof(myfloat));
     https://zhuanlan.zhihu.com/p/479101175
-    int¸³ÖµÎª0£º²ÎÊı_Val¸ø0¼´¿É
-    int¸³ÖµÎª1£º²ÎÊı_Val²»ÄÜÖ±½Ó¸ø1£¬ÒòÎªÊµ¼ÊÉÏ±íÊ¾µÄÕûÊıÎª0x01010101¡£Ã»ÓĞ±È½ÏºÃµÄ·½·¨
-    float¸³ÖµÎª0£º
+    intèµ‹å€¼ä¸º0ï¼šå‚æ•°_Valç»™0å³å¯
+    intèµ‹å€¼ä¸º1ï¼šå‚æ•°_Valä¸èƒ½ç›´æ¥ç»™1ï¼Œå› ä¸ºå®é™…ä¸Šè¡¨ç¤ºçš„æ•´æ•°ä¸º0x01010101ã€‚æ²¡æœ‰æ¯”è¾ƒå¥½çš„æ–¹æ³•
+    floatèµ‹å€¼ä¸º0ï¼š
 
-    »¹ÊÇÍÆ¼öÓÃstd::fill£¬ÄÜ¸³ÈÎÒâÖµ£¬±Èmemset°²È«£¬±Èloop¿ì
+    è¿˜æ˜¯æ¨èç”¨std::fillï¼Œèƒ½èµ‹ä»»æ„å€¼ï¼Œæ¯”memsetå®‰å…¨ï¼Œæ¯”loopå¿«
     https://iq.opengenus.org/set-array-to-0-in-cpp/
     */
     for (int i = 0; i < nrow; i++) {
@@ -224,18 +223,18 @@ inline void fill_matrix(myfloat* mat[], int nrow, myint ncol, myfloat _Val) {
 inline void clear_element_flux() {
     GPU::GPUSolver2* solver = SolverDataGetter::getSolverInstance();
     GPU::ElementFieldSoA& elementField_host = solver->elementField_host;
-    // µ¥ÔªÊıÖµÍ¨Á¿FluxÇåÁã
+    // å•å…ƒæ•°å€¼é€šé‡Fluxæ¸…é›¶
     fill_matrix(elementField_host.Flux, 4, elementField_host.num, 0);
 }
 
 void edge_convection_flux_kernel(GPU::ElementSoA& element_host, GPU::ElementFieldSoA& elementField_host, GPU::EdgeSoA& edge_host, GPU::EdgeFieldSoA& edgeField_host, GPU::BoundarySetMap& boundary_host,
     int flux_conservation_scheme, int inviscid_flux_method_flag_reconstruct, myfloat* inf_ruvp, myfloat* inlet_ruvp, myfloat* outlet_ruvp, myfloat gamma, myfloat rcpcv,
     myfloat dsr_shock_x, myfloat dsr_shock_y, myfloat dsr_shock_speed, myfloat dsr_t_RK, const myfloat _sqrt3, myint iEdge) {
-    // ¸ÄÔì³ÉGPUÊ±²ÎÊı²»Òª´«ÒıÓÃ
-    int setID = edge_host.setID[iEdge];// ÄÚ²¿edge²»ÊôÓÚÈÎºÎset£¬Òò´ËsetIDÎª-1 setIDµÄ³õÊ¼»¯¼ûreadContinueFile
+    // æ”¹é€ æˆGPUæ—¶å‚æ•°ä¸è¦ä¼ å¼•ç”¨
+    int setID = edge_host.setID[iEdge];// å†…éƒ¨edgeä¸å±äºä»»ä½•setï¼Œå› æ­¤setIDä¸º-1 setIDçš„åˆå§‹åŒ–è§readContinueFile
     int bType = -1;
     if (setID != -1) {
-        // µÚiedge¸öedgeµÄ±ß½çÀàĞÍ
+        // ç¬¬iedgeä¸ªedgeçš„è¾¹ç•Œç±»å‹
         bType = boundary_host.type[setID - 1];
     }
 
@@ -255,31 +254,31 @@ void edge_convection_flux_kernel(GPU::ElementSoA& element_host, GPU::ElementFiel
 
     switch (bType) {
     case _BC_symmetry:
-        // ¶Ô³Æ¡£¶ÔÅ·À­·½³Ì£¬Ïàµ±ÓÚÎŞÕ³¹Ì±Ú
+        // å¯¹ç§°ã€‚å¯¹æ¬§æ‹‰æ–¹ç¨‹ï¼Œç›¸å½“äºæ— ç²˜å›ºå£
         get_UR_wallNonViscous(U_L, U_R, nx, ny);
         break;
     case _BC_wall_nonViscous:
-        // ÎŞÕ³¹Ì±Ú
+        // æ— ç²˜å›ºå£
         get_UR_wallNonViscous(U_L, U_R, nx, ny);
         break;
     case _BC_wall_adiabat:
-        // ÎŞ»¬ÒÆ¾øÈÈ
+        // æ— æ»‘ç§»ç»çƒ­
         get_UR_wall_adiabat(U_L, U_R, nx, ny);
         break;
     case _BC_inlet:
-        // Èë¿Ú
+        // å…¥å£
         get_UR_farField(U_L, inlet_ruvp, U_R, nx, ny, gamma);
         break;
     case _BC_outlet:
-        // ³ö¿Ú
+        // å‡ºå£
         get_UR_farField(U_L, outlet_ruvp, U_R, nx, ny, gamma);
         break;
     case _BC_inf:
-        // Ô¶³¡
+        // è¿œåœº
         get_UR_farField(U_L, inf_ruvp, U_R, nx, ny, gamma);
         break;
     case _BC_doubleShockReflect:
-        // Ë«ÂíºÕ·´Éä
+        // åŒé©¬èµ«åå°„
         if (isUpStream_doubleShockReflect) {
             get_UR_farField(U_L, inlet_ruvp, U_R, nx, ny, gamma);
         }
@@ -288,9 +287,9 @@ void edge_convection_flux_kernel(GPU::ElementSoA& element_host, GPU::ElementFiel
         }
         break;
 
-    default:// ÄÚ²¿£ºbType=-1£¬±ß½ç£ºbTypeÈ¡_BC_periodic_0µ½_BC_periodic_9£¬¼´6100-6109
+    default:// å†…éƒ¨ï¼šbType=-1ï¼Œè¾¹ç•Œï¼šbTypeå–_BC_periodic_0åˆ°_BC_periodic_9ï¼Œå³6100-6109
         if (iElementR != -1) {
-            // ÖÜÆÚºÍÄÚ²¿ Í³Ò»´¦Àí
+            // å‘¨æœŸå’Œå†…éƒ¨ ç»Ÿä¸€å¤„ç†
             get_UR_inner_and_periodic(element_host, elementField_host, edge_host, iEdge, iElementR, x_edge, y_edge, U_R, inviscid_flux_method_flag_reconstruct, gamma);
         }
     }
@@ -303,12 +302,12 @@ void edge_convection_flux_kernel(GPU::ElementSoA& element_host, GPU::ElementFiel
 
 }
 
-// ¼ÆËãÎŞÕ³Í¨Á¿ created: 2024-05-01, tgl
+// è®¡ç®—æ— ç²˜é€šé‡ created: 2024-05-01, tgl
 void edge_convection_flux() {
     /*
     2023-05-05
-    ÎªÁË¸ÄÔì³ÉGPU´úÂë£¬ĞèÒª´¦Àíµ±Ç°´úÂë
-    ½«È«¾Ö±äÁ¿±ä³É²ÎÊıĞÎÊ½
+    ä¸ºäº†æ”¹é€ æˆGPUä»£ç ï¼Œéœ€è¦å¤„ç†å½“å‰ä»£ç 
+    å°†å…¨å±€å˜é‡å˜æˆå‚æ•°å½¢å¼
     */
 
     GPU::GPUSolver2* solver = SolverDataGetter::getSolverInstance();
@@ -325,7 +324,7 @@ void edge_convection_flux() {
     myfloat* outlet_ruvp = GlobalPara::boundaryCondition::_2D::outlet::ruvp;
     myfloat gamma = GlobalPara::constant::gamma;
     myfloat rcpcv = GlobalPara::constant::R;
-    // ÒÔÏÂÎªË«ÂíºÕ·´ÉäµÄ³ÉÔ±º¯Êı
+    // ä»¥ä¸‹ä¸ºåŒé©¬èµ«åå°„çš„æˆå‘˜å‡½æ•°
     CBoundaryDoubleShockReflect* cbdsr = CBoundaryDoubleShockReflect::getInstance();
     myfloat dsr_shock_x = cbdsr->get_shock_x();
     myfloat dsr_shock_y = cbdsr->get_shock_y();
@@ -333,7 +332,7 @@ void edge_convection_flux() {
     myfloat dsr_t_RK = cbdsr->get_t_plus_dt();
     const myfloat _sqrt3 = sqrt(3.0);
 
-    // Ã¿Ìõ±ß¼ÆËãÎŞÕ³Í¨Á¿
+    // æ¯æ¡è¾¹è®¡ç®—æ— ç²˜é€šé‡
     for (myint iEdge = 0; iEdge < edge_host.num_edge; iEdge++) {
         edge_convection_flux_kernel(element_host, elementField_host, edge_host, edgeField_host, boundary_host,
             flux_conservation_scheme, inviscid_flux_method_flag_reconstruct, inf_ruvp, inlet_ruvp, outlet_ruvp, gamma, rcpcv, dsr_shock_x, dsr_shock_y, dsr_shock_speed,
@@ -351,35 +350,35 @@ inline void add_edge_flux_to_element_flux() {
     GPU::EdgeSoA& edge_host = solver->edge_host;
     GPU::EdgeFieldSoA& edgeField_host = solver->edgeField_host;
 
-    // ¼Ó¼õµ½ÏàÁÚµ¥Ôª
+    // åŠ å‡åˆ°ç›¸é‚»å•å…ƒ
     for (myint iElement = 0; iElement < element_host.num_element; iElement++) {
 
-        // ²Î¼ûGradient
-        // ÇóÇ°µ¥ÔªÌå»ı¡¢edgeID¡¢edge³¯ÏòÕı¸º¡¢Íâµ¥ÔªID
-        myfloat volumeC = element_host.volume[iElement];// Ìå»ı
-        // ³õÊ¼»¯edgeID ³¬³öÊı×é·¶Î§µÄ·Ç·¨Öµ¸³Îª-1
-        int edgeID[4]{ -1,-1,-1,-1 };// µÚiElement¸öelementµÄµÚiÌõ±ßµÄID
+        // å‚è§Gradient
+        // æ±‚å‰å•å…ƒä½“ç§¯ã€edgeIDã€edgeæœå‘æ­£è´Ÿã€å¤–å•å…ƒID
+        myfloat volumeC = element_host.volume[iElement];// ä½“ç§¯
+        // åˆå§‹åŒ–edgeID è¶…å‡ºæ•°ç»„èŒƒå›´çš„éæ³•å€¼èµ‹ä¸º-1
+        int edgeID[4]{ -1,-1,-1,-1 };// ç¬¬iElementä¸ªelementçš„ç¬¬iæ¡è¾¹çš„ID
         for (int i = 0; i < 4; i++) {
             edgeID[i] = element_host.edges[i][iElement];
             if (!edge_host.has(edgeID[i])) {
                 edgeID[i] = -1;
             }
         }
-        // ³õÊ¼»¯±ß³¯ÏòedgeSign
-        int edgeSign[4]{ 0,0,0,0 };// 1±íÊ¾±ß³¯Íâ£¬-1±íÊ¾±ß³¯ÄÚ
+        // åˆå§‹åŒ–è¾¹æœå‘edgeSign
+        int edgeSign[4]{ 0,0,0,0 };// 1è¡¨ç¤ºè¾¹æœå¤–ï¼Œ-1è¡¨ç¤ºè¾¹æœå†…
         for (int i = 0; i < 4; i++) {
             int edgeIDi = edgeID[i];
             if (edgeIDi == -1) {
                 continue;
             }
             if (iElement != edge_host.elementR[edgeIDi]) {
-                edgeSign[i] = 1;// currentElement=elementL£¬³¯Íâ
+                edgeSign[i] = 1;// currentElement=elementLï¼Œæœå¤–
             }
             else {
-                edgeSign[i] = -1;// currentElement=elementR£¬³¯ÄÚ
+                edgeSign[i] = -1;// currentElement=elementRï¼Œæœå†…
             }
         }
-        // ¸ù¾İ±ß³¯Ïò£¬¼Ó¼õµ½ÖĞĞÄµ¥Ôª¡£ÏòÍâÎª¼Ó£¬ÏòÄÚÎª¼õ
+        // æ ¹æ®è¾¹æœå‘ï¼ŒåŠ å‡åˆ°ä¸­å¿ƒå•å…ƒã€‚å‘å¤–ä¸ºåŠ ï¼Œå‘å†…ä¸ºå‡
         for (int i = 0; i < 4; i++) {
             int edgeIDi = edgeID[i];
             if (edgeIDi == -1) {
@@ -394,21 +393,21 @@ inline void add_edge_flux_to_element_flux() {
 
 void U2NITS::Space::Flux::calculateFluxHost(GPU::ElementSoA& element_host, GPU::EdgeSoA& edge_host, GPU::ElementFieldSoA& elementField_host) {
     /*
-    20240421: ÔÚ±£Áô¾Éº¯Êıcalculate_flux_1µÄÍ¬Ê±²âÊÔĞÂº¯Êıcalculate_flux_2£¬inline±ÜÃâÁËº¯Êıµ÷ÓÃµÄ¿ªÏú
-    º¯Êı¹¦ÄÜ£º¼ÆËãµ¥ÔªÊıÖµÍ¨Á¿¡£Ê×ÏÈ±éÀú¸÷±ß£¬¼ÆËã±ß×óÓÒÊØºãÁ¿£¬È»ºóÇó½âÀèÂüÎÊÌâµÃµ½±ßÍ¨Á¿£¬×îºó·Ö±ğ¼Ó¼õµ½×óÓÒµ¥Ôª
-    ¸úÖ®Ç°º¯ÊıµÄÇø±ğ£º
-    ¼ÆËãµÃµ½µÄFlux²»Ö±½Ó¼Ó¼õµ½ÁÚ¾Óµ¥Ôª£¬¶øÊÇÏÈ´æÈëedgeField_host
-    ÓÅµã1£º½«´óÑ­»·²ğ³ÉÒ»¸öedgeÑ­»·ºÍÒ»¸öelementÑ­»·£¬ÓĞÀûÓÚ²¢ĞĞ
-    ÓÅµã2£º½«Flux´æÈëedgeField_host£¬±ãÓÚ²åÈëÕ³ĞÔÍ¨Á¿Çó½â²¿·Ö£¬ÎªÈÕºó¼ÓÕ³ĞÔ×ö×¼±¸
+    20240421: åœ¨ä¿ç•™æ—§å‡½æ•°calculate_flux_1çš„åŒæ—¶æµ‹è¯•æ–°å‡½æ•°calculate_flux_2ï¼Œinlineé¿å…äº†å‡½æ•°è°ƒç”¨çš„å¼€é”€
+    å‡½æ•°åŠŸèƒ½ï¼šè®¡ç®—å•å…ƒæ•°å€¼é€šé‡ã€‚é¦–å…ˆéå†å„è¾¹ï¼Œè®¡ç®—è¾¹å·¦å³å®ˆæ’é‡ï¼Œç„¶åæ±‚è§£é»æ›¼é—®é¢˜å¾—åˆ°è¾¹é€šé‡ï¼Œæœ€ååˆ†åˆ«åŠ å‡åˆ°å·¦å³å•å…ƒ
+    è·Ÿä¹‹å‰å‡½æ•°çš„åŒºåˆ«ï¼š
+    è®¡ç®—å¾—åˆ°çš„Fluxä¸ç›´æ¥åŠ å‡åˆ°é‚»å±…å•å…ƒï¼Œè€Œæ˜¯å…ˆå­˜å…¥edgeField_host
+    ä¼˜ç‚¹1ï¼šå°†å¤§å¾ªç¯æ‹†æˆä¸€ä¸ªedgeå¾ªç¯å’Œä¸€ä¸ªelementå¾ªç¯ï¼Œæœ‰åˆ©äºå¹¶è¡Œ
+    ä¼˜ç‚¹2ï¼šå°†Fluxå­˜å…¥edgeField_hostï¼Œä¾¿äºæ’å…¥ç²˜æ€§é€šé‡æ±‚è§£éƒ¨åˆ†ï¼Œä¸ºæ—¥ååŠ ç²˜æ€§åšå‡†å¤‡
 
-    ÏÈ±éÀú±ß£¬¼ÆËãÎŞÕ³Í¨Á¿£¬´æ½øedgeField_host
-    È»ºó±éÀú±ß£¬¼ÆËãÕ³ĞÔÍ¨Á¿£¬¶ÔedgeField_hostµÄflux×÷ĞŞ¸Ä
-    È»ºó±éÀúµ¥Ôª£¬È¡edgeField_hostµÄÖµ£¬¼Ó¼õµ½×ÔÉí
+    å…ˆéå†è¾¹ï¼Œè®¡ç®—æ— ç²˜é€šé‡ï¼Œå­˜è¿›edgeField_host
+    ç„¶åéå†è¾¹ï¼Œè®¡ç®—ç²˜æ€§é€šé‡ï¼Œå¯¹edgeField_hostçš„fluxä½œä¿®æ”¹
+    ç„¶åéå†å•å…ƒï¼Œå–edgeField_hostçš„å€¼ï¼ŒåŠ å‡åˆ°è‡ªèº«
     */
-    clear_element_flux();// elementÊıÖµÍ¨Á¿ÇåÁã
-    edge_convection_flux();// edgeÎŞÕ³Í¨Á¿
-    if (GlobalPara::physicsModel::equation == _EQ_NS) U2NITS::Space::edge_viscous_flux();// edgeÕ³ĞÔÍ¨Á¿
-    add_edge_flux_to_element_flux();// edgeÊıÖµÍ¨Á¿¼Ó¼õµ½elementÊıÖµÍ¨Á¿
+    clear_element_flux();// elementæ•°å€¼é€šé‡æ¸…é›¶
+    edge_convection_flux();// edgeæ— ç²˜é€šé‡
+    if (GlobalPara::physicsModel::equation == _EQ_NS) U2NITS::Space::edge_viscous_flux();// edgeç²˜æ€§é€šé‡
+    add_edge_flux_to_element_flux();// edgeæ•°å€¼é€šé‡åŠ å‡åˆ°elementæ•°å€¼é€šé‡
 
 }
 

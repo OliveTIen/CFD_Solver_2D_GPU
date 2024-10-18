@@ -9,7 +9,7 @@ namespace GPU {
 		namespace Gradient {
 			void Gradient_2(GPU::ElementSoA& element_device, GPU::NodeSoA& node_device, GPU::EdgeSoA& edge_device, GPU::ElementFieldSoA& elementField_device);
 			void GradientLeastSquare(int block_size, int grid_size, GPU::ElementSoA& element_device, GPU::ElementFieldSoA& elementField_device, GPU::NodeSoA& node_device);
-			// 核函数不允许传host指针(包括引用)，需修改为某个device指针
+			// 鏍稿嚱鏁颁笉鍏佽浼爃ost鎸囬拡(鍖呮嫭寮曠敤)锛岄渶淇敼涓烘煇涓猟evice鎸囬拡
 			void GradientGreenGauss(int block_size, int grid_size, GPU::ElementSoA& element_device, GPU::ElementFieldSoA& elementField_device, GPU::EdgeSoA& edge_device);
 		}
 	}

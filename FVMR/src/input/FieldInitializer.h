@@ -6,11 +6,11 @@
 
 enum InitialConditionType {
 	type_none,
-	type_uniform_flow,          // ¾ùÔÈ³¡
-	type_isentropic_vortex,     // µÈìØÎĞ
-	type_shock_tube,            // ¼¤²¨¹Ü
-	type_double_mach_reflection,// Ë«ÂíºÕ·´Éä
-	type_tecplot_file           // tecplotÎÄ¼ş(µã¸ñÊ½)
+	type_uniform_flow,          // å‡åŒ€åœº
+	type_isentropic_vortex,     // ç­‰ç†µæ¶¡
+	type_shock_tube,            // æ¿€æ³¢ç®¡
+	type_double_mach_reflection,// åŒé©¬èµ«åå°„
+	type_tecplot_file           // tecplotæ–‡ä»¶(ç‚¹æ ¼å¼)
 };
 
 class FieldInitializer {
@@ -19,18 +19,18 @@ private:
 	int m_initial_type = 1;// uniform flow
 	bool b_has_read_config = false;
 
-	// type_shock_tubeËùÓÃµ½µÄ¾Ö²¿±äÁ¿£¬ÓÃÓÚ³õÊ¼»¯¼¤²¨Î»ÖÃ
-	double m_shock_x = 0.0;// ¼¤²¨ºá×ø±ê
+	// type_shock_tubeæ‰€ç”¨åˆ°çš„å±€éƒ¨å˜é‡ï¼Œç”¨äºåˆå§‹åŒ–æ¿€æ³¢ä½ç½®
+	double m_shock_x = 0.0;// æ¿€æ³¢æ¨ªåæ ‡
 	double m_shock_y = 0.0;
-	double m_shock_normal_x = 1.0;// ¼¤²¨·¨ÏòÁ¿x·ÖÁ¿£¬·¨ÏòÁ¿´ÓinletÖ¸Ïòoutlet
+	double m_shock_normal_x = 1.0;// æ¿€æ³¢æ³•å‘é‡xåˆ†é‡ï¼Œæ³•å‘é‡ä»inletæŒ‡å‘outlet
 	double m_shock_normal_y = 0.0;
 
 public:
 	static FieldInitializer* getInstance();
 	void setInitialAndBoundaryCondition();
-	// ÉèÖÃ³õÊ¼»¯·½Ê½
+	// è®¾ç½®åˆå§‹åŒ–æ–¹å¼
 	void set_initial_type(int _type) { m_initial_type = _type; }
-	// ÓÃTomlFileManagerÌá¹©µÄAPI½øĞĞ³õÊ¼»¯¡£Ö»±»tomlFileManagerµ÷ÓÃ
+	// ç”¨TomlFileManageræä¾›çš„APIè¿›è¡Œåˆå§‹åŒ–ã€‚åªè¢«tomlFileManagerè°ƒç”¨
 	void initialize_using_config();
 	int get_initial_type();
 	void read_initial_type_from_config();

@@ -17,13 +17,13 @@ namespace U2NITS {
 			GPU::ElementSoA& element, GPU::EdgeSoA& edge, GPU::ElementFieldSoA& elementField, int physicsModel_equation
 		);
 
-		// 计算本地时间步，异步模式（没有数据竞争），Euler
+		// 璁＄畻鏈湴鏃堕棿姝ワ紝寮傛妯″紡锛堟病鏈夋暟鎹珵浜夛級锛孍uler
 		void calculateLocalTimeStep_async_Euler_kernel(
 			myfloat& dt, myfloat gamma, myfloat Re, myfloat Pr, myfloat CFL, myfloat Rcpcv, myint iElement,
 			GPU::ElementSoA& element, GPU::EdgeSoA& edge, myfloat* element_vruvp[4]
 		);
 
-		// 计算局部时间步，计算结果位于elementFieldVariable_dt.alphaC数组
+		// 璁＄畻灞�閮ㄦ椂闂存锛岃绠楃粨鏋滀綅浜巈lementFieldVariable_dt.alphaC鏁扮粍
 		void get_local_dt_host(
 			myfloat gamma, myfloat Pr, myfloat CFL, myfloat Rcpcv, GPU::ElementFieldVariable_dt& elementFieldVariable_dt,
 			GPU::ElementSoA& element, GPU::EdgeSoA& edge, GPU::ElementFieldSoA& elementField, int physicsModel_equation

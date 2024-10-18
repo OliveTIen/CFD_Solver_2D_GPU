@@ -6,20 +6,20 @@
 
 namespace GPU {
 	/*
-	µÚ2°æ±ß½ç
+	ç¬¬2ç‰ˆè¾¹ç•Œ
 	20240426
 	
 	*/
 	struct BoundaryV2 {
-		// ÀàÄÚ¶¨Òå ±ß¼¯
+		// ç±»å†…å®šä¹‰ è¾¹é›†
 		struct EdgeSet {
-			int type = -1;// ÀàĞÍ£¬³õÊ¼»¯Ê±¸ù¾İÃû³ÆÈ·¶¨
-			int ID = -1;// µÈÓÚÊı×éÖ¸±ê+1£¬Ä¬ÈÏÖµÊÇ-1¡£Îª¼æÈİ¾É°æ¶øÉèÖÃ£¬×îºÃ²»ÒªÊ¹ÓÃ£¬ÇëÖ±½ÓÓÃÊı×éÏÂ±ê·ÃÎÊ¡£
-			std::string name;// Ãû³Æ£¬ÀıÈçfar, wall, foil
-			std::vector<myint> edge_vector;// edge index£¬Êı×é£¬´æ´¢GPUID
+			int type = -1;// ç±»å‹ï¼Œåˆå§‹åŒ–æ—¶æ ¹æ®åç§°ç¡®å®š
+			int ID = -1;// ç­‰äºæ•°ç»„æŒ‡æ ‡+1ï¼Œé»˜è®¤å€¼æ˜¯-1ã€‚ä¸ºå…¼å®¹æ—§ç‰ˆè€Œè®¾ç½®ï¼Œæœ€å¥½ä¸è¦ä½¿ç”¨ï¼Œè¯·ç›´æ¥ç”¨æ•°ç»„ä¸‹æ ‡è®¿é—®ã€‚
+			std::string name;// åç§°ï¼Œä¾‹å¦‚far, wall, foil
+			std::vector<myint> edge_vector;// edge indexï¼Œæ•°ç»„ï¼Œå­˜å‚¨GPUID
 		};
 
-		std::vector<EdgeSet> edgeSets;// ±ß¼¯ºÏÊı×é
+		std::vector<EdgeSet> edgeSets;// è¾¹é›†åˆæ•°ç»„
 	};
 }
 

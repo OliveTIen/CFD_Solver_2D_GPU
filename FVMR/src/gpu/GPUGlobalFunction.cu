@@ -16,10 +16,10 @@ void GPU::catchCudaErrorAndExit() {
 }
 
 void __getLastCudaError(const char* errorMessage, const char* file, const int line) {
-	// 参见cuda samples项目中的helper_cuda.h
+	// 鍙傝cuda samples椤圭洰涓殑helper_cuda.h
 	cudaError_t err = cudaGetLastError();
 	if (cudaSuccess != err) {
-		//// 原fprintf输出
+		//// 鍘焒printf杈撳嚭
 		//fprintf(stderr,
 		//	"%s(%i) : getLastCudaError() CUDA error :"
 		//	" %s : (%d) %s.\n",

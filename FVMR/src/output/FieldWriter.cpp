@@ -22,12 +22,12 @@ FieldWriter* FieldWriter::getInstance() {
 
 
 
-// ¼ÓÒıºÅ
+// åŠ å¼•å·
 inline std::string Quote(const std::string s) {
 	return "\"" + s + "\"";
 }
 
-// ½«stringVector×ª»»Îªstring£¬ÓÃ", "Á¬½Ó£¬ÇÒ¸÷ÔªËØ¼ÓÉÏË«ÒıºÅ
+// å°†stringVectorè½¬æ¢ä¸ºstringï¼Œç”¨", "è¿æ¥ï¼Œä¸”å„å…ƒç´ åŠ ä¸ŠåŒå¼•å·
 std::string stringVector_to_string_withQuote(const std::vector<std::string>& v) {
 	std::string out;
 	size_t size = v.size();
@@ -44,19 +44,19 @@ std::string stringVector_to_string_withQuote(const std::vector<std::string>& v) 
 void FieldWriter::write_tecplot_volume_file(myfloat t_current, std::string filePath, std::string title, GPU::NodeSoA& nodes, GPU::ElementSoA& elements, GPU::OutputNodeFieldSoA& output_node_field) {
 
 /*
-²ÎÕÕTecplot°²×°Ä¿Â¼ E:\Tecplot\Tecplot\Tecplot 360 EX 2023 R1\doc\360_data_format_guide.pdf
+å‚ç…§Tecplotå®‰è£…ç›®å½• E:\Tecplot\Tecplot\Tecplot 360 EX 2023 R1\doc\360_data_format_guide.pdf
 
 zonetype:
-  fetriangle: Èı½ÇÔª fe triangle
-  fequadrilateral: ËÄ±ßÔª
-  fetetrahedron: ËÄÃæÌå
-  febrick: ÁùÃæÌå
+  fetriangle: ä¸‰è§’å…ƒ fe triangle
+  fequadrilateral: å››è¾¹å…ƒ
+  fetetrahedron: å››é¢ä½“
+  febrick: å…­é¢ä½“
 datapacking:
-  point: ¸ñµã
-  block: ¸ñĞÄ
+  point: æ ¼ç‚¹
+  block: æ ¼å¿ƒ
 */
 
-	// ´ò¿ªÎÄ¼ş
+	// æ‰“å¼€æ–‡ä»¶
 	std::ofstream outfile;
 	outfile.open(filePath);
 	if (!outfile.is_open()) {
@@ -66,10 +66,10 @@ datapacking:
 
 	std::string zone_title = "volume field";
 	outfile 
-	// ±êÌâ¡¢±äÁ¿Ãû
+	// æ ‡é¢˜ã€å˜é‡å
 		<< "title= " << Quote(title) << "\n"
 		<< "variables= " << m_outputScheme_volume.get_variable_names() << "\n"
-	// Óò¶¨Òå
+	// åŸŸå®šä¹‰
 		<< "zone "
 		<< "t= " << Quote(zone_title) << ", "
 		<< "nodes= " << nodes.num_node << ", "
@@ -78,12 +78,12 @@ datapacking:
 		<< "zonetype= " << "fequadrilateral" << ", "
 		<< "solutiontime= " << std::scientific << t_current << std::fixed << std::endl;
 
-	// ½Úµã
+	// èŠ‚ç‚¹
 	for (int i = 0; i < nodes.num_node; i++) {
 		outfile << m_outputScheme_volume.get_variable_value_string(i, nodes, output_node_field) << "\n";
 	}
 
-	// µ¥Ôª
+	// å•å…ƒ
 	for (int ie = 0; ie < elements.num_element; ie++) {
 		outfile << elements.nodes[0][ie] + 1 << " ";
 		outfile << elements.nodes[1][ie] + 1 << " ";
@@ -97,7 +97,7 @@ datapacking:
 
 void FieldWriter::write_tecplot_boundary_file(myfloat t_current,std::string filePath,GPU::NodeSoA& node_host,GPU::EdgeSoA& edge_host,GPU::OutputNodeFieldSoA& output_node_field,GPU::BoundaryV2& boundary_host_new) {
 	/*
-	ÓÉÓÚÁ÷³¡ÊÇ¶şÎ¬µÄ£¬Òò´Ë±ß½çÊÇÒ»Î¬µÄ£¬Òª»æÖÆÒ»Î¬ÏßÍ¼
+	ç”±äºæµåœºæ˜¯äºŒç»´çš„ï¼Œå› æ­¤è¾¹ç•Œæ˜¯ä¸€ç»´çš„ï¼Œè¦ç»˜åˆ¶ä¸€ç»´çº¿å›¾
 	*/
 	std::ofstream outfile;
 	outfile.open(filePath);
@@ -108,19 +108,19 @@ void FieldWriter::write_tecplot_boundary_file(myfloat t_current,std::string file
 
 	std::string title = "tecplot boundary file";
 	outfile
-		// ±êÌâ¡¢±äÁ¿Ãû
+		// æ ‡é¢˜ã€å˜é‡å
 		<< "title= " << Quote(title) << "\n"
 		<< "variables= " << m_outputScheme_boundary.get_variable_names() << "\n";
 	
 	const auto& edgeSets = boundary_host_new.edgeSets;
-	//m_referenceData.CD_vector = std::vector<myfloat>(edgeSets.size(), 0.0);// ËùÓĞedgeSetµÄ×èÁ¦¡£Öµ³õÊ¼»¯Îª0
+	//m_referenceData.CD_vector = std::vector<myfloat>(edgeSets.size(), 0.0);// æ‰€æœ‰edgeSetçš„é˜»åŠ›ã€‚å€¼åˆå§‹åŒ–ä¸º0
 	//m_referenceData.CL_vector = std::vector<myfloat>(edgeSets.size(), 0.0);
-	const myfloat S_ref = GlobalPara::constant::referenceArea;// ²Î¿¼Ãæ»ı
+	const myfloat S_ref = GlobalPara::constant::referenceArea;// å‚è€ƒé¢ç§¯
 	const myfloat one_on_Sref = 1 / S_ref;
 	for (size_t iSet = 0; iSet < edgeSets.size(); iSet++) {
-		const auto& edgeSet = edgeSets[iSet];// µ±Ç°±ß¼¯ºÏ
+		const auto& edgeSet = edgeSets[iSet];// å½“å‰è¾¹é›†åˆ
 		std::string zone_title = "boundary " + std::to_string(edgeSet.ID) + " " + edgeSet.name;// boundary 1 far
-		myint boundary_edge_num = edgeSet.edge_vector.size();// µ±Ç°edge setµÄedgeÊıÁ¿
+		myint boundary_edge_num = edgeSet.edge_vector.size();// å½“å‰edge setçš„edgeæ•°é‡
 		outfile
 			<< std::scientific
 			<< "zone "
@@ -134,9 +134,9 @@ void FieldWriter::write_tecplot_boundary_file(myfloat t_current,std::string file
 		myint node1_old = -1;
 		for (myint iEdge = 0; iEdge < boundary_edge_num; iEdge++) {
 			/*
-			Êä³öµ±Ç°edgeSetµÄ±ß½çµãÊı¾İ
-			Í¨³££¬Í¬Ò»¸öedgeSetÖĞÏàÁÚÁ½¸öedgeÊÇÁ¬ĞøµÄ£¬Òò´ËÇ°ÕßµÄnode1µÈÓÚºóÕßµÄnode0
-			µ«Ò²»áÓĞÌØÊâÇé¿ö£¬µ¼ÖÂÊä³ö»ìÂÒ
+			è¾“å‡ºå½“å‰edgeSetçš„è¾¹ç•Œç‚¹æ•°æ®
+			é€šå¸¸ï¼ŒåŒä¸€ä¸ªedgeSetä¸­ç›¸é‚»ä¸¤ä¸ªedgeæ˜¯è¿ç»­çš„ï¼Œå› æ­¤å‰è€…çš„node1ç­‰äºåè€…çš„node0
+			ä½†ä¹Ÿä¼šæœ‰ç‰¹æ®Šæƒ…å†µï¼Œå¯¼è‡´è¾“å‡ºæ··ä¹±
 			*/
 			myint edgeID = edgeSet.edge_vector[iEdge];
 			myint node0 = edge_host.nodes[0][edgeID];
@@ -151,18 +151,18 @@ void FieldWriter::write_tecplot_boundary_file(myfloat t_current,std::string file
 			node1_old = node1;
 
 			///*
-			//¼ÆËãÉı×èÁ¦£¬ÓÉ±ß½çÑ¹Á¦»ı·ÖµÃµ½
-			//¹«Ê½£º
+			//è®¡ç®—å‡é˜»åŠ›ï¼Œç”±è¾¹ç•Œå‹åŠ›ç§¯åˆ†å¾—åˆ°
+			//å…¬å¼ï¼š
 			//dCD = - Cp / S_ref * dS * nx
 			//dCL = - Cp / S_ref * dS * ny
-			//È»ºó¶Ô±ß½ç½øĞĞ»·Â·»ı·Ö
+			//ç„¶åå¯¹è¾¹ç•Œè¿›è¡Œç¯è·¯ç§¯åˆ†
 			//*/
 			//
 			//myint nx = edge_host.normal[0][edgeID];
 			//myint ny = edge_host.normal[1][edgeID];
-			//myint dS = edge_host.length[edgeID];// ±ß³¤¶È
+			//myint dS = edge_host.length[edgeID];// è¾¹é•¿åº¦
 			//myint Cp = 0.5 * (output_node_field.Cp[node0] + output_node_field.Cp[node1]);
-			//myint dC_tmp = (-Cp) * one_on_Sref * dS;// ÖĞ¼ä±äÁ¿£¬ÎªÁË¼õÉÙ¼ÆËãÁ¿¶øÉèÖÃ£¬ÎŞÎïÀíº¬Òå
+			//myint dC_tmp = (-Cp) * one_on_Sref * dS;// ä¸­é—´å˜é‡ï¼Œä¸ºäº†å‡å°‘è®¡ç®—é‡è€Œè®¾ç½®ï¼Œæ— ç‰©ç†å«ä¹‰
 			//m_referenceData.CD_vector[iSet] += dC_tmp * nx;
 			//m_referenceData.CL_vector[iSet] += dC_tmp * ny;
 		}
@@ -173,31 +173,31 @@ void FieldWriter::write_tecplot_boundary_file(myfloat t_current,std::string file
 
 void FieldWriter::ReferenceData::calculate_edgeSet_force(GPU::EdgeSoA& edge_host, GPU::OutputNodeFieldSoA& output_node_field, GPU::BoundaryV2& boundary_host_new) {
 	/*
-	±éÀú±ß½ç±ß£¬¸ù¾İÑ¹Á¦ÏµÊı»ı·ÖµÃµ½Éı×èÁ¦
-	¹«Ê½£º
+	éå†è¾¹ç•Œè¾¹ï¼Œæ ¹æ®å‹åŠ›ç³»æ•°ç§¯åˆ†å¾—åˆ°å‡é˜»åŠ›
+	å…¬å¼ï¼š
 	dCD = Cp / S_ref * dS * nx
 	dCL = Cp / S_ref * dS * ny
 	*/
 	const auto& edgeSets = boundary_host_new.edgeSets;
-	const myfloat S_ref = GlobalPara::constant::referenceArea;// ²Î¿¼Ãæ»ı
+	const myfloat S_ref = GlobalPara::constant::referenceArea;// å‚è€ƒé¢ç§¯
 	const myfloat one_on_Sref = 1 / S_ref;
 
-	// ³õÊ¼»¯ÏòÁ¿size¡£³õÊ¼»¯ÖµÎª0
+	// åˆå§‹åŒ–å‘é‡sizeã€‚åˆå§‹åŒ–å€¼ä¸º0
 	this->CD_vector = std::vector<myfloat>(edgeSets.size(), 0.0);
 	this->CL_vector = std::vector<myfloat>(edgeSets.size(), 0.0);
 
 	for (size_t iSet = 0; iSet < edgeSets.size(); iSet++) {
-		const auto& edgeSet = edgeSets[iSet];// µ±Ç°edgeSet
-		myint boundary_edge_num = edgeSet.edge_vector.size();// µ±Ç°edgeSetµÄedgeÊıÁ¿
+		const auto& edgeSet = edgeSets[iSet];// å½“å‰edgeSet
+		myint boundary_edge_num = edgeSet.edge_vector.size();// å½“å‰edgeSetçš„edgeæ•°é‡
 		for (myint iEdge = 0; iEdge < boundary_edge_num; iEdge++) {
 			myint edgeID = edgeSet.edge_vector[iEdge];
 			myint node0 = edge_host.nodes[0][edgeID];
 			myint node1 = edge_host.nodes[1][edgeID];
 			myfloat nx = edge_host.normal[0][edgeID];
 			myfloat ny = edge_host.normal[1][edgeID];
-			myfloat dS = edge_host.length[edgeID];// ±ß³¤¶È
+			myfloat dS = edge_host.length[edgeID];// è¾¹é•¿åº¦
 			myfloat Cp = 0.5 * (output_node_field.Cp[node0] + output_node_field.Cp[node1]);
-			myfloat dC_tmp = Cp * one_on_Sref * dS;// ÖĞ¼ä±äÁ¿£¬ÎªÁË¼õÉÙ¼ÆËãÁ¿¶øÉèÖÃ£¬ÎŞÎïÀíº¬Òå
+			myfloat dC_tmp = Cp * one_on_Sref * dS;// ä¸­é—´å˜é‡ï¼Œä¸ºäº†å‡å°‘è®¡ç®—é‡è€Œè®¾ç½®ï¼Œæ— ç‰©ç†å«ä¹‰
 			this->CD_vector[iSet] += dC_tmp * nx;
 			this->CL_vector[iSet] += dC_tmp * ny;
 		}
@@ -206,14 +206,14 @@ void FieldWriter::ReferenceData::calculate_edgeSet_force(GPU::EdgeSoA& edge_host
 
 void FieldWriter::write_tecplot_hist_file(std::string filePath, int iteration, myfloat t_physics, myfloat residual[4], GPU::EdgeSoA& edge_host, GPU::OutputNodeFieldSoA& output_node_field, GPU::BoundaryV2& boundary_host_new) {
 	/*
-	ÅĞ¶ÏÊÇ·ñÓ¦¸ÃĞ´ÎÄ¼şÍ·
-	ÔÚµÚÒ»´Îµ÷ÓÃ¸Ãº¯ÊıµÄÇé¿öÏÂ£º
-	ÈôhistÎÄ¼ş²»´æÔÚ£¬ÔòĞèÒªĞ´ÎÄ¼şÍ·
-	ÈôGlobalPara::basic::_continue==false£¬ÔòĞèÒªĞ´ÎÄ¼şÍ·
+	åˆ¤æ–­æ˜¯å¦åº”è¯¥å†™æ–‡ä»¶å¤´
+	åœ¨ç¬¬ä¸€æ¬¡è°ƒç”¨è¯¥å‡½æ•°çš„æƒ…å†µä¸‹ï¼š
+	è‹¥histæ–‡ä»¶ä¸å­˜åœ¨ï¼Œåˆ™éœ€è¦å†™æ–‡ä»¶å¤´
+	è‹¥GlobalPara::basic::_continue==falseï¼Œåˆ™éœ€è¦å†™æ–‡ä»¶å¤´
 	*/
 	bool b_should_write_head = false;
 	if (!m_called_write_tecplot_hist_file) {
-		std::ifstream infile(filePath, std::ios_base::in);// Ö»¶Á
+		std::ifstream infile(filePath, std::ios_base::in);// åªè¯»
 		if (!infile.is_open()) b_should_write_head = true;
 		if (GlobalPara::basic::_continue == false)b_should_write_head = true;
 	}
@@ -228,7 +228,7 @@ void FieldWriter::write_tecplot_hist_file(std::string filePath, int iteration, m
 
 		std::string title = "tecplot hist file";
 		outfile
-			// ±êÌâ¡¢±äÁ¿Ãû
+			// æ ‡é¢˜ã€å˜é‡å
 			<< "title= " << Quote(title) << "\n"
 			<< "variables= " << m_outputScheme_hist.get_variable_names() << "\n";
 
@@ -262,21 +262,21 @@ void FieldWriter::write_tecplot_hist_file(std::string filePath, int iteration, m
 
 
 void FieldWriter::writeContinueFile_1(int i_step, myfloat t_current, std::string filePath, GPU::NodeSoA& nodes, GPU::ElementSoA& elements, myfloat* elementField_U[4]) {
-	// Êä³öÔİ´æÎÄ¼ş£¬ÓÃÓÚÏÂ´ÎĞøËã
-	// Ä¿Ç°»¹²»¸ÒÖ±½ÓÓÃGPUID
+	// è¾“å‡ºæš‚å­˜æ–‡ä»¶ï¼Œç”¨äºä¸‹æ¬¡ç»­ç®—
+	// ç›®å‰è¿˜ä¸æ•¢ç›´æ¥ç”¨GPUID
 
-    // ±äÁ¿¶¨Òå
+    // å˜é‡å®šä¹‰
 	std::ofstream outfile;
 	FVM_2D* pFVM2D = FVM_2D::getInstance();
 	BoundaryManager_2D& boundaryManager = pFVM2D->boundaryManager;
 
-	// ´ò¿ªÎÄ¼ş
+	// æ‰“å¼€æ–‡ä»¶
 	outfile.open(filePath);
 	if (!outfile.is_open())std::cout << "Error: Fail to open file " << filePath << std::endl;
-	// Êä³öÊ±¼ä²½Êı
+	// è¾“å‡ºæ—¶é—´æ­¥æ•°
 	outfile << "t, istep, CFL" << std::endl;
-	outfile << t_current << " " << i_step << " "<< GlobalPara::time::CFL << std::endl;// CFLÊÇ×Ô¶¨ÒåCFL²ßÂÔÖĞĞèÒª¶ÁÈ¡µÄ£¬Ã»ÓĞ¸Ã²ßÂÔ¶ÁÈ¡ÁËÒ²Ã»ÓÃ
-	// Êä³ö½Úµã
+	outfile << t_current << " " << i_step << " "<< GlobalPara::time::CFL << std::endl;// CFLæ˜¯è‡ªå®šä¹‰CFLç­–ç•¥ä¸­éœ€è¦è¯»å–çš„ï¼Œæ²¡æœ‰è¯¥ç­–ç•¥è¯»å–äº†ä¹Ÿæ²¡ç”¨
+	// è¾“å‡ºèŠ‚ç‚¹
 	outfile << "nodes: ID, x, y" << std::endl;
 	for (int in = 0; in < nodes.num_node; in++) {
 		outfile << pFVM2D->nodes[in].ID << " ";// ID
@@ -305,9 +305,9 @@ void FieldWriter::writeContinueFile_1(int i_step, myfloat t_current, std::string
 	for (int ib = 0; ib < boundaryManager.boundaries.size(); ib++) {
 		outfile << boundaryManager.boundaries[ib].ID << " ";
 		outfile << boundaryManager.boundaries[ib].name << std::endl;
-		//Ò»ĞĞÌ«³¤»áµ¼ÖÂ¶ÁÈ¡Ê±buffer³¤¶È²»¹»£¬´Ó¶øµ¼ÖÂÄÑÒÔÔ¤ÁÏµÄ½á¹û(ËÀÑ­»·¡¢¶ÁÈ¡Ê§°ÜµÈ)
-		int nEdge = (int)boundaryManager.boundaries[ib].pEdges.size();//¿ØÖÆÊä³ö' '»¹ÊÇ'\n'
-		bool check = 0;//¿ØÖÆ
+		//ä¸€è¡Œå¤ªé•¿ä¼šå¯¼è‡´è¯»å–æ—¶bufferé•¿åº¦ä¸å¤Ÿï¼Œä»è€Œå¯¼è‡´éš¾ä»¥é¢„æ–™çš„ç»“æœ(æ­»å¾ªç¯ã€è¯»å–å¤±è´¥ç­‰)
+		int nEdge = (int)boundaryManager.boundaries[ib].pEdges.size();//æ§åˆ¶è¾“å‡º' 'è¿˜æ˜¯'\n'
+		bool check = 0;//æ§åˆ¶
 		for (int iEdge = 0; iEdge < nEdge; iEdge++) {
 			outfile << boundaryManager.boundaries[ib].pEdges[iEdge]->ID;
 			if (iEdge % 10 == 9) {
@@ -319,7 +319,7 @@ void FieldWriter::writeContinueFile_1(int i_step, myfloat t_current, std::string
 				check = 0;
 			}
 		}
-		if (!check)outfile << std::endl;//ÈôÉÏ´ÎÊä³öµÄ' '
+		if (!check)outfile << std::endl;//è‹¥ä¸Šæ¬¡è¾“å‡ºçš„' '
 	}
 	outfile.close();
 
@@ -327,19 +327,19 @@ void FieldWriter::writeContinueFile_1(int i_step, myfloat t_current, std::string
 
 void FieldWriter::allocNodeFieldDataUsingOutputScheme(GPU::OutputNodeFieldSoA& nodeField, myint num_node) {
 	/*
-	¸ù¾İÊä³ö·½°¸ÉêÇëÄÚ´æ¡£ĞèÒªÔÚ¶ÁÈ¡ÍêConfigºÍMeshºóµ÷ÓÃ£¬ÒòÎªÒªÖªµÀÊä³ö·½°¸ºÍ½Úµã¸öÊı
+	æ ¹æ®è¾“å‡ºæ–¹æ¡ˆç”³è¯·å†…å­˜ã€‚éœ€è¦åœ¨è¯»å–å®ŒConfigå’ŒMeshåè°ƒç”¨ï¼Œå› ä¸ºè¦çŸ¥é“è¾“å‡ºæ–¹æ¡ˆå’ŒèŠ‚ç‚¹ä¸ªæ•°
 	*/
-	// ÅĞ¶ÏÊÇ·ñÒÑ¶ÁÈ¡Config
+	// åˆ¤æ–­æ˜¯å¦å·²è¯»å–Config
 	if (!m_initialized) {
 		LogWriter::logAndPrintError("outputScheme has not been initialized. @FieldWriter::allocNodeFieldDataUsingOutputScheme\n");
 		exit(-1);
 	}
-	// ÅĞ¶ÏÊÇ·ñ¶ÁÈ¡Íø¸ñMesh¡£Èônum_node==0±íÊ¾Î´¶ÁÈ¡Íø¸ñ
+	// åˆ¤æ–­æ˜¯å¦è¯»å–ç½‘æ ¼Meshã€‚è‹¥num_node==0è¡¨ç¤ºæœªè¯»å–ç½‘æ ¼
 	if (num_node == 0) {
 		LogWriter::logAndPrintError("num_node == 0. @FieldWriter::allocNodeFieldDataUsingOutputScheme\n");
 		exit(-1);
 	}
-	//ÅĞ¶ÏÊÇ·ñÖØ¸´ÉêÇëÄÚ´æ
+	//åˆ¤æ–­æ˜¯å¦é‡å¤ç”³è¯·å†…å­˜
 	if (nodeField.b_ruvp_allocated) {
 		LogWriter::logAndPrintError("nodeField.ruvp has been allocated. @FieldWriter::allocNodeFieldDataUsingOutputScheme\n");
 		exit(-1);
@@ -370,56 +370,56 @@ void FieldWriter::update_nodeField() {
 
 void FieldWriter::update_nodeField_ruvp(GPU::ElementSoA& element, GPU::OutputNodeFieldSoA& nodeField, myfloat* element_vruvp[4]) {
 	/*
-	½«¸ñĞÄÊı¾İelement_vruvp×ª»¯Îª¸ñµãÊı¾İnodeFieldµÄruvp
+	å°†æ ¼å¿ƒæ•°æ®element_vruvpè½¬åŒ–ä¸ºæ ¼ç‚¹æ•°æ®nodeFieldçš„ruvp
 
-	¿ÉÄÜµÄÒş»¼£º
-	Èı½Çµ¥ÔªÓÃËÄ¸öµã´æ´¢£¬Ò»°ãÁînodeID[3]=-1¡£µ«ÈônodeID[3]==nodeID[2]£¬»áµ¼ÖÂnodeID[2]È¨ÖØÆ«´ó
+	å¯èƒ½çš„éšæ‚£ï¼š
+	ä¸‰è§’å•å…ƒç”¨å››ä¸ªç‚¹å­˜å‚¨ï¼Œä¸€èˆ¬ä»¤nodeID[3]=-1ã€‚ä½†è‹¥nodeID[3]==nodeID[2]ï¼Œä¼šå¯¼è‡´nodeID[2]æƒé‡åå¤§
 	*/
 	auto& node_ruvp = nodeField.ruvp;
 	myint num_node = nodeField.num_node;
 	myint num_element = element.num_element;
 	const int nNodePerElement = 4;
 	const int nValuePerNode = 4;
-	int* node_neighborElement_num;// ¼ÇÂ¼Ã¿¸ö½ÚµãµÄÁÚ¾Óµ¥ÔªÊıÁ¿
-	// ÉêÇë×ÊÔ´ ³õÊ¼»¯
-	node_neighborElement_num = new int[num_node]();// Ğ¡À¨ºÅ×Ô¶¯³õÊ¼»¯Îª0
+	int* node_neighborElement_num;// è®°å½•æ¯ä¸ªèŠ‚ç‚¹çš„é‚»å±…å•å…ƒæ•°é‡
+	// ç”³è¯·èµ„æº åˆå§‹åŒ–
+	node_neighborElement_num = new int[num_node]();// å°æ‹¬å·è‡ªåŠ¨åˆå§‹åŒ–ä¸º0
 	for (int i = 0; i < 4; i++) {
 		memset(node_ruvp[i], 0, num_node * sizeof(myfloat));
 	}
 
-	// ½«µ¥ÔªÖµ¼Óµ½Æä×Ó½ÚµãÖµÉÏ
+	// å°†å•å…ƒå€¼åŠ åˆ°å…¶å­èŠ‚ç‚¹å€¼ä¸Š
 	for (int iElement = 0; iElement < num_element; iElement++) {
-		// Í³¼ÆÃ¿¸ö½ÚµãµÄÁÚ¾Óµ¥ÔªÊıÁ¿£¬²¢ĞŞ¸Ä½ÚµãÖµ
+		// ç»Ÿè®¡æ¯ä¸ªèŠ‚ç‚¹çš„é‚»å±…å•å…ƒæ•°é‡ï¼Œå¹¶ä¿®æ”¹èŠ‚ç‚¹å€¼
 		for (int jNode = 0; jNode < nNodePerElement; jNode++) {
-			// »ñÈ¡µ¥Ôª½ÚµãID
+			// è·å–å•å…ƒèŠ‚ç‚¹ID
 			int GPUID_of_node = element.nodes[jNode][iElement];// GPUID of node 0
-			// nodeID[3]=-1Ê±£¬Ìø¹ı¸Ã½Úµã
-			if (GPUID_of_node < 0 || GPUID_of_node >= num_node)continue;// Ìø¹ı±¾´ÎÑ­»·£¬µ«²»Ìø³öÑ­»·Ìå
-			// ¸ÃID¶ÔÓ¦µÄÁÚ¾Óµ¥ÔªÊıÁ¿+1
+			// nodeID[3]=-1æ—¶ï¼Œè·³è¿‡è¯¥èŠ‚ç‚¹
+			if (GPUID_of_node < 0 || GPUID_of_node >= num_node)continue;// è·³è¿‡æœ¬æ¬¡å¾ªç¯ï¼Œä½†ä¸è·³å‡ºå¾ªç¯ä½“
+			// è¯¥IDå¯¹åº”çš„é‚»å±…å•å…ƒæ•°é‡+1
 			node_neighborElement_num[GPUID_of_node]++;
-			// ¸ÃID¶ÔÓ¦µÄ½ÚµãËùÓĞÖµ¼ÓÉÏµ¥ÔªÖµ
+			// è¯¥IDå¯¹åº”çš„èŠ‚ç‚¹æ‰€æœ‰å€¼åŠ ä¸Šå•å…ƒå€¼
 			for (int kValue = 0; kValue < nValuePerNode; kValue++) {
 				node_ruvp[kValue][GPUID_of_node] += element_vruvp[kValue][iElement];
 			}
 		}
 	}
 
-	// ½ÚµãÖµ³ıÒÔÁÚ¾Óµ¥ÔªÊı£¬µÃµ½Æ½¾ùÖµ£¬×÷Îª½ÚµãruvpÖµ
+	// èŠ‚ç‚¹å€¼é™¤ä»¥é‚»å±…å•å…ƒæ•°ï¼Œå¾—åˆ°å¹³å‡å€¼ï¼Œä½œä¸ºèŠ‚ç‚¹ruvpå€¼
 	for (int iNode = 0; iNode < num_node; iNode++) {
-		// ÎªÁË±ÜÃâ³ıÒÔ0£¬·ÖÄ¸µÈÓÚ0ÔòÌø¹ı
+		// ä¸ºäº†é¿å…é™¤ä»¥0ï¼Œåˆ†æ¯ç­‰äº0åˆ™è·³è¿‡
 		if (node_neighborElement_num[iNode] == 0)continue;
-		// node_ruvp³ıÒÔÁÚ¾Óµ¥ÔªÊı£¬µÃµ½Æ½¾ùÖµ
+		// node_ruvpé™¤ä»¥é‚»å±…å•å…ƒæ•°ï¼Œå¾—åˆ°å¹³å‡å€¼
 		for (int kValue = 0; kValue < nValuePerNode; kValue++) {
 			node_ruvp[kValue][iNode] /= node_neighborElement_num[iNode];
 		}
 	}
 
-	// ÊÍ·Å×ÊÔ´
+	// é‡Šæ”¾èµ„æº
 	delete[] node_neighborElement_num;
 }
 
 void FieldWriter::update_nodeField_other_variables(GPU::OutputNodeFieldSoA& nodeField) {
-	// ¼ì²éÊÇ·ñÉêÇëÄÚ´æ
+	// æ£€æŸ¥æ˜¯å¦ç”³è¯·å†…å­˜
 	if (!nodeField.b_all_allocated) {
 		LogWriter::logAndPrintError("nodeField has not been fully allocated.\n");
 		exit(-1);
@@ -436,10 +436,10 @@ void FieldWriter::update_nodeField_other_variables(GPU::OutputNodeFieldSoA& node
 		myfloat v = nodeField.ruvp[2][i];
 		myfloat p = nodeField.ruvp[3][i];
 		if (b_Cp) {
-			// ÉıÁ¦ÏµÊı Cp = (p - p_inf)/p_dynamic_inf
+			// å‡åŠ›ç³»æ•° Cp = (p - p_inf)/p_dynamic_inf
 			m_referenceData.update_farfield();
 			nodeField.Cp[i] = (p - m_referenceData.p_inf) / m_referenceData.p_dynamic_inf;
-			// Éı×èÁ¦ ¼ûwrite_tecplot_boundary_file
+			// å‡é˜»åŠ› è§write_tecplot_boundary_file
 		}
 		if (b_Ma) {
 			myfloat V2 = u * u + v * v;
@@ -453,7 +453,7 @@ void FieldWriter::update_nodeField_other_variables(GPU::OutputNodeFieldSoA& node
 
 
 void FieldWriter::initialize_outputScheme_usingConfig() {
-	// ³õÊ¼»¯Êä³ö·½°¸£¬Ö»ÔÚreadConfigÊ±µ÷ÓÃ
+	// åˆå§‹åŒ–è¾“å‡ºæ–¹æ¡ˆï¼Œåªåœ¨readConfigæ—¶è°ƒç”¨
 	TomlFileManager* t = TomlFileManager::getInstance();
 	t->getValueIfExists("output.outputScheme_volume_preset", m_outputScheme_volume.preset);
 	t->getValueIfExists("output.outputScheme_boundary_preset", m_outputScheme_boundary.preset);
@@ -502,7 +502,7 @@ void FieldWriter::FieldOutputScheme::updateBoolDataByPreset() {
 }
 
 std::string FieldWriter::FieldOutputScheme::get_variable_names() {
-	// ¸ù¾İoutput_type£¬»ñÈ¡tecplotÎÄ¼şÍ·µÄvariablesµÄÄÚÈİ
+	// æ ¹æ®output_typeï¼Œè·å–tecplotæ–‡ä»¶å¤´çš„variablesçš„å†…å®¹
 	std::vector<std::string> variables_vector_string;
 
 	if (true)variables_vector_string.push_back("x");
@@ -529,11 +529,11 @@ std::string FieldWriter::FieldOutputScheme::get_variable_value_string(myint node
 	if (Cp)float_vector.push_back(output_node_field.Cp[nodeID]);
 	if (Ma)float_vector.push_back(output_node_field.Ma[nodeID]);
 
-	// float vector×ªstring£¬ÓÃ¿Õ¸ñ·Ö¸ô¡£²»´ø»»ĞĞ·û
+	// float vectorè½¬stringï¼Œç”¨ç©ºæ ¼åˆ†éš”ã€‚ä¸å¸¦æ¢è¡Œç¬¦
 	std::stringstream ss;
 	ss << std::scientific;
 	for (size_t i = 0; i < float_vector.size(); i++) {
-		ss << float_vector[i];// Õâ²¿·Ö´úÂëÕ¼ÓÃÁË18.75%µÄÊ±¼ä
+		ss << float_vector[i];// è¿™éƒ¨åˆ†ä»£ç å ç”¨äº†18.75%çš„æ—¶é—´
 		if (i != float_vector.size() - 1) {
 			ss << " ";
 		}
@@ -570,7 +570,7 @@ std::string FieldWriter::HistOutputScheme::get_variable_names() {
 
 std::string FieldWriter::HistOutputScheme::get_variable_value_string(HistData& histData) {
 	std::vector<myfloat> float_vector;
-	// iterationÊÇint£¬µ¥¶À´¦Àí
+	// iterationæ˜¯intï¼Œå•ç‹¬å¤„ç†
 	float_vector.push_back(histData.physical_time);
 	float_vector.push_back(histData.residual[0]);
 	float_vector.push_back(histData.residual[1]);
@@ -581,9 +581,9 @@ std::string FieldWriter::HistOutputScheme::get_variable_value_string(HistData& h
 
 	std::stringstream ss;
 	ss << std::scientific;
-	// iterationÊÇint£¬µ¥¶À´¦Àí
+	// iterationæ˜¯intï¼Œå•ç‹¬å¤„ç†
 	ss << histData.iteration << " ";
-	// float vector×ªstring£¬ÓÃ¿Õ¸ñ·Ö¸ô¡£²»´ø»»ĞĞ·û
+	// float vectorè½¬stringï¼Œç”¨ç©ºæ ¼åˆ†éš”ã€‚ä¸å¸¦æ¢è¡Œç¬¦
 	for (size_t i = 0; i < float_vector.size(); i++) {
 		ss << float_vector[i];
 		if (i != float_vector.size() - 1) {
@@ -604,15 +604,15 @@ void FieldWriter::HistData::update(int _iteration, myfloat _physical_time, const
 void FieldWriter::HistData::update(int _iteration, myfloat _physical_time, const std::vector<myfloat>& _res, ReferenceData& referenceData, GPU::BoundaryV2& boundary_host_new) {
 	this->iteration = _iteration;
 	this->physical_time = _physical_time;
-	this->residual = _res;// Ö»ÒªÃ»ÓÃstd::move£¬¶¼ÊÇ¸´ÖÆ¸³Öµ https://runebook.dev/zh/docs/cpp/container/vector/operator=
+	this->residual = _res;// åªè¦æ²¡ç”¨std::moveï¼Œéƒ½æ˜¯å¤åˆ¶èµ‹å€¼ https://runebook.dev/zh/docs/cpp/container/vector/operator=
 	set_CDCL_wall(referenceData, boundary_host_new);
 }
 
 void FieldWriter::HistData::set_CDCL_wall(ReferenceData& referenceData, GPU::BoundaryV2& boundary_host_new) {
 	/*
-	1 ½öÊä³öÒíĞÍÆø¶¯Á¦£ºËÑË÷ÀàĞÍÎªwallµÄedgeSet£¬¶ÔÆø¶¯Á¦ÇóºÍ£¬×÷ÎªhistDataµÄÆø¶¯Á¦
-	2 Êä³öËùÓĞ±ß½çÆø¶¯Á¦£ºĞèÒª´æ´¢±ß½çÃû³Æ
-	Ä¿Ç°ÏÈ½öÍê³É1£¬Ò»²½Ò»²½ÂıÂıÀ´
+	1 ä»…è¾“å‡ºç¿¼å‹æ°”åŠ¨åŠ›ï¼šæœç´¢ç±»å‹ä¸ºwallçš„edgeSetï¼Œå¯¹æ°”åŠ¨åŠ›æ±‚å’Œï¼Œä½œä¸ºhistDataçš„æ°”åŠ¨åŠ›
+	2 è¾“å‡ºæ‰€æœ‰è¾¹ç•Œæ°”åŠ¨åŠ›ï¼šéœ€è¦å­˜å‚¨è¾¹ç•Œåç§°
+	ç›®å‰å…ˆä»…å®Œæˆ1ï¼Œä¸€æ­¥ä¸€æ­¥æ…¢æ…¢æ¥
 	*/
 	const auto& edgeSets = boundary_host_new.edgeSets;
 	this->CD_wall = 0.0;

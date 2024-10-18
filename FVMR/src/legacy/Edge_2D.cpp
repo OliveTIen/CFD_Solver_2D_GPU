@@ -1,4 +1,4 @@
-﻿#include "Edge_2D.h"
+#include "Edge_2D.h"
 #include "FVM_2D.h"
 #include "Math.h"
 

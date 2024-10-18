@@ -1,4 +1,4 @@
-﻿﻿<p align="center">
+﻿﻿﻿<p align="center">
 <img src="doc/img/logo.png">
 </p>
 
@@ -409,3 +409,6 @@ $(OutDir) = $(SolutionDir)$(Platform)\$(Configuration)\
 - 改造为3维。其难度比二维大得多，因为网格非常麻烦。而且计算量也涨了一个维度。
 - 流固耦合。涉及到非结构动网格。这是我比较感兴趣的地方。目前只能做小变形，即网格的拓扑不能变，不能断裂。如果做嵌套网格的话也太麻烦。
 
+## Star History
+
+[![Star History Chart](https://api.star-history.com/svg?repos=OliveTIen/CFD_Solver_2D_GPU&type=Date)](https://star-history.com/#OliveTIen/CFD_Solver_2D_GPU&Date)

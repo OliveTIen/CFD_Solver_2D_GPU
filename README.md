@@ -1,4 +1,4 @@
-﻿﻿<p align="center">
+﻿﻿﻿<p align="center">
 <img src="doc/img/logo.png">
 </p>
 
@@ -321,3 +321,7 @@ Currently, their role is to assemble data when reading the mesh file. They are c
 ## Communication
 
 - GitHub Issues: Bug reports, feature requests, install issues, RFCs, thoughts, etc.
+
+## Star History
+
+[![Star History Chart](https://api.star-history.com/svg?repos=OliveTIen/CFD_Solver_2D_GPU&type=Date)](https://star-history.com/#OliveTIen/CFD_Solver_2D_GPU&Date)

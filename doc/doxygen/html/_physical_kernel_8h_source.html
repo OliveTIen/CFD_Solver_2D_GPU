@@ -91,9 +91,9 @@ $(document).ready(function() { init_codefold(0); });
 <div class="line"><a id="l00007" name="l00007"></a><span class="lineno">    7</span><span class="keyword">namespace </span>U2NITS {</div>
 <div class="line"><a id="l00008" name="l00008"></a><span class="lineno">    8</span>    <span class="keyword">namespace </span>Math {</div>
 <div class="line"><a id="l00009" name="l00009"></a><span class="lineno">    9</span> </div>
-<div class="line"><a id="l00010" name="l00010"></a><span class="lineno">   10</span>        <span class="comment">// ½«UÊı×é×ª»»ÎªruvpÊı×é</span></div>
+<div class="line"><a id="l00010" name="l00010"></a><span class="lineno">   10</span>        <span class="comment">// å°†Uæ•°ç»„è½¬æ¢ä¸ºruvpæ•°ç»„</span></div>
 <div class="line"><a id="l00011" name="l00011"></a><span class="lineno">   11</span>        <span class="keyword">inline</span> <span class="keywordtype">void</span> U2ruvp_host(<span class="keyword">const</span> myfloat U[4], myfloat ruvp[4], myfloat gamma) {</div>
-<div class="line"><a id="l00012" name="l00012"></a><span class="lineno">   12</span>            <span class="comment">// U:   rho,rho_u,rho_v,rho_E ×¢ÒâE=e+0.5*V^2</span></div>
+<div class="line"><a id="l00012" name="l00012"></a><span class="lineno">   12</span>            <span class="comment">// U:   rho,rho_u,rho_v,rho_E æ³¨æ„E=e+0.5*V^2</span></div>
 <div class="line"><a id="l00013" name="l00013"></a><span class="lineno">   13</span>            <span class="comment">// ruvp: rho,u,v,p</span></div>
 <div class="line"><a id="l00014" name="l00014"></a><span class="lineno">   14</span>            ruvp[0] = U[0];</div>
 <div class="line"><a id="l00015" name="l00015"></a><span class="lineno">   15</span>            ruvp[1] = U[1] / U[0];</div>
@@ -110,7 +110,7 @@ $(document).ready(function() { init_codefold(0); });
 <div class="line"><a id="l00026" name="l00026"></a><span class="lineno">   26</span>            U[3] = ruvp[3] / (gamma - 1) + 0.5 * ruvp[0] * (ruvp[1] * ruvp[1] + ruvp[2] * ruvp[2]);<span class="comment">//rhoE</span></div>
 <div class="line"><a id="l00027" name="l00027"></a><span class="lineno">   27</span>        }</div>
 <div class="line"><a id="l00028" name="l00028"></a><span class="lineno">   28</span> </div>
-<div class="line"><a id="l00029" name="l00029"></a><span class="lineno">   29</span>        <span class="comment">// ÈıÎ¬ ÊØºãÁ¿×ª³¡±äÁ¿</span></div>
+<div class="line"><a id="l00029" name="l00029"></a><span class="lineno">   29</span>        <span class="comment">// ä¸‰ç»´ å®ˆæ’é‡è½¬åœºå˜é‡</span></div>
 <div class="line"><a id="l00030" name="l00030"></a><span class="lineno">   30</span>        <span class="keyword">inline</span> <span class="keywordtype">void</span> U2ruvwp_host_3d(<span class="keyword">const</span> myfloat U[5], myfloat ruvwp[5], myfloat gamma) {</div>
 <div class="line"><a id="l00031" name="l00031"></a><span class="lineno">   31</span> </div>
 <div class="line"><a id="l00032" name="l00032"></a><span class="lineno">   32</span>            <span class="comment">/*</span></div>
@@ -121,11 +121,11 @@ $(document).ready(function() { init_codefold(0); });
 <div class="line"><a id="l00037" name="l00037"></a><span class="lineno">   37</span>            ruvwp[1] = U[1] / U[0];<span class="comment">// u</span></div>
 <div class="line"><a id="l00038" name="l00038"></a><span class="lineno">   38</span>            ruvwp[2] = U[2] / U[0];<span class="comment">// v</span></div>
 <div class="line"><a id="l00039" name="l00039"></a><span class="lineno">   39</span>            ruvwp[3] = U[3] / U[0];<span class="comment">// w</span></div>
-<div class="line"><a id="l00040" name="l00040"></a><span class="lineno">   40</span>            myfloat V2 = ruvwp[1] * ruvwp[1] + ruvwp[2] * ruvwp[2] + ruvwp[3] * ruvwp[3];<span class="comment">// ËÙ¶ÈÆ½·½</span></div>
+<div class="line"><a id="l00040" name="l00040"></a><span class="lineno">   40</span>            myfloat V2 = ruvwp[1] * ruvwp[1] + ruvwp[2] * ruvwp[2] + ruvwp[3] * ruvwp[3];<span class="comment">// é€Ÿåº¦å¹³æ–¹</span></div>
 <div class="line"><a id="l00041" name="l00041"></a><span class="lineno">   41</span>            ruvwp[4] = (U[4] / U[0] - 0.5 * V2) * U[0] * (gamma - 1);<span class="comment">// p</span></div>
 <div class="line"><a id="l00042" name="l00042"></a><span class="lineno">   42</span>        }</div>
 <div class="line"><a id="l00043" name="l00043"></a><span class="lineno">   43</span> </div>
-<div class="line"><a id="l00044" name="l00044"></a><span class="lineno">   44</span>        <span class="comment">// Ä³·½ÏòÉÏµÄÂíºÕÊı</span></div>
+<div class="line"><a id="l00044" name="l00044"></a><span class="lineno">   44</span>        <span class="comment">// æŸæ–¹å‘ä¸Šçš„é©¬èµ«æ•°</span></div>
 <div class="line"><a id="l00045" name="l00045"></a><span class="lineno">   45</span>        <span class="keyword">inline</span> myfloat getMach(<span class="keyword">const</span> myfloat U[4], myfloat nx, myfloat ny, myfloat gamma) {</div>
 <div class="line"><a id="l00046" name="l00046"></a><span class="lineno">   46</span>            myfloat ruvp[4]{};</div>
 <div class="line"><a id="l00047" name="l00047"></a><span class="lineno">   47</span>            U2ruvp_host(U, ruvp, gamma);</div>
@@ -140,7 +140,7 @@ $(document).ready(function() { init_codefold(0); });
 <div class="line"><a id="l00056" name="l00056"></a><span class="lineno">   56</span>        }</div>
 <div class="line"><a id="l00057" name="l00057"></a><span class="lineno">   57</span> </div>
 <div class="line"><a id="l00058" name="l00058"></a><span class="lineno">   58</span>        </div>
-<div class="line"><a id="l00059" name="l00059"></a><span class="lineno">   59</span>        <span class="comment">// ÅúÁ¿×ª»»</span></div>
+<div class="line"><a id="l00059" name="l00059"></a><span class="lineno">   59</span>        <span class="comment">// æ‰¹é‡è½¬æ¢</span></div>
 <div class="line"><a id="l00060" name="l00060"></a><span class="lineno">   60</span>        <span class="keywordtype">void</span> U_to_ruvp_in_batch(<span class="keyword">const</span> myfloat* U[4], myfloat* ruvp[4], <span class="keywordtype">int</span> length, myfloat gamma);</div>
 <div class="line"><a id="l00061" name="l00061"></a><span class="lineno">   61</span>    }</div>
 <div class="line"><a id="l00062" name="l00062"></a><span class="lineno">   62</span>}</div>

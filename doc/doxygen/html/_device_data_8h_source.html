@@ -87,8 +87,8 @@ $(document).ready(function() { init_codefold(0); });
 <div class="line"><a id="l00003" name="l00003"></a><span class="lineno">    3</span><span class="preprocessor">#include &quot;DefineType.h&quot;</span></div>
 <div class="line"><a id="l00004" name="l00004"></a><span class="lineno">    4</span><span class="preprocessor">#include &quot;../../global/Constexpr.h&quot;</span></div>
 <div class="line"><a id="l00005" name="l00005"></a><span class="lineno">    5</span><span class="comment">/*</span></div>
-<div class="line"><a id="l00006" name="l00006"></a><span class="lineno">    6</span><span class="comment">ÓĞĞ©Êı¾İÖ»ĞèÒª´ÓCPU¿½±´µ½GPU£¬¶ø²»ĞèÒª¿½»ØÀ´£¬ÀıÈçÔ¶³¡²ÎÊı</span></div>
-<div class="line"><a id="l00007" name="l00007"></a><span class="lineno">    7</span><span class="comment">¸ÃÀàÓÃCPUµÄÒ»¸öÖ¸Õë³õÊ¼»¯£¬ĞèÒª·µ»ØÊ±ÓÃ</span></div>
+<div class="line"><a id="l00006" name="l00006"></a><span class="lineno">    6</span><span class="comment">æœ‰äº›æ•°æ®åªéœ€è¦ä»CPUæ‹·è´åˆ°GPUï¼Œè€Œä¸éœ€è¦æ‹·å›æ¥ï¼Œä¾‹å¦‚è¿œåœºå‚æ•°</span></div>
+<div class="line"><a id="l00007" name="l00007"></a><span class="lineno">    7</span><span class="comment">è¯¥ç±»ç”¨CPUçš„ä¸€ä¸ªæŒ‡é’ˆåˆå§‹åŒ–ï¼Œéœ€è¦è¿”å›æ—¶ç”¨</span></div>
 <div class="line"><a id="l00008" name="l00008"></a><span class="lineno">    8</span><span class="comment">*/</span></div>
 <div class="line"><a id="l00009" name="l00009"></a><span class="lineno">    9</span><span class="keyword">namespace </span>GPU {</div>
 <div class="line"><a id="l00010" name="l00010"></a><span class="lineno">   10</span>    <span class="comment">//class DeviceData {</span></div>
@@ -99,9 +99,9 @@ $(document).ready(function() { init_codefold(0); });
 <div class="line"><a id="l00015" name="l00015"></a><span class="lineno">   15</span>    <span class="comment">//};</span></div>
 <div class="line"><a id="l00016" name="l00016"></a><span class="lineno">   16</span> </div>
 <div class="line"><a id="l00017" name="l00017"></a><span class="lineno">   17</span>    <span class="comment">/*</span></div>
-<div class="line"><a id="l00018" name="l00018"></a><span class="lineno">   18</span><span class="comment">    DeviceArray£¬Éè±¸ÄÚ´æÉÏµÄÊı×é¡£ÓÃhost³õÊ¼»¯£¬Îö¹¹Ê±×Ô¶¯ÊÍ·ÅÉè±¸ÄÚ´æ¡£</span></div>
-<div class="line"><a id="l00019" name="l00019"></a><span class="lineno">   19</span><span class="comment">    µ«ÊÇÒªÊµÏÖ¼ÆËãµÄ»°£¬ĞèÒªÖØĞ´ÔËËã·û£¬ºÜÂé·³£¬Òò´Ë½«Ö¸ÕëÉèÎª¹«ÓĞ</span></div>
-<div class="line"><a id="l00020" name="l00020"></a><span class="lineno">   20</span><span class="comment">    ´ËÍâ£¬²»ÖªµÀ³ÉÔ±º¯ÊıÊÇ·ñĞèÒª¼ÓÉÏ__device__</span></div>
+<div class="line"><a id="l00018" name="l00018"></a><span class="lineno">   18</span><span class="comment">    DeviceArrayï¼Œè®¾å¤‡å†…å­˜ä¸Šçš„æ•°ç»„ã€‚ç”¨hoståˆå§‹åŒ–ï¼Œææ„æ—¶è‡ªåŠ¨é‡Šæ”¾è®¾å¤‡å†…å­˜ã€‚</span></div>
+<div class="line"><a id="l00019" name="l00019"></a><span class="lineno">   19</span><span class="comment">    ä½†æ˜¯è¦å®ç°è®¡ç®—çš„è¯ï¼Œéœ€è¦é‡å†™è¿ç®—ç¬¦ï¼Œå¾ˆéº»çƒ¦ï¼Œå› æ­¤å°†æŒ‡é’ˆè®¾ä¸ºå…¬æœ‰</span></div>
+<div class="line"><a id="l00020" name="l00020"></a><span class="lineno">   20</span><span class="comment">    æ­¤å¤–ï¼Œä¸çŸ¥é“æˆå‘˜å‡½æ•°æ˜¯å¦éœ€è¦åŠ ä¸Š__device__</span></div>
 <div class="line"><a id="l00021" name="l00021"></a><span class="lineno">   21</span><span class="comment">    */</span></div>
 <div class="line"><a id="l00022" name="l00022"></a><span class="lineno">   22</span>    <span class="keyword">template</span>&lt;<span class="keyword">typename</span> T&gt;</div>
 <div class="foldopen" id="foldopen00023" data-start="{" data-end="};">
@@ -120,7 +120,7 @@ $(document).ready(function() { init_codefold(0); });
 </div>
 <div class="line"><a id="l00035" name="l00035"></a><span class="lineno">   35</span> </div>
 <div class="line"><a id="l00036" name="l00036"></a><span class="lineno">   36</span>    <span class="comment">/*</span></div>
-<div class="line"><a id="l00037" name="l00037"></a><span class="lineno">   37</span><span class="comment">    Éè±¸ÄÚ´æÉÏµÄÊı£¬ÀıÈçintµÈ»ù±¾ÀàĞÍ</span></div>
+<div class="line"><a id="l00037" name="l00037"></a><span class="lineno">   37</span><span class="comment">    è®¾å¤‡å†…å­˜ä¸Šçš„æ•°ï¼Œä¾‹å¦‚intç­‰åŸºæœ¬ç±»å‹</span></div>
 <div class="line"><a id="l00038" name="l00038"></a><span class="lineno">   38</span><span class="comment">    */</span></div>
 <div class="line"><a id="l00039" name="l00039"></a><span class="lineno">   39</span>    <span class="keyword">template</span>&lt;<span class="keyword">typename</span> T&gt;</div>
 <div class="foldopen" id="foldopen00040" data-start="{" data-end="};">
@@ -165,23 +165,23 @@ $(document).ready(function() { init_codefold(0); });
 </div>
 <div class="line"><a id="l00076" name="l00076"></a><span class="lineno">   76</span> </div>
 <div class="line"><a id="l00077" name="l00077"></a><span class="lineno">   77</span> </div>
-<div class="line"><a id="l00078" name="l00078"></a><span class="lineno">   78</span>    <span class="comment">// struct device parameter; Èç¹ûÃ»ÓĞÖ¸Õë£¬Ö»ÊÇ´«Èë£¬ÎŞĞè´«³ö£¬¾Í²»ĞèÒªÉêÇëcudaÄÚ´æ</span></div>
+<div class="line"><a id="l00078" name="l00078"></a><span class="lineno">   78</span>    <span class="comment">// struct device parameter; å¦‚æœæ²¡æœ‰æŒ‡é’ˆï¼Œåªæ˜¯ä¼ å…¥ï¼Œæ— éœ€ä¼ å‡ºï¼Œå°±ä¸éœ€è¦ç”³è¯·cudaå†…å­˜</span></div>
 <div class="foldopen" id="foldopen00079" data-start="{" data-end="};">
 <div class="line"><a id="l00079" name="l00079"></a><span class="lineno"><a class="line" href="struct_g_p_u_1_1_s_device_para.html">   79</a></span>    <span class="keyword">struct </span><a class="code hl_struct" href="struct_g_p_u_1_1_s_device_para.html">SDevicePara</a> {</div>
 <div class="line"><a id="l00080" name="l00080"></a><span class="lineno">   80</span> </div>
 <div class="line"><a id="l00081" name="l00081"></a><span class="lineno">   81</span>        <span class="comment">/* struct type define */</span></div>
 <div class="foldopen" id="foldopen00082" data-start="{" data-end="};">
 <div class="line"><a id="l00082" name="l00082"></a><span class="lineno"><a class="line" href="struct_g_p_u_1_1_s_device_para_1_1_constant.html">   82</a></span>        <span class="keyword">struct </span><a class="code hl_struct" href="struct_g_p_u_1_1_s_device_para_1_1_constant.html">Constant</a> {</div>
-<div class="line"><a id="l00083" name="l00083"></a><span class="lineno">   83</span>            myfloat <span class="keyword">const</span> R = 287.06;<span class="comment">// ÆøÌå³£Êı</span></div>
+<div class="line"><a id="l00083" name="l00083"></a><span class="lineno">   83</span>            myfloat <span class="keyword">const</span> R = 287.06;<span class="comment">// æ°”ä½“å¸¸æ•°</span></div>
 <div class="line"><a id="l00084" name="l00084"></a><span class="lineno">   84</span>            myfloat <span class="keyword">const</span> PI = 3.1415926535897;</div>
-<div class="line"><a id="l00085" name="l00085"></a><span class="lineno">   85</span>            myfloat T0 = 288.16;<span class="comment">// º£Æ½ÃæÎÂ¶È²Î¿¼Öµ</span></div>
-<div class="line"><a id="l00086" name="l00086"></a><span class="lineno">   86</span>            myfloat p0 = 101325.0;<span class="comment">// º£Æ½ÃæÑ¹Á¦²Î¿¼Öµ</span></div>
-<div class="line"><a id="l00087" name="l00087"></a><span class="lineno">   87</span>            myfloat c0 = 340.28;<span class="comment">// º£Æ½ÃæÉùËÙ²Î¿¼Öµ</span></div>
+<div class="line"><a id="l00085" name="l00085"></a><span class="lineno">   85</span>            myfloat T0 = 288.16;<span class="comment">// æµ·å¹³é¢æ¸©åº¦å‚è€ƒå€¼</span></div>
+<div class="line"><a id="l00086" name="l00086"></a><span class="lineno">   86</span>            myfloat p0 = 101325.0;<span class="comment">// æµ·å¹³é¢å‹åŠ›å‚è€ƒå€¼</span></div>
+<div class="line"><a id="l00087" name="l00087"></a><span class="lineno">   87</span>            myfloat c0 = 340.28;<span class="comment">// æµ·å¹³é¢å£°é€Ÿå‚è€ƒå€¼</span></div>
 <div class="line"><a id="l00088" name="l00088"></a><span class="lineno">   88</span>            myfloat gamma = 1.4;</div>
 <div class="line"><a id="l00089" name="l00089"></a><span class="lineno">   89</span>            myfloat epsilon = 1<a class="code hl_class" href="class_g_p_u_1_1_d_array.html">e</a>-7;</div>
 <div class="line"><a id="l00090" name="l00090"></a><span class="lineno">   90</span>            myfloat Re = 1.0e8;</div>
 <div class="line"><a id="l00091" name="l00091"></a><span class="lineno">   91</span>            myfloat Pr = 0.73;</div>
-<div class="line"><a id="l00092" name="l00092"></a><span class="lineno">   92</span>            myfloat mu = 17.9e-6;<span class="comment">// ¿ÕÆø¶¯Á¦Õ³ĞÔÏµÊı</span></div>
+<div class="line"><a id="l00092" name="l00092"></a><span class="lineno">   92</span>            myfloat mu = 17.9e-6;<span class="comment">// ç©ºæ°”åŠ¨åŠ›ç²˜æ€§ç³»æ•°</span></div>
 <div class="line"><a id="l00093" name="l00093"></a><span class="lineno">   93</span> </div>
 <div class="line"><a id="l00094" name="l00094"></a><span class="lineno">   94</span>            <span class="keywordtype">void</span> initialize(myfloat <a class="code hl_class" href="class_g_p_u_1_1_d_array.html">_T0</a>, myfloat <a class="code hl_class" href="class_g_p_u_1_1_d_array.html">_p0</a>, myfloat <a class="code hl_class" href="class_g_p_u_1_1_d_array.html">_c0</a>, myfloat <a class="code hl_class" href="class_g_p_u_1_1_d_array.html">_gamma</a>, myfloat <a class="code hl_class" href="class_g_p_u_1_1_d_array.html">_epsilon</a>, myfloat <a class="code hl_class" href="class_g_p_u_1_1_d_array.html">_Re</a>, myfloat <a class="code hl_class" href="class_g_p_u_1_1_d_array.html">_Pr</a>, myfloat <a class="code hl_class" href="class_g_p_u_1_1_d_array.html">_mu</a>) {</div>
 <div class="line"><a id="l00095" name="l00095"></a><span class="lineno">   95</span>                T0 = <a class="code hl_class" href="class_g_p_u_1_1_d_array.html">_T0</a>;</div>
@@ -225,7 +225,7 @@ $(document).ready(function() { init_codefold(0); });
 <div class="line"><a id="l00128" name="l00128"></a><span class="lineno">  128</span> </div>
 <div class="foldopen" id="foldopen00129" data-start="{" data-end="};">
 <div class="line"><a id="l00129" name="l00129"></a><span class="lineno"><a class="line" href="struct_g_p_u_1_1_s_device_para_1_1_inviscid_flux_method.html">  129</a></span>        <span class="keyword">struct </span><a class="code hl_struct" href="struct_g_p_u_1_1_s_device_para_1_1_inviscid_flux_method.html">InviscidFluxMethod</a> {</div>
-<div class="line"><a id="l00130" name="l00130"></a><span class="lineno">  130</span>            <span class="keywordtype">int</span> flux_conservation_scheme = _SOL_Roe;<span class="comment">// ÀèÂüÇó½âÆ÷</span></div>
+<div class="line"><a id="l00130" name="l00130"></a><span class="lineno">  130</span>            <span class="keywordtype">int</span> flux_conservation_scheme = _SOL_Roe;<span class="comment">// é»æ›¼æ±‚è§£å™¨</span></div>
 <div class="line"><a id="l00131" name="l00131"></a><span class="lineno">  131</span>            <span class="keywordtype">int</span> flux_limiter = _LIM_minmod;</div>
 <div class="line"><a id="l00132" name="l00132"></a><span class="lineno">  132</span> </div>
 <div class="line"><a id="l00133" name="l00133"></a><span class="lineno">  133</span>            <span class="keywordtype">void</span> initialize(<span class="keywordtype">int</span> <a class="code hl_class" href="class_g_p_u_1_1_d_array.html">_flux_conservation_scheme</a>, <span class="keywordtype">int</span> <a class="code hl_class" href="class_g_p_u_1_1_d_array.html">_flux_limiter</a>) {</div>

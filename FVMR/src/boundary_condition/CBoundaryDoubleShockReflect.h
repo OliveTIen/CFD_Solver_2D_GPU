@@ -3,8 +3,10 @@
 #include <string>
 
 /*
-更新双马赫反射的边界
-在计算通量时，对于双马赫边界，会用该类的函数判断边是否位于激波上游，并设置相应的远场边界
+* \class CBoundaryDoubleShockReflect
+* \brief
+* 更新双马赫反射的边界 \n
+* 在计算通量时，对于双马赫边界，会用该类的函数判断边是否位于激波上游，并设置相应的远场边界
 */
 class CBoundaryDoubleShockReflect {
 private:

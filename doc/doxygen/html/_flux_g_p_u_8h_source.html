@@ -87,13 +87,13 @@ $(document).ready(function() { init_codefold(0); });
 <div class="line"><a id="l00003" name="l00003"></a><span class="lineno">    3</span> </div>
 <div class="line"><a id="l00004" name="l00004"></a><span class="lineno">    4</span><span class="preprocessor">#include &quot;../gpu/datatype/Datatype.h&quot;</span></div>
 <div class="line"><a id="l00005" name="l00005"></a><span class="lineno">    5</span><span class="preprocessor">#include &lt;map&gt;</span></div>
-<div class="line"><a id="l00006" name="l00006"></a><span class="lineno">    6</span><span class="comment">// __host__: Ö÷»úº¯Êı£¬ÓÉÖ÷»úº¯Êıµ÷ÓÃ¡£ÊÇÄ¬ÈÏÖµ</span></div>
-<div class="line"><a id="l00007" name="l00007"></a><span class="lineno">    7</span><span class="comment">// __global__: Éè±¸º¯Êı£¬ÓÉÖ÷»úº¯Êıµ÷ÓÃ£¬ÇÒµ÷ÓÃÊ±ÒªÖ¸Ã÷&lt;&lt;&lt;&gt;&gt;&gt;</span></div>
-<div class="line"><a id="l00008" name="l00008"></a><span class="lineno">    8</span><span class="comment">// __device__: Éè±¸º¯Êı£¬ÓÉÉè±¸º¯Êıµ÷ÓÃ</span></div>
+<div class="line"><a id="l00006" name="l00006"></a><span class="lineno">    6</span><span class="comment">// __host__: ä¸»æœºå‡½æ•°ï¼Œç”±ä¸»æœºå‡½æ•°è°ƒç”¨ã€‚æ˜¯é»˜è®¤å€¼</span></div>
+<div class="line"><a id="l00007" name="l00007"></a><span class="lineno">    7</span><span class="comment">// __global__: è®¾å¤‡å‡½æ•°ï¼Œç”±ä¸»æœºå‡½æ•°è°ƒç”¨ï¼Œä¸”è°ƒç”¨æ—¶è¦æŒ‡æ˜&lt;&lt;&lt;&gt;&gt;&gt;</span></div>
+<div class="line"><a id="l00008" name="l00008"></a><span class="lineno">    8</span><span class="comment">// __device__: è®¾å¤‡å‡½æ•°ï¼Œç”±è®¾å¤‡å‡½æ•°è°ƒç”¨</span></div>
 <div class="line"><a id="l00009" name="l00009"></a><span class="lineno">    9</span> </div>
 <div class="line"><a id="l00010" name="l00010"></a><span class="lineno">   10</span><span class="keyword">namespace </span>GPU {</div>
 <div class="line"><a id="l00011" name="l00011"></a><span class="lineno">   11</span>    <span class="keyword">namespace </span>Space {</div>
-<div class="line"><a id="l00012" name="l00012"></a><span class="lineno">   12</span>        <span class="comment">// Î´Íê³É</span></div>
+<div class="line"><a id="l00012" name="l00012"></a><span class="lineno">   12</span>        <span class="comment">// æœªå®Œæˆ</span></div>
 <div class="line"><a id="l00013" name="l00013"></a><span class="lineno">   13</span>        <span class="keyword">namespace </span>Flux {</div>
 <div class="line"><a id="l00014" name="l00014"></a><span class="lineno">   14</span>            <span class="keywordtype">void</span> calculateFluxDevice_2(ElementSoA&amp; element_device, EdgeSoA&amp; edge_device, ElementFieldSoA&amp; elementField_device);</div>
 <div class="line"><a id="l00015" name="l00015"></a><span class="lineno">   15</span>        }</div>

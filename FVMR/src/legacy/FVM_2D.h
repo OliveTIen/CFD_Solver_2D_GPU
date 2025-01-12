@@ -8,12 +8,20 @@
 #include "BoundaryManager_2D.h"
 //#include "Solver_2D.h"
 
-/*
-历史遗留代码，存储数据，仅在读取网格时使用。
-计算前，会用OldDataConverter转换为别的数据结构
-
-*/
-
+/**
+ * \class FVM_2D
+ * \brief
+ * As legacy code, this class serves as a temporary data struct for classes like SU2MeshReader to use<br>
+ * Only used when reading mesh.
+ * \details 
+ * It temporarily stores data such as nodes, elements, edges, pointers
+ * when reading mesh and initializing field data<br>
+ * Don't get confused with its name, it is not the solver<br>
+ * After reading the mesh, data will be stored in FVM_2D, then U2NITS::OldDataConverter
+ * converts the data to GPU types in GPU::GPUSolver2.<br>
+ * TODO:<br>
+ * 
+ */
 class FVM_2D {
 private:
 	FVM_2D() {};

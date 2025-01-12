@@ -20,7 +20,7 @@
 /*
 检查输入值是否属于列表
 value: 待检测值
-category: 值所属类型
+category: 值所属类型。用于输出
 table: 列表，包含已知值和描述
 b_print: 是否输出到屏幕
 */
@@ -116,7 +116,7 @@ void U2NITS::CInput::readField_1() {
 		read_mesh_file_and_initialize();
 	}
 
-	// 日志记录边界参数
+	// (local function)日志记录边界参数
 	log_boundary_condition();
 }
 

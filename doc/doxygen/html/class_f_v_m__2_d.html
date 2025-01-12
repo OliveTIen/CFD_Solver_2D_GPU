@@ -79,6 +79,12 @@ $(function() {
   <div class="headertitle"><div class="title">FVM_2D Class Reference</div></div>
 </div><!--header-->
 <div class="contents">
+
+<p>As legacy code, this class serves as a temporary data struct for classes like <a class="el" href="class_s_u2_mesh_reader.html" title="Read su2 mesh and stores data into FVM_2D.">SU2MeshReader</a> to use<br  />
+ Only used when reading mesh.  
+ <a href="class_f_v_m__2_d.html#details">More...</a></p>
+
+<p><code>#include &lt;<a class="el" href="_f_v_m__2_d_8h_source.html">FVM_2D.h</a>&gt;</code></p>
 <table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a id="pub-methods" name="pub-methods"></a>
 Public Member Functions</h2></td></tr>
@@ -110,7 +116,7 @@ void&#160;</td><td class="memItemRight" valign="bottom"><b>iniEdges_lengths</b> 
 <a class="el" href="class_edge__2_d.html">Edge_2D</a> *&#160;</td><td class="memItemRight" valign="bottom"><b>getEdgeByNodeIDs</b> (int n0, int n1)</td></tr>
 <tr class="separator:a0da7702df699db3b540f202526c25874"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:ac6274f93ec7312c2d1597d07b0265945" id="r_ac6274f93ec7312c2d1597d07b0265945"><td class="memItemLeft" align="right" valign="top"><a id="ac6274f93ec7312c2d1597d07b0265945" name="ac6274f93ec7312c2d1597d07b0265945"></a>
-<a class="el" href="class_node__2_d.html">Node_2D</a> *&#160;</td><td class="memItemRight" valign="bottom"><b>getNodeByID</b> (int ID)</td></tr>
+<a class="el" href="struct_node__2_d.html">Node_2D</a> *&#160;</td><td class="memItemRight" valign="bottom"><b>getNodeByID</b> (int ID)</td></tr>
 <tr class="separator:ac6274f93ec7312c2d1597d07b0265945"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table><table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a id="pub-static-methods" name="pub-static-methods"></a>
@@ -125,7 +131,7 @@ Public Attributes</h2></td></tr>
 <a class="el" href="class_boundary_manager__2_d.html">BoundaryManager_2D</a>&#160;</td><td class="memItemRight" valign="bottom"><b>boundaryManager</b></td></tr>
 <tr class="separator:a85d14dbd00b33c34a85f9a596fcc2da5"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:ae999e64a64540be42528d80c84ee16ee" id="r_ae999e64a64540be42528d80c84ee16ee"><td class="memItemLeft" align="right" valign="top"><a id="ae999e64a64540be42528d80c84ee16ee" name="ae999e64a64540be42528d80c84ee16ee"></a>
-std::vector&lt; <a class="el" href="class_node__2_d.html">Node_2D</a> &gt;&#160;</td><td class="memItemRight" valign="bottom"><b>nodes</b></td></tr>
+std::vector&lt; <a class="el" href="struct_node__2_d.html">Node_2D</a> &gt;&#160;</td><td class="memItemRight" valign="bottom"><b>nodes</b></td></tr>
 <tr class="separator:ae999e64a64540be42528d80c84ee16ee"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a3e967f4e5c788605ca77ea0568f8688c" id="r_a3e967f4e5c788605ca77ea0568f8688c"><td class="memItemLeft" align="right" valign="top"><a id="a3e967f4e5c788605ca77ea0568f8688c" name="a3e967f4e5c788605ca77ea0568f8688c"></a>
 std::vector&lt; <a class="el" href="class_element__2_d.html">Element_2D</a> &gt;&#160;</td><td class="memItemRight" valign="bottom"><b>elements</b></td></tr>
@@ -134,7 +140,7 @@ std::vector&lt; <a class="el" href="class_element__2_d.html">Element_2D</a> &gt;
 std::vector&lt; <a class="el" href="class_edge__2_d.html">Edge_2D</a> &gt;&#160;</td><td class="memItemRight" valign="bottom"><b>edges</b></td></tr>
 <tr class="separator:ae1c8de9b5a0e185566fe84df8c80e66b"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a4ffd658ef21be7542cc88b95d7308240" id="r_a4ffd658ef21be7542cc88b95d7308240"><td class="memItemLeft" align="right" valign="top"><a id="a4ffd658ef21be7542cc88b95d7308240" name="a4ffd658ef21be7542cc88b95d7308240"></a>
-std::vector&lt; <a class="el" href="class_node__2_d.html">Node_2D</a> * &gt;&#160;</td><td class="memItemRight" valign="bottom"><b>pNodeTable</b></td></tr>
+std::vector&lt; <a class="el" href="struct_node__2_d.html">Node_2D</a> * &gt;&#160;</td><td class="memItemRight" valign="bottom"><b>pNodeTable</b></td></tr>
 <tr class="separator:a4ffd658ef21be7542cc88b95d7308240"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:ae14c680879918e6f23d5dc490adb1e94" id="r_ae14c680879918e6f23d5dc490adb1e94"><td class="memItemLeft" align="right" valign="top"><a id="ae14c680879918e6f23d5dc490adb1e94" name="ae14c680879918e6f23d5dc490adb1e94"></a>
 std::vector&lt; <a class="el" href="class_element__2_d.html">Element_2D</a> * &gt;&#160;</td><td class="memItemRight" valign="bottom"><b>pElementTable</b></td></tr>
@@ -155,7 +161,15 @@ Static Public Attributes</h2></td></tr>
 static <a class="el" href="class_f_v_m__2_d.html">FVM_2D</a> *&#160;</td><td class="memItemRight" valign="bottom"><b>pFVM2D</b> = nullptr</td></tr>
 <tr class="separator:a3a3fffb653982528a5b8807fd7985685"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table>
-<hr/>The documentation for this class was generated from the following files:<ul>
+<a name="details" id="details"></a><h2 class="groupheader">Detailed Description</h2>
+<div class="textblock"><p>As legacy code, this class serves as a temporary data struct for classes like <a class="el" href="class_s_u2_mesh_reader.html" title="Read su2 mesh and stores data into FVM_2D.">SU2MeshReader</a> to use<br  />
+ Only used when reading mesh. </p>
+<p>It temporarily stores data such as nodes, elements, edges, pointers when reading mesh and initializing field data<br  />
+ Don't get confused with its name, it is not the solver<br  />
+ After reading the mesh, data will be stored in <a class="el" href="class_f_v_m__2_d.html" title="As legacy code, this class serves as a temporary data struct for classes like SU2MeshReader to use  O...">FVM_2D</a>, then <a class="el" href="class_u2_n_i_t_s_1_1_old_data_converter.html" title="Convert datatype from class FVM_2D to GPU::GPUSolver2.">U2NITS::OldDataConverter</a> converts the data to GPU types in <a class="el" href="class_g_p_u_1_1_g_p_u_solver2.html">GPU::GPUSolver2</a>.<br  />
+ TODO:<br  />
+ </p>
+</div><hr/>The documentation for this class was generated from the following files:<ul>
 <li>D:/tgl/HPC/U2NITS-10.0/FVMR/src/legacy/<a class="el" href="_f_v_m__2_d_8h_source.html">FVM_2D.h</a></li>
 <li>D:/tgl/HPC/U2NITS-10.0/FVMR/src/legacy/<b>FVM_2D.cpp</b></li>
 </ul>

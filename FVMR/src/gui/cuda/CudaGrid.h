@@ -74,7 +74,10 @@ private:
 	bool m_initialized = false;
 
 	void reset_position();
-
+	/**
+	 * This function initializes vertices, vertices_copy, indices_line, boundaries
+	 * @param none
+	*/
 	void initRenderingData_UnstructuredGrid();
 	void initPhysicsPointData_UnstructuredGrid();
 	void initPhysicsEdgeData_UnstructuredGrid();

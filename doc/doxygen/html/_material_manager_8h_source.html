@@ -87,9 +87,9 @@ $(document).ready(function() { init_codefold(0); });
 <div class="line"><a id="l00003" name="l00003"></a><span class="lineno">    3</span><span class="preprocessor">#include &lt;string&gt;</span></div>
 <div class="line"><a id="l00004" name="l00004"></a><span class="lineno">    4</span><span class="preprocessor">#include &lt;vector&gt;</span></div>
 <div class="line"><a id="l00005" name="l00005"></a><span class="lineno">    5</span><span class="comment">/*</span></div>
-<div class="line"><a id="l00006" name="l00006"></a><span class="lineno">    6</span><span class="comment">Ä¿Ç°²»ÏëÓÃÀà£¬Ö»ÓÃ¾²Ì¬º¯Êı</span></div>
-<div class="line"><a id="l00007" name="l00007"></a><span class="lineno">    7</span><span class="comment">ÏÈÖ»¿¼ÂÇÒ»ÖÖ²ÄÁÏ¡£ºóĞø»áÓÃvector</span></div>
-<div class="line"><a id="l00008" name="l00008"></a><span class="lineno">    8</span><span class="comment">[×¢Òâ]ºóÃæĞŞ¸ÄÎªGPU³ÌĞòÊ±£¬GPU´«²ÎÊ±£¬SDeviceParaÒª´«×îĞÂµÄmu</span></div>
+<div class="line"><a id="l00006" name="l00006"></a><span class="lineno">    6</span><span class="comment">ç›®å‰ä¸æƒ³ç”¨ç±»ï¼Œåªç”¨é™æ€å‡½æ•°</span></div>
+<div class="line"><a id="l00007" name="l00007"></a><span class="lineno">    7</span><span class="comment">å…ˆåªè€ƒè™‘ä¸€ç§ææ–™ã€‚åç»­ä¼šç”¨vector</span></div>
+<div class="line"><a id="l00008" name="l00008"></a><span class="lineno">    8</span><span class="comment">[æ³¨æ„]åé¢ä¿®æ”¹ä¸ºGPUç¨‹åºæ—¶ï¼ŒGPUä¼ å‚æ—¶ï¼ŒSDeviceParaè¦ä¼ æœ€æ–°çš„mu</span></div>
 <div class="line"><a id="l00009" name="l00009"></a><span class="lineno">    9</span><span class="comment">*/</span></div>
 <div class="line"><a id="l00010" name="l00010"></a><span class="lineno">   10</span> </div>
 <div class="foldopen" id="foldopen00011" data-start="{" data-end="};">
@@ -98,12 +98,12 @@ $(document).ready(function() { init_codefold(0); });
 <div class="line"><a id="l00013" name="l00013"></a><span class="lineno">   13</span>    <span class="keyword">struct </span>FluidMaterial {</div>
 <div class="line"><a id="l00014" name="l00014"></a><span class="lineno">   14</span>    <span class="keyword">public</span>:</div>
 <div class="line"><a id="l00015" name="l00015"></a><span class="lineno">   15</span>        std::string name = <span class="stringliteral">&quot;air&quot;</span>;</div>
-<div class="line"><a id="l00016" name="l00016"></a><span class="lineno">   16</span>        <span class="keywordtype">double</span> mu0 = 17.9e-6; <span class="comment">// ¶¯Á¦Õ³ĞÔÏµÊı²Î¿¼Öµ</span></div>
+<div class="line"><a id="l00016" name="l00016"></a><span class="lineno">   16</span>        <span class="keywordtype">double</span> mu0 = 17.9e-6; <span class="comment">// åŠ¨åŠ›ç²˜æ€§ç³»æ•°å‚è€ƒå€¼</span></div>
 <div class="line"><a id="l00017" name="l00017"></a><span class="lineno">   17</span>        FluidMaterial(std::string _name, <span class="keywordtype">double</span> _mu0_dynamic_viscosity) {</div>
 <div class="line"><a id="l00018" name="l00018"></a><span class="lineno">   18</span>            name = _name;</div>
 <div class="line"><a id="l00019" name="l00019"></a><span class="lineno">   19</span>            mu0 = _mu0_dynamic_viscosity;</div>
 <div class="line"><a id="l00020" name="l00020"></a><span class="lineno">   20</span>        }</div>
-<div class="line"><a id="l00021" name="l00021"></a><span class="lineno">   21</span>        <span class="comment">// ¸ø¶¨²Î¿¼ÃÜ¶Èrho¡¢²Î¿¼ËÙ¶Èu¡¢²Î¿¼³¤¶ÈL¡¢À×ÅµÊıRe£¬¼ÆËãmu0²¢´æ´¢</span></div>
+<div class="line"><a id="l00021" name="l00021"></a><span class="lineno">   21</span>        <span class="comment">// ç»™å®šå‚è€ƒå¯†åº¦rhoã€å‚è€ƒé€Ÿåº¦uã€å‚è€ƒé•¿åº¦Lã€é›·è¯ºæ•°Reï¼Œè®¡ç®—mu0å¹¶å­˜å‚¨</span></div>
 <div class="line"><a id="l00022" name="l00022"></a><span class="lineno">   22</span>        FluidMaterial(std::string _name, <span class="keywordtype">double</span> rho, <span class="keywordtype">double</span> u, <span class="keywordtype">double</span> L, <span class="keywordtype">double</span> Re) {</div>
 <div class="line"><a id="l00023" name="l00023"></a><span class="lineno">   23</span>            name = _name;</div>
 <div class="line"><a id="l00024" name="l00024"></a><span class="lineno">   24</span>            mu0 = rho * u * L / Re;</div>
@@ -121,7 +121,7 @@ $(document).ready(function() { init_codefold(0); });
 <div class="line"><a id="l00036" name="l00036"></a><span class="lineno">   36</span><span class="keyword">public</span>:</div>
 <div class="line"><a id="l00037" name="l00037"></a><span class="lineno">   37</span>    <span class="keyword">static</span> <a class="code hl_class" href="class_material_manager.html">MaterialManager</a>* getInstance();</div>
 <div class="line"><a id="l00038" name="l00038"></a><span class="lineno">   38</span>    <span class="keywordtype">void</span> addMaterial(FluidMaterial material);</div>
-<div class="line"><a id="l00039" name="l00039"></a><span class="lineno">   39</span>    <span class="comment">// ·µ»Ø³£ÒıÓÃ£¬²»¿É×÷Îª×óÖµ£¬²»¿É±»ĞŞ¸Ä</span></div>
+<div class="line"><a id="l00039" name="l00039"></a><span class="lineno">   39</span>    <span class="comment">// è¿”å›å¸¸å¼•ç”¨ï¼Œä¸å¯ä½œä¸ºå·¦å€¼ï¼Œä¸å¯è¢«ä¿®æ”¹</span></div>
 <div class="line"><a id="l00040" name="l00040"></a><span class="lineno">   40</span>    <span class="keyword">const</span> FluidMaterial&amp; getMaterial(<span class="keywordtype">size_t</span> index = 0);</div>
 <div class="line"><a id="l00041" name="l00041"></a><span class="lineno">   41</span>    <span class="keywordtype">void</span> initialize_using_config(<span class="keywordtype">double</span> rho_ref, <span class="keywordtype">double</span> U_ref, <span class="keywordtype">double</span> L_ref);</div>
 <div class="line"><a id="l00042" name="l00042"></a><span class="lineno">   42</span>};</div>

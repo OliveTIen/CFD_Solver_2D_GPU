@@ -1,8 +1,9 @@
 #pragma once
 // imgui
-#include "imgui.h"
-#include "imgui_impl_glfw.h"
-#include "imgui_impl_opengl3.h"
+#include <imgui/imgui.h>
+#include <imgui/backends/imgui_impl_glfw.h>
+#include <imgui/backends/imgui_impl_opengl3.h>
+#include <imgui_filebrowser/imfilebrowser.h>
 //
 #include "Control.h"
 #include "Scene.h"
@@ -25,6 +26,7 @@ private:
 	ImGuiIO* m_io = nullptr;
 	Control* m_control = nullptr;
 	Scene* m_scene = nullptr;
+	ImGui::FileBrowser* m_fileDialog = nullptr;
 	bool m_enabled = true;
 
 	void panel_ParticleSystem();
@@ -32,5 +34,5 @@ private:
 	void update_imgui();
 
 	void button_ColorPicker(ImVec4& color);
-	void buttons_ColorTest();// 用于测试color相关控件
+	void buttons_ColorTest();///< used to test controls related to color
 };

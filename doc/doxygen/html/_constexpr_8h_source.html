@@ -86,50 +86,50 @@ $(document).ready(function() { init_codefold(0); });
 <div class="line"><a id="l00002" name="l00002"></a><span class="lineno">    2</span><span class="preprocessor">#define _CONSTEXPRS_H_</span></div>
 <div class="line"><a id="l00003" name="l00003"></a><span class="lineno">    3</span> </div>
 <div class="line"><a id="l00004" name="l00004"></a><span class="lineno">    4</span><span class="keyword">constexpr</span> <span class="keyword">auto</span> _NULL = 0;</div>
-<div class="line"><a id="l00005" name="l00005"></a><span class="lineno">    5</span><span class="comment">// Êä³öÊı¾İ 1-999</span></div>
+<div class="line"><a id="l00005" name="l00005"></a><span class="lineno">    5</span><span class="comment">// è¾“å‡ºæ•°æ® 1-999</span></div>
 <div class="line"><a id="l00006" name="l00006"></a><span class="lineno">    6</span><span class="keyword">constexpr</span> <span class="keyword">auto</span> _OUT_u = 1;</div>
 <div class="line"><a id="l00007" name="l00007"></a><span class="lineno">    7</span><span class="keyword">constexpr</span> <span class="keyword">auto</span> _OUT_v = 2;</div>
 <div class="line"><a id="l00008" name="l00008"></a><span class="lineno">    8</span><span class="keyword">constexpr</span> <span class="keyword">auto</span> _OUT_rho = 4;</div>
 <div class="line"><a id="l00009" name="l00009"></a><span class="lineno">    9</span><span class="keyword">constexpr</span> <span class="keyword">auto</span> _OUT_p = 8;</div>
 <div class="line"><a id="l00010" name="l00010"></a><span class="lineno">   10</span><span class="keyword">constexpr</span> <span class="keyword">auto</span> _OUT_T = 16;</div>
 <div class="line"><a id="l00011" name="l00011"></a><span class="lineno">   11</span><span class="keyword">constexpr</span> <span class="keyword">auto</span> _OUT_Unon_all = 101;</div>
-<div class="line"><a id="l00012" name="l00012"></a><span class="lineno">   12</span><span class="comment">// ·½³ÌÀàĞÍ 1001-1999</span></div>
-<div class="line"><a id="l00013" name="l00013"></a><span class="lineno">   13</span><span class="keyword">constexpr</span> <span class="keyword">auto</span> _EQ_convective = 1001;<span class="comment">//¶ÔÁ÷À©É¢·½³Ì</span></div>
-<div class="line"><a id="l00014" name="l00014"></a><span class="lineno">   14</span><span class="keyword">constexpr</span> <span class="keyword">auto</span> _EQ_euler = 1;<span class="comment">//Å·À­·½³Ì</span></div>
+<div class="line"><a id="l00012" name="l00012"></a><span class="lineno">   12</span><span class="comment">// æ–¹ç¨‹ç±»å‹ 1001-1999</span></div>
+<div class="line"><a id="l00013" name="l00013"></a><span class="lineno">   13</span><span class="keyword">constexpr</span> <span class="keyword">auto</span> _EQ_convective = 1001;<span class="comment">//å¯¹æµæ‰©æ•£æ–¹ç¨‹</span></div>
+<div class="line"><a id="l00014" name="l00014"></a><span class="lineno">   14</span><span class="keyword">constexpr</span> <span class="keyword">auto</span> _EQ_euler = 1;<span class="comment">//æ¬§æ‹‰æ–¹ç¨‹</span></div>
 <div class="line"><a id="l00015" name="l00015"></a><span class="lineno">   15</span><span class="keyword">constexpr</span> <span class="keyword">auto</span> _EQ_NS = 2;</div>
-<div class="line"><a id="l00016" name="l00016"></a><span class="lineno">   16</span><span class="comment">// Çó½âÆ÷ÀàĞÍ 2001-2999</span></div>
-<div class="line"><a id="l00017" name="l00017"></a><span class="lineno">   17</span><span class="keyword">constexpr</span> <span class="keyword">auto</span> _SOL_LocalLaxFriedrichs = 2001;<span class="comment">//ÀèÂüÇó½âÆ÷ Local Lax-Friedrichs;</span></div>
+<div class="line"><a id="l00016" name="l00016"></a><span class="lineno">   16</span><span class="comment">// æ±‚è§£å™¨ç±»å‹ 2001-2999</span></div>
+<div class="line"><a id="l00017" name="l00017"></a><span class="lineno">   17</span><span class="keyword">constexpr</span> <span class="keyword">auto</span> _SOL_LocalLaxFriedrichs = 2001;<span class="comment">//é»æ›¼æ±‚è§£å™¨ Local Lax-Friedrichs;</span></div>
 <div class="line"><a id="l00018" name="l00018"></a><span class="lineno">   18</span><span class="keyword">constexpr</span> <span class="keyword">auto</span> _SOL_Roe = 2002;</div>
-<div class="line"><a id="l00019" name="l00019"></a><span class="lineno">   19</span><span class="comment">// ÖØ¹¹·½Ê½ 3001-3099</span></div>
-<div class="line"><a id="l00020" name="l00020"></a><span class="lineno">   20</span><span class="keyword">constexpr</span> <span class="keyword">auto</span> _REC_constant = 3001;<span class="comment">//³£Á¿ÖØ¹¹</span></div>
-<div class="line"><a id="l00021" name="l00021"></a><span class="lineno">   21</span><span class="keyword">constexpr</span> <span class="keyword">auto</span> _REC_linear = 3002;  <span class="comment">//ÏßĞÔÖØ¹¹</span></div>
+<div class="line"><a id="l00019" name="l00019"></a><span class="lineno">   19</span><span class="comment">// é‡æ„æ–¹å¼ 3001-3099</span></div>
+<div class="line"><a id="l00020" name="l00020"></a><span class="lineno">   20</span><span class="keyword">constexpr</span> <span class="keyword">auto</span> _REC_constant = 3001;<span class="comment">//å¸¸é‡é‡æ„</span></div>
+<div class="line"><a id="l00021" name="l00021"></a><span class="lineno">   21</span><span class="keyword">constexpr</span> <span class="keyword">auto</span> _REC_linear = 3002;  <span class="comment">//çº¿æ€§é‡æ„</span></div>
 <div class="line"><a id="l00022" name="l00022"></a><span class="lineno">   22</span><span class="keyword">constexpr</span> <span class="keyword">auto</span> _REC_MUSCL = 3003;   <span class="comment">//MUSCL</span></div>
-<div class="line"><a id="l00023" name="l00023"></a><span class="lineno">   23</span><span class="comment">// Ìİ¶È</span></div>
-<div class="line"><a id="l00024" name="l00024"></a><span class="lineno">   24</span><span class="keyword">constexpr</span> <span class="keyword">auto</span> _GRA_leastSquare = 1;<span class="comment">// ×îĞ¡¶ş³ËÇóÌİ¶È</span></div>
-<div class="line"><a id="l00025" name="l00025"></a><span class="lineno">   25</span><span class="keyword">constexpr</span> <span class="keyword">auto</span> _GRA_greenGauss = 2;<span class="comment">// GreenGaussÇóÌİ¶È</span></div>
-<div class="line"><a id="l00026" name="l00026"></a><span class="lineno">   26</span><span class="comment">// Ê±¼äÍÆ½ø·½Ê½ 3101-3199 evolution</span></div>
-<div class="line"><a id="l00027" name="l00027"></a><span class="lineno">   27</span><span class="keyword">constexpr</span> <span class="keyword">auto</span> _EVO_explicit = 3101;<span class="comment">//ÏÔÊ½Ê±¼äÍÆ½ø</span></div>
+<div class="line"><a id="l00023" name="l00023"></a><span class="lineno">   23</span><span class="comment">// æ¢¯åº¦</span></div>
+<div class="line"><a id="l00024" name="l00024"></a><span class="lineno">   24</span><span class="keyword">constexpr</span> <span class="keyword">auto</span> _GRA_leastSquare = 1;<span class="comment">// æœ€å°äºŒä¹˜æ±‚æ¢¯åº¦</span></div>
+<div class="line"><a id="l00025" name="l00025"></a><span class="lineno">   25</span><span class="keyword">constexpr</span> <span class="keyword">auto</span> _GRA_greenGauss = 2;<span class="comment">// GreenGaussæ±‚æ¢¯åº¦</span></div>
+<div class="line"><a id="l00026" name="l00026"></a><span class="lineno">   26</span><span class="comment">// æ—¶é—´æ¨è¿›æ–¹å¼ 3101-3199 evolution</span></div>
+<div class="line"><a id="l00027" name="l00027"></a><span class="lineno">   27</span><span class="keyword">constexpr</span> <span class="keyword">auto</span> _EVO_explicit = 3101;<span class="comment">//æ˜¾å¼æ—¶é—´æ¨è¿›</span></div>
 <div class="line"><a id="l00028" name="l00028"></a><span class="lineno">   28</span><span class="keyword">constexpr</span> <span class="keyword">auto</span> _EVO_rk3 = 3103;<span class="comment">//RK3</span></div>
 <div class="line"><a id="l00029" name="l00029"></a><span class="lineno">   29</span><span class="keyword">constexpr</span> <span class="keyword">auto</span> _EVO_rk5 = 3105;</div>
-<div class="line"><a id="l00030" name="l00030"></a><span class="lineno">   30</span><span class="comment">// ÏŞÖÆÆ÷ 4001-4999 limiter</span></div>
+<div class="line"><a id="l00030" name="l00030"></a><span class="lineno">   30</span><span class="comment">// é™åˆ¶å™¨ 4001-4999 limiter</span></div>
 <div class="line"><a id="l00031" name="l00031"></a><span class="lineno">   31</span><span class="keyword">constexpr</span> <span class="keyword">auto</span> _LIM_none = 0;</div>
 <div class="line"><a id="l00032" name="l00032"></a><span class="lineno">   32</span><span class="keyword">constexpr</span> <span class="keyword">auto</span> _LIM_barth = 1;</div>
 <div class="line"><a id="l00033" name="l00033"></a><span class="lineno">   33</span><span class="keyword">constexpr</span> <span class="keyword">auto</span> _LIM_minmod = 2;</div>
 <div class="line"><a id="l00034" name="l00034"></a><span class="lineno">   34</span><span class="keyword">constexpr</span> <span class="keyword">auto</span> _LIM_vanleer = 3;</div>
-<div class="line"><a id="l00035" name="l00035"></a><span class="lineno">   35</span><span class="comment">// µ¥ÔªÀàĞÍ 5001-5999</span></div>
-<div class="line"><a id="l00036" name="l00036"></a><span class="lineno">   36</span><span class="keyword">constexpr</span> <span class="keyword">auto</span> _ELE_D2 = 5001;<span class="comment">//2½ÚµãÏß¶ÎÔª</span></div>
-<div class="line"><a id="l00037" name="l00037"></a><span class="lineno">   37</span><span class="keyword">constexpr</span> <span class="keyword">auto</span> _ELE_T3 = 5101;<span class="comment">//3½ÚµãÈı½ÇÔª</span></div>
-<div class="line"><a id="l00038" name="l00038"></a><span class="lineno">   38</span><span class="keyword">constexpr</span> <span class="keyword">auto</span> _ELE_Q4 = 5102;<span class="comment">//4½ÚµãËÄ±ßÔª</span></div>
-<div class="line"><a id="l00039" name="l00039"></a><span class="lineno">   39</span><span class="comment">// ±ß½çÀàĞÍ 6001-6999</span></div>
-<div class="line"><a id="l00040" name="l00040"></a><span class="lineno">   40</span><span class="keyword">constexpr</span> <span class="keyword">auto</span> _BC_wall_nonViscous = 6001;<span class="comment">//¹Ì±Ú£¬ÎŞÕ³(ÓĞ»¬ÒÆ)</span></div>
-<div class="line"><a id="l00041" name="l00041"></a><span class="lineno">   41</span><span class="keyword">constexpr</span> <span class="keyword">auto</span> _BC_wall_adiabat = 6002;<span class="comment">//¹Ì±Ú£¬ÎŞ»¬ÒÆ£¬¾øÈÈ</span></div>
-<div class="line"><a id="l00042" name="l00042"></a><span class="lineno">   42</span><span class="keyword">constexpr</span> <span class="keyword">auto</span> _BC_wall_isothermal = 6003;<span class="comment">//¹Ì±Ú£¬ÎŞ»¬ÒÆ£¬µÈÎÂ</span></div>
-<div class="line"><a id="l00043" name="l00043"></a><span class="lineno">   43</span><span class="keyword">constexpr</span> <span class="keyword">auto</span> _BC_inlet = 6011;<span class="comment">//Èë¿Ú</span></div>
-<div class="line"><a id="l00044" name="l00044"></a><span class="lineno">   44</span><span class="keyword">constexpr</span> <span class="keyword">auto</span> _BC_outlet = 6012;<span class="comment">//³ö¿Ú</span></div>
-<div class="line"><a id="l00045" name="l00045"></a><span class="lineno">   45</span><span class="keyword">constexpr</span> <span class="keyword">auto</span> _BC_inf = 6013;<span class="comment">//Ô¶³¡±ß½ç</span></div>
-<div class="line"><a id="l00046" name="l00046"></a><span class="lineno">   46</span><span class="keyword">constexpr</span> <span class="keyword">auto</span> _BC_doubleShockReflect = 6014;<span class="comment">// Ë«ÂíºÕ·´ÉäÌØÊâ±ß½ç</span></div>
-<div class="line"><a id="l00047" name="l00047"></a><span class="lineno">   47</span><span class="keyword">constexpr</span> <span class="keyword">auto</span> _BC_symmetry = 6021;<span class="comment">//¶Ô³Æ±ß½ç</span></div>
-<div class="line"><a id="l00048" name="l00048"></a><span class="lineno">   48</span><span class="keyword">constexpr</span> <span class="keyword">auto</span> _BC_periodic_0 = 6100;<span class="comment">//ÖÜÆÚ±ß½ç</span></div>
+<div class="line"><a id="l00035" name="l00035"></a><span class="lineno">   35</span><span class="comment">// å•å…ƒç±»å‹ 5001-5999</span></div>
+<div class="line"><a id="l00036" name="l00036"></a><span class="lineno">   36</span><span class="keyword">constexpr</span> <span class="keyword">auto</span> _ELE_D2 = 5001;<span class="comment">//2èŠ‚ç‚¹çº¿æ®µå…ƒ</span></div>
+<div class="line"><a id="l00037" name="l00037"></a><span class="lineno">   37</span><span class="keyword">constexpr</span> <span class="keyword">auto</span> _ELE_T3 = 5101;<span class="comment">//3èŠ‚ç‚¹ä¸‰è§’å…ƒ</span></div>
+<div class="line"><a id="l00038" name="l00038"></a><span class="lineno">   38</span><span class="keyword">constexpr</span> <span class="keyword">auto</span> _ELE_Q4 = 5102;<span class="comment">//4èŠ‚ç‚¹å››è¾¹å…ƒ</span></div>
+<div class="line"><a id="l00039" name="l00039"></a><span class="lineno">   39</span><span class="comment">// è¾¹ç•Œç±»å‹ 6001-6999</span></div>
+<div class="line"><a id="l00040" name="l00040"></a><span class="lineno">   40</span><span class="keyword">constexpr</span> <span class="keyword">auto</span> _BC_wall_nonViscous = 6001;<span class="comment">//å›ºå£ï¼Œæ— ç²˜(æœ‰æ»‘ç§»)</span></div>
+<div class="line"><a id="l00041" name="l00041"></a><span class="lineno">   41</span><span class="keyword">constexpr</span> <span class="keyword">auto</span> _BC_wall_adiabat = 6002;<span class="comment">//å›ºå£ï¼Œæ— æ»‘ç§»ï¼Œç»çƒ­</span></div>
+<div class="line"><a id="l00042" name="l00042"></a><span class="lineno">   42</span><span class="keyword">constexpr</span> <span class="keyword">auto</span> _BC_wall_isothermal = 6003;<span class="comment">//å›ºå£ï¼Œæ— æ»‘ç§»ï¼Œç­‰æ¸©</span></div>
+<div class="line"><a id="l00043" name="l00043"></a><span class="lineno">   43</span><span class="keyword">constexpr</span> <span class="keyword">auto</span> _BC_inlet = 6011;<span class="comment">//å…¥å£</span></div>
+<div class="line"><a id="l00044" name="l00044"></a><span class="lineno">   44</span><span class="keyword">constexpr</span> <span class="keyword">auto</span> _BC_outlet = 6012;<span class="comment">//å‡ºå£</span></div>
+<div class="line"><a id="l00045" name="l00045"></a><span class="lineno">   45</span><span class="keyword">constexpr</span> <span class="keyword">auto</span> _BC_inf = 6013;<span class="comment">//è¿œåœºè¾¹ç•Œ</span></div>
+<div class="line"><a id="l00046" name="l00046"></a><span class="lineno">   46</span><span class="keyword">constexpr</span> <span class="keyword">auto</span> _BC_doubleShockReflect = 6014;<span class="comment">// åŒé©¬èµ«åå°„ç‰¹æ®Šè¾¹ç•Œ</span></div>
+<div class="line"><a id="l00047" name="l00047"></a><span class="lineno">   47</span><span class="keyword">constexpr</span> <span class="keyword">auto</span> _BC_symmetry = 6021;<span class="comment">//å¯¹ç§°è¾¹ç•Œ</span></div>
+<div class="line"><a id="l00048" name="l00048"></a><span class="lineno">   48</span><span class="keyword">constexpr</span> <span class="keyword">auto</span> _BC_periodic_0 = 6100;<span class="comment">//å‘¨æœŸè¾¹ç•Œ</span></div>
 <div class="line"><a id="l00049" name="l00049"></a><span class="lineno">   49</span><span class="keyword">constexpr</span> <span class="keyword">auto</span> _BC_periodic_1 = 6101;</div>
 <div class="line"><a id="l00050" name="l00050"></a><span class="lineno">   50</span><span class="keyword">constexpr</span> <span class="keyword">auto</span> _BC_periodic_2 = 6102;</div>
 <div class="line"><a id="l00051" name="l00051"></a><span class="lineno">   51</span><span class="keyword">constexpr</span> <span class="keyword">auto</span> _BC_periodic_3 = 6103;</div>

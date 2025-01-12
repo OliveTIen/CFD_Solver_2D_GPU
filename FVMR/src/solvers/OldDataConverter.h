@@ -4,11 +4,15 @@
 #include "GPUSolver2.h"
 #include "../legacy/FVM_2D.h"
 
+
 namespace U2NITS {
 	/**
-	* 旧数据类型到新数据的转换
-	* 
-	*/
+	 * \class OldDataConverter
+	 * \brief
+	 * Convert datatype from class FVM_2D to GPU::GPUSolver2
+	 * \details 
+	 * <br>
+	 */
 	class OldDataConverter {
 	private:
 		FVM_2D* m_pFVM2D = nullptr;

@@ -106,13 +106,13 @@ $(document).ready(function() { init_codefold(0); });
 <div class="line"><a id="l00021" name="l00021"></a><span class="lineno">   21</span>        <span class="keywordtype">void</span> update_time(<span class="keywordtype">int</span> _time) {</div>
 <div class="line"><a id="l00022" name="l00022"></a><span class="lineno">   22</span>            m_last_used_time = _time;</div>
 <div class="line"><a id="l00023" name="l00023"></a><span class="lineno">   23</span>        }</div>
-<div class="line"><a id="l00024" name="l00024"></a><span class="lineno">   24</span>        <span class="comment">// modify value ĞŞ¸Äv¡£Î´À´¿É¿¼ÂÇ½ÓÊÜlambdaº¯Êı×÷Îª²ÎÊı¡£´Ë´¦Ö»ÊÇ¶ÔÊäÈë²ÎÊı×ö³Ë·¨</span></div>
+<div class="line"><a id="l00024" name="l00024"></a><span class="lineno">   24</span>        <span class="comment">// modify value ä¿®æ”¹vã€‚æœªæ¥å¯è€ƒè™‘æ¥å—lambdaå‡½æ•°ä½œä¸ºå‚æ•°ã€‚æ­¤å¤„åªæ˜¯å¯¹è¾“å…¥å‚æ•°åšä¹˜æ³•</span></div>
 <div class="line"><a id="l00025" name="l00025"></a><span class="lineno">   25</span>        <span class="keywordtype">void</span> operate(myfloat&amp; _value, myfloat para)<span class="keyword"> const </span>{ _value *= para; }</div>
-<div class="line"><a id="l00026" name="l00026"></a><span class="lineno">   26</span>        <span class="comment">// is cold time ready ÀäÈ´½áÊø£¬¿ÉÊ¹ÓÃ</span></div>
+<div class="line"><a id="l00026" name="l00026"></a><span class="lineno">   26</span>        <span class="comment">// is cold time ready å†·å´ç»“æŸï¼Œå¯ä½¿ç”¨</span></div>
 <div class="line"><a id="l00027" name="l00027"></a><span class="lineno">   27</span>        <span class="keywordtype">bool</span> is_CD_ready(<span class="keywordtype">int</span> _time)<span class="keyword"> const </span>{</div>
 <div class="line"><a id="l00028" name="l00028"></a><span class="lineno">   28</span>            <span class="keywordflow">return</span> (_time - m_last_used_time) &gt;= m_cold_time;</div>
 <div class="line"><a id="l00029" name="l00029"></a><span class="lineno">   29</span>        }</div>
-<div class="line"><a id="l00030" name="l00030"></a><span class="lineno">   30</span>        <span class="comment">// ÈôCDºÃÁË£¬ÔòÊ¹ÓÃ¼¼ÄÜ£¬²¢ÖØÖÃCD£¬·µ»Øtrue¡£·ñÔò·µ»Øfalse</span></div>
+<div class="line"><a id="l00030" name="l00030"></a><span class="lineno">   30</span>        <span class="comment">// è‹¥CDå¥½äº†ï¼Œåˆ™ä½¿ç”¨æŠ€èƒ½ï¼Œå¹¶é‡ç½®CDï¼Œè¿”å›trueã€‚å¦åˆ™è¿”å›false</span></div>
 <div class="line"><a id="l00031" name="l00031"></a><span class="lineno">   31</span>        <span class="keywordtype">bool</span> try_operate(myfloat&amp; _value, <span class="keywordtype">int</span> _time, myfloat para) {</div>
 <div class="line"><a id="l00032" name="l00032"></a><span class="lineno">   32</span>            <span class="keywordflow">if</span> (is_CD_ready(_time)) {</div>
 <div class="line"><a id="l00033" name="l00033"></a><span class="lineno">   33</span>                operate(_value, para);</div>
@@ -126,37 +126,37 @@ $(document).ready(function() { init_codefold(0); });
 <div class="line"><a id="l00041" name="l00041"></a><span class="lineno">   41</span> </div>
 <div class="line"><a id="l00042" name="l00042"></a><span class="lineno">   42</span> </div>
 <div class="line"><a id="l00043" name="l00043"></a><span class="lineno">   43</span><span class="keyword">public</span>:</div>
-<div class="line"><a id="l00044" name="l00044"></a><span class="lineno">   44</span>    myfloat tolerance_max_CFL = 500;<span class="comment">// ÔÊĞí×î´óCFL(ºóÃæ·¢ÏÖCFL»¹¿ÉÒÔÔö´ó£¬Òò´Ë¸Ã²ÎÊıÎ´Ê¹ÓÃ)</span></div>
-<div class="line"><a id="l00045" name="l00045"></a><span class="lineno">   45</span>    myfloat tolerance_min_CFL = 0.5;<span class="comment">// ÔÊĞí×îĞ¡CFL</span></div>
-<div class="line"><a id="l00046" name="l00046"></a><span class="lineno">   46</span>    <span class="keywordtype">int</span> increase_start_time = 5000;<span class="comment">// ÔÊĞíÔö´óCFLµÄÆğÊ¼Ê±¼ä²½</span></div>
-<div class="line"><a id="l00047" name="l00047"></a><span class="lineno">   47</span>    <span class="keywordtype">int</span> decrease_start_time = 1000;<span class="comment">// ÔÊĞí¼õĞ¡CFLµÄÆğÊ¼Ê±¼ä²½</span></div>
+<div class="line"><a id="l00044" name="l00044"></a><span class="lineno">   44</span>    myfloat tolerance_max_CFL = 500;<span class="comment">// å…è®¸æœ€å¤§CFL(åé¢å‘ç°CFLè¿˜å¯ä»¥å¢å¤§ï¼Œå› æ­¤è¯¥å‚æ•°æœªä½¿ç”¨)</span></div>
+<div class="line"><a id="l00045" name="l00045"></a><span class="lineno">   45</span>    myfloat tolerance_min_CFL = 0.5;<span class="comment">// å…è®¸æœ€å°CFL</span></div>
+<div class="line"><a id="l00046" name="l00046"></a><span class="lineno">   46</span>    <span class="keywordtype">int</span> increase_start_time = 5000;<span class="comment">// å…è®¸å¢å¤§CFLçš„èµ·å§‹æ—¶é—´æ­¥</span></div>
+<div class="line"><a id="l00047" name="l00047"></a><span class="lineno">   47</span>    <span class="keywordtype">int</span> decrease_start_time = 1000;<span class="comment">// å…è®¸å‡å°CFLçš„èµ·å§‹æ—¶é—´æ­¥</span></div>
 <div class="line"><a id="l00048" name="l00048"></a><span class="lineno">   48</span> </div>
 <div class="line"><a id="l00049" name="l00049"></a><span class="lineno">   49</span><span class="keyword">private</span>:</div>
-<div class="line"><a id="l00050" name="l00050"></a><span class="lineno">   50</span>    <span class="keyword">static</span> <a class="code hl_class" href="class_routine_controller.html">RoutineController</a>* p_instance;<span class="comment">// µ¥Àı£¬ÀàÖ¸Õë</span></div>
-<div class="line"><a id="l00051" name="l00051"></a><span class="lineno">   51</span>    <span class="keywordtype">int</span> m_strategy = 0;<span class="comment">// Ê±¼äÍÆ½ø²ßÂÔ</span></div>
+<div class="line"><a id="l00050" name="l00050"></a><span class="lineno">   50</span>    <span class="keyword">static</span> <a class="code hl_class" href="class_routine_controller.html">RoutineController</a>* p_instance;<span class="comment">// å•ä¾‹ï¼Œç±»æŒ‡é’ˆ</span></div>
+<div class="line"><a id="l00051" name="l00051"></a><span class="lineno">   51</span>    <span class="keywordtype">int</span> m_strategy = 0;<span class="comment">// æ—¶é—´æ¨è¿›ç­–ç•¥</span></div>
 <div class="line"><a id="l00052" name="l00052"></a><span class="lineno">   52</span> </div>
-<div class="line"><a id="l00053" name="l00053"></a><span class="lineno">   53</span>    <span class="keywordtype">int</span> m_num_of_strategy_calls = 0;<span class="comment">// ²ßÂÔÒÑµ÷ÓÃ´ÎÊı</span></div>
-<div class="line"><a id="l00054" name="l00054"></a><span class="lineno">   54</span>    <span class="keywordtype">int</span> m_current_time = 0;<span class="comment">// µ±Ç°Ê±¼ä²½</span></div>
+<div class="line"><a id="l00053" name="l00053"></a><span class="lineno">   53</span>    <span class="keywordtype">int</span> m_num_of_strategy_calls = 0;<span class="comment">// ç­–ç•¥å·²è°ƒç”¨æ¬¡æ•°</span></div>
+<div class="line"><a id="l00054" name="l00054"></a><span class="lineno">   54</span>    <span class="keywordtype">int</span> m_current_time = 0;<span class="comment">// å½“å‰æ—¶é—´æ­¥</span></div>
 <div class="line"><a id="l00055" name="l00055"></a><span class="lineno">   55</span>    myfloat m_current_CFL = 0.8;</div>
 <div class="line"><a id="l00056" name="l00056"></a><span class="lineno">   56</span>    myfloat m_current_residual_rho = 1e4;</div>
-<div class="line"><a id="l00057" name="l00057"></a><span class="lineno">   57</span>    myfloat m_record_res_rho = 10;<span class="comment">// ²Ğ²î</span></div>
+<div class="line"><a id="l00057" name="l00057"></a><span class="lineno">   57</span>    myfloat m_record_res_rho = 10;<span class="comment">// æ®‹å·®</span></div>
 <div class="line"><a id="l00058" name="l00058"></a><span class="lineno">   58</span> </div>
 <div class="line"><a id="l00059" name="l00059"></a><span class="lineno">   59</span>    Action increase;</div>
 <div class="line"><a id="l00060" name="l00060"></a><span class="lineno">   60</span>    Action decrease;</div>
 <div class="line"><a id="l00061" name="l00061"></a><span class="lineno">   61</span> </div>
 <div class="line"><a id="l00062" name="l00062"></a><span class="lineno">   62</span><span class="keyword">public</span>:</div>
 <div class="line"><a id="l00063" name="l00063"></a><span class="lineno">   63</span>    <span class="keyword">static</span> <a class="code hl_class" href="class_routine_controller.html">RoutineController</a>* getInstance();</div>
-<div class="line"><a id="l00064" name="l00064"></a><span class="lineno">   64</span>    <span class="comment">// ÉèÖÃÊ±¼äÍÆ½ø²ßÂÔ¡£Ö»±»TomlFileManagerµ÷ÓÃ</span></div>
+<div class="line"><a id="l00064" name="l00064"></a><span class="lineno">   64</span>    <span class="comment">// è®¾ç½®æ—¶é—´æ¨è¿›ç­–ç•¥ã€‚åªè¢«TomlFileManagerè°ƒç”¨</span></div>
 <div class="line"><a id="l00065" name="l00065"></a><span class="lineno">   65</span>    <span class="keywordtype">void</span> setStrategy(<span class="keywordtype">int</span> s);</div>
 <div class="line"><a id="l00066" name="l00066"></a><span class="lineno">   66</span>    <span class="keywordtype">int</span> getStrategy() { <span class="keywordflow">return</span> m_strategy; }</div>
-<div class="line"><a id="l00067" name="l00067"></a><span class="lineno">   67</span>    <span class="comment">// Ó¦ÓÃÊ±¼äÍÆ½ø²ßÂÔ£¬¶¯Ì¬µ÷ÕûCFLÊı</span></div>
+<div class="line"><a id="l00067" name="l00067"></a><span class="lineno">   67</span>    <span class="comment">// åº”ç”¨æ—¶é—´æ¨è¿›ç­–ç•¥ï¼ŒåŠ¨æ€è°ƒæ•´CFLæ•°</span></div>
 <div class="line"><a id="l00068" name="l00068"></a><span class="lineno">   68</span>    <span class="keywordtype">void</span> applyStrategy(myfloat residual_rho, myfloat&amp; CFL, <span class="keywordtype">int</span> step, <span class="keywordtype">bool</span>&amp; apply_success);</div>
 <div class="line"><a id="l00069" name="l00069"></a><span class="lineno">   69</span> </div>
 <div class="line"><a id="l00070" name="l00070"></a><span class="lineno">   70</span><span class="keyword">private</span>:</div>
 <div class="line"><a id="l00071" name="l00071"></a><span class="lineno">   71</span>    <a class="code hl_class" href="class_routine_controller.html">RoutineController</a>() {};</div>
-<div class="line"><a id="l00072" name="l00072"></a><span class="lineno">   72</span>    <span class="comment">// ²ßÂÔ£º¶¯Ì¬µ÷ÕûCFL</span></div>
+<div class="line"><a id="l00072" name="l00072"></a><span class="lineno">   72</span>    <span class="comment">// ç­–ç•¥ï¼šåŠ¨æ€è°ƒæ•´CFL</span></div>
 <div class="line"><a id="l00073" name="l00073"></a><span class="lineno">   73</span>    <span class="keywordtype">void</span> strategy_dynamic_CFL(myfloat&amp; CFL, <span class="keywordtype">bool</span>&amp; apply_success);</div>
-<div class="line"><a id="l00074" name="l00074"></a><span class="lineno">   74</span>    <span class="comment">// ³¢ÊÔÓÃactionĞŞ¸Ä²ÎÊıÖµ¡£ÈôÒÑÀäÈ´£¬Ôò³É¹¦£¬¸üĞÂaction¼ÆÊ±Æ÷£¬·µ»Øtrue</span></div>
+<div class="line"><a id="l00074" name="l00074"></a><span class="lineno">   74</span>    <span class="comment">// å°è¯•ç”¨actionä¿®æ”¹å‚æ•°å€¼ã€‚è‹¥å·²å†·å´ï¼Œåˆ™æˆåŠŸï¼Œæ›´æ–°actionè®¡æ—¶å™¨ï¼Œè¿”å›true</span></div>
 <div class="line"><a id="l00075" name="l00075"></a><span class="lineno">   75</span>    <span class="keywordtype">bool</span> tryApplyAction(Action&amp; a, myfloat&amp; value) {<span class="keywordflow">return</span> a.try_operate(value, m_current_time, a.get_value());}</div>
 <div class="line"><a id="l00076" name="l00076"></a><span class="lineno">   76</span>    <span class="keywordtype">bool</span> tryApplyAction(Action&amp; a, myfloat&amp; value, myfloat para) {<span class="keywordflow">return</span> a.try_operate(value, m_current_time, para);}</div>
 <div class="line"><a id="l00077" name="l00077"></a><span class="lineno">   77</span>};</div>

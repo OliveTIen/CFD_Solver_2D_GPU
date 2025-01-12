@@ -261,12 +261,6 @@
     <ClInclude Include="src\output\residual\ResidualGPU.h">
       <Filter>src\output\residual</Filter>
     </ClInclude>
-    <ClInclude Include="src\solvers\CEulerSolver.h">
-      <Filter>src\solvers</Filter>
-    </ClInclude>
-    <ClInclude Include="src\solvers\CSolver.h">
-      <Filter>src\solvers</Filter>
-    </ClInclude>
     <ClInclude Include="src\solvers\GPUSolver2.h">
       <Filter>src\solvers</Filter>
     </ClInclude>
@@ -539,12 +533,6 @@
     </ClCompile>
     <ClCompile Include="src\output\residual\Residual.cpp">
       <Filter>src\output\residual</Filter>
-    </ClCompile>
-    <ClCompile Include="src\solvers\CEulerSolver.cpp">
-      <Filter>src\solvers</Filter>
-    </ClCompile>
-    <ClCompile Include="src\solvers\CSolver.cpp">
-      <Filter>src\solvers</Filter>
     </ClCompile>
     <ClCompile Include="src\solvers\GPUSolver2.cpp">
       <Filter>src\solvers</Filter>

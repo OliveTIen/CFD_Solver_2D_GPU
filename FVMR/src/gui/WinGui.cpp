@@ -14,11 +14,15 @@
 #include <glm/gtc/matrix_transform.hpp>
 #include <glm/gtc/type_ptr.hpp>
 
+//#define STB_IMAGE_IMPLEMENTATION
+#include "stb_image.h"
+
 #if defined(_MSC_VER) && (_MSC_VER >= 1900) && !defined(IMGUI_DISABLE_WIN32_FUNCTIONS)
 #pragma comment(lib, "legacy_stdio_definitions")
 #endif
 
 #include "WinGui.h"
+
 #include "sph/ParticleSystem.h"
 #include "cuda/CudaGrid.h"
 
@@ -27,6 +31,7 @@ void WinGui::init() {
     if (!m_enabled)return;
     m_control = new Control();
     m_scene = new Scene();
+    m_fileDialog = new ImGui::FileBrowser();
 
     const char* window_title = "OpenGL Project";
 
@@ -49,6 +54,13 @@ void WinGui::init() {
         //return -1;
         exit(-1);
     }
+
+    // set window icon
+    GLFWimage images[1];
+    images[0].pixels = stbi_load("img/grass_dirt.png", &images[0].width, &images[0].height, 0, 4); //rgba channels
+    glfwSetWindowIcon(m_window, 1, images);
+    stbi_image_free(images[0].pixels);
+
     glfwSetWindowTitle(m_window, window_title);
     glfwMakeContextCurrent(m_window);
     glfwSetFramebufferSizeCallback(m_window, Control::framebuffer_resize_callback);
@@ -124,6 +136,7 @@ void WinGui::cleanup() {
 
     delete m_control;
     delete m_scene;
+    delete m_fileDialog;
 }
 
 void WinGui::panel_ParticleSystem() {
@@ -271,6 +284,23 @@ void WinGui::update_imgui() {
 
         ImGui::Begin("Control");                          // Create a window called "Hello, world!" and append into it.
 
+
+        //// file
+        // https://github.com/AirGuanZ/imgui-filebrowser
+        ImGui::FileBrowser& fileDialog = *m_fileDialog;
+        fileDialog.SetTitle("title");
+        fileDialog.SetTypeFilters({ ".h", ".cpp" });
+        if (ImGui::Button("open file dialog"))
+            fileDialog.Open();
+        static std::string selected_file = "<null>";
+        ImGui::Text("Selected file: %s", selected_file.c_str());
+
+        if (fileDialog.HasSelected()) {
+            selected_file = fileDialog.GetSelected().string();
+            fileDialog.ClearSelected();
+        }
+
+        // status
         ImGui::Text("Application average %.3f ms/frame (%.1f FPS)", 1000.0f / io.Framerate, io.Framerate);
         ImGui::Text("control.dt %.3f ", control.deltaTime);
 
@@ -300,6 +330,10 @@ void WinGui::update_imgui() {
         panel_ParticleSystem();
         panel_FVMR();
         ImGui::End();
+
+        m_fileDialog->Display();
+
+
     }
 }
 
@@ -430,8 +464,6 @@ void WinGui::buttons_ColorTest() {
     ImGui::SetNextItemWidth(w);
     ImGui::ColorPicker3("##MyColor##6", (float*)&color, ImGuiColorEditFlags_PickerHueWheel | ImGuiColorEditFlags_NoSidePreview | ImGuiColorEditFlags_NoInputs | ImGuiColorEditFlags_NoAlpha);
 }
-
-
 
 bool WinGui::windowShouldClose() {
     if (!m_enabled)return true;

@@ -26,31 +26,28 @@ U2NITS::CDriver* U2NITS::CDriver::getInstance() {
 /// #### Call
 /// - @ref WinGui::init <br>
 /// - @ref CIteration::iteration_device (iteration on GPU)<br>
-/// - @ref CIteration::iteration_host
+/// - @ref CIteration::iteration_host<br>
+/// 
+/// The bottle neck of GPU code is memcpy, which takes up about 50% of 
+/// the total calculation time.<br>
+/// Notice: there's no need to write a field file for each time step. 
+/// 
 /// </summary>
 void U2NITS::CDriver::start() {
-	/*
-	The bottle neck of GPU code is memcpy, which takes up about 50% of 
-	the total calculation time.
-
-	GPU代码瓶颈在于拷贝占用50%时间
-	不要每步都device_to_host，只有需要写文件时才device_to_host
-	因此需要把device_to_host放在solver.updateResidualVector();之前
-	*/
 
 	out.console.printWelcomeInterface();
 	input.readConfig();
 	input.readField_1();
 	solver.allocateMemory();
 	solver.initializeData();
-	// should be put after reading config 部分控制参数的引用。需要在readConfig后使用，否则未初始化
+	// Should be put after reading config. Otherwise they're undefined
 	const int istep_start = GlobalPara::time::istep_previous;
 	const int maxIteration = GlobalPara::output::maxIteration;
 	int istep = istep_start;// current step
 	myfloat t = GlobalPara::time::t_previous;// current physical time
 	const myfloat T = GlobalPara::time::max_physical_time;
-	double current_time = 0.0;// program running time (in seconds)当前时间[秒](从计时器开始算起)
-	double pure_calculate_speed = 0.0;// time calculation costs (in seconds) 迭代纯计算部分所用时间
+	double current_time = 0.0;// program running time (in seconds), controled by timer
+	double pure_calculate_speed = 0.0;// time calculation costs (in seconds) for pure calculation only
 	double mean_speed = 0.0;
 
 	gui.set_enabled(show_gui); // same as; gui.get_enabled_ref() = show_gui;
@@ -88,7 +85,7 @@ void U2NITS::CDriver::start() {
 			solver.setIterationStarted(true);
 		}
 
-		if(enable_print) std::cout << ".";// to show that it doesn't stucks 输出“.”表示正在计算，没有卡顿
+		if(enable_print) std::cout << ".";// to show that it doesn't stucks (that it is working)
 
 		double new_time = out.timer.getTime();
 		//pure_calculate_speed = 1.0 / (new_time - current_time);
@@ -99,11 +96,8 @@ void U2NITS::CDriver::start() {
 		modifySignalPack1_output(sp, istep, maxIteration, current_time);
 		modifySignalPack2_pause(sp, istep, maxIteration, t, T, solver.residualVector[0]);
 
-		/*
-		新代码 若需要打印或输出文件，则拷贝设备到主机
-		需要拷贝的数据：
-		elementField_host 计算残差residualVector、计算节点输出值nodeField_host(用于tecplot)、输出continuefile/recoveryfile
-		*/ 
+		// Transfer data from device to host only if it's required to print or log or output
+		// Data contains elementField_host, residualVector, nodeField_host(for tecplot format field), continuefile etc.
 		if (GlobalPara::basic::useGPU) {
 			if (sp.b_print ||
 				sp.b_writeContinue || sp.b_writeTecplot || sp.b_writeRecovery || sp.b_writeHist) {
@@ -111,10 +105,10 @@ void U2NITS::CDriver::start() {
 			}
 		}
 
-		// print 打印操作
+		// print to the console
 		if (enable_print && sp.b_print) {
-			solver.updateResidualVector();// 根据elementField_host计算residualVector
-			// 调整CFL数，后面计算dt时会用到
+			solver.updateResidualVector();// use elementField_host to calculate residualVector
+			// adjust the Courant number dynamicly, which will be used to calculate delta t 
 			bool apply_strategy_success = false;
 			RoutineController::getInstance()->applyStrategy(solver.residualVector[0], GlobalPara::time::CFL, istep, apply_strategy_success);
 			if (apply_strategy_success) {
@@ -130,7 +124,7 @@ void U2NITS::CDriver::start() {
 			out.console.setSolveInfo(istep, maxIteration, out.getFieldWriter()->getNumTecplotFileWritten(), current_time, t, T, solver.residualVector, GlobalPara::time::CFL, mean_speed, pure_calculate_speed);
 			out.console.print(out.console.getSolveInfo());
 		}
-		// show info 记录求解速度
+		// Show info. To log the time consumed
 		if (sp.b_writeContinue || sp.b_writeTecplot) {
 			out.log.log("write field file. \n");
 			std::stringstream ss;
@@ -139,7 +133,6 @@ void U2NITS::CDriver::start() {
 				<< "\tpure calculate speed = " << pure_calculate_speed << " step/s"
 				<< "\n";
 			LogWriter::log(ss.str());
-
 		}
 
 
@@ -174,6 +167,7 @@ void U2NITS::CDriver::start() {
 		}
 		updateOldData_istep_t(istep, t);
 	}
+	// continue rendering when computing finished
 	while (!gui.windowShouldClose()) {
 		gui.render();
 	}
@@ -202,14 +196,14 @@ void U2NITS::CDriver::m_saveAndExit(int _Code) {
 
 void U2NITS::CDriver::modifySignalPack1_output(SignalPack& s, int istep, int maxIteration, double current_time) {
 
-	// force to write file in the first step 第一步强制输出
+	// force to write file in the first step
 	if (istep == 1) {
 		s.b_print = true;
 		s.b_writeTecplot = true;
 		s.b_writeHist = true;
 	}
 
-	// write file every certain steps 每隔一定步数输出
+	// write file every certain steps
 	const int offset = 0;
 	if (istep % GlobalPara::output::step_per_print == offset) {
 		s.b_print = true;
@@ -224,7 +218,7 @@ void U2NITS::CDriver::modifySignalPack1_output(SignalPack& s, int istep, int max
 		s.b_writeHist = true;
 	}
 
-	// write file every certain time 每隔一段时间输出
+	// write file every certain time (real time)
 	double duration_since_last_snapshot = current_time - m_last_snapshot_time;
 	if (duration_since_last_snapshot > m_snapshot_cold_time) {
 		s.b_writeContinue = true;
@@ -239,7 +233,7 @@ void U2NITS::CDriver::modifySignalPack2_pause(SignalPack& s, int istep, int maxI
 		s.b_writeContinue = true;
 		s.b_writeTecplot = true;
 		s.b_nanDetected = true;
-		s.b_writeRecovery = false;// do NOT write abnormal recovery file 防止原正常的recovery被含有nan的recovery覆盖
+		s.b_writeRecovery = false;// if NaN comes up, there's no sense to write an abnormal recovery file
 		s.pauseSignal = _NanDetected;
 	}
 	else if ((_kbhit() && _getch() == 27) || gui.get_enabled() && gui.windowShouldClose()) {

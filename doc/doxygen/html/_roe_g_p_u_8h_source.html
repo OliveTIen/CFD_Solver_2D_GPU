@@ -103,12 +103,12 @@ $(document).ready(function() { init_codefold(0); });
 <div class="line"><a id="l00019" name="l00019"></a><span class="lineno">   19</span>            __device__ <span class="keyword">inline</span> myfloat PShockWaveSensor() { <span class="keywordflow">return</span> 0.5; }</div>
 <div class="line"><a id="l00020" name="l00020"></a><span class="lineno">   20</span> </div>
 <div class="line"><a id="l00021" name="l00021"></a><span class="lineno">   21</span>            __device__ <span class="keyword">inline</span> <span class="keywordtype">void</span> EigenEntropyFix_HartenYee(myfloat&amp; eig, myfloat eig_lim, myfloat epsilon) {</div>
-<div class="line"><a id="l00022" name="l00022"></a><span class="lineno">   22</span>                <span class="comment">// Harten-YeeĞÍìØĞŞÕı Ä¿µÄÊÇÈÃÌØÕ÷Öµ²»ÒªÌ«½Ó½ü0£¬µ¼ÖÂ·ÇÎïÀí½â</span></div>
-<div class="line"><a id="l00023" name="l00023"></a><span class="lineno">   23</span>                <span class="comment">// eig-ÌØÕ÷Öµ£¬lim-ÏŞÖÆÆ÷£¬epsilon-·ÀÖ¹·ÖÄ¸Îª0</span></div>
-<div class="line"><a id="l00024" name="l00024"></a><span class="lineno">   24</span>                <span class="comment">// µ±eigĞ¡ÓÚeig_limÊ±£¬Ôö´óeig£¬Ê¹ÆäÔ¶Àë0</span></div>
-<div class="line"><a id="l00025" name="l00025"></a><span class="lineno">   25</span>                <span class="comment">// »ù±¾²»µÈÊ½a^2+b^2&gt;=2ab£¬Òò´Ë(e*e+l*l)/(2*l)&gt;=(2*e*l)/(2*l)= e</span></div>
+<div class="line"><a id="l00022" name="l00022"></a><span class="lineno">   22</span>                <span class="comment">// Harten-Yeeå‹ç†µä¿®æ­£ ç›®çš„æ˜¯è®©ç‰¹å¾å€¼ä¸è¦å¤ªæ¥è¿‘0ï¼Œå¯¼è‡´éç‰©ç†è§£</span></div>
+<div class="line"><a id="l00023" name="l00023"></a><span class="lineno">   23</span>                <span class="comment">// eig-ç‰¹å¾å€¼ï¼Œlim-é™åˆ¶å™¨ï¼Œepsilon-é˜²æ­¢åˆ†æ¯ä¸º0</span></div>
+<div class="line"><a id="l00024" name="l00024"></a><span class="lineno">   24</span>                <span class="comment">// å½“eigå°äºeig_limæ—¶ï¼Œå¢å¤§eigï¼Œä½¿å…¶è¿œç¦»0</span></div>
+<div class="line"><a id="l00025" name="l00025"></a><span class="lineno">   25</span>                <span class="comment">// åŸºæœ¬ä¸ç­‰å¼a^2+b^2&gt;=2abï¼Œå› æ­¤(e*e+l*l)/(2*l)&gt;=(2*e*l)/(2*l)= e</span></div>
 <div class="line"><a id="l00026" name="l00026"></a><span class="lineno">   26</span> </div>
-<div class="line"><a id="l00027" name="l00027"></a><span class="lineno">   27</span>                <span class="comment">// Ô­Ê½£º </span></div>
+<div class="line"><a id="l00027" name="l00027"></a><span class="lineno">   27</span>                <span class="comment">// åŸå¼ï¼š </span></div>
 <div class="line"><a id="l00028" name="l00028"></a><span class="lineno">   28</span>                <span class="keywordflow">if</span> (eig &lt; eig_lim) {</div>
 <div class="line"><a id="l00029" name="l00029"></a><span class="lineno">   29</span>                    eig = 0.5 * (eig * eig + eig_lim * eig_lim) / (eig_lim + epsilon);</div>
 <div class="line"><a id="l00030" name="l00030"></a><span class="lineno">   30</span>                }</div>

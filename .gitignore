@@ -15,6 +15,7 @@
 # Project FVMR
 /FVMR/release_pack
 /FVMR/x64
+/FVMR/working_directory/*.LOG
 
 # Project TestCode
 /TestCode
@@ -23,6 +24,8 @@
 /doc/fix-issue
 /doc/uncompleted
 /doc/unused_code
+/doc/*.lnk
+/doc/doxygen/html
 
 # IDE Cache
 /.vs

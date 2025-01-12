@@ -19,11 +19,7 @@ void SU2MeshReader::read_mesh_and_process(std::string filePath, bool convertRect
 }
 
 void SU2MeshReader::readMesh(std::string filePath, bool convertRectToTriangle, int& maxnodeID, int& maxelementID, std::vector<SimpleBoundary>& tmp_boudaries) {
-	/*
-	读取SU2网格文件。
-	包括节点编号、节点坐标
-	单元编号、每个单元的节点编号
-	*/
+
 	LogWriter::logAndPrint("Mesh file: " + filePath + "\n");
 	FVM_2D* pFVM2D = FVM_2D::getInstance();
 	std::ifstream infile(filePath);

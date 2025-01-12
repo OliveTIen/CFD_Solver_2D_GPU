@@ -13,7 +13,7 @@ int main() {
 	return 0;
 }
 
-// Doxygen标记参考: https://blog.csdn.net/qq_36631379/article/details/121980455
+// Doxygen Usage Reference: https://blog.csdn.net/qq_36631379/article/details/121980455
 /**
  * \mainpage FVMR Documentation
  * #### Description
@@ -24,6 +24,7 @@ int main() {
  * #### Quick Tour
  * To quickly familiarize yourself with the code, 
  * please start with the entry point @ref main.cpp .
- * 
+ * #### Others
+ * Doxygen reference: https://www.doxygen.nl/manual/docblocks.html#cppblock
  * 
  */

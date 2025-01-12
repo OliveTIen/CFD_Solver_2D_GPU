@@ -13,6 +13,7 @@
   <PropertyGroup Label="Globals">
     <ProjectGuid>{300E3923-BE89-42F0-B1FD-CEEAA3E88B07}</ProjectGuid>
     <RootNamespace>FVMR</RootNamespace>
+    <WindowsTargetPlatformVersion>10.0</WindowsTargetPlatformVersion>
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'" Label="Configuration">
@@ -45,7 +46,7 @@
     <LibraryPath>$(SolutionDir)common\gl\lib\$(platform);$(LibraryPath)</LibraryPath>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
-    <IncludePath>$(solutiondir)common\gl;$(solutiondir)common\imgui;$(solutiondir)common\imgui\backends;$(solutiondir)common;$(IncludePath)</IncludePath>
+    <IncludePath>$(solutiondir)common;$(solutiondir)common/gl;$(IncludePath)</IncludePath>
     <LibraryPath>$(SolutionDir)common\gl\lib\$(platform);$(LibraryPath)</LibraryPath>
   </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
@@ -55,6 +56,7 @@
       <PreprocessorDefinitions>WIN32;WIN64;_DEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <OpenMPSupport>true</OpenMPSupport>
       <AdditionalOptions>"/bigobj" %(AdditionalOptions)</AdditionalOptions>
+      <LanguageStandard>stdcpp17</LanguageStandard>
     </ClCompile>
     <Link>
       <GenerateDebugInformation>true</GenerateDebugInformation>
@@ -74,6 +76,7 @@
       <IntrinsicFunctions>true</IntrinsicFunctions>
       <PreprocessorDefinitions>WIN32;WIN64;NDEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <AdditionalOptions>"/bigobj" %(AdditionalOptions)</AdditionalOptions>
+      <LanguageStandard>stdcpp17</LanguageStandard>
     </ClCompile>
     <Link>
       <GenerateDebugInformation>true</GenerateDebugInformation>
@@ -176,8 +179,6 @@
     <ClInclude Include="src\output\residual\EnumNormType.h" />
     <ClInclude Include="src\output\residual\Residual.h" />
     <ClInclude Include="src\output\residual\ResidualGPU.h" />
-    <ClInclude Include="src\solvers\CEulerSolver.h" />
-    <ClInclude Include="src\solvers\CSolver.h" />
     <ClInclude Include="src\solvers\GPUSolver2.h" />
     <ClInclude Include="src\solvers\OldDataConverter.h" />
     <ClInclude Include="src\solvers\SolverDataGetter.h" />
@@ -261,8 +262,6 @@
     <ClCompile Include="src\output\HistWriter.cpp" />
     <ClCompile Include="src\output\LogWriter.cpp" />
     <ClCompile Include="src\output\residual\Residual.cpp" />
-    <ClCompile Include="src\solvers\CEulerSolver.cpp" />
-    <ClCompile Include="src\solvers\CSolver.cpp" />
     <ClCompile Include="src\solvers\GPUSolver2.cpp" />
     <ClCompile Include="src\solvers\OldDataConverter.cpp" />
     <ClCompile Include="src\solvers\SolverDataGetter.cpp" />

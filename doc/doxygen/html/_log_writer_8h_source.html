@@ -105,14 +105,14 @@ $(document).ready(function() { init_codefold(0); });
 <div class="line"><a id="l00020" name="l00020"></a><span class="lineno">   20</span>    <span class="keyword">static</span> std::ofstream m_logFile;</div>
 <div class="line"><a id="l00021" name="l00021"></a><span class="lineno">   21</span>    <span class="keyword">static</span> std::string m_logFilePath;</div>
 <div class="line"><a id="l00022" name="l00022"></a><span class="lineno">   22</span>    <span class="keyword">static</span> <span class="keywordtype">bool</span> m_hasInitilized;</div>
-<div class="line"><a id="l00023" name="l00023"></a><span class="lineno">   23</span>    <span class="keyword">static</span> LogLevel m_logLevel;<span class="comment">// ²Î¿¼Êä³ö¼¶±ğ</span></div>
+<div class="line"><a id="l00023" name="l00023"></a><span class="lineno">   23</span>    <span class="keyword">static</span> LogLevel m_logLevel;<span class="comment">// å‚è€ƒè¾“å‡ºçº§åˆ«</span></div>
 <div class="line"><a id="l00024" name="l00024"></a><span class="lineno">   24</span>    <span class="keyword">static</span> LogLevel m_coutLevel;</div>
 <div class="line"><a id="l00025" name="l00025"></a><span class="lineno">   25</span>    <span class="keyword">static</span> std::string enumToString(LogLevel level);</div>
 <div class="line"><a id="l00026" name="l00026"></a><span class="lineno">   26</span>    <span class="keyword">static</span> std::string enumToStringWithBracket(LogLevel level);</div>
 <div class="line"><a id="l00027" name="l00027"></a><span class="lineno">   27</span> </div>
 <div class="line"><a id="l00028" name="l00028"></a><span class="lineno">   28</span><span class="keyword">public</span>:</div>
 <div class="line"><a id="l00029" name="l00029"></a><span class="lineno">   29</span>    <span class="comment">//static void setLogPath(std::string fullFilePath) { m_fullFilePath = fullFilePath; }</span></div>
-<div class="line"><a id="l00030" name="l00030"></a><span class="lineno">   30</span>    <span class="comment">//app 1-ĞøĞ´ 0-¸²¸Ç ĞëÔÚfilename³õÊ¼»¯ºóÊ¹ÓÃ</span></div>
+<div class="line"><a id="l00030" name="l00030"></a><span class="lineno">   30</span>    <span class="comment">//app 1-ç»­å†™ 0-è¦†ç›– é¡»åœ¨filenameåˆå§‹åŒ–åä½¿ç”¨</span></div>
 <div class="line"><a id="l00031" name="l00031"></a><span class="lineno">   31</span>    <span class="keyword">static</span> <span class="keywordtype">void</span> log(std::string content, LogLevel logLevel = Info);</div>
 <div class="line"><a id="l00032" name="l00032"></a><span class="lineno">   32</span>    <span class="keyword">static</span> <span class="keywordtype">void</span> print(std::string content, LogLevel coutLevel = Info);</div>
 <div class="line"><a id="l00033" name="l00033"></a><span class="lineno">   33</span>    <span class="keyword">static</span> <span class="keywordtype">void</span> logAndPrint(std::string content, LogLevel logLevel = Info, LogLevel coutLevel = Info);</div>

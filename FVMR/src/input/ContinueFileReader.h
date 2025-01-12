@@ -13,6 +13,12 @@ class ContinueFileReader {
 	// 建议将reader writer合并 放进fileio文件夹 查询一下其他软件的目录组织
 
 public:
+	/*
+	* Read continue file starting with "pause_" <br>
+	* 寻找当前目录下是否有名为“pause_”的文件，若有，则读取，若无，则返回-1
+	* 必须返回一个值，如果返回-1，则尝试从头开始
+	* @return "0"-success "-1"-fail
+	*/
 	static int readContinueFile_1();
 	// 添加Ux Uy 目前用不到
 	static int readContinueFile_2_unused_addUxUy();

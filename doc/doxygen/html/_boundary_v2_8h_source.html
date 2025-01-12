@@ -90,23 +90,23 @@ $(document).ready(function() { init_codefold(0); });
 <div class="line"><a id="l00006" name="l00006"></a><span class="lineno">    6</span> </div>
 <div class="line"><a id="l00007" name="l00007"></a><span class="lineno">    7</span><span class="keyword">namespace </span>GPU {</div>
 <div class="line"><a id="l00008" name="l00008"></a><span class="lineno">    8</span>    <span class="comment">/*</span></div>
-<div class="line"><a id="l00009" name="l00009"></a><span class="lineno">    9</span><span class="comment">    µÚ2°æ±ß½ç</span></div>
+<div class="line"><a id="l00009" name="l00009"></a><span class="lineno">    9</span><span class="comment">    ç¬¬2ç‰ˆè¾¹ç•Œ</span></div>
 <div class="line"><a id="l00010" name="l00010"></a><span class="lineno">   10</span><span class="comment">    20240426</span></div>
 <div class="line"><a id="l00011" name="l00011"></a><span class="lineno">   11</span><span class="comment">    </span></div>
 <div class="line"><a id="l00012" name="l00012"></a><span class="lineno">   12</span><span class="comment">    */</span></div>
 <div class="foldopen" id="foldopen00013" data-start="{" data-end="};">
 <div class="line"><a id="l00013" name="l00013"></a><span class="lineno"><a class="line" href="struct_g_p_u_1_1_boundary_v2.html">   13</a></span>    <span class="keyword">struct </span><a class="code hl_struct" href="struct_g_p_u_1_1_boundary_v2.html">BoundaryV2</a> {</div>
-<div class="line"><a id="l00014" name="l00014"></a><span class="lineno">   14</span>        <span class="comment">// ÀàÄÚ¶¨Òå ±ß¼¯</span></div>
+<div class="line"><a id="l00014" name="l00014"></a><span class="lineno">   14</span>        <span class="comment">// ç±»å†…å®šä¹‰ è¾¹é›†</span></div>
 <div class="foldopen" id="foldopen00015" data-start="{" data-end="};">
 <div class="line"><a id="l00015" name="l00015"></a><span class="lineno"><a class="line" href="struct_g_p_u_1_1_boundary_v2_1_1_edge_set.html">   15</a></span>        <span class="keyword">struct </span><a class="code hl_struct" href="struct_g_p_u_1_1_boundary_v2_1_1_edge_set.html">EdgeSet</a> {</div>
-<div class="line"><a id="l00016" name="l00016"></a><span class="lineno">   16</span>            <span class="keywordtype">int</span> type = -1;<span class="comment">// ÀàĞÍ£¬³õÊ¼»¯Ê±¸ù¾İÃû³ÆÈ·¶¨</span></div>
-<div class="line"><a id="l00017" name="l00017"></a><span class="lineno">   17</span>            <span class="keywordtype">int</span> ID = -1;<span class="comment">// µÈÓÚÊı×éÖ¸±ê+1£¬Ä¬ÈÏÖµÊÇ-1¡£Îª¼æÈİ¾É°æ¶øÉèÖÃ£¬×îºÃ²»ÒªÊ¹ÓÃ£¬ÇëÖ±½ÓÓÃÊı×éÏÂ±ê·ÃÎÊ¡£</span></div>
-<div class="line"><a id="l00018" name="l00018"></a><span class="lineno">   18</span>            std::string name;<span class="comment">// Ãû³Æ£¬ÀıÈçfar, wall, foil</span></div>
-<div class="line"><a id="l00019" name="l00019"></a><span class="lineno">   19</span>            std::vector&lt;myint&gt; edge_vector;<span class="comment">// edge index£¬Êı×é£¬´æ´¢GPUID</span></div>
+<div class="line"><a id="l00016" name="l00016"></a><span class="lineno">   16</span>            <span class="keywordtype">int</span> type = -1;<span class="comment">// ç±»å‹ï¼Œåˆå§‹åŒ–æ—¶æ ¹æ®åç§°ç¡®å®š</span></div>
+<div class="line"><a id="l00017" name="l00017"></a><span class="lineno">   17</span>            <span class="keywordtype">int</span> ID = -1;<span class="comment">// ç­‰äºæ•°ç»„æŒ‡æ ‡+1ï¼Œé»˜è®¤å€¼æ˜¯-1ã€‚ä¸ºå…¼å®¹æ—§ç‰ˆè€Œè®¾ç½®ï¼Œæœ€å¥½ä¸è¦ä½¿ç”¨ï¼Œè¯·ç›´æ¥ç”¨æ•°ç»„ä¸‹æ ‡è®¿é—®ã€‚</span></div>
+<div class="line"><a id="l00018" name="l00018"></a><span class="lineno">   18</span>            std::string name;<span class="comment">// åç§°ï¼Œä¾‹å¦‚far, wall, foil</span></div>
+<div class="line"><a id="l00019" name="l00019"></a><span class="lineno">   19</span>            std::vector&lt;myint&gt; edge_vector;<span class="comment">// edge indexï¼Œæ•°ç»„ï¼Œå­˜å‚¨GPUID</span></div>
 <div class="line"><a id="l00020" name="l00020"></a><span class="lineno">   20</span>        };</div>
 </div>
 <div class="line"><a id="l00021" name="l00021"></a><span class="lineno">   21</span> </div>
-<div class="line"><a id="l00022" name="l00022"></a><span class="lineno">   22</span>        std::vector&lt;EdgeSet&gt; edgeSets;<span class="comment">// ±ß¼¯ºÏÊı×é</span></div>
+<div class="line"><a id="l00022" name="l00022"></a><span class="lineno">   22</span>        std::vector&lt;EdgeSet&gt; edgeSets;<span class="comment">// è¾¹é›†åˆæ•°ç»„</span></div>
 <div class="line"><a id="l00023" name="l00023"></a><span class="lineno">   23</span>    };</div>
 </div>
 <div class="line"><a id="l00024" name="l00024"></a><span class="lineno">   24</span>}</div>

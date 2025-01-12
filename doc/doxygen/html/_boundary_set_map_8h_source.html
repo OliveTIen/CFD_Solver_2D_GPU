@@ -89,7 +89,7 @@ $(document).ready(function() { init_codefold(0); });
 <div class="line"><a id="l00005" name="l00005"></a><span class="lineno">    5</span><span class="preprocessor">#include &quot;../Env.h&quot;</span></div>
 <div class="line"><a id="l00006" name="l00006"></a><span class="lineno">    6</span><span class="keyword">namespace </span>GPU {</div>
 <div class="line"><a id="l00007" name="l00007"></a><span class="lineno">    7</span>    <span class="comment">/*</span></div>
-<div class="line"><a id="l00008" name="l00008"></a><span class="lineno">    8</span><span class="comment">    ´æ´¢´Ó±ß½çIDµ½±ß½çÀàĞÍtypeµÄÓ³Éä¡£²»´æ´¢¾ßÌåÓĞÄÄĞ©edge</span></div>
+<div class="line"><a id="l00008" name="l00008"></a><span class="lineno">    8</span><span class="comment">    å­˜å‚¨ä»è¾¹ç•ŒIDåˆ°è¾¹ç•Œç±»å‹typeçš„æ˜ å°„ã€‚ä¸å­˜å‚¨å…·ä½“æœ‰å“ªäº›edge</span></div>
 <div class="line"><a id="l00009" name="l00009"></a><span class="lineno">    9</span><span class="comment">    */</span></div>
 <div class="foldopen" id="foldopen00010" data-start="{" data-end="};">
 <div class="line"><a id="l00010" name="l00010"></a><span class="lineno"><a class="line" href="struct_g_p_u_1_1_boundary_set_map.html">   10</a></span>    <span class="keyword">struct </span><a class="code hl_struct" href="struct_g_p_u_1_1_boundary_set_map.html">BoundarySetMap</a> {</div>
@@ -98,29 +98,29 @@ $(document).ready(function() { init_codefold(0); });
 <div class="line"><a id="l00013" name="l00013"></a><span class="lineno">   13</span> </div>
 <div class="line"><a id="l00014" name="l00014"></a><span class="lineno">   14</span>        myint* type = <span class="keyword">nullptr</span>;</div>
 <div class="line"><a id="l00015" name="l00015"></a><span class="lineno">   15</span> </div>
-<div class="line"><a id="l00016" name="l00016"></a><span class="lineno">   16</span>        <span class="comment">// ÒÔÏÂÁ½¸ö´ıÍê³É¡£´æ´¢¸÷¸ö±ß½çÓĞÄÄĞ©edge¡£±ãÓÚ±éÀú±ß½ç±ß£¬½ø¶ø»ı·ÖÆø¶¯Á¦</span></div>
+<div class="line"><a id="l00016" name="l00016"></a><span class="lineno">   16</span>        <span class="comment">// ä»¥ä¸‹ä¸¤ä¸ªå¾…å®Œæˆã€‚å­˜å‚¨å„ä¸ªè¾¹ç•Œæœ‰å“ªäº›edgeã€‚ä¾¿äºéå†è¾¹ç•Œè¾¹ï¼Œè¿›è€Œç§¯åˆ†æ°”åŠ¨åŠ›</span></div>
 <div class="line"><a id="l00017" name="l00017"></a><span class="lineno">   17</span>        <span class="comment">//myint* numOfEdge = nullptr;</span></div>
 <div class="line"><a id="l00018" name="l00018"></a><span class="lineno">   18</span>        <span class="comment">//myint** edge = nullptr;</span></div>
 <div class="line"><a id="l00019" name="l00019"></a><span class="lineno">   19</span> </div>
-<div class="line"><a id="l00020" name="l00020"></a><span class="lineno">   20</span>        <span class="comment">// Ö÷ÒªÊÇÈç¹ûÒªÓÃÖ¸Õë£¬´«²Î±È½ÏÂé·³£¬¼ÈÒª´«num of boundary set£¬ÓÖÒª´«Ã¿¸ösetµÄedgeµÄÊıÁ¿¡£µ«ÊÇ</span></div>
-<div class="line"><a id="l00021" name="l00021"></a><span class="lineno">   21</span>        <span class="comment">// ÎÒ²»ÏëÁ¢¿ÌÉêÇëedgeÊıÁ¿µÄÄÚ´æ£¬ÏëµÈµ½¸´ÖÆÊ±ÔÙ´«¡£</span></div>
-<div class="line"><a id="l00022" name="l00022"></a><span class="lineno">   22</span>        <span class="comment">// Ä¿Ç°µÄÍ×Ğ­·½Ê½ÊÇÏÈÓÃBoundaryManager_2D</span></div>
+<div class="line"><a id="l00020" name="l00020"></a><span class="lineno">   20</span>        <span class="comment">// ä¸»è¦æ˜¯å¦‚æœè¦ç”¨æŒ‡é’ˆï¼Œä¼ å‚æ¯”è¾ƒéº»çƒ¦ï¼Œæ—¢è¦ä¼ num of boundary setï¼Œåˆè¦ä¼ æ¯ä¸ªsetçš„edgeçš„æ•°é‡ã€‚ä½†æ˜¯</span></div>
+<div class="line"><a id="l00021" name="l00021"></a><span class="lineno">   21</span>        <span class="comment">// æˆ‘ä¸æƒ³ç«‹åˆ»ç”³è¯·edgeæ•°é‡çš„å†…å­˜ï¼Œæƒ³ç­‰åˆ°å¤åˆ¶æ—¶å†ä¼ ã€‚</span></div>
+<div class="line"><a id="l00022" name="l00022"></a><span class="lineno">   22</span>        <span class="comment">// ç›®å‰çš„å¦¥åæ–¹å¼æ˜¯å…ˆç”¨BoundaryManager_2D</span></div>
 <div class="line"><a id="l00023" name="l00023"></a><span class="lineno">   23</span> </div>
 <div class="line"><a id="l00024" name="l00024"></a><span class="lineno">   24</span>        <span class="comment">/*</span></div>
-<div class="line"><a id="l00025" name="l00025"></a><span class="lineno">   25</span><span class="comment">        ĞèÇó£º</span></div>
-<div class="line"><a id="l00026" name="l00026"></a><span class="lineno">   26</span><span class="comment">        BoundarySetMap´æ´¢std::vectorÊı×é</span></div>
+<div class="line"><a id="l00025" name="l00025"></a><span class="lineno">   25</span><span class="comment">        éœ€æ±‚ï¼š</span></div>
+<div class="line"><a id="l00026" name="l00026"></a><span class="lineno">   26</span><span class="comment">        BoundarySetMapå­˜å‚¨std::vectoræ•°ç»„</span></div>
 <div class="line"><a id="l00027" name="l00027"></a><span class="lineno">   27</span><span class="comment"></span> </div>
 <div class="line"><a id="l00028" name="l00028"></a><span class="lineno">   28</span><span class="comment"></span> </div>
-<div class="line"><a id="l00029" name="l00029"></a><span class="lineno">   29</span><span class="comment">        ÎÊÌâ£ºÈç¹ûÓÃstd::vector£¬¼ÆËãÍ¨Á¿Ê±£¬ÒÑÖªedge£¬ÈçºÎ»ñÈ¡ËùÊô±ß½çÀàĞÍ£¿</span></div>
-<div class="line"><a id="l00030" name="l00030"></a><span class="lineno">   30</span><span class="comment">        ´ğ°¸£ºÒÑ¾­ÔÚedge_hostÖĞ´æ´¢ÁËsetID£¬</span></div>
-<div class="line"><a id="l00031" name="l00031"></a><span class="lineno">   31</span><span class="comment">            ÏÈÓÃ²éÑ¯edge_host»ñÈ¡setID£º</span></div>
+<div class="line"><a id="l00029" name="l00029"></a><span class="lineno">   29</span><span class="comment">        é—®é¢˜ï¼šå¦‚æœç”¨std::vectorï¼Œè®¡ç®—é€šé‡æ—¶ï¼Œå·²çŸ¥edgeï¼Œå¦‚ä½•è·å–æ‰€å±è¾¹ç•Œç±»å‹ï¼Ÿ</span></div>
+<div class="line"><a id="l00030" name="l00030"></a><span class="lineno">   30</span><span class="comment">        ç­”æ¡ˆï¼šå·²ç»åœ¨edge_hostä¸­å­˜å‚¨äº†setIDï¼Œ</span></div>
+<div class="line"><a id="l00031" name="l00031"></a><span class="lineno">   31</span><span class="comment">            å…ˆç”¨æŸ¥è¯¢edge_hostè·å–setIDï¼š</span></div>
 <div class="line"><a id="l00032" name="l00032"></a><span class="lineno">   32</span><span class="comment">            int setID = edge_host.setID[iedge];</span></div>
-<div class="line"><a id="l00033" name="l00033"></a><span class="lineno">   33</span><span class="comment">            ÔÙÓÃsetID»ñÈ¡±ß½çÀàĞÍ£º</span></div>
+<div class="line"><a id="l00033" name="l00033"></a><span class="lineno">   33</span><span class="comment">            å†ç”¨setIDè·å–è¾¹ç•Œç±»å‹ï¼š</span></div>
 <div class="line"><a id="l00034" name="l00034"></a><span class="lineno">   34</span><span class="comment">            bType = f-&gt;boundaryManager.boundaries[setID - 1].type;</span></div>
 <div class="line"><a id="l00035" name="l00035"></a><span class="lineno">   35</span><span class="comment">        </span></div>
-<div class="line"><a id="l00036" name="l00036"></a><span class="lineno">   36</span><span class="comment">        ÎÊÌâ£ºÈç¹ûÓÃstd::vector£¬GPUÈçºÎ´«²Î£¿</span></div>
-<div class="line"><a id="l00037" name="l00037"></a><span class="lineno">   37</span><span class="comment">        ´ğ°¸£ºGPUÖĞ¿ÉÒÔÓÃthrust::vector</span></div>
-<div class="line"><a id="l00038" name="l00038"></a><span class="lineno">   38</span><span class="comment">            ÏÈ²»¹ÜGPU£¬Ö»ÓÃCPU</span></div>
+<div class="line"><a id="l00036" name="l00036"></a><span class="lineno">   36</span><span class="comment">        é—®é¢˜ï¼šå¦‚æœç”¨std::vectorï¼ŒGPUå¦‚ä½•ä¼ å‚ï¼Ÿ</span></div>
+<div class="line"><a id="l00037" name="l00037"></a><span class="lineno">   37</span><span class="comment">        ç­”æ¡ˆï¼šGPUä¸­å¯ä»¥ç”¨thrust::vector</span></div>
+<div class="line"><a id="l00038" name="l00038"></a><span class="lineno">   38</span><span class="comment">            å…ˆä¸ç®¡GPUï¼Œåªç”¨CPU</span></div>
 <div class="line"><a id="l00039" name="l00039"></a><span class="lineno">   39</span><span class="comment">        */</span></div>
 <div class="line"><a id="l00040" name="l00040"></a><span class="lineno">   40</span>    <span class="keyword">public</span>:</div>
 <div class="line"><a id="l00041" name="l00041"></a><span class="lineno">   41</span>        <span class="keywordtype">void</span> alloc(myint _size) {</div>

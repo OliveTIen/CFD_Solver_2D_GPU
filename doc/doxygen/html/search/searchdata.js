@@ -4,9 +4,10 @@ var indexSectionsWithContent =
   1: "abcdefghilmnoprstuvw",
   2: "g",
   3: "cmr",
-  4: "egiprsw",
-  5: "bp",
-  6: "df"
+  4: "egirsw",
+  5: "bes",
+  6: "s",
+  7: "df"
 };
 
 var indexSectionNames =
@@ -17,7 +18,8 @@ var indexSectionNames =
   3: "files",
   4: "functions",
   5: "variables",
-  6: "pages"
+  6: "enums",
+  7: "pages"
 };
 
 var indexSectionLabels =
@@ -28,6 +30,7 @@ var indexSectionLabels =
   3: "Files",
   4: "Functions",
   5: "Variables",
-  6: "Pages"
+  6: "Enumerations",
+  7: "Pages"
 };
 

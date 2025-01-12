@@ -109,7 +109,7 @@ $(document).ready(function() { init_codefold(0); });
 <div class="line"><a id="l00024" name="l00024"></a><span class="lineno">   24</span> </div>
 <div class="line"><a id="l00025" name="l00025"></a><span class="lineno">   25</span><span class="keyword">public</span>:</div>
 <div class="line"><a id="l00026" name="l00026"></a><span class="lineno">   26</span>    <a class="code hl_class" href="class_console_printer.html">ConsolePrinter</a>() { restoreCursorPosition(); }</div>
-<div class="line"><a id="l00027" name="l00027"></a><span class="lineno">   27</span>    <span class="comment">// ´æ´¢µ±Ç°¿ØÖÆÌ¨¹â±êÎ»ÖÃ¡£xÖá³¯ÓÒ£¬yÖá³¯ÏÂ</span></div>
+<div class="line"><a id="l00027" name="l00027"></a><span class="lineno">   27</span>    <span class="comment">// å­˜å‚¨å½“å‰æ§åˆ¶å°å…‰æ ‡ä½ç½®ã€‚xè½´æœå³ï¼Œyè½´æœä¸‹</span></div>
 <div class="line"><a id="l00028" name="l00028"></a><span class="lineno">   28</span>    <span class="keywordtype">void</span> restoreCursorPosition();</div>
 <div class="line"><a id="l00029" name="l00029"></a><span class="lineno">   29</span>    <span class="keywordtype">void</span> restoreClearStartPosition();</div>
 <div class="line"><a id="l00030" name="l00030"></a><span class="lineno">   30</span>    <span class="keywordtype">void</span> setClearStartPosition();</div>
@@ -124,25 +124,25 @@ $(document).ready(function() { init_codefold(0); });
 <div class="line"><a id="l00039" name="l00039"></a><span class="lineno">   39</span><span class="keyword">public</span>:</div>
 <div class="line"><a id="l00040" name="l00040"></a><span class="lineno">   40</span>    <span class="keyword">static</span> COORD getCursorPosition();</div>
 <div class="line"><a id="l00041" name="l00041"></a><span class="lineno">   41</span>    <span class="keyword">static</span> <span class="keywordtype">void</span> setCursorPosition(COORD pstn);</div>
-<div class="line"><a id="l00042" name="l00042"></a><span class="lineno">   42</span>    <span class="comment">// ´°¿Ú»º³åÇø´óĞ¡</span></div>
+<div class="line"><a id="l00042" name="l00042"></a><span class="lineno">   42</span>    <span class="comment">// çª—å£ç¼“å†²åŒºå¤§å°</span></div>
 <div class="line"><a id="l00043" name="l00043"></a><span class="lineno">   43</span>    <span class="keyword">static</span> COORD getScreenBufferSize();</div>
-<div class="line"><a id="l00044" name="l00044"></a><span class="lineno">   44</span>    <span class="comment">// ´òÓ¡³õÊ¼½çÃæ</span></div>
+<div class="line"><a id="l00044" name="l00044"></a><span class="lineno">   44</span>    <span class="comment">// æ‰“å°åˆå§‹ç•Œé¢</span></div>
 <div class="line"><a id="l00045" name="l00045"></a><span class="lineno">   45</span>    <span class="keyword">static</span> <span class="keywordtype">void</span> printHeader(HeaderStyle h);</div>
 <div class="line"><a id="l00046" name="l00046"></a><span class="lineno">   46</span>    <span class="comment">// ...</span></div>
 <div class="line"><a id="l00047" name="l00047"></a><span class="lineno">   47</span>    <span class="keyword">static</span> <span class="keywordtype">void</span> printGenshinStart();</div>
 <div class="line"><a id="l00048" name="l00048"></a><span class="lineno">   48</span>    <span class="keyword">static</span> <span class="keywordtype">void</span> drawProgressBar(myfloat value, myfloat maxValue, <span class="keywordtype">int</span> barLength = 45);</div>
-<div class="line"><a id="l00049" name="l00049"></a><span class="lineno">   49</span>    <span class="comment">// Çå³ıp1, p2Ö®¼äµÄ¿ØÖÆÌ¨ÄÚÈİ£¬¹â±ê²»±ä</span></div>
+<div class="line"><a id="l00049" name="l00049"></a><span class="lineno">   49</span>    <span class="comment">// æ¸…é™¤p1, p2ä¹‹é—´çš„æ§åˆ¶å°å†…å®¹ï¼Œå…‰æ ‡ä¸å˜</span></div>
 <div class="line"><a id="l00050" name="l00050"></a><span class="lineno">   50</span>    <span class="keyword">static</span> <span class="keywordtype">void</span> clearDisplay(COORD p1, COORD p2);</div>
 <div class="line"><a id="l00051" name="l00051"></a><span class="lineno">   51</span>    <span class="comment">// return solveInfo</span></div>
 <div class="line"><a id="l00052" name="l00052"></a><span class="lineno">   52</span>    std::string setSolveInfo(<span class="keywordtype">int</span> currentStep, <span class="keywordtype">int</span> endStep, <span class="keywordtype">int</span> numOfFile, myfloat usedTime, myfloat physicalTime, myfloat maxPhysicalTime, <span class="keyword">const</span> myfloat* residual_vector, myfloat CFL, <span class="keywordtype">double</span> mean_speed, <span class="keywordtype">double</span> pure_calculate_speed);</div>
 <div class="line"><a id="l00053" name="l00053"></a><span class="lineno">   53</span>    std::string getSolveInfo() { <span class="keywordflow">return</span> m_solveInfo; }</div>
-<div class="line"><a id="l00054" name="l00054"></a><span class="lineno">   54</span>    <span class="comment">// ´òÓ¡Çó½âĞÅÏ¢</span></div>
+<div class="line"><a id="l00054" name="l00054"></a><span class="lineno">   54</span>    <span class="comment">// æ‰“å°æ±‚è§£ä¿¡æ¯</span></div>
 <div class="line"><a id="l00055" name="l00055"></a><span class="lineno">   55</span>    <span class="keyword">static</span> <span class="keywordtype">void</span> printInfo(InfoType type);</div>
 <div class="line"><a id="l00056" name="l00056"></a><span class="lineno">   56</span>    <span class="keyword">static</span> myfloat getMeanSpeed(<span class="keywordtype">int</span> currentStep, <span class="keywordtype">int</span> startStep, myfloat usedTime);</div>
 <div class="line"><a id="l00057" name="l00057"></a><span class="lineno">   57</span> </div>
 <div class="line"><a id="l00058" name="l00058"></a><span class="lineno">   58</span> </div>
 <div class="line"><a id="l00059" name="l00059"></a><span class="lineno">   59</span><span class="keyword">private</span>:</div>
-<div class="line"><a id="l00060" name="l00060"></a><span class="lineno">   60</span>    <span class="comment">// »æÖÆ½ø¶ÈÌõ¡£0&lt;=percent&lt;=100</span></div>
+<div class="line"><a id="l00060" name="l00060"></a><span class="lineno">   60</span>    <span class="comment">// ç»˜åˆ¶è¿›åº¦æ¡ã€‚0&lt;=percent&lt;=100</span></div>
 <div class="line"><a id="l00061" name="l00061"></a><span class="lineno">   61</span>    <span class="keyword">static</span> <span class="keywordtype">void</span> m_drawProgressBar(myfloat percent, <span class="keywordtype">int</span> barLength);</div>
 <div class="line"><a id="l00062" name="l00062"></a><span class="lineno">   62</span>    </div>
 <div class="line"><a id="l00063" name="l00063"></a><span class="lineno">   63</span> </div>

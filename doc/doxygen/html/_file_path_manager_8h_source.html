@@ -90,7 +90,7 @@ $(document).ready(function() { init_codefold(0); });
 <div class="line"><a id="l00006" name="l00006"></a><span class="lineno">    6</span><span class="preprocessor">#include &lt;vector&gt;</span></div>
 <div class="foldopen" id="foldopen00007" data-start="{" data-end="};">
 <div class="line"><a id="l00007" name="l00007"></a><span class="lineno"><a class="line" href="class_file_path_manager.html">    7</a></span><span class="keyword">class </span><a class="code hl_class" href="class_file_path_manager.html">FilePathManager</a> {</div>
-<div class="line"><a id="l00008" name="l00008"></a><span class="lineno">    8</span><span class="comment">// µ¥ÀıÄ£Ê½Ê¹µÃÃ¿´ÎµÃµ½µÄÊÇÍ¬Ò»¸öÊµÀı¡£ËüµÄ×÷ÓÃÀàËÆ¾²Ì¬³ÉÔ±±äÁ¿</span></div>
+<div class="line"><a id="l00008" name="l00008"></a><span class="lineno">    8</span><span class="comment">// å•ä¾‹æ¨¡å¼ä½¿å¾—æ¯æ¬¡å¾—åˆ°çš„æ˜¯åŒä¸€ä¸ªå®ä¾‹ã€‚å®ƒçš„ä½œç”¨ç±»ä¼¼é™æ€æˆå‘˜å˜é‡</span></div>
 <div class="line"><a id="l00009" name="l00009"></a><span class="lineno">    9</span><span class="keyword">private</span>:</div>
 <div class="line"><a id="l00010" name="l00010"></a><span class="lineno">   10</span>    <span class="keyword">static</span> <a class="code hl_class" href="class_file_path_manager.html">FilePathManager</a>* class_pointer;</div>
 <div class="line"><a id="l00011" name="l00011"></a><span class="lineno">   11</span>    <span class="keywordtype">bool</span> if_initialized = <span class="keyword">false</span>;</div>
@@ -98,27 +98,27 @@ $(document).ready(function() { init_codefold(0); });
 <div class="line"><a id="l00013" name="l00013"></a><span class="lineno">   13</span>    std::string m_outputFolderName = <span class="stringliteral">&quot;&quot;</span>;</div>
 <div class="line"><a id="l00014" name="l00014"></a><span class="lineno">   14</span>    std::string m_TomlFileName = <span class="stringliteral">&quot;input.toml&quot;</span>;</div>
 <div class="line"><a id="l00015" name="l00015"></a><span class="lineno">   15</span> </div>
-<div class="line"><a id="l00016" name="l00016"></a><span class="lineno">   16</span>    std::string m_workingDirectory;<span class="comment">// µ±Ç°Ö´ĞĞÎÄ¼şËùÔÚµÄÄ¿Â¼ ÓĞĞ±¸Ü</span></div>
-<div class="line"><a id="l00017" name="l00017"></a><span class="lineno">   17</span>    std::string m_inputDirectory;<span class="comment">// ÊäÈëÎÄ¼şÄ¿Â¼</span></div>
-<div class="line"><a id="l00018" name="l00018"></a><span class="lineno">   18</span>    std::string m_outputDirectory;<span class="comment">// Êä³öÎÄ¼şÄ¿Â¼</span></div>
+<div class="line"><a id="l00016" name="l00016"></a><span class="lineno">   16</span>    std::string m_workingDirectory;<span class="comment">// å½“å‰æ‰§è¡Œæ–‡ä»¶æ‰€åœ¨çš„ç›®å½• æœ‰æ–œæ </span></div>
+<div class="line"><a id="l00017" name="l00017"></a><span class="lineno">   17</span>    std::string m_inputDirectory;<span class="comment">// è¾“å…¥æ–‡ä»¶ç›®å½•</span></div>
+<div class="line"><a id="l00018" name="l00018"></a><span class="lineno">   18</span>    std::string m_outputDirectory;<span class="comment">// è¾“å‡ºæ–‡ä»¶ç›®å½•</span></div>
 <div class="line"><a id="l00019" name="l00019"></a><span class="lineno">   19</span> </div>
 <div class="line"><a id="l00020" name="l00020"></a><span class="lineno">   20</span>    std::string m_tomlFilePath;</div>
 <div class="line"><a id="l00021" name="l00021"></a><span class="lineno">   21</span> </div>
 <div class="line"><a id="l00022" name="l00022"></a><span class="lineno">   22</span><span class="keyword">private</span>:</div>
-<div class="line"><a id="l00023" name="l00023"></a><span class="lineno">   23</span>    <a class="code hl_class" href="class_file_path_manager.html">FilePathManager</a>() { initialzeVariables(); };<span class="comment">// ¹¹Ôìº¯Êı£¬ÉèÎªË½ÓĞ£¬ÔÚµÚÒ»´Î»ñÈ¡ÊµÀıÊ±µ÷ÓÃ</span></div>
+<div class="line"><a id="l00023" name="l00023"></a><span class="lineno">   23</span>    <a class="code hl_class" href="class_file_path_manager.html">FilePathManager</a>() { initialzeVariables(); };<span class="comment">// æ„é€ å‡½æ•°ï¼Œè®¾ä¸ºç§æœ‰ï¼Œåœ¨ç¬¬ä¸€æ¬¡è·å–å®ä¾‹æ—¶è°ƒç”¨</span></div>
 <div class="line"><a id="l00024" name="l00024"></a><span class="lineno">   24</span>    <span class="keywordtype">void</span> initialzeVariables();</div>
 <div class="line"><a id="l00025" name="l00025"></a><span class="lineno">   25</span>    <span class="keywordtype">void</span> m_initializeWorkingDirectory();</div>
 <div class="line"><a id="l00026" name="l00026"></a><span class="lineno">   26</span>    <span class="keywordtype">void</span> createFolderIfDoesntExist(std::string foldername);</div>
 <div class="line"><a id="l00027" name="l00027"></a><span class="lineno">   27</span> </div>
 <div class="line"><a id="l00028" name="l00028"></a><span class="lineno">   28</span> </div>
 <div class="line"><a id="l00029" name="l00029"></a><span class="lineno">   29</span><span class="keyword">public</span>:</div>
-<div class="line"><a id="l00030" name="l00030"></a><span class="lineno">   30</span>    <span class="keyword">static</span> <a class="code hl_class" href="class_file_path_manager.html">FilePathManager</a>* getInstance();<span class="comment">// ½Ó¿Ú£¬»ñÈ¡µ¥ÀıÖ¸Õë</span></div>
+<div class="line"><a id="l00030" name="l00030"></a><span class="lineno">   30</span>    <span class="keyword">static</span> <a class="code hl_class" href="class_file_path_manager.html">FilePathManager</a>* getInstance();<span class="comment">// æ¥å£ï¼Œè·å–å•ä¾‹æŒ‡é’ˆ</span></div>
 <div class="line"><a id="l00031" name="l00031"></a><span class="lineno">   31</span> </div>
 <div class="line"><a id="l00032" name="l00032"></a><span class="lineno">   32</span>    std::string getWorkingDirectory(){ <span class="keywordflow">return</span> m_workingDirectory; }</div>
 <div class="line"><a id="l00033" name="l00033"></a><span class="lineno">   33</span>    std::string getInputDirectory() { <span class="keywordflow">return</span> m_inputDirectory; }</div>
 <div class="line"><a id="l00034" name="l00034"></a><span class="lineno">   34</span>    std::string getOutputDirectory() { <span class="keywordflow">return</span> m_outputDirectory; }</div>
 <div class="line"><a id="l00035" name="l00035"></a><span class="lineno">   35</span>    std::string getTomlFilePath();</div>
-<div class="line"><a id="l00036" name="l00036"></a><span class="lineno">   36</span>    <span class="comment">// ÁĞ¾ÙÎÄ¼şÃû³Æ£¬pathĞè¼Ó·´Ğ±¸Ü[todo]¸Ãº¯Êı½ö½öÁĞ³öÁËÄ¿Â¼ÏÂÎÄ¼ş£¬Ã»ÓĞÁĞ³ö×ÓÄ¿Â¼</span></div>
+<div class="line"><a id="l00036" name="l00036"></a><span class="lineno">   36</span>    <span class="comment">// åˆ—ä¸¾æ–‡ä»¶åç§°ï¼Œpathéœ€åŠ åæ–œæ [todo]è¯¥å‡½æ•°ä»…ä»…åˆ—å‡ºäº†ç›®å½•ä¸‹æ–‡ä»¶ï¼Œæ²¡æœ‰åˆ—å‡ºå­ç›®å½•</span></div>
 <div class="line"><a id="l00037" name="l00037"></a><span class="lineno">   37</span>    std::vector&lt;std::string&gt; getFiles(std::string path);</div>
 <div class="line"><a id="l00038" name="l00038"></a><span class="lineno">   38</span> </div>
 <div class="line"><a id="l00039" name="l00039"></a><span class="lineno">   39</span>};</div>

@@ -89,22 +89,22 @@ $(document).ready(function() { init_codefold(0); });
 <div class="line"><a id="l00005" name="l00005"></a><span class="lineno">    5</span><span class="preprocessor">#include &quot;Edge_2D.h&quot;</span></div>
 <div class="line"><a id="l00006" name="l00006"></a><span class="lineno">    6</span> </div>
 <div class="line"><a id="l00007" name="l00007"></a><span class="lineno">    7</span><span class="comment">/*</span></div>
-<div class="line"><a id="l00008" name="l00008"></a><span class="lineno">    8</span><span class="comment">¸ÃÀàµÄÄ¿µÄÊÇÍ¨¹ıpEdge¿ìËÙ²éÕÒpEdgeËùÊôµÄ±ß½çÀàĞÍ¡£</span></div>
-<div class="line"><a id="l00009" name="l00009"></a><span class="lineno">    9</span><span class="comment">²éÑ¯·½Ê½ÊÇÏÈ¸ù¾İpEdge²éÑ¯setID£¬ÔÙ¸ù¾İsetID²éÑ¯setµÄÀàĞÍ</span></div>
-<div class="line"><a id="l00010" name="l00010"></a><span class="lineno">   10</span><span class="comment">Ã¿¸öpEdge¶¼ÓĞÒ»¸ösetID£¬¼´ËùÊô±ß¼¯ºÏµÄID</span></div>
-<div class="line"><a id="l00011" name="l00011"></a><span class="lineno">   11</span><span class="comment">ËùÓĞ±ßµÄ¼¯ºÏÓÉ</span></div>
+<div class="line"><a id="l00008" name="l00008"></a><span class="lineno">    8</span><span class="comment">è¯¥ç±»çš„ç›®çš„æ˜¯é€šè¿‡pEdgeå¿«é€ŸæŸ¥æ‰¾pEdgeæ‰€å±çš„è¾¹ç•Œç±»å‹ã€‚</span></div>
+<div class="line"><a id="l00009" name="l00009"></a><span class="lineno">    9</span><span class="comment">æŸ¥è¯¢æ–¹å¼æ˜¯å…ˆæ ¹æ®pEdgeæŸ¥è¯¢setIDï¼Œå†æ ¹æ®setIDæŸ¥è¯¢setçš„ç±»å‹</span></div>
+<div class="line"><a id="l00010" name="l00010"></a><span class="lineno">   10</span><span class="comment">æ¯ä¸ªpEdgeéƒ½æœ‰ä¸€ä¸ªsetIDï¼Œå³æ‰€å±è¾¹é›†åˆçš„ID</span></div>
+<div class="line"><a id="l00011" name="l00011"></a><span class="lineno">   11</span><span class="comment">æ‰€æœ‰è¾¹çš„é›†åˆç”±</span></div>
 <div class="line"><a id="l00012" name="l00012"></a><span class="lineno">   12</span><span class="comment"></span> </div>
-<div class="line"><a id="l00013" name="l00013"></a><span class="lineno">   13</span><span class="comment">Ã÷È·¼¸¸ö¸ÅÄî£º</span></div>
-<div class="line"><a id="l00014" name="l00014"></a><span class="lineno">   14</span><span class="comment">Node ½Úµã£¬°üº¬×ø±êĞÅÏ¢</span></div>
-<div class="line"><a id="l00015" name="l00015"></a><span class="lineno">   15</span><span class="comment">Element µ¥Ôª£¬°üº¬½ÚµãID</span></div>
-<div class="line"><a id="l00016" name="l00016"></a><span class="lineno">   16</span><span class="comment">Edge µ¥ÔªµÄ±ß¡£ÈıÎ¬Çé¿öÎªÃæ</span></div>
-<div class="line"><a id="l00017" name="l00017"></a><span class="lineno">   17</span><span class="comment">Boundary ±ß½ç£¬°üº¬Ò»ÏµÁĞpEdge¡£Ïàµ±ÓÚ±ß¼¯ºÏEdgeSet</span></div>
+<div class="line"><a id="l00013" name="l00013"></a><span class="lineno">   13</span><span class="comment">æ˜ç¡®å‡ ä¸ªæ¦‚å¿µï¼š</span></div>
+<div class="line"><a id="l00014" name="l00014"></a><span class="lineno">   14</span><span class="comment">Node èŠ‚ç‚¹ï¼ŒåŒ…å«åæ ‡ä¿¡æ¯</span></div>
+<div class="line"><a id="l00015" name="l00015"></a><span class="lineno">   15</span><span class="comment">Element å•å…ƒï¼ŒåŒ…å«èŠ‚ç‚¹ID</span></div>
+<div class="line"><a id="l00016" name="l00016"></a><span class="lineno">   16</span><span class="comment">Edge å•å…ƒçš„è¾¹ã€‚ä¸‰ç»´æƒ…å†µä¸ºé¢</span></div>
+<div class="line"><a id="l00017" name="l00017"></a><span class="lineno">   17</span><span class="comment">Boundary è¾¹ç•Œï¼ŒåŒ…å«ä¸€ç³»åˆ—pEdgeã€‚ç›¸å½“äºè¾¹é›†åˆEdgeSet</span></div>
 <div class="line"><a id="l00018" name="l00018"></a><span class="lineno">   18</span><span class="comment"></span> </div>
 <div class="line"><a id="l00019" name="l00019"></a><span class="lineno">   19</span><span class="comment">*/</span></div>
 <div class="line"><a id="l00020" name="l00020"></a><span class="lineno">   20</span> </div>
 <div class="line"><a id="l00021" name="l00021"></a><span class="lineno">   21</span><span class="keyword">class </span><a class="code hl_class" href="class_f_v_m__2_d.html">FVM_2D</a>;</div>
 <div class="line"><a id="l00022" name="l00022"></a><span class="lineno">   22</span> </div>
-<div class="line"><a id="l00023" name="l00023"></a><span class="lineno">   23</span><span class="comment">//ĞéÄâ±ßµ¥Ôª¡£ÔÚ×î³õ¶ÁÈ¡inp±ß½çÔªÊ±×÷Îª»º´æ</span></div>
+<div class="line"><a id="l00023" name="l00023"></a><span class="lineno">   23</span><span class="comment">//è™šæ‹Ÿè¾¹å•å…ƒã€‚åœ¨æœ€åˆè¯»å–inpè¾¹ç•Œå…ƒæ—¶ä½œä¸ºç¼“å­˜</span></div>
 <div class="foldopen" id="foldopen00024" data-start="{" data-end="};">
 <div class="line"><a id="l00024" name="l00024"></a><span class="lineno"><a class="line" href="class_virtual_edge__2_d.html">   24</a></span><span class="keyword">class </span><a class="code hl_class" href="class_virtual_edge__2_d.html">VirtualEdge_2D</a> {</div>
 <div class="line"><a id="l00025" name="l00025"></a><span class="lineno">   25</span><span class="keyword">public</span>:</div>
@@ -112,26 +112,26 @@ $(document).ready(function() { init_codefold(0); });
 <div class="line"><a id="l00027" name="l00027"></a><span class="lineno">   27</span>};</div>
 </div>
 <div class="line"><a id="l00028" name="l00028"></a><span class="lineno">   28</span> </div>
-<div class="line"><a id="l00029" name="l00029"></a><span class="lineno">   29</span><span class="comment">// ĞéÄâ±ß½ç¼¯ºÏ£¬ÊÇ¶ÔÒ»Ìõ±ßµÄ³éÏó±íÊ¾</span></div>
+<div class="line"><a id="l00029" name="l00029"></a><span class="lineno">   29</span><span class="comment">// è™šæ‹Ÿè¾¹ç•Œé›†åˆï¼Œæ˜¯å¯¹ä¸€æ¡è¾¹çš„æŠ½è±¡è¡¨ç¤º</span></div>
 <div class="foldopen" id="foldopen00030" data-start="{" data-end="};">
 <div class="line"><a id="l00030" name="l00030"></a><span class="lineno"><a class="line" href="class_virtual_boundary_set__2_d.html">   30</a></span><span class="keyword">class </span><a class="code hl_class" href="class_virtual_boundary_set__2_d.html">VirtualBoundarySet_2D</a> {</div>
 <div class="line"><a id="l00031" name="l00031"></a><span class="lineno">   31</span><span class="keyword">public</span>:</div>
-<div class="line"><a id="l00032" name="l00032"></a><span class="lineno">   32</span>    <span class="keywordtype">int</span> ID = -1;     <span class="comment">// ´Ó1¿ªÊ¼¡£push_backÖ®Ç°×Ô¶¯¸³ID£¬µÈÓÚÊı×éÖ¸±ê+1¡£</span></div>
-<div class="line"><a id="l00033" name="l00033"></a><span class="lineno">   33</span>    std::string name;<span class="comment">// ĞèÒª±£Áô£¬ÒòÎªwriteContinueFileÖĞĞèÒªÊä³ö</span></div>
-<div class="line"><a id="l00034" name="l00034"></a><span class="lineno">   34</span>    <span class="keywordtype">int</span> type = -1;   <span class="comment">// ±ß½çÀàĞÍ ²Î¼ûhead.h _BC_xxx¡£ÓÉname·­Òë¶øÀ´</span></div>
+<div class="line"><a id="l00032" name="l00032"></a><span class="lineno">   32</span>    <span class="keywordtype">int</span> ID = -1;     <span class="comment">// ä»1å¼€å§‹ã€‚push_backä¹‹å‰è‡ªåŠ¨èµ‹IDï¼Œç­‰äºæ•°ç»„æŒ‡æ ‡+1ã€‚</span></div>
+<div class="line"><a id="l00033" name="l00033"></a><span class="lineno">   33</span>    std::string name;<span class="comment">// éœ€è¦ä¿ç•™ï¼Œå› ä¸ºwriteContinueFileä¸­éœ€è¦è¾“å‡º</span></div>
+<div class="line"><a id="l00034" name="l00034"></a><span class="lineno">   34</span>    <span class="keywordtype">int</span> type = -1;   <span class="comment">// è¾¹ç•Œç±»å‹ å‚è§head.h _BC_xxxã€‚ç”±nameç¿»è¯‘è€Œæ¥</span></div>
 <div class="line"><a id="l00035" name="l00035"></a><span class="lineno">   35</span>    </div>
-<div class="line"><a id="l00036" name="l00036"></a><span class="lineno">   36</span>    <span class="keywordtype">int</span> startID;     <span class="comment">// ÁÙÊ±±äÁ¿£¬½ö³õÊ¼»¯Ê±ÓĞÒâÒå</span></div>
-<div class="line"><a id="l00037" name="l00037"></a><span class="lineno">   37</span>    <span class="keywordtype">int</span> endID;       <span class="comment">// ÁÙÊ±±äÁ¿£¬½ö³õÊ¼»¯Ê±ÓĞÒâÒå</span></div>
+<div class="line"><a id="l00036" name="l00036"></a><span class="lineno">   36</span>    <span class="keywordtype">int</span> startID;     <span class="comment">// ä¸´æ—¶å˜é‡ï¼Œä»…åˆå§‹åŒ–æ—¶æœ‰æ„ä¹‰</span></div>
+<div class="line"><a id="l00037" name="l00037"></a><span class="lineno">   37</span>    <span class="keywordtype">int</span> endID;       <span class="comment">// ä¸´æ—¶å˜é‡ï¼Œä»…åˆå§‹åŒ–æ—¶æœ‰æ„ä¹‰</span></div>
 <div class="line"><a id="l00038" name="l00038"></a><span class="lineno">   38</span> </div>
 <div class="line"><a id="l00039" name="l00039"></a><span class="lineno">   39</span>    std::vector&lt;Edge_2D*&gt; pEdges;</div>
 <div class="line"><a id="l00040" name="l00040"></a><span class="lineno">   40</span> </div>
 <div class="line"><a id="l00041" name="l00041"></a><span class="lineno">   41</span><span class="keyword">public</span>:</div>
-<div class="line"><a id="l00042" name="l00042"></a><span class="lineno">   42</span>    <span class="comment">//²éÑ¯pEdgeÊÇ·ñÔÚpEdgesÖĞ£¬ÈôÊÇ£¬Ôò·µ»ØÖ¸±ê(´Ó0¿ªÊ¼)£¬·ñÔò·µ»Ø-1</span></div>
+<div class="line"><a id="l00042" name="l00042"></a><span class="lineno">   42</span>    <span class="comment">//æŸ¥è¯¢pEdgeæ˜¯å¦åœ¨pEdgesä¸­ï¼Œè‹¥æ˜¯ï¼Œåˆ™è¿”å›æŒ‡æ ‡(ä»0å¼€å§‹)ï¼Œå¦åˆ™è¿”å›-1</span></div>
 <div class="line"><a id="l00043" name="l00043"></a><span class="lineno">   43</span>    <span class="keywordtype">int</span> getEdgeIndex(<a class="code hl_class" href="class_edge__2_d.html">Edge_2D</a>* pEdge);</div>
 <div class="line"><a id="l00044" name="l00044"></a><span class="lineno">   44</span>};</div>
 </div>
 <div class="line"><a id="l00045" name="l00045"></a><span class="lineno">   45</span> </div>
-<div class="line"><a id="l00046" name="l00046"></a><span class="lineno">   46</span><span class="comment">// ±ß½ç¹ÜÀíÆ÷</span></div>
+<div class="line"><a id="l00046" name="l00046"></a><span class="lineno">   46</span><span class="comment">// è¾¹ç•Œç®¡ç†å™¨</span></div>
 <div class="foldopen" id="foldopen00047" data-start="{" data-end="};">
 <div class="line"><a id="l00047" name="l00047"></a><span class="lineno"><a class="line" href="class_boundary_manager__2_d.html">   47</a></span><span class="keyword">class </span><a class="code hl_class" href="class_boundary_manager__2_d.html">BoundaryManager_2D</a> {</div>
 <div class="line"><a id="l00048" name="l00048"></a><span class="lineno">   48</span><span class="keyword">public</span>:</div>
@@ -139,45 +139,45 @@ $(document).ready(function() { init_codefold(0); });
 <div class="line"><a id="l00049" name="l00049"></a><span class="lineno"><a class="line" href="struct_boundary_manager__2_d_1_1_period_pair.html">   49</a></span>    <span class="keyword">struct </span><a class="code hl_struct" href="struct_boundary_manager__2_d_1_1_period_pair.html">PeriodPair</a> {</div>
 <div class="line"><a id="l00050" name="l00050"></a><span class="lineno">   50</span>    <span class="keyword">public</span>:</div>
 <div class="line"><a id="l00051" name="l00051"></a><span class="lineno">   51</span>        <span class="keywordtype">int</span> bType = -1;</div>
-<div class="line"><a id="l00052" name="l00052"></a><span class="lineno">   52</span>        <span class="keywordtype">int</span> setID_0 = -1;<span class="comment">//´Ó1¿ªÊ¼</span></div>
+<div class="line"><a id="l00052" name="l00052"></a><span class="lineno">   52</span>        <span class="keywordtype">int</span> setID_0 = -1;<span class="comment">//ä»1å¼€å§‹</span></div>
 <div class="line"><a id="l00053" name="l00053"></a><span class="lineno">   53</span>        <span class="keywordtype">int</span> setID_1 = -1;</div>
 <div class="line"><a id="l00054" name="l00054"></a><span class="lineno">   54</span>    <span class="keyword">public</span>:</div>
 <div class="line"><a id="l00055" name="l00055"></a><span class="lineno">   55</span>        </div>
 <div class="line"><a id="l00056" name="l00056"></a><span class="lineno">   56</span>    };</div>
 </div>
 <div class="line"><a id="l00057" name="l00057"></a><span class="lineno">   57</span> </div>
-<div class="line"><a id="l00058" name="l00058"></a><span class="lineno">   58</span>    <span class="comment">// ±ß½ç¼¯ºÏÊı×é</span></div>
+<div class="line"><a id="l00058" name="l00058"></a><span class="lineno">   58</span>    <span class="comment">// è¾¹ç•Œé›†åˆæ•°ç»„</span></div>
 <div class="line"><a id="l00059" name="l00059"></a><span class="lineno">   59</span>    std::vector&lt;VirtualBoundarySet_2D&gt; boundaries;</div>
-<div class="line"><a id="l00060" name="l00060"></a><span class="lineno">   60</span>    <span class="comment">// ÖÜÆÚ±ß½çÊı×é</span></div>
-<div class="line"><a id="l00061" name="l00061"></a><span class="lineno">   61</span>    std::vector&lt;PeriodPair&gt; periodPairs;<span class="comment">//ÓÃÀ´¼ì²éÖÜÆÚ±ß½çÍêÕûĞÔ</span></div>
+<div class="line"><a id="l00060" name="l00060"></a><span class="lineno">   60</span>    <span class="comment">// å‘¨æœŸè¾¹ç•Œæ•°ç»„</span></div>
+<div class="line"><a id="l00061" name="l00061"></a><span class="lineno">   61</span>    std::vector&lt;PeriodPair&gt; periodPairs;<span class="comment">//ç”¨æ¥æ£€æŸ¥å‘¨æœŸè¾¹ç•Œå®Œæ•´æ€§</span></div>
 <div class="line"><a id="l00062" name="l00062"></a><span class="lineno">   62</span> </div>
 <div class="line"><a id="l00063" name="l00063"></a><span class="lineno">   63</span> </div>
 <div class="line"><a id="l00064" name="l00064"></a><span class="lineno">   64</span><span class="keyword">public</span>:</div>
-<div class="line"><a id="l00065" name="l00065"></a><span class="lineno">   65</span>    <span class="comment">//½«ints°´ÕÕÁ¬ĞøĞÔ·Ö¸î³ÉÈô¸ÉÊı×é¡£Êä³ö£º1Ê×£¬1Î²£¬2Ê×£¬2Î²£¬...</span></div>
+<div class="line"><a id="l00065" name="l00065"></a><span class="lineno">   65</span>    <span class="comment">//å°†intsæŒ‰ç…§è¿ç»­æ€§åˆ†å‰²æˆè‹¥å¹²æ•°ç»„ã€‚è¾“å‡ºï¼š1é¦–ï¼Œ1å°¾ï¼Œ2é¦–ï¼Œ2å°¾ï¼Œ...</span></div>
 <div class="line"><a id="l00066" name="l00066"></a><span class="lineno">   66</span>    <span class="keyword">static</span> std::vector&lt;int&gt; compressSeveralSequences(<span class="keyword">const</span> std::vector&lt;int&gt;&amp; ints);</div>
 <div class="line"><a id="l00067" name="l00067"></a><span class="lineno">   67</span> </div>
 <div class="line"><a id="l00068" name="l00068"></a><span class="lineno">   68</span>    <a class="code hl_class" href="class_virtual_boundary_set__2_d.html">VirtualBoundarySet_2D</a>* findSetByID(<span class="keywordtype">int</span> ID);</div>
-<div class="line"><a id="l00069" name="l00069"></a><span class="lineno">   69</span>    <span class="comment">//¸ù¾İBoundarySetµÄnameµÃµ½type£»¸ø±ß½çedge´òÉÏsetID±êÇ©</span></div>
+<div class="line"><a id="l00069" name="l00069"></a><span class="lineno">   69</span>    <span class="comment">//æ ¹æ®BoundarySetçš„nameå¾—åˆ°typeï¼›ç»™è¾¹ç•Œedgeæ‰“ä¸ŠsetIDæ ‡ç­¾</span></div>
 <div class="line"><a id="l00070" name="l00070"></a><span class="lineno">   70</span>    <span class="keywordtype">void</span> <a class="code hl_function" href="class_boundary_manager__2_d.html#ad008b593106499e64d147154907ba842">iniBoundaryEdgeSetID_and_iniBoundaryType</a>(<a class="code hl_class" href="class_f_v_m__2_d.html">FVM_2D</a>* f);</div>
-<div class="line"><a id="l00071" name="l00071"></a><span class="lineno">   71</span>    <span class="comment">//³õÊ¼»¯Ô¶³¡±ß½çµÄruvp</span></div>
+<div class="line"><a id="l00071" name="l00071"></a><span class="lineno">   71</span>    <span class="comment">//åˆå§‹åŒ–è¿œåœºè¾¹ç•Œçš„ruvp</span></div>
 <div class="line"><a id="l00072" name="l00072"></a><span class="lineno">   72</span>    <span class="keywordtype">void</span> ini_infBoundary_ruvp();</div>
-<div class="line"><a id="l00073" name="l00073"></a><span class="lineno">   73</span>    <span class="comment">//[debug]Ô¶³¡±ß½çµ¥ÔªÊØºãÁ¿Ç¿ÖÆ¸³Öµ 0-Ma,AOA 101-[debug]ÉèÖÃÌØ¶¨Öµ</span></div>
+<div class="line"><a id="l00073" name="l00073"></a><span class="lineno">   73</span>    <span class="comment">//[debug]è¿œåœºè¾¹ç•Œå•å…ƒå®ˆæ’é‡å¼ºåˆ¶èµ‹å€¼ 0-Ma,AOA 101-[debug]è®¾ç½®ç‰¹å®šå€¼</span></div>
 <div class="line"><a id="l00074" name="l00074"></a><span class="lineno">   74</span>    <span class="keywordtype">void</span> setBoundaryElementU(<span class="keywordtype">int</span> tag = 0);</div>
 <div class="line"><a id="l00075" name="l00075"></a><span class="lineno">   75</span> </div>
-<div class="line"><a id="l00076" name="l00076"></a><span class="lineno">   76</span>    <span class="comment">//¸ù¾İsetIDµÃµ½¶ÔÓ¦µÄ±ß½çÖ¸Õë</span></div>
+<div class="line"><a id="l00076" name="l00076"></a><span class="lineno">   76</span>    <span class="comment">//æ ¹æ®setIDå¾—åˆ°å¯¹åº”çš„è¾¹ç•ŒæŒ‡é’ˆ</span></div>
 <div class="line"><a id="l00077" name="l00077"></a><span class="lineno">   77</span>    <a class="code hl_class" href="class_virtual_boundary_set__2_d.html">VirtualBoundarySet_2D</a>* getBoundarySetByID(<span class="keyword">const</span> <span class="keywordtype">int</span> setID);</div>
 <div class="line"><a id="l00078" name="l00078"></a><span class="lineno">   78</span> </div>
-<div class="line"><a id="l00079" name="l00079"></a><span class="lineno">   79</span>    <span class="comment">//ÖÜÆÚ±ß½ç</span></div>
-<div class="line"><a id="l00080" name="l00080"></a><span class="lineno">   80</span>    <span class="comment">//¼ì²éÖÜÆÚ±ß½çÍêÕûĞÔ</span></div>
+<div class="line"><a id="l00079" name="l00079"></a><span class="lineno">   79</span>    <span class="comment">//å‘¨æœŸè¾¹ç•Œ</span></div>
+<div class="line"><a id="l00080" name="l00080"></a><span class="lineno">   80</span>    <span class="comment">//æ£€æŸ¥å‘¨æœŸè¾¹ç•Œå®Œæ•´æ€§</span></div>
 <div class="line"><a id="l00081" name="l00081"></a><span class="lineno">   81</span>    <span class="keywordtype">void</span> checkPeriodPairs();</div>
-<div class="line"><a id="l00082" name="l00082"></a><span class="lineno">   82</span>    <span class="comment">//ÕÒµ½ÓëÖ®Åä¶ÔµÄset¡£½öÏŞÓÚÖÜÆÚ±ß½ç</span></div>
+<div class="line"><a id="l00082" name="l00082"></a><span class="lineno">   82</span>    <span class="comment">//æ‰¾åˆ°ä¸ä¹‹é…å¯¹çš„setã€‚ä»…é™äºå‘¨æœŸè¾¹ç•Œ</span></div>
 <div class="line"><a id="l00083" name="l00083"></a><span class="lineno">   83</span>    <a class="code hl_class" href="class_virtual_boundary_set__2_d.html">VirtualBoundarySet_2D</a>* getPairByID_periodicBoundary(<span class="keyword">const</span> <span class="keywordtype">int</span> setID);</div>
-<div class="line"><a id="l00084" name="l00084"></a><span class="lineno">   84</span>    <span class="comment">//ÕÒµ½Ä³edgeµÄĞéÄâpElement_R¡£½öÏŞÓÚÖÜÆÚ±ß½ç</span></div>
+<div class="line"><a id="l00084" name="l00084"></a><span class="lineno">   84</span>    <span class="comment">//æ‰¾åˆ°æŸedgeçš„è™šæ‹ŸpElement_Rã€‚ä»…é™äºå‘¨æœŸè¾¹ç•Œ</span></div>
 <div class="line"><a id="l00085" name="l00085"></a><span class="lineno">   85</span>    <a class="code hl_class" href="class_element__2_d.html">Element_2D</a>* get_pElement_R_periodic(<a class="code hl_class" href="class_edge__2_d.html">Edge_2D</a>* pEdge);</div>
-<div class="line"><a id="l00086" name="l00086"></a><span class="lineno">   86</span>    <span class="comment">//ÕÒµ½Ä³edge¶ÔÓ¦µÄedge¡£½öÏŞÓÚÖÜÆÚ±ß½ç</span></div>
+<div class="line"><a id="l00086" name="l00086"></a><span class="lineno">   86</span>    <span class="comment">//æ‰¾åˆ°æŸedgeå¯¹åº”çš„edgeã€‚ä»…é™äºå‘¨æœŸè¾¹ç•Œ</span></div>
 <div class="line"><a id="l00087" name="l00087"></a><span class="lineno">   87</span>    <a class="code hl_class" href="class_edge__2_d.html">Edge_2D</a>* get_pairEdge_periodic(<a class="code hl_class" href="class_edge__2_d.html">Edge_2D</a>* pEdge);</div>
 <div class="line"><a id="l00088" name="l00088"></a><span class="lineno">   88</span> </div>
-<div class="line"><a id="l00089" name="l00089"></a><span class="lineno">   89</span>    <span class="comment">//ÕÒµ½×î´óºÍ×îĞ¡×ø±ê</span></div>
+<div class="line"><a id="l00089" name="l00089"></a><span class="lineno">   89</span>    <span class="comment">//æ‰¾åˆ°æœ€å¤§å’Œæœ€å°åæ ‡</span></div>
 <div class="line"><a id="l00090" name="l00090"></a><span class="lineno">   90</span>};</div>
 </div>
 <div class="line"><a id="l00091" name="l00091"></a><span class="lineno">   91</span> </div>
@@ -186,7 +186,7 @@ $(document).ready(function() { init_codefold(0); });
 <div class="ttc" id="aclass_boundary_manager__2_d_html_ad008b593106499e64d147154907ba842"><div class="ttname"><a href="class_boundary_manager__2_d.html#ad008b593106499e64d147154907ba842">BoundaryManager_2D::iniBoundaryEdgeSetID_and_iniBoundaryType</a></div><div class="ttdeci">void iniBoundaryEdgeSetID_and_iniBoundaryType(FVM_2D *f)</div><div class="ttdef"><b>Definition</b> BoundaryManager_2D.cpp:56</div></div>
 <div class="ttc" id="aclass_edge__2_d_html"><div class="ttname"><a href="class_edge__2_d.html">Edge_2D</a></div><div class="ttdef"><b>Definition</b> Edge_2D.h:9</div></div>
 <div class="ttc" id="aclass_element__2_d_html"><div class="ttname"><a href="class_element__2_d.html">Element_2D</a></div><div class="ttdef"><b>Definition</b> Element_2D.h:8</div></div>
-<div class="ttc" id="aclass_f_v_m__2_d_html"><div class="ttname"><a href="class_f_v_m__2_d.html">FVM_2D</a></div><div class="ttdef"><b>Definition</b> FVM_2D.h:17</div></div>
+<div class="ttc" id="aclass_f_v_m__2_d_html"><div class="ttname"><a href="class_f_v_m__2_d.html">FVM_2D</a></div><div class="ttdoc">As legacy code, this class serves as a temporary data struct for classes like SU2MeshReader to use  O...</div><div class="ttdef"><b>Definition</b> FVM_2D.h:25</div></div>
 <div class="ttc" id="aclass_virtual_boundary_set__2_d_html"><div class="ttname"><a href="class_virtual_boundary_set__2_d.html">VirtualBoundarySet_2D</a></div><div class="ttdef"><b>Definition</b> BoundaryManager_2D.h:30</div></div>
 <div class="ttc" id="aclass_virtual_edge__2_d_html"><div class="ttname"><a href="class_virtual_edge__2_d.html">VirtualEdge_2D</a></div><div class="ttdef"><b>Definition</b> BoundaryManager_2D.h:24</div></div>
 <div class="ttc" id="astruct_boundary_manager__2_d_1_1_period_pair_html"><div class="ttname"><a href="struct_boundary_manager__2_d_1_1_period_pair.html">BoundaryManager_2D::PeriodPair</a></div><div class="ttdef"><b>Definition</b> BoundaryManager_2D.h:49</div></div>

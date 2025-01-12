@@ -17,10 +17,6 @@ static void jointVectors(std::vector<int>& accepter, const std::vector<int>& giv
 }
 
 int ContinueFileReader::readContinueFile_1() {
-	/*
-	寻找当前目录下是否有名为“pause_”的文件，若有，则读取，若无，则返回-1
-	必须返回一个值，如果返回-1，则尝试从头开始
-	*/
 
 	FVM_2D* pFVM2D = FVM_2D::getInstance();
 

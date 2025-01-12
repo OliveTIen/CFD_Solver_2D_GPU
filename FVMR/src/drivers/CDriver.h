@@ -14,14 +14,11 @@ namespace U2NITS {
 	 * \brief 
 	 * Program routine controller. 
 	 * \details @ref CDriver::start controls the whole routine,
-	 * and @ref CDriver::gui controls the physics simulation scene.
-	 * 
+	 * and @ref CDriver::gui controls the physics simulation scene.<br>
+	 * TODO:<br>
+	 * to make it a game engine, it's suggested to attach the solver to a CudaGrid Object
 	 */
 	class CDriver {
-		/*
-		该类用于控制整个应用程序的流程
-		但未来如果要往引擎发展，需要以Scene为主体，把求解器挂载到Cudagrid Object上
-		*/
 	private:
 		static CDriver* pCDriver;
 		CInput input;
@@ -31,7 +28,7 @@ namespace U2NITS {
 		int m_last_istep = 0;
 		double m_last_t = 0.0;
 		double m_last_snapshot_time = 0.0;
-		double m_snapshot_cold_time = 1800.0;///< default 30min=1800s 保存快照的冷却时间[秒]，默认为30min=1800s
+		double m_snapshot_cold_time = 1800.0;///< cold time for snapshot, default 30 minutes
 
 	public:
 		enum PauseSignal {
@@ -41,21 +38,23 @@ namespace U2NITS {
 			_StableReached,
 			_NanDetected
 		};
+		/// <summary>
+		/// struct storing types of pause signals
+		/// </summary>
 		class SignalPack {
 		public:
-			bool b_writeContinue = false;///< 续算
-			bool b_writeTecplot = false;///< 流场
-			bool b_writeRecovery = false;///< [已弃用]因为不如保存续算文件，所以没用到
+			bool b_writeContinue = false;///< 
+			bool b_writeTecplot = false;///< 
+			bool b_writeRecovery = false;///< [unused]
 			bool b_nanDetected = false;
-			bool b_writeHist = false;///< 残差
-			bool b_print = false;///< 屏幕
-			PauseSignal pauseSignal = _NoSignal;///< 暂停信号
+			bool b_writeHist = false;///< hist file such as residual
+			bool b_print = false;///< 
+			PauseSignal pauseSignal = _NoSignal;///< 
 		};
 
-		// following parameters are read from "input.toml"
-		bool show_gui = true;
-		bool enable_print = true;
-		bool enable_write_file = true;
+		bool show_gui = true;///< Show graphic interface. Read from input.toml
+		bool enable_print = true;///< Enable console output. Read from input.toml
+		bool enable_write_file = true;///< Enable field file output (it doesn't affect log file). Read from input.toml
 
 		static CDriver* getInstance();
 		void start();///< \brief entry point

@@ -5,7 +5,7 @@
 class Element_2D;
 class FVM_2D;
 
-class Node_2D {
+struct Node_2D {
 public:
 	int ID = -1;
 	myfloat x = 0;
@@ -13,7 +13,6 @@ public:
 	std::vector<Element_2D*> neighborElements;//邻居单元。通常为3~7个
 
 	int GPUID = -1; //GPU编号
-
 };
 
 #endif

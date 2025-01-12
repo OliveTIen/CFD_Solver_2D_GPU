@@ -38,9 +38,15 @@ public:
 		fprintf(stderr, "GLFW Error %d: %s\n", error, description);
 	}
 	static void framebuffer_resize_callback(GLFWwindow* window, int width, int height);
+	/*
+	* called by glfwSetKeyCallback
+	*/
 	static void key_callback(GLFWwindow* window, int key, int scancode, int action, int mods);
 	static void mouse_callback(GLFWwindow* window, double xposIn, double yposIn);
 	static void scroll_callback(GLFWwindow* window, double xoffset, double yoffset);
+	/*
+	* callback function of mouse button pressing
+	*/
 	static void mouse_button_callback(GLFWwindow* window, int button, int action, int mods);
 	static void processInput(GLFWwindow* window);
 	static void setCurMousePos(float _xpos, float _ypos);

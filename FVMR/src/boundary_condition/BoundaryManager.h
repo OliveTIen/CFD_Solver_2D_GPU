@@ -3,7 +3,9 @@
 #include <string>
 namespace U2NITS {
 	/*
-	ÐÂBoundaryManager
+	* \class BoundaryManager
+	* \brief
+	* Convert boundary name to type
 	*/
 	class BoundaryManager {
 	private:
@@ -12,6 +14,10 @@ namespace U2NITS {
 
 	public:
 		static BoundaryManager* getInstance();
+		/*
+		* Convert boundary name to type
+		* @param name - boundary name
+		*/
 		static int boundaryNameToType(std::string name);
 
 	private:

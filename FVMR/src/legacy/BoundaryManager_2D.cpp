@@ -54,7 +54,11 @@ VirtualBoundarySet_2D* BoundaryManager_2D::findSetByID(int ID) {
 }
 
 void BoundaryManager_2D::iniBoundaryEdgeSetID_and_iniBoundaryType(FVM_2D* f) {
-	//函数目的：根据BoundarySet的name得到type；给边界edge打上setID标签
+	// 函数目的：
+	// get type from BoundarySet name 根据BoundarySet的name得到type
+	// set setID of boundary edges 给边界edge打上setID标签
+	// check integrity and correctness of periodic boundaries
+	//
 	
 	//检查f->edges是否已初始化
 	if (f->edges.size() == 0) {
@@ -62,7 +66,7 @@ void BoundaryManager_2D::iniBoundaryEdgeSetID_and_iniBoundaryType(FVM_2D* f) {
 		exit(-1);
 	}
 
-	//打标签
+	// set setID of boundary edges
 	for (int is = 0; is < boundaries.size(); is++) {
 		//边界类型赋给set的type，边界ID赋给edge的setID
 		int bType = U2NITS::BoundaryManager::boundaryNameToType(boundaries[is].name);
@@ -94,7 +98,8 @@ void BoundaryManager_2D::iniBoundaryEdgeSetID_and_iniBoundaryType(FVM_2D* f) {
 		}
 	}
 
-	//检查周期边界的正确性和完整性
+	// check integrity and correctness of periodic boundaries
+	// 检查周期边界的正确性和完整性
 	checkPeriodPairs();
 }
 

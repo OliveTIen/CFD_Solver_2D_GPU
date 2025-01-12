@@ -95,16 +95,16 @@ $(document).ready(function() { init_codefold(0); });
 <div class="line"><a id="l00010" name="l00010"></a><span class="lineno">   10</span> </div>
 <div class="foldopen" id="foldopen00011" data-start="{" data-end="};">
 <div class="line"><a id="l00011" name="l00011"></a><span class="lineno"><a class="line" href="struct_s_global_para_1_1_s_global_para_1_1_constant.html">   11</a></span>        <span class="keyword">struct </span><a class="code hl_struct" href="struct_s_global_para_1_1_s_global_para_1_1_constant.html">Constant</a> {</div>
-<div class="line"><a id="l00012" name="l00012"></a><span class="lineno">   12</span>            <span class="keywordtype">double</span> <span class="keyword">const</span> R = 287.06;<span class="comment">// ÆøÌå³£Êı</span></div>
+<div class="line"><a id="l00012" name="l00012"></a><span class="lineno">   12</span>            <span class="keywordtype">double</span> <span class="keyword">const</span> R = 287.06;<span class="comment">// æ°”ä½“å¸¸æ•°</span></div>
 <div class="line"><a id="l00013" name="l00013"></a><span class="lineno">   13</span>            <span class="keywordtype">double</span> <span class="keyword">const</span> PI = 3.1415926535897;</div>
-<div class="line"><a id="l00014" name="l00014"></a><span class="lineno">   14</span>            <span class="keywordtype">double</span> T0 = 288.16;<span class="comment">// º£Æ½ÃæÎÂ¶È²Î¿¼Öµ</span></div>
-<div class="line"><a id="l00015" name="l00015"></a><span class="lineno">   15</span>            <span class="keywordtype">double</span> p0 = 101325.0;<span class="comment">// º£Æ½ÃæÑ¹Á¦²Î¿¼Öµ</span></div>
-<div class="line"><a id="l00016" name="l00016"></a><span class="lineno">   16</span>            <span class="keywordtype">double</span> c0 = 340.28;<span class="comment">// º£Æ½ÃæÉùËÙ²Î¿¼Öµ</span></div>
+<div class="line"><a id="l00014" name="l00014"></a><span class="lineno">   14</span>            <span class="keywordtype">double</span> T0 = 288.16;<span class="comment">// æµ·å¹³é¢æ¸©åº¦å‚è€ƒå€¼</span></div>
+<div class="line"><a id="l00015" name="l00015"></a><span class="lineno">   15</span>            <span class="keywordtype">double</span> p0 = 101325.0;<span class="comment">// æµ·å¹³é¢å‹åŠ›å‚è€ƒå€¼</span></div>
+<div class="line"><a id="l00016" name="l00016"></a><span class="lineno">   16</span>            <span class="keywordtype">double</span> c0 = 340.28;<span class="comment">// æµ·å¹³é¢å£°é€Ÿå‚è€ƒå€¼</span></div>
 <div class="line"><a id="l00017" name="l00017"></a><span class="lineno">   17</span>            <span class="keywordtype">double</span> gamma = 1.4;</div>
 <div class="line"><a id="l00018" name="l00018"></a><span class="lineno">   18</span>            <span class="keywordtype">double</span> epsilon = 1e-7;</div>
 <div class="line"><a id="l00019" name="l00019"></a><span class="lineno">   19</span>            <span class="keywordtype">double</span> Re = 1.0e8;</div>
 <div class="line"><a id="l00020" name="l00020"></a><span class="lineno">   20</span>            <span class="keywordtype">double</span> Pr = 0.73;</div>
-<div class="line"><a id="l00021" name="l00021"></a><span class="lineno">   21</span>            <span class="keywordtype">double</span> mu = 17.9e-6;<span class="comment">// ¿ÕÆø¶¯Á¦Õ³ĞÔÏµÊı</span></div>
+<div class="line"><a id="l00021" name="l00021"></a><span class="lineno">   21</span>            <span class="keywordtype">double</span> mu = 17.9e-6;<span class="comment">// ç©ºæ°”åŠ¨åŠ›ç²˜æ€§ç³»æ•°</span></div>
 <div class="line"><a id="l00022" name="l00022"></a><span class="lineno">   22</span> </div>
 <div class="line"><a id="l00023" name="l00023"></a><span class="lineno">   23</span>            <span class="keywordtype">void</span> initialize(<span class="keywordtype">double</span> _T0, <span class="keywordtype">double</span> _p0, <span class="keywordtype">double</span> _c0, <span class="keywordtype">double</span> _gamma, <span class="keywordtype">double</span> _epsilon, <span class="keywordtype">double</span> _Re, <span class="keywordtype">double</span> _Pr, <span class="keywordtype">double</span> _mu) {</div>
 <div class="line"><a id="l00024" name="l00024"></a><span class="lineno">   24</span>                T0 = _T0;</div>
@@ -146,7 +146,7 @@ $(document).ready(function() { init_codefold(0); });
 <div class="line"><a id="l00054" name="l00054"></a><span class="lineno">   54</span>            <span class="keywordtype">double</span> residual = 1e-7;</div>
 <div class="line"><a id="l00055" name="l00055"></a><span class="lineno">   55</span>            <span class="keywordtype">int</span> time_advance = _EVO_explicit;</div>
 <div class="line"><a id="l00056" name="l00056"></a><span class="lineno">   56</span> </div>
-<div class="line"><a id="l00057" name="l00057"></a><span class="lineno">   57</span>            <span class="comment">// ÒÔÏÂÊı¾İ´ÓContinueFileÖĞ¶ÁÈ¡£¬²»ÊÇToml</span></div>
+<div class="line"><a id="l00057" name="l00057"></a><span class="lineno">   57</span>            <span class="comment">// ä»¥ä¸‹æ•°æ®ä»ContinueFileä¸­è¯»å–ï¼Œä¸æ˜¯Toml</span></div>
 <div class="line"><a id="l00058" name="l00058"></a><span class="lineno">   58</span>            <span class="keywordtype">double</span> t_previous = 0;</div>
 <div class="line"><a id="l00059" name="l00059"></a><span class="lineno">   59</span>            <span class="keywordtype">int</span> istep_previous = 0;</div>
 <div class="line"><a id="l00060" name="l00060"></a><span class="lineno">   60</span>        };</div>
@@ -162,7 +162,7 @@ $(document).ready(function() { init_codefold(0); });
 <div class="line"><a id="l00066" name="l00066"></a><span class="lineno"><a class="line" href="struct_s_global_para_1_1_s_global_para_1_1_single_b_c__2_d.html">   66</a></span>        <span class="keyword">struct </span><a class="code hl_struct" href="struct_s_global_para_1_1_s_global_para_1_1_single_b_c__2_d.html">SingleBC_2D</a> {</div>
 <div class="line"><a id="l00067" name="l00067"></a><span class="lineno">   67</span>            <span class="keywordtype">bool</span> use_ruvp = 0;</div>
 <div class="line"><a id="l00068" name="l00068"></a><span class="lineno">   68</span>            <span class="keywordtype">double</span> Ma = 0.8;</div>
-<div class="line"><a id="l00069" name="l00069"></a><span class="lineno">   69</span>            <span class="keywordtype">double</span> AOA = 1.25;<span class="comment">//Ó­½Ç</span></div>
+<div class="line"><a id="l00069" name="l00069"></a><span class="lineno">   69</span>            <span class="keywordtype">double</span> AOA = 1.25;<span class="comment">//è¿è§’</span></div>
 <div class="line"><a id="l00070" name="l00070"></a><span class="lineno">   70</span>            <span class="keywordtype">double</span> ruvp[4]{ 1,1,0,1 };</div>
 <div class="line"><a id="l00071" name="l00071"></a><span class="lineno">   71</span>        };</div>
 </div>
@@ -194,7 +194,7 @@ $(document).ready(function() { init_codefold(0); });
 <div class="line"><a id="l00091" name="l00091"></a><span class="lineno">   91</span> </div>
 <div class="foldopen" id="foldopen00092" data-start="{" data-end="};">
 <div class="line"><a id="l00092" name="l00092"></a><span class="lineno"><a class="line" href="struct_s_global_para_1_1_s_global_para_1_1_inviscid_flux_method.html">   92</a></span>        <span class="keyword">struct </span><a class="code hl_struct" href="struct_s_global_para_1_1_s_global_para_1_1_inviscid_flux_method.html">InviscidFluxMethod</a> {</div>
-<div class="line"><a id="l00093" name="l00093"></a><span class="lineno">   93</span>            <span class="keywordtype">int</span> flux_conservation_scheme = _SOL_Roe;<span class="comment">// ÀèÂüÇó½âÆ÷</span></div>
+<div class="line"><a id="l00093" name="l00093"></a><span class="lineno">   93</span>            <span class="keywordtype">int</span> flux_conservation_scheme = _SOL_Roe;<span class="comment">// é»æ›¼æ±‚è§£å™¨</span></div>
 <div class="line"><a id="l00094" name="l00094"></a><span class="lineno">   94</span>            <span class="keywordtype">int</span> flux_limiter = _LIM_minmod;</div>
 <div class="line"><a id="l00095" name="l00095"></a><span class="lineno">   95</span>        };</div>
 </div>

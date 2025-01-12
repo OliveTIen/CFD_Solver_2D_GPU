@@ -2,10 +2,24 @@
 #define SU2_MESH_READER
 #include <string>
 #include <vector>
+
+/**
+ * \class SU2MeshReader
+ * \brief
+ * Read su2 mesh and stores data into FVM_2D
+ * \details public member function @ref SU2MeshReader::read_mesh_and_process 
+ * is the interface.<br>
+ * TODO:<br>
+ * The problem is it's coupling with legacy FVM_2D, and after reading mesh the
+ * data stored in FVM_2D is unused but not freed, leading to memory waste.
+ */
 class SU2MeshReader {
 public:
 
-	// 状态。读取网格时，读取到某一位置，会有特定状态
+	/**
+	 * Status when reading mesh file.
+	 * It's like a state machine.
+	*/
 	enum State {
 		state_START,
 		state_NDIME,
@@ -17,14 +31,19 @@ public:
 		state_NMARK_data,
 	};
 
-	// 存储两个节点
+	/**
+	 * Stores two nodes
+	*/
 	class SimpleEdge {
 	public:
 		int nodeIDs[2]{-1,-1};
 		SimpleEdge() {};
 		SimpleEdge(int nodeID_1, int nodeID_2) { nodeIDs[0] = nodeID_1; nodeIDs[1] = nodeID_2; }
 	};
-	// 存储名称，以及边的节点
+
+	/**
+	 * Stores name and nodes of edges
+	*/
 	class SimpleBoundary {
 	public:
 		std::string name;
@@ -33,19 +52,37 @@ public:
 		SimpleBoundary() {}
 		SimpleBoundary(std::string name_) { name = name_; }
 		SimpleBoundary(const std::string& name, const std::vector<SimpleEdge>& edges)
-			: name(name), edges(edges) {
-		}
+			: name(name), edges(edges) {}
 	};
 
 public:
-	// readFile的拆分版，拆成两个子函数
+	/**
+	 * Read mesh, scale mesh, and process
+	 * @param filePath - file path.
+	 * @param convertRectToTriangle(bool) -  convert to triangle.
+	 * @return none
+	*/
 	static void read_mesh_and_process(std::string filePath, bool convertRectToTriangle);
-	// 读取网格文件
+
+private:
+	/**
+	 * Read su2 mesh file, including node indices, node coordinates, element indices, and element-node relations
+	 * @param filePath - file path.
+	 * @param tmp_boudaries - out param, storing boundaries.
+	 * @return none
+	*/
 	static void readMesh(std::string filePath, bool convertRectToTriangle, int& maxNodeID, int& maxElementID, std::vector<SimpleBoundary>& tmp_boudaries);
-	// 缩放网格坐标。应在process前调用
+	/**
+	 * Scale mesh node coordinates. Should called before process
+	 * @param factor - scale factor.
+	*/
 	static void scaleMesh(double factor);
+	/**
+	 * Initialize Edges, pNodeTable and so on, and initialize boundaries.
+	 * @param maxNodeID - max node ID.
+	 * @param maxElementID - max element ID.
+	*/
 	static void process(int maxNodeID, int maxElementID, std::vector<SimpleBoundary>&tmp_boudaries);
-	// 
 };
 
 #endif // !SU2_MESH_READER
